@@ -1,0 +1,52 @@
+---
+title: "Fishpond"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+author: "Anqi Zhu, Michael Love"
+output:
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+    toc_float: true
+vignette: |
+  %\VignetteIndexEntry{Fishpond}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!-- run this document with library(rmarkdown); render("fishpond.Rmd") -->
+
+```{r setup, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(tidy=FALSE, cache=TRUE,
+                      dev="png",
+                      message=FALSE, error=FALSE, warning=FALSE)
+```
+
+Here we use *tximport*, but eventually use *tximeta* to put
+inferential replicates into a *SummarizedExperiment*.
+
+```{r}
+library(tximport)
+library(tximportData)
+dir <- system.file("extdata/salmon_gibbs",package="tximportData")
+errs <- list.files(file.path(dir))
+files <- file.path(dir, errs, "quant.sf.gz")
+names(files) <- errs
+txi <- tximport(files, type="salmon", txOut=TRUE)
+```
+
+```{r}
+nreps <- ncol(txi$infReps[[1]])
+getCols <- function(i,l) do.call(cbind, lapply(seq_along(l), function(j)  l[[j]][,i]))
+infReps <- lapply(seq_len(nreps), getCols, txi$infReps)
+names(infReps) <- seq_len(nreps)
+suppressPackageStartupMessages(library(SummarizedExperiment))
+x <- SummarizedExperiment(assays=infReps)
+rownames(x) <- rownames(txi$abundance)
+colnames(x) <- colnames(txi$abundance)
+x$condition <- gl(2, 3)
+```
+
+```{r}
+x <- pond(x, "condition")
+hist(mcols(x)$stat[abs(mcols(x)$stat) < 5], col="grey", breaks=100)
+```
