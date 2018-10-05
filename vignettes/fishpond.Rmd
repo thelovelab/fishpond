@@ -40,13 +40,13 @@ getCols <- function(i,l) do.call(cbind, lapply(seq_along(l), function(j)  l[[j]]
 infReps <- lapply(seq_len(nreps), getCols, txi$infReps)
 names(infReps) <- seq_len(nreps)
 suppressPackageStartupMessages(library(SummarizedExperiment))
-x <- SummarizedExperiment(assays=infReps)
-rownames(x) <- rownames(txi$abundance)
-colnames(x) <- colnames(txi$abundance)
-x$condition <- gl(2, 3)
+y <- SummarizedExperiment(assays=infReps)
+rownames(y) <- rownames(txi$abundance)
+colnames(y) <- colnames(txi$abundance)
+y$condition <- gl(2, 3)
 ```
 
 ```{r}
-x <- pond(x, "condition")
-hist(mcols(x)$stat[abs(mcols(x)$stat) < 5], col="grey", breaks=100)
+y <- pond(y, "condition")
+hist(mcols(y)$stat[abs(mcols(y)$stat) < 5], col="grey", breaks=100)
 ```
