@@ -1,4 +1,4 @@
-pond <- function(y, x, c) {
+pool <- function(y, x, c) {
   rep.idx <- seq_along(assayNames(y))
   keep.mat <- sapply(rep.idx, function(i) rowSums(assays(y)[[i]] >= 10) >= 3)
   keep <- apply(keep.mat, 1, all)

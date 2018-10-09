@@ -47,6 +47,6 @@ y$condition <- gl(2, 3)
 ```
 
 ```{r}
-y <- pond(y, "condition")
+y <- pool(y, "condition")
 hist(mcols(y)$stat[abs(mcols(y)$stat) < 5], col="grey", breaks=100)
 ```
