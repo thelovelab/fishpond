@@ -26,16 +26,18 @@ inferential replicates into a *SummarizedExperiment*.
 
 ```{r}
 library(tximport)
-library(tximportData)
-dir <- system.file("extdata/salmon_gibbs",package="tximportData")
-errs <- list.files(file.path(dir))
-files <- file.path(dir, errs, "quant.sf.gz")
-names(files) <- errs
+dir <- "../../quants"
+subdir <- rep(c("bias","unif"), each=12)
+names <- rep(as.vector(t(outer(1:6,1:2,function(x,y) paste0(x,"_",y)))),2)
+files <- file.path(dir, subdir, names, "quant.sf")
+all(file.exists(files))
+names(files) <- names
 txi <- tximport(files, type="salmon", txOut=TRUE)
 ```
 
 ```{r}
 nreps <- ncol(txi$infReps[[1]])
+all(sapply(txi$infReps, ncol) == nreps)
 getCols <- function(i,l) do.call(cbind, lapply(seq_along(l), function(j)  l[[j]][,i]))
 infReps <- lapply(seq_len(nreps), getCols, txi$infReps)
 names(infReps) <- seq_len(nreps)
@@ -43,10 +45,11 @@ suppressPackageStartupMessages(library(SummarizedExperiment))
 y <- SummarizedExperiment(assays=infReps)
 rownames(y) <- rownames(txi$abundance)
 colnames(y) <- colnames(txi$abundance)
-y$condition <- gl(2, 3)
+y$condition <- factor(sub(".*_(.)","\\1",colnames(y)))
+y$batch <- factor(rep(1:2,each=12))
 ```
 
 ```{r}
 y <- pool(y, "condition")
-hist(mcols(y)$stat[abs(mcols(y)$stat) < 5], col="grey", breaks=100)
+hist(mcols(y)$stat[abs(mcols(y)$stat) < 6], col="grey", breaks=100)
 ```
