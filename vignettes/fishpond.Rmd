@@ -38,18 +38,24 @@ txi <- tximport(files, type="salmon", txOut=TRUE)
 ```{r}
 nreps <- ncol(txi$infReps[[1]])
 all(sapply(txi$infReps, ncol) == nreps)
-getCols <- function(i,l) do.call(cbind, lapply(seq_along(l), function(j)  l[[j]][,i]))
+getCols <- function(j,l) do.call(cbind, lapply(seq_along(l), function(k)  l[[k]][,j]))
 infReps <- lapply(seq_len(nreps), getCols, txi$infReps)
 names(infReps) <- seq_len(nreps)
+meanDepth <- exp(mean(log(colSums(txi$counts))))
+infRepsAbund <- medianRatioScaledTPM(infReps, txi$length, meanDepth)
+```
+
+```{r}
 suppressPackageStartupMessages(library(SummarizedExperiment))
-y <- SummarizedExperiment(assays=infReps)
-rownames(y) <- rownames(txi$abundance)
-colnames(y) <- colnames(txi$abundance)
+y <- SummarizedExperiment(assays=infRepsAbund)
 y$condition <- factor(sub(".*_(.)","\\1",colnames(y)))
 y$batch <- factor(rep(1:2,each=12))
 ```
 
 ```{r}
-y <- pool(y, "condition")
-hist(mcols(y)$stat[abs(mcols(y)$stat) < 6], col="grey", breaks=100)
+y <- pool(y, "condition", "batch")
+```
+
+```{r}
+y <- soggy(y, "condition")
 ```
