@@ -25,14 +25,16 @@ Here we use *tximport*, but eventually use *tximeta* to put
 inferential replicates into a *SummarizedExperiment*.
 
 ```{r}
-library(tximport)
+library(tximeta)
 dir <- "../../quants"
 subdir <- rep(c("bias","unif"), each=12)
 names <- rep(as.vector(t(outer(1:6,1:2,function(x,y) paste0(x,"_",y)))),2)
 files <- file.path(dir, subdir, names, "quant.sf")
 all(file.exists(files))
-names(files) <- names
-txi <- tximport(files, type="salmon", txOut=TRUE)
+condition <- factor(sub(".*_(.)","\\1",names))
+batch <- factor(rep(1:2,each=12))
+coldata <- data.frame(files, names, condition, batch)
+txi <- tximeta(coldata, skipMeta=TRUE, txOut=TRUE)
 ```
 
 ```{r}
@@ -48,8 +50,7 @@ infRepsAbund <- medianRatioScaledTPM(infReps, txi$length, meanDepth)
 ```{r}
 suppressPackageStartupMessages(library(SummarizedExperiment))
 y <- SummarizedExperiment(assays=infRepsAbund)
-y$condition <- factor(sub(".*_(.)","\\1",colnames(y)))
-y$batch <- factor(rep(1:2,each=12))
+
 ```
 
 ```{r}
