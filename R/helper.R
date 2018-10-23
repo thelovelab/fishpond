@@ -29,8 +29,11 @@ preprocess <- function(y) {
   y
 }
 
-postprocess <- function(y, stat) {
-  mcols(y)$stat <- numeric(nrow(y))
-  mcols(y)$stat[mcols(y)$keep] <- stat
-  mcols(y)$stat[!mcols(y)$keep] <- NA
+postprocess <- function(y, df) {
+  for (stat in names(df)) {
+    mcols(y)[[stat]] <- numeric(nrow(y))
+    mcols(y)[[stat]][mcols(y)$keep] <- df[[stat]]
+    mcols(y)[[stat]][!mcols(y)$keep] <- NA
+  }
+  y
 }

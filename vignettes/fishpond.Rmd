@@ -45,13 +45,22 @@ infRepsAbund <- medianRatioScaledTPM(infReps, assays(se)[["length"]], meanDepth)
 ```
 
 ```{r}
-y <- SummarizedExperiment(assays=infRepsAbund)
+y <- SummarizedExperiment(assays=infRepsAbund, colData=colData(se))
+y <- preprocess(y)
+y <- y[mcols(y)$keep,] # prefiltering
+save(y, file="y.rda") # 160 Mb
 ```
 
 ```{r}
-y <- pool(y, "condition", "batch")
+y <- soggy(y, x="condition")
 ```
 
 ```{r}
-y <- soggy(y, "condition")
+y <- swamp(y, x="condition", cov="batch")
 ```
+
+```{r}
+# this is too slow, likely won't pursue this implementation
+#y <- pool(y, x="condition", cov="batch")
+```
+
