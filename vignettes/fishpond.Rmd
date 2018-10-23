@@ -26,6 +26,7 @@ inferential replicates into a *SummarizedExperiment*.
 
 ```{r}
 library(tximeta)
+suppressPackageStartupMessages(library(SummarizedExperiment))
 dir <- "../../quants"
 subdir <- rep(c("bias","unif"), each=12)
 names <- rep(as.vector(t(outer(1:6,1:2,function(x,y) paste0(x,"_",y)))),2)
@@ -34,23 +35,17 @@ all(file.exists(files))
 condition <- factor(sub(".*_(.)","\\1",names))
 batch <- factor(rep(1:2,each=12))
 coldata <- data.frame(files, names, condition, batch)
-txi <- tximeta(coldata, skipMeta=TRUE, txOut=TRUE)
+se <- tximeta(coldata)
 ```
 
 ```{r}
-nreps <- ncol(txi$infReps[[1]])
-all(sapply(txi$infReps, ncol) == nreps)
-getCols <- function(j,l) do.call(cbind, lapply(seq_along(l), function(k)  l[[k]][,j]))
-infReps <- lapply(seq_len(nreps), getCols, txi$infReps)
-names(infReps) <- seq_len(nreps)
-meanDepth <- exp(mean(log(colSums(txi$counts))))
-infRepsAbund <- medianRatioScaledTPM(infReps, txi$length, meanDepth)
+meanDepth <- exp(mean(log(colSums(assays(se)[["counts"]]))))
+infReps <- assays(se)[grep("infRep",assayNames(se))]
+infRepsAbund <- medianRatioScaledTPM(infReps, assays(se)[["length"]], meanDepth)
 ```
 
 ```{r}
-suppressPackageStartupMessages(library(SummarizedExperiment))
 y <- SummarizedExperiment(assays=infRepsAbund)
-
 ```
 
 ```{r}
