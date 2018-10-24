@@ -26,6 +26,7 @@ soggy <- function(y, x, nperms=5) {
   resamp <- abind::abind(as.list(assays(ys)), along=3)
   # rename 'x' to make it more clear
   condition <- colData(y)[[x]] 
+
   stat <- getSamStat(resamp, condition)
   perms <- samr:::getperms(condition, nperms)
   nulls <- matrix(nrow=nrow(ys), ncol=nperms)
@@ -35,28 +36,15 @@ soggy <- function(y, x, nperms=5) {
   }
   nulls.vec <- as.vector(nulls)
   pi0 <- estimatePi0(stat, nulls.vec)
-  samr.const.twoclass.unpaired.response <- "Two class unpaired"
-  samr.obj <- list(
-    resp.type=samr.const.twoclass.unpaired.response,
-    tt=stat,
-    ttstar0=nulls,
-    foldchange.star=sign(stat),
-    evo=sign(stat),
-    pi0=pi0,
-    assay.type="seq")
-  delta.table <- samr:::samr.compute.delta.table(samr.obj)
-  sig <- list(pup=which(stat >= 0), plo=which(stat < 0))
-  qlist <- samr:::qvalue.func(samr.obj, sig, delta.table)
-  qvalue <- numeric(length(stat))
-  qvalue[stat >= 0] <- qlist$qvalue.up/100
-  qvalue[stat < 0] <- qlist$qvalue.lo/100
-  qvalue <- pmin(qvalue, 1)
+  qvalue <- makeQvalue(stat, nulls, pi0)
+  
   #par(mar=c(5,5,2,5))
   #hist(stat, breaks=100, col="grey", freq=FALSE)
-  #d <- density(as.vector(nulls))
+  #d <- density(nulls.vec))
   #lines(d$x, pi0*d$y, col="blue", lwd=3)
-  #lines(sort(stat), qvalues[order(stat)] * .03, col="red", lwd=3)
+  #lines(sort(stat), qvalue[order(stat)] * .03, col="red", lwd=3)
   #axis(4, c(0,.015,.03), c(0,.5,1))
+  
   df <- data.frame(stat, qvalue)
   y <- postprocess(y, df)
   y
@@ -76,4 +64,24 @@ estimatePi0 <- function(stat, nulls.vec) {
   # modified from samr::samr
   qq <- quantile(nulls.vec, c(0.25, 0.75))
   sum(stat > qq[1] & stat < qq[2])/(0.5 * length(stat))
+}
+
+makeQvalue <- function(stat, nulls, pi0) {
+  samr.const.twoclass.unpaired.response <- "Two class unpaired"
+  samr.obj <- list(
+    resp.type=samr.const.twoclass.unpaired.response,
+    tt=stat,
+    ttstar0=nulls,
+    foldchange.star=sign(stat),
+    evo=sign(stat),
+    pi0=pi0,
+    assay.type="seq")
+  delta.table <- samr:::samr.compute.delta.table(samr.obj)
+  sig <- list(pup=which(stat >= 0), plo=which(stat < 0))
+  qlist <- samr:::qvalue.func(samr.obj, sig, delta.table)
+  qvalue <- numeric(length(stat))
+  qvalue[stat >= 0] <- qlist$qvalue.up/100
+  qvalue[stat < 0] <- qlist$qvalue.lo/100
+  qvalue <- pmin(qvalue, 1)
+  qvalue
 }

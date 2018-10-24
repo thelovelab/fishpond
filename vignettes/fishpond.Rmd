@@ -48,7 +48,8 @@ infRepsAbund <- medianRatioScaledTPM(infReps, assays(se)[["length"]], meanDepth)
 y <- SummarizedExperiment(assays=infRepsAbund, colData=colData(se))
 y <- preprocess(y)
 y <- y[mcols(y)$keep,] # prefiltering
-save(y, file="y.rda") # 160 Mb
+#save(y, file="y.rda") # 160 Mb
+load("y.rda")
 ```
 
 ```{r}

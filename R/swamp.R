@@ -30,11 +30,39 @@ swamp <- function(y, x, cov, nperms=5) {
   covariate <- colData(y)[[cov]]
 
   ngroups <- nlevels(covariate)
-  #for (g in seq_len(ngroups)) {
-  #...
+  groups <- levels(covariate)
+  stats <- matrix(nrow=nrow(ys), ncol=ngroups)
+  nulls.big <- array(dim=list(nrow(ys), nperms, ngroups))
+  for (i in seq_len(ngroups)) {
+    g <- groups[i]
+    resamp.sub <- resamp[,covariate == g,]
+    cond.sub <- condition[covariate == g]
+    stats[,i] <- getSamStat(resamp.sub, cond.sub)
+    perms <- samr:::getperms(cond.sub, nperms)
+    for (p in seq_len(nperms)) {
+      cat(p, "")
+      nulls.big[,p,i] <- getSamStat(resamp.sub, cond.sub[perms$perms[p,]])
+    }
+  }
+  ns <- unname(table(covariate))
+  wts <- 1/(ns + 1)
+  stat <- as.vector(stats %*% wts)
+  nulls <- matrix(nrow=nrow(ys), ncol=nperms)
+  for (p in seq_len(nperms)) {
+    nulls[,p] <- nulls.big[,p,] %*% wts
+  }
+  nulls.vec <- as.vector(nulls)
+  pi0 <- estimatePi0(stat, nulls.vec)
+  qvalue <- makeQvalue(stat, nulls, pi0)
+
+  ## par(mar=c(5,5,2,5))
+  ## hist(stat, breaks=100, col="grey", freq=FALSE)
+  ## d <- density(nulls.vec)
+  ## lines(d$x, pi0*d$y, col="blue", lwd=3)
+  ## lines(sort(stat), qvalue[order(stat)] * 1, col="red", lwd=3)
+  ## axis(4, c(0,.5,1), c(0,.5,1))
   
   df <- data.frame(stat, qvalue)
   y <- postprocess(y, df)
   y
 }
-
