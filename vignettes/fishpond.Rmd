@@ -54,7 +54,7 @@ load("y.rda")
 ```
 
 ```{r}
-y <- soggy(y, x="condition")
+y <- swig(y, x="condition")
 ```
 
 ```{r}

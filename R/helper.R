@@ -26,6 +26,7 @@ preprocess <- function(y) {
   }
   keep <- apply(keep.mat, 1, all)
   mcols(y)$keep <- keep
+  metadata(y)$preprocessed <- TRUE
   y
 }
 

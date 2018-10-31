@@ -20,7 +20,6 @@
 swamp <- function(y, x, cov, nperms=5) {
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- preprocess(y)
-    metadata(y)$preprocessed <- TRUE
   }
   ys <- y[mcols(y)$keep,]
   # rename 'y' to make it more clear

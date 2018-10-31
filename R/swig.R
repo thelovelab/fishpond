@@ -1,4 +1,4 @@
-#' soggy: SAMseq on Gibbs-generated y
+#' swig: SAMseq with Gibbs samples
 #'
 #' @param y a SummarizedExperiment containing the inferential replicate
 #' matrices of median-ratio-scaled TPM as assays
@@ -16,10 +16,9 @@
 #' in RNA-Seq data" Stat Methods Med Res (2013).
 #' 
 #' @export
-soggy <- function(y, x, nperms=5) {
+swig <- function(y, x, nperms=5) {
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- preprocess(y)
-    metadata(y)$preprocessed <- TRUE
   }
   ys <- y[mcols(y)$keep,]
   # rename 'y' to make it more clear
