@@ -1,4 +1,4 @@
-#' swig: SAMseq with Gibbs samples
+#' swish: SAMseq with Gibbs Samples, Hooray!
 #'
 #' @param y a SummarizedExperiment containing the inferential replicate
 #' matrices of median-ratio-scaled TPM as assays
@@ -16,7 +16,7 @@
 #' in RNA-Seq data" Stat Methods Med Res (2013).
 #' 
 #' @export
-swig <- function(y, x, nperms=5) {
+swish <- function(y, x, nperms=5) {
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- preprocess(y)
   }

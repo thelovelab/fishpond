@@ -54,7 +54,7 @@ load("y.rda")
 ```
 
 ```{r}
-y <- swig(y, x="condition")
+y <- swish(y, x="condition")
 ```
 
 ```{r}
