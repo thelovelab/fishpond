@@ -23,7 +23,7 @@ swamp <- function(y, x, cov, nperms=5) {
   }
   ys <- y[mcols(y)$keep,]
   # rename 'y' to make it more clear
-  resamp <- abind::abind(as.list(assays(ys)), along=3)
+  infRepsArray <- abind::abind(as.list(assays(ys)), along=3)
   # rename 'x' to make it more clear
   condition <- colData(y)[[x]]
   covariate <- colData(y)[[cov]]
@@ -34,13 +34,13 @@ swamp <- function(y, x, cov, nperms=5) {
   nulls.big <- array(dim=list(nrow(ys), nperms, ngroups))
   for (i in seq_len(ngroups)) {
     g <- groups[i]
-    resamp.sub <- resamp[,covariate == g,]
+    infRepsArray.sub <- infRepsArray[,covariate == g,]
     cond.sub <- condition[covariate == g]
-    stats[,i] <- getSamStat(resamp.sub, cond.sub)
+    stats[,i] <- getSamStat(infRepsArray.sub, cond.sub)
     perms <- samr:::getperms(cond.sub, nperms)
     for (p in seq_len(nperms)) {
       cat(p, "")
-      nulls.big[,p,i] <- getSamStat(resamp.sub, cond.sub[perms$perms[p,]])
+      nulls.big[,p,i] <- getSamStat(infRepsArray.sub, cond.sub[perms$perms[p,]])
     }
   }
   ns <- unname(table(covariate))

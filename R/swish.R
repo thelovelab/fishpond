@@ -22,16 +22,16 @@ swish <- function(y, x, nperms=5) {
   }
   ys <- y[mcols(y)$keep,]
   # rename 'y' to make it more clear
-  resamp <- abind::abind(as.list(assays(ys)), along=3)
+  infRepsArray <- abind::abind(as.list(assays(ys)), along=3)
   # rename 'x' to make it more clear
   condition <- colData(y)[[x]] 
 
-  stat <- getSamStat(resamp, condition)
+  stat <- getSamStat(infRepsArray, condition)
   perms <- samr:::getperms(condition, nperms)
   nulls <- matrix(nrow=nrow(ys), ncol=nperms)
   for (p in seq_len(nperms)) {
     cat(p, "")
-    nulls[,p] <- getSamStat(resamp, condition[perms$perms[p,]])
+    nulls[,p] <- getSamStat(infRepsArray, condition[perms$perms[p,]])
   }
   nulls.vec <- as.vector(nulls)
   pi0 <- estimatePi0(stat, nulls.vec)
@@ -49,13 +49,14 @@ swish <- function(y, x, nperms=5) {
   y
 }
 
-getSamStat <- function(resamp, condition) {
-  dims <- dim(resamp)
+getSamStat <- function(infRepsArray, condition) {
+  dims <- dim(infRepsArray)
+  ranks <- array(dim=dims)
   for (k in seq_len(dims[3])) {
     # modified from samr:::resample
-    resamp[,,k] <- t(samr:::rankcol(t(resamp[,,k] + 0.1 * runif(dims[1]*dims[2]))))
+    ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] + 0.1 * runif(dims[1]*dims[2]))
   }
-  fit <- samr:::wilcoxon.unpaired.seq.func(xresamp=resamp, y=condition)
+  fit <- samr:::wilcoxon.unpaired.seq.func(xresamp=ranks, y=condition)
   fit$tt
 }
 

@@ -54,11 +54,11 @@ load("y.rda")
 ```
 
 ```{r}
-y <- swish(y, x="condition")
+y <- swish(y, x="condition", nperms=10)
 ```
 
 ```{r}
-y <- swamp(y, x="condition", cov="batch")
+y <- swamp(y, x="condition", cov="batch", nperms=10)
 ```
 
 ```{r}
