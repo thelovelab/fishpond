@@ -52,7 +52,7 @@ swamp <- function(y, x, cov, nperms=5) {
   }
   nulls.vec <- as.vector(nulls)
   pi0 <- estimatePi0(stat, nulls.vec)
-  qvalue <- makeQvalue(stat, nulls, pi0)
+  locfdr <- makeLocFDR(stat, nulls, pi0)
 
   ## par(mar=c(5,5,2,5))
   ## hist(stat, breaks=100, col="grey", freq=FALSE)
@@ -61,7 +61,7 @@ swamp <- function(y, x, cov, nperms=5) {
   ## lines(sort(stat), qvalue[order(stat)] * 1, col="red", lwd=3)
   ## axis(4, c(0,.5,1), c(0,.5,1))
   
-  df <- data.frame(stat, qvalue)
+  df <- data.frame(stat, locfdr)
   y <- postprocess(y, df)
   y
 }

@@ -35,7 +35,7 @@ swish <- function(y, x, nperms=5) {
   }
   nulls.vec <- as.vector(nulls)
   pi0 <- estimatePi0(stat, nulls.vec)
-  qvalue <- makeQvalue(stat, nulls, pi0)
+  locfdr <- makeLocFDR(stat, nulls, pi0)
   
   #par(mar=c(5,5,2,5))
   #hist(stat, breaks=100, col="grey", freq=FALSE)
@@ -44,7 +44,7 @@ swish <- function(y, x, nperms=5) {
   #lines(sort(stat), qvalue[order(stat)] * .03, col="red", lwd=3)
   #axis(4, c(0,.015,.03), c(0,.5,1))
   
-  df <- data.frame(stat, qvalue)
+  df <- data.frame(stat, locfdr)
   y <- postprocess(y, df)
   y
 }
@@ -66,6 +66,15 @@ estimatePi0 <- function(stat, nulls.vec) {
   sum(stat > qq[1] & stat < qq[2])/(0.5 * length(stat))
 }
 
+makeLocFDR <- function(stat, nulls, pi0) {
+  nulls.vec <- as.vector(nulls)
+  h1 <- hist(stat, breaks=100, plot=FALSE)
+  h0 <- hist(nulls.vec, breaks=h1$breaks, plot=FALSE)
+  locfdr <- pmin(1, pi0 * h0$density / h1$density)  
+  locfdr[findInterval(stat, h1$breaks)]
+}
+
+# something broken here? doesn't seem to control
 makeQvalue <- function(stat, nulls, pi0) {
   samr.const.twoclass.unpaired.response <- "Two class unpaired"
   samr.obj <- list(

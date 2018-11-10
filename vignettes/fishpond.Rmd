@@ -66,3 +66,9 @@ y <- swamp(y, x="condition", cov="batch", nperms=10)
 #y <- pool(y, x="condition", cov="batch")
 ```
 
+```{r}
+load("../../quants/simulate.rda")
+sig <- rownames(y)[mcols(y)$locfdr < .01]
+dte.txps <- names(iso.dtu)[iso.dtu | iso.dte | iso.dge]
+prop.table(table(sig %in% dte.txps))
+```
