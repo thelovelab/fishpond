@@ -98,7 +98,7 @@ makeQvalue <- function(stat, nulls, pi0) {
     resp.type=samr.const.twoclass.unpaired.response,
     tt=stat,
     ttstar0=nulls,
-    foldchange.star=sign(stat),
+    foldchange.star=2^sign(stat),
     evo=sign(stat),
     pi0=pi0,
     assay.type="seq")
