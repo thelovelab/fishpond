@@ -1,9 +1,12 @@
-#' swish: SAMseq with Gibbs Samples, Hooray!
+#' swish: SAMseq With Gibbs Samples, Hooray!
 #'
 #' @param y a SummarizedExperiment containing the inferential replicate
 #' matrices of median-ratio-scaled TPM as assays
 #' @param x the name of the condition variable
+#' @param cov the name of the covariate for adjustment.
+#' if provided a stratified Wilcoxon in performed
 #' @param nperms the number of permutations of x
+#' @param qvalue whether to compute q-values (default is local FDR)
 #'
 #' @return a SummarizedExperiment with metadata columns added
 #'
@@ -16,7 +19,7 @@
 #' in RNA-Seq data" Stat Methods Med Res (2013).
 #' 
 #' @export
-swish <- function(y, x, nperms=5) {
+swish <- function(y, x, cov=NULL, nperms=30, qvalue=FALSE) {
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- preprocess(y)
   }
@@ -26,25 +29,40 @@ swish <- function(y, x, nperms=5) {
   # rename 'x' to make it more clear
   condition <- colData(y)[[x]] 
 
-  stat <- getSamStat(infRepsArray, condition)
-  perms <- samr:::getperms(condition, nperms)
-  nulls <- matrix(nrow=nrow(ys), ncol=nperms)
-  for (p in seq_len(nperms)) {
-    cat(p, "")
-    nulls[,p] <- getSamStat(infRepsArray, condition[perms$perms[p,]])
+  if (is.null(cov)) {
+    
+    stat <- getSamStat(infRepsArray, condition)
+    perms <- samr:::getperms(condition, nperms)
+    nulls <- matrix(nrow=nrow(ys), ncol=nperms)
+    for (p in seq_len(nperms)) {
+      cat(p, "")
+      nulls[,p] <- getSamStat(infRepsArray, condition[perms$perms[p,]])
+    }
+    
+    #par(mar=c(5,5,2,5))
+    #hist(stat, breaks=100, col="grey", freq=FALSE)
+    #d <- density(nulls.vec))
+    #lines(d$x, pi0*d$y, col="blue", lwd=3)
+    #lines(sort(stat), qvalue[order(stat)] * .03, col="red", lwd=3)
+    #axis(4, c(0,.015,.03), c(0,.5,1))
+
+  } else {
+    covariate <- colData(y)[[cov]]
+    out <- swish.strat(infRepsArray, condition, covariate, nperms=nperms)
+    stat <- out$stat
+    nulls <- out$nulls
   }
+
   nulls.vec <- as.vector(nulls)
   pi0 <- estimatePi0(stat, nulls.vec)
   locfdr <- makeLocFDR(stat, nulls, pi0)
-  
-  #par(mar=c(5,5,2,5))
-  #hist(stat, breaks=100, col="grey", freq=FALSE)
-  #d <- density(nulls.vec))
-  #lines(d$x, pi0*d$y, col="blue", lwd=3)
-  #lines(sort(stat), qvalue[order(stat)] * .03, col="red", lwd=3)
-  #axis(4, c(0,.015,.03), c(0,.5,1))
-  
   df <- data.frame(stat, locfdr)
+
+  if (qvalue) {
+    qvalue <- makeQvalue(stat, nulls, pi0)
+    df$qvalue <- qvalue
+  }
+  
   y <- postprocess(y, df)
   y
 }
@@ -74,7 +92,6 @@ makeLocFDR <- function(stat, nulls, pi0) {
   locfdr[findInterval(stat, h1$breaks)]
 }
 
-# something broken here? doesn't seem to control
 makeQvalue <- function(stat, nulls, pi0) {
   samr.const.twoclass.unpaired.response <- "Two class unpaired"
   samr.obj <- list(
