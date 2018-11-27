@@ -54,23 +54,21 @@ load("y.rda")
 ```
 
 ```{r}
-set.seed(13)
-y <- swish(y, x="condition", nperms=5)
+y <- swish(y, x="condition", qvalue=TRUE)
 ```
 
 ```{r}
-set.seed(13)
-y <- swamp(y, x="condition", cov="batch", nperms=5)
-```
-
-```{r}
-# this is too slow, likely won't pursue this implementation
-#y <- pool(y, x="condition", cov="batch")
+y <- swish(y, x="condition", cov="batch", qvalue=TRUE)
 ```
 
 ```{r}
 load("../../quants/simulate.rda")
-sig <- rownames(y)[mcols(y)$locfdr < .01]
+sig <- rownames(y)[mcols(y)$locfdr < .05]
 dte.txps <- names(iso.dtu)[iso.dtu | iso.dte | iso.dge]
 prop.table(table(sig %in% dte.txps))
+# something still wrong with qvalue...
+sig <- rownames(y)[mcols(y)$qvalue < .05]
+dte.txps <- names(iso.dtu)[iso.dtu | iso.dte | iso.dge]
+prop.table(table(sig %in% dte.txps))
+with(mcols(y), plot(locfdr, qvalue, ylim=c(0,1)))
 ```
