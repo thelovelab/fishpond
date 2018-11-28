@@ -99,7 +99,7 @@ makeQvalue <- function(stat, nulls, pi0) {
     tt=stat,
     ttstar0=nulls,
     foldchange.star=2^sign(stat),
-    evo=sign(stat),
+    evo=rowMeans(apply(nulls, 2, sort)),
     pi0=pi0,
     assay.type="seq")
   delta.table <- samr:::samr.compute.delta.table(samr.obj)

@@ -70,5 +70,15 @@ prop.table(table(sig %in% dte.txps))
 sig <- rownames(y)[mcols(y)$qvalue < .05]
 dte.txps <- names(iso.dtu)[iso.dtu | iso.dte | iso.dge]
 prop.table(table(sig %in% dte.txps))
-with(mcols(y), plot(locfdr, qvalue, ylim=c(0,1)))
+with(mcols(y), plot(stat, locfdr))
+with(mcols(y), points(stat, qvalue, col="red", cex=.1))
 ```
+
+
+
+
+
+
+
+
+
