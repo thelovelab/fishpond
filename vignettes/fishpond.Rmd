@@ -50,24 +50,27 @@ y <- SummarizedExperiment(assays=infRepsAbund, colData=colData(se))
 y <- preprocess(y)
 y <- y[mcols(y)$keep,] # prefiltering
 #save(y, file="y.rda") # 160 Mb
+suppressPackageStartupMessages(library(SummarizedExperiment))
 load("y.rda")
+y <- y[,y$batch == 1]
 ```
 
 ```{r}
-y <- swish(y, x="condition", qvalue=TRUE)
+load_all()
+y <- swish(y, x="condition")
 ```
 
 ```{r}
-y <- swish(y, x="condition", cov="batch", qvalue=TRUE)
+y <- swish(y, x="condition", cov="batch")
 ```
 
 ```{r}
 load("../../quants/simulate.rda")
-sig <- rownames(y)[mcols(y)$locfdr < .05]
+sig <- rownames(y)[mcols(y)$locfdr < .2]
 dte.txps <- names(iso.dtu)[iso.dtu | iso.dte | iso.dge]
 prop.table(table(sig %in% dte.txps))
 # something still wrong with qvalue...
-sig <- rownames(y)[mcols(y)$qvalue < .05]
+sig <- rownames(y)[mcols(y)$qvalue < .2]
 dte.txps <- names(iso.dtu)[iso.dtu | iso.dte | iso.dge]
 prop.table(table(sig %in% dte.txps))
 with(mcols(y), plot(stat, locfdr))

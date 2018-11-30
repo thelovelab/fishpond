@@ -6,7 +6,6 @@
 #' @param cov the name of the covariate for adjustment.
 #' if provided a stratified Wilcoxon in performed
 #' @param nperms the number of permutations of x
-#' @param qvalue whether to compute q-values (default is local FDR)
 #'
 #' @return a SummarizedExperiment with metadata columns added
 #'
@@ -19,7 +18,7 @@
 #' in RNA-Seq data" Stat Methods Med Res (2013).
 #' 
 #' @export
-swish <- function(y, x, cov=NULL, nperms=30, qvalue=FALSE) {
+swish <- function(y, x, cov=NULL, nperms=30) {
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- preprocess(y)
   }
@@ -55,13 +54,10 @@ swish <- function(y, x, cov=NULL, nperms=30, qvalue=FALSE) {
 
   nulls.vec <- as.vector(nulls)
   pi0 <- estimatePi0(stat, nulls.vec)
-  locfdr <- makeLocFDR(stat, nulls, pi0)
-  df <- data.frame(stat, locfdr)
 
-  if (qvalue) {
-    qvalue <- makeQvalue(stat, nulls, pi0)
-    df$qvalue <- qvalue
-  }
+  locfdr <- makeLocFDR(stat, nulls, pi0)
+  qvalue <- makeQvalue(stat, nulls, pi0)
+  df <- data.frame(stat, locfdr, qvalue)
   
   y <- postprocess(y, df)
   y
@@ -81,18 +77,33 @@ getSamStat <- function(infRepsArray, condition) {
 estimatePi0 <- function(stat, nulls.vec) {
   # modified from samr::samr
   qq <- quantile(nulls.vec, c(0.25, 0.75))
-  sum(stat > qq[1] & stat < qq[2])/(0.5 * length(stat))
+  2 * sum(stat > qq[1] & stat < qq[2])/length(stat)
 }
 
 makeLocFDR <- function(stat, nulls, pi0) {
-  nulls.vec <- as.vector(nulls)
-  h1 <- hist(stat, breaks=100, plot=FALSE)
-  h0 <- hist(nulls.vec, breaks=h1$breaks, plot=FALSE)
-  locfdr <- pmin(1, pi0 * h0$density / h1$density)  
-  locfdr[findInterval(stat, h1$breaks)]
+  samr.obj <- makeSamrObj(stat, nulls, pi0)
+  locfdr.obj <- samr:::localfdr(samr.obj, min.foldchange=0)
+  locfdr.up <- samr:::predictlocalfdr(locfdr.obj$smooth.object, samr.obj$tt[samr.obj$tt >= 0])
+  locfdr.lo <- samr:::predictlocalfdr(locfdr.obj$smooth.object, samr.obj$tt[samr.obj$tt < 0])
+  locfdr <- numeric(length(stat))
+  locfdr[stat >= 0] <- locfdr.up/100
+  locfdr[stat < 0] <- locfdr.lo/100
+  locfdr
 }
 
 makeQvalue <- function(stat, nulls, pi0) {
+  samr.obj <- makeSamrObj(stat, nulls, pi0)
+  delta.table <- samr:::samr.compute.delta.table.seq(samr.obj)
+  sig <- list(pup=which(stat >= 0), plo=which(stat < 0))
+  qlist <- samr:::qvalue.func(samr.obj, sig, delta.table)
+  qvalue <- numeric(length(stat))
+  qvalue[stat >= 0] <- qlist$qvalue.up/100
+  qvalue[stat < 0] <- qlist$qvalue.lo/100
+  qvalue <- pmin(qvalue, 1)
+  qvalue
+}
+
+makeSamrObj <- function(stat, nulls, pi0) {
   samr.const.twoclass.unpaired.response <- "Two class unpaired"
   samr.obj <- list(
     resp.type=samr.const.twoclass.unpaired.response,
@@ -102,12 +113,4 @@ makeQvalue <- function(stat, nulls, pi0) {
     evo=rowMeans(apply(nulls, 2, sort)),
     pi0=pi0,
     assay.type="seq")
-  delta.table <- samr:::samr.compute.delta.table(samr.obj)
-  sig <- list(pup=which(stat >= 0), plo=which(stat < 0))
-  qlist <- samr:::qvalue.func(samr.obj, sig, delta.table)
-  qvalue <- numeric(length(stat))
-  qvalue[stat >= 0] <- qlist$qvalue.up/100
-  qvalue[stat < 0] <- qlist$qvalue.lo/100
-  qvalue <- pmin(qvalue, 1)
-  qvalue
 }
