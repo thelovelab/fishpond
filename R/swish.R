@@ -1,11 +1,11 @@
-#' swish: SAMseq With Gibbs Samples, Hooray!
+#' swish: SAMseq With Inferential Samples Helps
 #'
 #' @param y a SummarizedExperiment containing the inferential replicate
 #' matrices of median-ratio-scaled TPM as assays
 #' @param x the name of the condition variable
 #' @param cov the name of the covariate for adjustment.
 #' if provided a stratified Wilcoxon in performed
-#' @param nperms the number of permutations of x
+#' @param nperms the number of permutations
 #'
 #' @return a SummarizedExperiment with metadata columns added
 #'

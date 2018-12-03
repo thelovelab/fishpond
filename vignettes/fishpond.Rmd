@@ -37,6 +37,8 @@ batch <- factor(rep(1:2,each=12))
 names <- paste0(nms, "_b", batch)
 coldata <- data.frame(files, names, condition, batch)
 se <- tximeta(coldata)
+y <- se
+save(y, file="y_full.rda")
 ```
 
 ```{r}
@@ -52,7 +54,7 @@ y <- y[mcols(y)$keep,] # prefiltering
 #save(y, file="y.rda") # 160 Mb
 suppressPackageStartupMessages(library(SummarizedExperiment))
 load("y.rda")
-y <- y[,y$batch == 1]
+#y <- y[,y$batch == 1]
 ```
 
 ```{r}
@@ -61,27 +63,23 @@ y <- swish(y, x="condition")
 ```
 
 ```{r}
+# this exceeds FDR
 y <- swish(y, x="condition", cov="batch")
 ```
 
 ```{r}
 load("../../quants/simulate.rda")
-sig <- rownames(y)[mcols(y)$locfdr < .2]
+sig <- rownames(y)[mcols(y)$locfdr < .05]
 dte.txps <- names(iso.dtu)[iso.dtu | iso.dte | iso.dge]
 prop.table(table(sig %in% dte.txps))
-# something still wrong with qvalue...
-sig <- rownames(y)[mcols(y)$qvalue < .2]
+sig <- rownames(y)[mcols(y)$qvalue < .05]
 dte.txps <- names(iso.dtu)[iso.dtu | iso.dte | iso.dge]
 prop.table(table(sig %in% dte.txps))
 with(mcols(y), plot(stat, locfdr))
 with(mcols(y), points(stat, qvalue, col="red", cex=.1))
 ```
 
-
-
-
-
-
-
-
-
+```{r}
+x <- model.matrix(~batch + condition, colData(y))
+coef <- "condition2"
+```

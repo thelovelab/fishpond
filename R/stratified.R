@@ -22,6 +22,5 @@ swish.strat <- function(infRepsArray, condition, covariate, nperms=30) {
   for (p in seq_len(nperms)) {
     nulls[,p] <- nulls.big[,p,] %*% wts
   }
-  browser()
   list(stat=stat, nulls=nulls)
 }
