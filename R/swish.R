@@ -29,7 +29,6 @@ swish <- function(y, x, cov=NULL, nperms=30) {
   condition <- colData(y)[[x]] 
 
   if (is.null(cov)) {
-    
     stat <- getSamStat(infRepsArray, condition)
     perms <- samr:::getperms(condition, nperms)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
@@ -37,28 +36,17 @@ swish <- function(y, x, cov=NULL, nperms=30) {
       cat(p, "")
       nulls[,p] <- getSamStat(infRepsArray, condition[perms$perms[p,]])
     }
-    
-    #par(mar=c(5,5,2,5))
-    #hist(stat, breaks=100, col="grey", freq=FALSE)
-    #d <- density(nulls.vec))
-    #lines(d$x, pi0*d$y, col="blue", lwd=3)
-    #lines(sort(stat), qvalue[order(stat)] * .03, col="red", lwd=3)
-    #axis(4, c(0,.015,.03), c(0,.5,1))
-
   } else {
     covariate <- colData(y)[[cov]]
     out <- swish.strat(infRepsArray, condition, covariate, nperms=nperms)
     stat <- out$stat
     nulls <- out$nulls
   }
-
   nulls.vec <- as.vector(nulls)
   pi0 <- estimatePi0(stat, nulls.vec)
-
   locfdr <- makeLocFDR(stat, nulls, pi0)
   qvalue <- makeQvalue(stat, nulls, pi0)
   df <- data.frame(stat, locfdr, qvalue)
-  
   y <- postprocess(y, df)
   y
 }

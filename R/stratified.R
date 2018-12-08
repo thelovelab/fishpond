@@ -8,19 +8,18 @@ swish.strat <- function(infRepsArray, condition, covariate, nperms=30) {
     g <- groups[i]
     infRepsArray.sub <- infRepsArray[,covariate == g,]
     cond.sub <- condition[covariate == g]
-    stats[,i] <- getSamStat(infRepsArray.sub, cond.sub)
     perms <- samr:::getperms(cond.sub, nperms)
+    stats[,i] <- getSamStat(infRepsArray.sub, cond.sub)
     for (p in seq_len(nperms)) {
       cat(p, "")
       nulls.big[,p,i] <- getSamStat(infRepsArray.sub, cond.sub[perms$perms[p,]])
     }
+    cat("\n")
   }
   ns <- unname(table(covariate))
   wts <- 1/(ns + 1)
   stat <- as.vector(stats %*% wts)
-  nulls <- matrix(nrow=nr, ncol=nperms)
-  for (p in seq_len(nperms)) {
-    nulls[,p] <- nulls.big[,p,] %*% wts
-  }
+  nulls <- matrix(nrow=nr, ncol=2*nperms)
+  nulls <- t(apply(nulls.big, 1, cbind)) * sum(wts)
   list(stat=stat, nulls=nulls)
 }
