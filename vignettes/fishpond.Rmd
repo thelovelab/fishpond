@@ -1,7 +1,7 @@
 ---
-title: "Fishpond"
+title: "Fishpond: differential gene expression and differential transcript expression with inferential replicates"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
-author: "Anqi Zhu, Michael Love"
+author: "Anqi Zhu, Rob Patro, Michael Love"
 output:
   rmarkdown::html_document:
     highlight: pygments
@@ -20,9 +20,6 @@ knitr::opts_chunk$set(tidy=FALSE, cache=TRUE,
                       dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
-
-Here we use *tximport*, but eventually use *tximeta* to put
-inferential replicates into a *SummarizedExperiment*.
 
 ```{r}
 library(tximeta)
@@ -78,7 +75,12 @@ with(mcols(y), points(stat, qvalue, col="red", cex=.1))
 ```
 
 ```{r}
+suppressPackageStartupMessages(library(SummarizedExperiment))
 load("y_full.rda")
 x <- model.matrix(~batch + condition, colData(y))
 coef <- "condition2"
+mcols(y)$keep <- rowSums(assays(y)[["counts"]] >= 10) >= 6
+y2 <- y[1:2000,]
+y2 <- deswish(y2, x, coef)
 ```
+

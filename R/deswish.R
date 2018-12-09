@@ -1,4 +1,11 @@
 #' deswish: DESeq2 With Inferential Samples Helps
+#'
+#' The DESeq2 With Inferential Samples implementation supposes
+#' a hierarchical distribution of log2 fold changes.
+#' The final posterior standard deviation is calculated by
+#' adding the posterior variance from modeling biological replicates
+#' (apeglm) and the observed variance on the posterior mode
+#' over inferential replicates.
 #' 
 #' @param y a SummarizedExperiment containing the inferential replicate matrices,
 #' as output by \code{tximeta}
@@ -18,13 +25,12 @@
 #' 
 #' @export
 deswish <- function(y, x, coef) {
-  mcols(y)$keep <- rowSums(assays(y)[["counts"]] >= 10) >= 6
   ys <- y[mcols(y)$keep,]
 
   ys.cts <- ys
   assays(ys.cts) <- assays(ys.cts)[c("counts","length")]
   dds <- DESeq2::DESeqDataSet(ys.cts, design=x)
-  dds <- DESeq2::DESeq(dds, minReplicatesForReplace=Inf)
+  dds <- DESeq2::DESeq(dds, minReplicatesForReplace=Inf, quiet=TRUE)
   res <- DESeq2::lfcShrink(dds, coef=coef, type="apeglm", quiet=TRUE)
 
   nreps <- length(grep("infRep", assayNames(ys)))
@@ -38,8 +44,16 @@ deswish <- function(y, x, coef) {
                                  apeMethod="nbinomC", quiet=TRUE)
     lfcs[,i] <- rep.res$log2FoldChange
   }
-  stat <- rowMeans(lfcs)
-  df <- data.frame(stat)
+
+  infVarLFC <- rowVars(lfcs)
+  log2FC <- rowMeans(lfcs)
+  # suppose a hierarchical dist'n of LFC:
+  # add the posterior variance from modeling biological replicates
+  # and the variance on posterior mode over inferential replicates
+  lfcSD <- sqrt(res$lfcSE^2 + infVarLFC)
+  df <- data.frame(log2FC, lfcSD,
+                   origLFC=res$log2FoldChange,
+                   origSD=res$lfcSE)
 
   y <- postprocess(y, df)
   y
