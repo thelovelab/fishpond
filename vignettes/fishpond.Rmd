@@ -39,15 +39,12 @@ y <- se
 ```
 
 ```{r}
-meanDepth <- exp(mean(log(colSums(assays(se)[["counts"]]))))
-infReps <- assays(se)[grep("infRep",assayNames(se))]
-infRepsAbund <- medianRatioScaledTPM(infReps, assays(se)[["length"]], meanDepth)
-```
-
-```{r}
-y <- SummarizedExperiment(assays=infRepsAbund, colData=colData(se))
-y <- preprocess(y)
-y <- y[mcols(y)$keep,] # prefiltering
+# scaling from counts to TPM and back to lib corrected counts
+y <- scaleInfRep(se)
+# labelling sufficiently expressed transcripts/genes
+y <- labelKeep(y)
+# actually removing the genes (saves disk space, not required)
+y <- y[mcols(y)$keep,] 
 #save(y, file="y.rda") # 160 Mb
 suppressPackageStartupMessages(library(SummarizedExperiment))
 load("y.rda")

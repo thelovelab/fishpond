@@ -1,4 +1,4 @@
-#' Scale inferential replicate counts to scaledTPM
+#' Scale inferential replicate counts
 #'
 #' A helper function to scale the inferential replicates
 #' to the mean sequencing depth. The scaling takes into account
@@ -8,9 +8,10 @@
 #' adjusted up or down by the median ratio size factor to
 #' minimize systematic differences across samples.
 #'
-#' @param infReps a list of inferential replicate count matrices
-#' @param counts the estimated counts matrix
-#' @param length the effective lengths matrix
+#' @param se a SummarizedExperiment with: \code{infReps} a list of
+#' inferential replicate count matrices, \code{counts} the
+#' estimated counts matrix, and \code{length} the effective
+#' lengths matrix
 #' @param meanDepth (optional) user can
 #' specify a different mean sequencing depth. By default
 #' the geometric mean sequencing depth is computed
@@ -20,11 +21,15 @@
 #' @param minCount for internal filtering, the minimum count 
 #' @param minN for internal filtering, the minimum sample size at \code{minCount}
 #'
-#' @return the inferential replicates, as scaledTPM
+#' @return a SummarizedExperiment wiht the inferential replicates
+#' as scaledTPM with library size already corrected (no need for further
+#' normalization)
 #'
 #' @export
-scaleInfRepTPM <- function(infReps, counts, length, meanDepth=NULL, sfFun=NULL,
-                           minCount=10, minN=3) {
+scaleInfRep <- function(se, meanDepth=NULL, sfFun=NULL, minCount=10, minN=3) {
+  infReps <- assays(se)[grep("infRep",assayNames(se))]
+  counts <- assays(se)[["counts"]]
+  length <- assays(se)[["length"]]
   nreps <- length(infReps)
   if (is.null(meanDepth)) {
     meanDepth <- exp(mean(log(colSums(counts))))
@@ -47,14 +52,16 @@ scaleInfRepTPM <- function(infReps, counts, length, meanDepth=NULL, sfFun=NULL,
     }
     infReps[[k]] <- t( t(tpm)/sf )
   }
-  infReps
+  cat("\n")
+  SummarizedExperiment(assays=infReps, colData=colData(se), rowRanges=rowRanges(se))
 }
 
-#' Preprocess inferential replicates
+#' Label rows to keep based on minimal count
 #'
 #' Adds a column \code{keep} to \code{mcols(y)} that specifies
 #' which rows of the SummarizedExperiment will be included
-#' in statistical testing.
+#' in statistical testing. Rows are not removed, just marked
+#' with the logical \code{keep}.
 #'
 #' @param y a SummarizedExperiment
 #' @param minCount the minimum count
@@ -64,18 +71,18 @@ scaleInfRepTPM <- function(infReps, counts, length, meanDepth=NULL, sfFun=NULL,
 #' in \code{mcols(y)}
 #'
 #' @export
-preprocess <- function(y) {
+labelKeep <- function(y, minCount=10, minN=3) {
   rep.idx <- seq_along(assayNames(y))
-  # filtering: remains to see what we want to put here
   nreps <- length(assayNames(y))
   keep.mat <- matrix(nrow=nrow(y), ncol=nreps)
   for (k in seq_len(nreps)) {
     cat(k,"")
-    keep.mat[,k] <- rowSums(assays(y)[[k]] >= minCount) >= minY
+    keep.mat[,k] <- rowSums(assays(y)[[k]] >= minCount) >= minN
   }
   keep <- apply(keep.mat, 1, all)
   mcols(y)$keep <- keep
   metadata(y)$preprocessed <- TRUE
+  cat("\n")
   y
 }
 
