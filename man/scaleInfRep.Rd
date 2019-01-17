@@ -4,14 +4,17 @@
 \alias{scaleInfRep}
 \title{Scale inferential replicate counts}
 \usage{
-scaleInfRep(se, meanDepth = NULL, sfFun = NULL, minCount = 10,
-  minN = 3)
+scaleInfRep(se, lengthCorrect = TRUE, meanDepth = NULL, sfFun = NULL,
+  minCount = 10, minN = 3)
 }
 \arguments{
 \item{se}{a SummarizedExperiment with: \code{infReps} a list of
 inferential replicate count matrices, \code{counts} the
 estimated counts matrix, and \code{length} the effective
 lengths matrix}
+
+\item{lengthCorrect}{whether to use effective length correction
+(default is TRUE)}
 
 \item{meanDepth}{(optional) user can
 specify a different mean sequencing depth. By default

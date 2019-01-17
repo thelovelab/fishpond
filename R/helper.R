@@ -12,6 +12,8 @@
 #' inferential replicate count matrices, \code{counts} the
 #' estimated counts matrix, and \code{length} the effective
 #' lengths matrix
+#' @param lengthCorrect whether to use effective length correction
+#' (default is TRUE)
 #' @param meanDepth (optional) user can
 #' specify a different mean sequencing depth. By default
 #' the geometric mean sequencing depth is computed
@@ -26,7 +28,7 @@
 #' normalization)
 #'
 #' @export
-scaleInfRep <- function(se, meanDepth=NULL, sfFun=NULL, minCount=10, minN=3) {
+scaleInfRep <- function(se, lengthCorrect=TRUE, meanDepth=NULL, sfFun=NULL, minCount=10, minN=3) {
   infReps <- assays(se)[grep("infRep",assayNames(se))]
   counts <- assays(se)[["counts"]]
   length <- assays(se)[["length"]]
@@ -37,7 +39,12 @@ scaleInfRep <- function(se, meanDepth=NULL, sfFun=NULL, minCount=10, minN=3) {
   for (k in seq_len(nreps)) {
     cat(k,"")
     # we don't technically create TPM, but something proportion to
-    tpm <- infReps[[k]] / length
+    if (lengthCorrect) {
+      tpm <- infReps[[k]] / length
+    } else {
+      # for 3' tagged scRNA-seq for example, don't length correct
+      tpm <- infReps[[k]]
+    }
     # divide out the column sum, then set all to the meanDepth
     tpm <- t(t(tpm) / colSums(tpm)) * meanDepth
     # filtering for calculting median ratio size factors
