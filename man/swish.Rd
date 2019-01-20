@@ -4,7 +4,7 @@
 \alias{swish}
 \title{swish: SAMseq With Inferential Samples Helps}
 \usage{
-swish(y, x, cov = NULL, nperms = 30)
+swish(y, x, cov = NULL, nperms = 30, estPi0 = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
@@ -16,6 +16,8 @@ matrices of median-ratio-scaled TPM as assays}
 if provided a stratified Wilcoxon in performed}
 
 \item{nperms}{the number of permutations}
+
+\item{estPi0}{logical, whether to estimate pi0}
 }
 \value{
 a SummarizedExperiment with metadata columns added

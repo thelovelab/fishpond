@@ -6,6 +6,7 @@
 #' @param cov the name of the covariate for adjustment.
 #' if provided a stratified Wilcoxon in performed
 #' @param nperms the number of permutations
+#' @param estPi0 logical, whether to estimate pi0
 #'
 #' @return a SummarizedExperiment with metadata columns added
 #'
@@ -18,7 +19,7 @@
 #' in RNA-Seq data" Stat Methods Med Res (2013).
 #' 
 #' @export
-swish <- function(y, x, cov=NULL, nperms=30) {
+swish <- function(y, x, cov=NULL, nperms=30, estPi0=FALSE) {
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- preprocess(y)
   }
@@ -43,7 +44,11 @@ swish <- function(y, x, cov=NULL, nperms=30) {
     nulls <- out$nulls
   }
   nulls.vec <- as.vector(nulls)
-  pi0 <- estimatePi0(stat, nulls.vec)
+  if (estPi0) {
+    pi0 <- estimatePi0(stat, nulls.vec)
+  } else {
+    pi0 <- 1
+  }
   locfdr <- makeLocFDR(stat, nulls, pi0)
   qvalue <- makeQvalue(stat, nulls, pi0)
   df <- data.frame(stat, locfdr, qvalue)

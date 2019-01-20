@@ -34,21 +34,26 @@ batch <- factor(rep(1:2,each=12))
 names <- paste0(nms, "_b", batch)
 coldata <- data.frame(files, names, condition, batch)
 se <- tximeta(coldata)
-y <- se
+#y <- se
 #save(y, file="y_full.rda")
 ```
 
 ```{r}
+suppressPackageStartupMessages(library(SummarizedExperiment))
+y <- summarizeToGene(se)
+y2 <- summarizeToGene(se, varReduce=TRUE)
 # scaling from counts to TPM and back to lib corrected counts
-y <- scaleInfRep(se)
+y <- scaleInfRep(y)
 # labelling sufficiently expressed transcripts/genes
 y <- labelKeep(y)
-# actually removing the genes (saves disk space, not required)
+y <- y[,y$batch == 1]
+y2 <- y2[,y2$batch == 1]
+infCV <- sqrt(assays(y2)[["variance"]])/(assays(y2)[["counts"]]+0.5)
+meanInfCV <- rowMeans(infCV)
+mcols(y)$InfCV <- meanInfCV
 y <- y[mcols(y)$keep,] 
 #save(y, file="y.rda") # 160 Mb
-suppressPackageStartupMessages(library(SummarizedExperiment))
-load("y.rda")
-#y <- y[,y$batch == 1]
+#load("y.rda")
 ```
 
 ```{r}
@@ -64,11 +69,28 @@ load("../../quants/simulate.rda")
 sig <- rownames(y)[mcols(y)$locfdr < .05]
 dte.txps <- names(iso.dtu)[iso.dtu | iso.dte | iso.dge]
 prop.table(table(sig %in% dte.txps))
-sig <- rownames(y)[mcols(y)$qvalue < .05]
+#
+sig <- rownames(y)[mcols(y)$qvalue < .1]
 dte.txps <- names(iso.dtu)[iso.dtu | iso.dte | iso.dge]
 prop.table(table(sig %in% dte.txps))
-with(mcols(y), plot(stat, locfdr))
-with(mcols(y), points(stat, qvalue, col="red", cex=.1))
+mcols(y)$sig <- mcols(y)$qvalue < .1
+mcols(y)$fp <- NA
+mcols(y)$fp[mcols(y)$sig] <- !sig %in% dte.txps
+mcols(y)$cutICV <- cut(mcols(y)$InfCV, c(-1,.05,.25,.5,1,Inf))
+table(mcols(y)$cutICV, mcols(y)$fp)
+round(prop.table(table(mcols(y)$cutICV, mcols(y)$fp),1),3)
+```
+
+```{r}
+sig <- rownames(y)[mcols(y)$qvalue < .1]
+dge <- union(dge.genes, dte.genes)
+prop.table(table(sig %in% dge))
+mcols(y)$sig <- mcols(y)$qvalue < .1
+mcols(y)$fp <- NA
+mcols(y)$fp[mcols(y)$sig] <- !sig %in% dge
+mcols(y)$cutICV <- cut(mcols(y)$InfCV, c(-1,.05,.25,.5,1,Inf))
+table(mcols(y)$cutICV, mcols(y)$fp)
+round(prop.table(table(mcols(y)$cutICV, mcols(y)$fp),1),3)
 ```
 
 ```{r}
@@ -81,24 +103,3 @@ y2 <- y[1:2000,]
 y2 <- deswish(y2, x, coef)
 ```
 
-```{r}
-# proposed alteration for summarize to gene
-se <- tximeta(coldata)
-y <- se
-# the following converts infRep counts to something proportional to TPM
-nreps <- length(grep("infRep",assayNames(y)))
-length <- assays(y)[["length"]]
-for (k in seq_len(nreps)) {
-  cat(k,"")
-  cts <- assays(y)[[paste0("infRep",k)]]
-  assays(y)[[paste0("infRep",k)]] <- cts / length
-}
-cat("\n")
-# this will now summarize prop-to TPMs to gene
-y <- summarizeToGene(y) 
-# infRep assays are already prop-to TPM, so don't length correct
-y <- scaleInfRep(y, lengthCorrect=FALSE)
-y <- labelKeep(y)
-y <- y[mcols(y)$keep,]
-y <- swish(y, x="condition")
-```
