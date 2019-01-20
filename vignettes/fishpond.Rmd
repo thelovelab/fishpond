@@ -81,3 +81,24 @@ y2 <- y[1:2000,]
 y2 <- deswish(y2, x, coef)
 ```
 
+```{r}
+# proposed alteration for summarize to gene
+se <- tximeta(coldata)
+y <- se
+# the following converts infRep counts to something proportional to TPM
+nreps <- length(grep("infRep",assayNames(y)))
+length <- assays(y)[["length"]]
+for (k in seq_len(nreps)) {
+  cat(k,"")
+  cts <- assays(y)[[paste0("infRep",k)]]
+  assays(y)[[paste0("infRep",k)]] <- cts / length
+}
+cat("\n")
+# this will now summarize prop-to TPMs to gene
+y <- summarizeToGene(y) 
+# infRep assays are already prop-to TPM, so don't length correct
+y <- scaleInfRep(y, lengthCorrect=FALSE)
+y <- labelKeep(y)
+y <- y[mcols(y)$keep,]
+y <- swish(y, x="condition")
+```
