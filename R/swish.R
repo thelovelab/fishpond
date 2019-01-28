@@ -63,6 +63,7 @@ getSamStat <- function(infRepsArray, condition) {
     # modified from samr:::resample
     ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] + 0.1 * runif(dims[1]*dims[2]))
   }
+  # TODO: here 'y' *has* to take on values 1 and 2
   fit <- samr:::wilcoxon.unpaired.seq.func(xresamp=ranks, y=condition)
   fit$tt
 }
