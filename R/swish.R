@@ -68,7 +68,7 @@ getSamStat <- function(infRepsArray, condition, p=NULL) {
   rankSums <- sapply(seq_len(dims[3]), function(i) rowSums(ranks[,condition==2,i]))
   centered.W <- rankSums - sum(condition==2) * (dims[2] + 1)/2
   if (is.null(p)) {
-    stat <- matrixStats::rowMeans(centered.W)
+    stat <- rowMeans(centered.W)
   } else {
     stopifnot(p >= 0 & p <= 1)
     median.stat <- matrixStats::rowMedians(centered.W)
