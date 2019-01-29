@@ -65,6 +65,7 @@ getSamStat <- function(infRepsArray, condition) {
   }
   # TODO: here 'y' *has* to take on values 1 and 2
   fit <- samr:::wilcoxon.unpaired.seq.func(xresamp=ranks, y=condition)
+  # TODO: scale this so it has variance 1
   fit$tt
 }
 
