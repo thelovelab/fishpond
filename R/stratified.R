@@ -12,7 +12,7 @@ swish.strat <- function(infRepsArray, condition, covariate, nperms=30, wilcoxP) 
     stats[,i] <- getSamStat(infRepsArray.sub, cond.sub, wilcoxP)
     for (p in seq_len(nperms)) {
       cat(p, "")
-      nulls.big[,p,i] <- getSamStat(infRepsArray.sub, cond.sub[perms$perms[p,]], wilxonP)
+      nulls.big[,p,i] <- getSamStat(infRepsArray.sub, cond.sub[perms$perms[p,]], wilcoxP)
     }
     cat("\n")
   }
