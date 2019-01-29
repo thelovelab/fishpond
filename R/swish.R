@@ -19,7 +19,7 @@
 #' in RNA-Seq data" Stat Methods Med Res (2013).
 #' 
 #' @export
-swish <- function(y, x, cov=NULL, nperms=30, estPi0=FALSE) {
+swish <- function(y, x, cov=NULL, nperms=30, estPi0=FALSE, wilcoxP=NULL) {
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- preprocess(y)
   }
@@ -30,16 +30,16 @@ swish <- function(y, x, cov=NULL, nperms=30, estPi0=FALSE) {
   condition <- colData(y)[[x]] 
 
   if (is.null(cov)) {
-    stat <- getSamStat(infRepsArray, condition)
+    stat <- getSamStat(infRepsArray, condition, wilcoxP)
     perms <- samr:::getperms(condition, nperms)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
     for (p in seq_len(nperms)) {
       cat(p, "")
-      nulls[,p] <- getSamStat(infRepsArray, condition[perms$perms[p,]])
+      nulls[,p] <- getSamStat(infRepsArray, condition[perms$perms[p,]], wilcoxP)
     }
   } else {
     covariate <- colData(y)[[cov]]
-    out <- swish.strat(infRepsArray, condition, covariate, nperms=nperms)
+    out <- swish.strat(infRepsArray, condition, covariate, nperms=nperms, wilcoxP)
     stat <- out$stat
     nulls <- out$nulls
   }
@@ -56,17 +56,27 @@ swish <- function(y, x, cov=NULL, nperms=30, estPi0=FALSE) {
   y
 }
 
-getSamStat <- function(infRepsArray, condition) {
+getSamStat <- function(infRepsArray, condition, p=NULL) {
   dims <- dim(infRepsArray)
   ranks <- array(dim=dims)
   for (k in seq_len(dims[3])) {
     # modified from samr:::resample
     ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] + 0.1 * runif(dims[1]*dims[2]))
   }
-  # TODO: here 'y' *has* to take on values 1 and 2
-  fit <- samr:::wilcoxon.unpaired.seq.func(xresamp=ranks, y=condition)
+  # TODO: generalize, below 'y' *has* to take on values 1 and 2
+  # fit <- samr:::wilcoxon.unpaired.seq.func(xresamp=ranks, y=condition)
+  rankSums <- sapply(seq_len(dims[3]), function(i) rowSums(ranks[,condition==2,i]))
+  centered.W <- rankSums - sum(condition==2) * (dims[2] + 1)/2
+  if (is.null(p)) {
+    stat <- matrixStats::rowMeans(centered.W)
+  } else {
+    stopifnot(p >= 0 & p <= 1)
+    median.stat <- matrixStats::rowMedians(centered.W)
+    stat <- matrixStats::rowQuantiles(centered.W, probs=p)
+    stat[median.stat < 0] <- matrixStats::rowQuantiles(centered.W[median.stat <0,,drop=FALSE], probs=1-p)
+  }
   # TODO: scale this so it has variance 1
-  fit$tt
+  stat
 }
 
 estimatePi0 <- function(stat, nulls.vec) {
