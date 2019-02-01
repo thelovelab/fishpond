@@ -2,5 +2,6 @@
 
 export(deswish)
 export(labelKeep)
-export(scaleInfRep)
+export(makeSwishData)
+export(scaleInfReps)
 export(swish)

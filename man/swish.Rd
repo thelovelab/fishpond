@@ -4,7 +4,8 @@
 \alias{swish}
 \title{swish: SAMseq With Inferential Samples Helps}
 \usage{
-swish(y, x, cov = NULL, nperms = 30, estPi0 = FALSE)
+swish(y, x, cov = NULL, nperms = 30, estPi0 = FALSE,
+  wilcoxP = NULL)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
@@ -24,6 +25,21 @@ a SummarizedExperiment with metadata columns added
 }
 \description{
 swish: SAMseq With Inferential Samples Helps
+}
+\examples{
+
+y <- makeSwishData()
+assayNames(y)
+y <- labelKeep(y)
+y <- scaleInfReps(y)
+y <- swish(y, x="condition")
+stat <- mcols(y)$stat
+hist(stat,breaks=40,col="grey")
+cols = rep(c("blue","purple","red"),each=2)
+for (i in 1:6) {
+  arrows(stat[i], 20, stat[i], 10, col=cols[i], length=.1, lwd=2)
+}
+
 }
 \references{
 The \code{SAMseq} function in the \code{samr} package.

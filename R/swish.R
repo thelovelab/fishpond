@@ -17,6 +17,20 @@
 #' Jun Li and Robert Tibshirani "Finding consistent patterns:
 #' A nonparametric approach for identifying differential expression
 #' in RNA-Seq data" Stat Methods Med Res (2013).
+#'
+#' @examples
+#'
+#' y <- makeSwishData()
+#' assayNames(y)
+#' y <- labelKeep(y)
+#' y <- scaleInfReps(y)
+#' y <- swish(y, x="condition")
+#' stat <- mcols(y)$stat
+#' hist(stat,breaks=40,col="grey")
+#' cols = rep(c("blue","purple","red"),each=2)
+#' for (i in 1:6) {
+#'   arrows(stat[i], 20, stat[i], 10, col=cols[i], length=.1, lwd=2)
+#' }
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, nperms=30, estPi0=FALSE, wilcoxP=NULL) {
@@ -37,6 +51,7 @@ swish <- function(y, x, cov=NULL, nperms=30, estPi0=FALSE, wilcoxP=NULL) {
       cat(p, "")
       nulls[,p] <- getSamStat(infRepsArray, condition[perms$perms[p,]], wilcoxP)
     }
+    cat("\n")
   } else {
     covariate <- colData(y)[[cov]]
     out <- swish.strat(infRepsArray, condition, covariate, nperms=nperms, wilcoxP)

@@ -8,7 +8,7 @@
 #' adjusted up or down by the median ratio size factor to
 #' minimize systematic differences across samples.
 #'
-#' @param se a SummarizedExperiment with: \code{infReps} a list of
+#' @param y a SummarizedExperiment with: \code{infReps} a list of
 #' inferential replicate count matrices, \code{counts} the
 #' estimated counts matrix, and \code{length} the effective
 #' lengths matrix
@@ -28,10 +28,10 @@
 #' normalization)
 #'
 #' @export
-scaleInfRep <- function(se, lengthCorrect=TRUE, meanDepth=NULL, sfFun=NULL, minCount=10, minN=3) {
-  infReps <- assays(se)[grep("infRep",assayNames(se))]
-  counts <- assays(se)[["counts"]]
-  length <- assays(se)[["length"]]
+scaleInfReps <- function(y, lengthCorrect=TRUE, meanDepth=NULL, sfFun=NULL, minCount=10, minN=3) {
+  infReps <- assays(y)[grep("infRep",assayNames(y))]
+  counts <- assays(y)[["counts"]]
+  length <- assays(y)[["length"]]
   nreps <- length(infReps)
   if (is.null(meanDepth)) {
     meanDepth <- exp(mean(log(colSums(counts))))
@@ -60,7 +60,8 @@ scaleInfRep <- function(se, lengthCorrect=TRUE, meanDepth=NULL, sfFun=NULL, minC
     infReps[[k]] <- t( t(tpm)/sf )
   }
   cat("\n")
-  SummarizedExperiment(assays=infReps, colData=colData(se), rowRanges=rowRanges(se))
+  assays(y) <- infReps
+  y
 }
 
 #' Label rows to keep based on minimal count
@@ -91,6 +92,44 @@ labelKeep <- function(y, minCount=10, minN=3) {
   metadata(y)$preprocessed <- TRUE
   cat("\n")
   y
+}
+
+#' Make simulated data for swish for examples/testing
+#'
+#' Makes a small swish dataset for examples and testing.
+#'
+#' @param m number of genes/txps
+#' @param n number of samples
+#' @param numReps how many inferential replicates
+#'
+#' @return a SummarizedExperiment
+#'
+#' @export
+makeSwishData <- function(m=400, n=10, numReps=20) {
+  stopifnot(m>8)
+  stopifnot(n %% 2 == 0)
+  cts <- matrix(rpois(m*n, lambda=100), ncol=n)
+  cts[1:4,1:(n/2)] <- rpois(2*n, lambda=200)
+  cts[5:6,1:(n/2)] <- rpois(n, lambda=150)
+  cts[7:8,] <- 0
+  length <- matrix(1000, nrow=m, ncol=n)
+  abundance <- t(t(cts)/colSums(cts))*1e6
+  infReps <- lapply(seq_len(numReps), function(i) {
+    m <- matrix(rpois(m*n, lambda=100), ncol=n)
+    m[1:4,1:(n/2)] <- rpois(2*n, lambda=200)
+    m[5:6,1:(n/2)] <- rpois(n, lambda=150)
+    m[3:4,] <- round(m[3:4,] * sample(c(.5,1.5),2*n,TRUE))
+    m[5:6,1:(n/2)] <- round(m[5:6,1:(n/2)] * sample(c(.33,1.66),n,TRUE))
+    m[7:8,] <- 0
+    m
+  })
+  names(infReps) <- paste0("infRep", seq_len(numReps))
+  assays <- list(counts=cts, abundance=abundance, length=length)
+  assays <- c(assays, infReps)
+  se <- SummarizedExperiment::SummarizedExperiment(assays=assays)
+  metadata(se) <- list(countsFromAbundance="no")
+  colData(se) <- DataFrame(condition=gl(2,n/2))
+  se
 }
 
 postprocess <- function(y, df) {

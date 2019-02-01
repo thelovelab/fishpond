@@ -43,7 +43,7 @@ suppressPackageStartupMessages(library(SummarizedExperiment))
 y <- summarizeToGene(se)
 y2 <- summarizeToGene(se, varReduce=TRUE)
 # scaling from counts to TPM and back to lib corrected counts
-y <- scaleInfRep(y)
+y <- scaleInfReps(y)
 # labelling sufficiently expressed transcripts/genes
 y <- labelKeep(y)
 y <- y[,y$batch == 1]
