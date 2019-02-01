@@ -80,12 +80,12 @@ scaleInfReps <- function(y, lengthCorrect=TRUE, meanDepth=NULL, sfFun=NULL, minC
 #'
 #' @export
 labelKeep <- function(y, minCount=10, minN=3) {
-  rep.idx <- seq_along(assayNames(y))
-  nreps <- length(assayNames(y))
+  infReps <- assays(y)[grep("infRep",assayNames(y))]
+  nreps <- length(infReps)
   keep.mat <- matrix(nrow=nrow(y), ncol=nreps)
   for (k in seq_len(nreps)) {
     cat(k,"")
-    keep.mat[,k] <- rowSums(assays(y)[[k]] >= minCount) >= minN
+    keep.mat[,k] <- rowSums(infReps[[k]] >= minCount) >= minN
   }
   keep <- apply(keep.mat, 1, all)
   mcols(y)$keep <- keep
@@ -97,29 +97,32 @@ labelKeep <- function(y, minCount=10, minN=3) {
 #' Make simulated data for swish for examples/testing
 #'
 #' Makes a small swish dataset for examples and testing.
-#'
-#' @param m number of genes/txps
+#' The first six genes have some differential expression
+#' evidence in the counts, with varying degree of inferential
+#' variance across inferential replicates. The 7th and 8th
+#' genes have all zeros to demonstrate \code{labelKeep}.
+#' 
+#' @param m number of genes
 #' @param n number of samples
 #' @param numReps how many inferential replicates
 #'
 #' @return a SummarizedExperiment
 #'
 #' @export
-makeSwishData <- function(m=400, n=10, numReps=20) {
+makeSimSwishData <- function(m=1000, n=10, numReps=20) {
   stopifnot(m>8)
   stopifnot(n %% 2 == 0)
-  cts <- matrix(rpois(m*n, lambda=100), ncol=n)
-  cts[1:4,1:(n/2)] <- rpois(2*n, lambda=200)
-  cts[5:6,1:(n/2)] <- rpois(n, lambda=150)
+  cts <- matrix(rpois(m*n, lambda=80), ncol=n)
+  grp2 <- (n/2+1):n
+  cts[1:6,grp2] <- rpois(3*n, lambda=160)
   cts[7:8,] <- 0
   length <- matrix(1000, nrow=m, ncol=n)
   abundance <- t(t(cts)/colSums(cts))*1e6
   infReps <- lapply(seq_len(numReps), function(i) {
-    m <- matrix(rpois(m*n, lambda=100), ncol=n)
-    m[1:4,1:(n/2)] <- rpois(2*n, lambda=200)
-    m[5:6,1:(n/2)] <- rpois(n, lambda=150)
-    m[3:4,] <- round(m[3:4,] * sample(c(.5,1.5),2*n,TRUE))
-    m[5:6,1:(n/2)] <- round(m[5:6,1:(n/2)] * sample(c(.33,1.66),n,TRUE))
+    m <- matrix(rpois(m*n, lambda=80), ncol=n)
+    m[1:6,grp2] <- rpois(3*n, lambda=120)
+    m[3:4,] <- round(m[3:4,] * runif(2*n,.5,1.5))
+    m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
     m[7:8,] <- 0
     m
   })
@@ -127,9 +130,36 @@ makeSwishData <- function(m=400, n=10, numReps=20) {
   assays <- list(counts=cts, abundance=abundance, length=length)
   assays <- c(assays, infReps)
   se <- SummarizedExperiment::SummarizedExperiment(assays=assays)
-  metadata(se) <- list(countsFromAbundance="no")
-  colData(se) <- DataFrame(condition=gl(2,n/2))
+  rownames(se) <- paste0("gene-",seq_len(nrow(se)))
+  SummarizedExperiment::metadata(se) <- list(countsFromAbundance="no")
+  SummarizedExperiment::colData(se) <- S4Vectors::DataFrame(condition=gl(2,n/2))
   se
+}
+
+#' Plot inferential replicates for a gene or transcript
+#'
+#' @param y a SummarizedExperiment (see \code{swish})
+#' @param x the name of the condition variable
+#' @param idx the name or index number of the gene or transcript
+#'
+#' @export
+plotInfReps <- function(y, x, idx) {
+  infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
+  cond0 <- colData(y)[[x]]
+  cond1 <- which(cond0 == levels(cond0)[1])
+  cond2 <- which(cond0 == levels(cond0)[2])
+  cts <- unlist(infReps)[,c(cond1,cond2)]
+  cols <- rep(c("dodgerblue","goldenrod4"),table(cond0))
+  cols.in <- rep(c("lightblue1","goldenrod1"),table(cond0))
+  if (is.null(rownames(y))) {
+    main <- ""
+  } else {
+    main <- rownames(y)[idx]
+  }
+  boxplot(cts,range=0,border=cols,col=cols.in,xaxt="n",
+          ylim=c(0,max(cts)),xlab="samples",ylab="scaled counts",
+          main=main)
+  axis(1,seq_along(cond0),as.vector(sapply(table(cond0), seq_len)))
 }
 
 postprocess <- function(y, df) {

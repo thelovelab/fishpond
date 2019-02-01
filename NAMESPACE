@@ -2,6 +2,7 @@
 
 export(deswish)
 export(labelKeep)
-export(makeSwishData)
+export(makeSimSwishData)
+export(plotInfReps)
 export(scaleInfReps)
 export(swish)

@@ -1,11 +1,14 @@
 #' swish: SAMseq With Inferential Samples Helps
 #'
 #' @param y a SummarizedExperiment containing the inferential replicate
-#' matrices of median-ratio-scaled TPM as assays
+#' matrices of median-ratio-scaled TPM as assays 'infRep1', 'infRep2', etc.
 #' @param x the name of the condition variable
 #' @param cov the name of the covariate for adjustment.
 #' if provided a stratified Wilcoxon in performed
 #' @param nperms the number of permutations
+#' @param wilcoxP the quantile of the Wilcoxon statistics across
+#' inferential replicates to use as the test statistic.
+#' If set to NULL this will use the mean over inferential replicates
 #' @param estPi0 logical, whether to estimate pi0
 #'
 #' @return a SummarizedExperiment with metadata columns added
@@ -20,29 +23,31 @@
 #'
 #' @examples
 #'
-#' y <- makeSwishData()
-#' assayNames(y)
-#' y <- labelKeep(y)
+#' library(SummarizedExperiment)
+#' set.seed(1)
+#' y <- makeSimSwishData()
 #' y <- scaleInfReps(y)
-#' y <- swish(y, x="condition")
+#' y <- labelKeep(y)
+#' y <- swish(y, "condition")
 #' stat <- mcols(y)$stat
 #' hist(stat,breaks=40,col="grey")
 #' cols = rep(c("blue","purple","red"),each=2)
 #' for (i in 1:6) {
 #'   arrows(stat[i], 20, stat[i], 10, col=cols[i], length=.1, lwd=2)
 #' }
+#' plotInfReps(y, "condition", 1)
+#' plotInfReps(y, "condition", 3)
+#' plotInfReps(y, "condition", 5)
 #' 
 #' @export
-swish <- function(y, x, cov=NULL, nperms=30, estPi0=FALSE, wilcoxP=NULL) {
+swish <- function(y, x, cov=NULL, nperms=30, wilcoxP=0.25, estPi0=FALSE) {
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- preprocess(y)
   }
   ys <- y[mcols(y)$keep,]
-  # rename 'y' to make it more clear
-  infRepsArray <- abind::abind(as.list(assays(ys)), along=3)
-  # rename 'x' to make it more clear
+  infReps <- assays(ys)[grep("infRep",assayNames(ys))]
+  infRepsArray <- abind::abind(as.list(infReps), along=3)
   condition <- colData(y)[[x]] 
-
   if (is.null(cov)) {
     stat <- getSamStat(infRepsArray, condition, wilcoxP)
     perms <- samr:::getperms(condition, nperms)
@@ -78,19 +83,23 @@ getSamStat <- function(infRepsArray, condition, p=NULL) {
     # modified from samr:::resample
     ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] + 0.1 * runif(dims[1]*dims[2]))
   }
-  # TODO: generalize, below 'y' *has* to take on values 1 and 2
-  # fit <- samr:::wilcoxon.unpaired.seq.func(xresamp=ranks, y=condition)
-  rankSums <- sapply(seq_len(dims[3]), function(i) rowSums(ranks[,condition==2,i]))
-  centered.W <- rankSums - sum(condition==2) * (dims[2] + 1)/2
+  cond2 <- condition == levels(condition)[2]
+  rankSums <- sapply(seq_len(dims[3]), function(i) rowSums(ranks[,cond2,i]))
+  # Wilcoxon, centered on 0:
+  W <- rankSums - sum(cond2) * (dims[2] + 1)/2
   if (is.null(p)) {
-    stat <- rowMeans(centered.W)
+    stat <- rowMeans(W)
   } else {
     stopifnot(p >= 0 & p <= 1)
-    median.stat <- matrixStats::rowMedians(centered.W)
-    stat <- matrixStats::rowQuantiles(centered.W, probs=p)
-    stat[median.stat < 0] <- matrixStats::rowQuantiles(centered.W[median.stat <0,,drop=FALSE], probs=1-p)
+    medW <- matrixStats::rowMedians(W)
+    stat <- numeric(dims[1])
+    stat[medW >= 0] <- matrixStats::rowQuantiles(W[medW >= 0,,drop=FALSE], probs=1-p)
+    stat[medW < 0] <- matrixStats::rowQuantiles(W[medW < 0,,drop=FALSE], probs=1-p)
+    idx <- abs(stat) > abs(medW)
+    if (sum(idx) > 0) {
+      stat[idx] <- medW[idx]
+    }
   }
-  # TODO: scale this so it has variance 1
   stat
 }
 

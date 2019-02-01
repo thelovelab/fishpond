@@ -1,21 +1,22 @@
-#' deswish: DESeq2 With Inferential Samples Helps
+#' deswish: DESeq2-apeglm With Inferential Samples Helps
 #'
-#' The DESeq2 With Inferential Samples implementation supposes
+#' The DESeq2-apeglm With Inferential Samples implementation supposes
 #' a hierarchical distribution of log2 fold changes.
 #' The final posterior standard deviation is calculated by
 #' adding the posterior variance from modeling biological replicates
-#' (apeglm) and the observed variance on the posterior mode
+#' computed by apeglm, and the observed variance on the posterior mode
 #' over inferential replicates.
 #' 
-#' @param y a SummarizedExperiment containing the inferential replicate matrices,
-#' as output by \code{tximeta}
+#' @param y a SummarizedExperiment containing the inferential
+#' replicate matrices, as output by \code{tximeta}
 #' @param x the design matrix
+#' @param coef the coefficient to test (see \code{lfcShrink})
 #'
 #' @return a SummarizedExperiment with metadata columns added
 #'
 #' @references
 #'
-#' The \code{DESeq} and \code{lfcShrink} function in the \code{DESeq2} package.
+#' The \code{DESeq} and \code{lfcShrink} function in the \code{DESeq2} package:
 #'
 #' Zhu, Ibrahim, Love "Heavy-tailed prior distributions for sequence count data:
 #' removing the noise and preserving large differences" Bioinformatics (2018).

@@ -4,12 +4,12 @@
 \alias{swish}
 \title{swish: SAMseq With Inferential Samples Helps}
 \usage{
-swish(y, x, cov = NULL, nperms = 30, estPi0 = FALSE,
-  wilcoxP = NULL)
+swish(y, x, cov = NULL, nperms = 30, wilcoxP = 0.25,
+  estPi0 = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
-matrices of median-ratio-scaled TPM as assays}
+matrices of median-ratio-scaled TPM as assays 'infRep1', 'infRep2', etc.}
 
 \item{x}{the name of the condition variable}
 
@@ -17,6 +17,10 @@ matrices of median-ratio-scaled TPM as assays}
 if provided a stratified Wilcoxon in performed}
 
 \item{nperms}{the number of permutations}
+
+\item{wilcoxP}{the quantile of the Wilcoxon statistics across
+inferential replicates to use as the test statistic.
+If set to NULL this will use the mean over inferential replicates}
 
 \item{estPi0}{logical, whether to estimate pi0}
 }
@@ -28,17 +32,21 @@ swish: SAMseq With Inferential Samples Helps
 }
 \examples{
 
-y <- makeSwishData()
-assayNames(y)
-y <- labelKeep(y)
+library(SummarizedExperiment)
+set.seed(1)
+y <- makeSimSwishData()
 y <- scaleInfReps(y)
-y <- swish(y, x="condition")
+y <- labelKeep(y)
+y <- swish(y, "condition")
 stat <- mcols(y)$stat
 hist(stat,breaks=40,col="grey")
 cols = rep(c("blue","purple","red"),each=2)
 for (i in 1:6) {
   arrows(stat[i], 20, stat[i], 10, col=cols[i], length=.1, lwd=2)
 }
+plotInfReps(y, "condition", 1)
+plotInfReps(y, "condition", 3)
+plotInfReps(y, "condition", 5)
 
 }
 \references{
