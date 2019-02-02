@@ -129,37 +129,67 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20) {
   names(infReps) <- paste0("infRep", seq_len(numReps))
   assays <- list(counts=cts, abundance=abundance, length=length)
   assays <- c(assays, infReps)
-  se <- SummarizedExperiment::SummarizedExperiment(assays=assays)
+  se <- SummarizedExperiment(assays=assays)
   rownames(se) <- paste0("gene-",seq_len(nrow(se)))
-  SummarizedExperiment::metadata(se) <- list(countsFromAbundance="no")
-  SummarizedExperiment::colData(se) <- S4Vectors::DataFrame(condition=gl(2,n/2))
+  metadata(se) <- list(countsFromAbundance="no")
+  colData(se) <- DataFrame(condition=gl(2,n/2))
   se
 }
 
 #' Plot inferential replicates for a gene or transcript
 #'
 #' @param y a SummarizedExperiment (see \code{swish})
+#' @param idx the name or row number of the gene or transcript
 #' @param x the name of the condition variable
-#' @param idx the name or index number of the gene or transcript
+#' @param cov the name of the covariate for adjustment
+#' @param cols.drk dark colors for the lines of the boxes
+#' @param cols.lgt light colors for the inside of the boxes
+#' @param xaxis logical, whether to label the sample numbers
 #'
+#' @examples
+#'
+#' y <- makeSimSwishData()
+#' plotInfReps(y, 3, "condition")
+#'
+#' y <- makeSimSwishData(n=40)
+#' y$batch <- factor(rep(c(1,2,3,1,2,3),c(5,10,5,5,10,5)))
+#' plotInfReps(y, 3, "condition", "batch", xaxis=FALSE)
+#' 
 #' @export
-plotInfReps <- function(y, x, idx) {
+plotInfReps <- function(y, idx, x, cov=NULL,
+                        cols.drk=c("dodgerblue","goldenrod4"),
+                        cols.lgt=c("lightblue1","goldenrod1"),
+                        xaxis=TRUE) {
   infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
-  cond0 <- colData(y)[[x]]
-  cond1 <- which(cond0 == levels(cond0)[1])
-  cond2 <- which(cond0 == levels(cond0)[2])
-  cts <- unlist(infReps)[,c(cond1,cond2)]
-  cols <- rep(c("dodgerblue","goldenrod4"),table(cond0))
-  cols.in <- rep(c("lightblue1","goldenrod1"),table(cond0))
-  if (is.null(rownames(y))) {
-    main <- ""
+  condition <- colData(y)[[x]]
+  if (is.null(cov)) {
+    cts <- unlist(infReps)[,order(condition)]
+    samp.nums <- as.vector(sapply(table(condition), seq_len))
+    cols <- rep(cols.drk, table(condition))
+    cols.in <- rep(cols.lgt, table(condition))
   } else {
-    main <- rownames(y)[idx]
+    covariate <- colData(y)[[cov]]
+    ngrp <- nlevels(covariate)
+    cts <- unlist(infReps)[,order(covariate, condition)]
+    vec.tab <- as.vector(table(condition, covariate))
+    samp.nums <- unlist(lapply(vec.tab, seq_len))
+    cols <- rep(rep(cols.drk, ngrp), vec.tab)
+    cols.in <- rep(rep(cols.lgt, ngrp), vec.tab)
   }
+  main <- if (is.null(rownames(y))) {
+            ""
+          } else {
+            if (is.character(idx)) idx else rownames(y)[idx]
+          }
   boxplot(cts,range=0,border=cols,col=cols.in,xaxt="n",
           ylim=c(0,max(cts)),xlab="samples",ylab="scaled counts",
           main=main)
-  axis(1,seq_along(cond0),as.vector(sapply(table(cond0), seq_len)))
+  if (xaxis) axis(1, seq_along(condition), samp.nums)
+  if (!is.null(cov)) {
+    cuts <- cumsum(table(covariate))
+    segments(c(1,cuts[-ngrp]+1),0,cuts,0,lwd=3,
+             col=rep(c("black","grey"),length=ngrp))
+  }
 }
 
 postprocess <- function(y, df) {

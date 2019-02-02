@@ -29,15 +29,20 @@
 #' y <- scaleInfReps(y)
 #' y <- labelKeep(y)
 #' y <- swish(y, "condition")
-#' stat <- mcols(y)$stat
-#' hist(stat,breaks=40,col="grey")
+#'
+#' # histogram of the swish statistics
+#' hist(mcols(y)$stat, breaks=40, col="grey")
 #' cols = rep(c("blue","purple","red"),each=2)
 #' for (i in 1:6) {
-#'   arrows(stat[i], 20, stat[i], 10, col=cols[i], length=.1, lwd=2)
+#'   arrows(mcols(y)$stat[i], 20,
+#'          mcols(y)$stat[i], 10,
+#'          col=cols[i], length=.1, lwd=2)
 #' }
-#' plotInfReps(y, "condition", 1)
-#' plotInfReps(y, "condition", 3)
-#' plotInfReps(y, "condition", 5)
+#'
+#' # plot inferential replicates
+#' plotInfReps(y, 1, "condition")
+#' plotInfReps(y, 3, "condition")
+#' plotInfReps(y, 5, "condition")
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, nperms=30, wilcoxP=0.25, estPi0=FALSE) {
@@ -47,7 +52,8 @@ swish <- function(y, x, cov=NULL, nperms=30, wilcoxP=0.25, estPi0=FALSE) {
   ys <- y[mcols(y)$keep,]
   infReps <- assays(ys)[grep("infRep",assayNames(ys))]
   infRepsArray <- abind::abind(as.list(infReps), along=3)
-  condition <- colData(y)[[x]] 
+  condition <- colData(y)[[x]]
+  stopifnot(is.factor(condition))
   if (is.null(cov)) {
     stat <- getSamStat(infRepsArray, condition, wilcoxP)
     perms <- samr:::getperms(condition, nperms)

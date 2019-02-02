@@ -1,12 +1,10 @@
 ---
-title: "Fishpond: differential gene expression and differential transcript expression with inferential replicates"
+title: "Fishpond: DGE and DTE with inferential replicates"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 author: "Anqi Zhu, Rob Patro, Michael Love"
 output:
   rmarkdown::html_document:
-    highlight: pygments
-    toc: true
-    toc_float: true
+    highlight: tango
 vignette: |
   %\VignetteIndexEntry{Fishpond}
   %\VignetteEngine{knitr::rmarkdown}
@@ -22,6 +20,11 @@ knitr::opts_chunk$set(tidy=FALSE, cache=TRUE,
 ```
 
 ```{r}
+suppressPackageStartupMessages(library(SummarizedExperiment))
+```
+
+```{r}
+library(fishpond)
 y <- makeSimSwishData()
 y <- scaleInfReps(y)
 y <- labelKeep(y)
@@ -29,8 +32,17 @@ y <- swish(y, x="condition")
 ```
 
 ```{r}
-y <- makeSimSwishData()
+plotInfReps(y, 3, "condition")
+```
+
+```{r}
+y <- makeSimSwishData(n=20)
+y$batch <- factor(rep(c(1,2,1,2),each=5))
 y <- scaleInfReps(y)
 y <- labelKeep(y)
 y <- swish(y, x="condition", cov="batch")
+```
+
+```{r}
+plotInfReps(y, 3, "condition", "batch")
 ```
