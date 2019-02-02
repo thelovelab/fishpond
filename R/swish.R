@@ -2,9 +2,17 @@
 #'
 #' @param y a SummarizedExperiment containing the inferential replicate
 #' matrices of median-ratio-scaled TPM as assays 'infRep1', 'infRep2', etc.
-#' @param x the name of the condition variable
+#' @param x the name of the condition variable. A factor with two
+#' levels for a two group analysis (possible to adjust for covariate
+#' or matched samples, see next two arguments)
 #' @param cov the name of the covariate for adjustment.
-#' if provided a stratified Wilcoxon in performed
+#' If provided a stratified Wilcoxon in performed.
+#' Cannot be used with \code{pair}
+#' @param pair the name of the pair variable, which should be the
+#' number of the pair. Can be an integer or factor.
+#' If specified, a signed rank test is used
+#' to build the statistic. All samples across \code{x} must be
+#' pairs if this is specified. Cannot be used with \code{cov}.
 #' @param nperms the number of permutations
 #' @param wilcoxP the quantile of the Wilcoxon statistics across
 #' inferential replicates to use as the test statistic.
@@ -45,7 +53,10 @@
 #' plotInfReps(y, 5, "condition")
 #' 
 #' @export
-swish <- function(y, x, cov=NULL, nperms=30, wilcoxP=0.25, estPi0=FALSE) {
+swish <- function(y, x, cov=NULL, pair=NULL,
+                  nperms=30, wilcoxP=0.25, estPi0=FALSE) {
+  # 'cov' or 'pair' or neither, but not both
+  stopifnot(is.null(cov) | is.null(pair))
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- preprocess(y)
   }
@@ -54,7 +65,11 @@ swish <- function(y, x, cov=NULL, nperms=30, wilcoxP=0.25, estPi0=FALSE) {
   infRepsArray <- abind::abind(as.list(infReps), along=3)
   condition <- colData(y)[[x]]
   stopifnot(is.factor(condition))
-  if (is.null(cov)) {
+  stopifnot(nlevels(condition) == 2)
+  if (is.null(cov) & is.null(pair)) {
+    #######################
+    ## simple two groups ##
+    #######################
     stat <- getSamStat(infRepsArray, condition, wilcoxP)
     perms <- samr:::getperms(condition, nperms)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
@@ -63,11 +78,34 @@ swish <- function(y, x, cov=NULL, nperms=30, wilcoxP=0.25, estPi0=FALSE) {
       nulls[,p] <- getSamStat(infRepsArray, condition[perms$perms[p,]], wilcoxP)
     }
     cat("\n")
-  } else {
+  } else if (is.null(pair)) {
+    #########################
+    ## stratified analysis ##
+    #########################
     covariate <- colData(y)[[cov]]
     out <- swish.strat(infRepsArray, condition, covariate, nperms=nperms, wilcoxP)
     stat <- out$stat
     nulls <- out$nulls
+  } else {
+    #####################
+    ## paired analysis ##
+    #####################
+    pair <- colData(y)[[pair]]
+    stopifnot(is.integer(pair) | is.factor(pair)) 
+    pair <- as.integer(factor(pair))
+    stopifnot(all(table(pair,condition) == 1))
+    stat <- getSignedRank(infRepsArray, condition, pair, wilcoxP)
+
+    # TODO fix with block perms
+    
+    # perms <- samr:::getperms(condition, nperms)
+    nulls <- matrix(nrow=nrow(ys), ncol=nperms)
+    for (p in seq_len(nperms)) {
+      cat(p, "")
+      nulls[,p] <- getSignedRank(infRepsArray, condition[perms$perms[p,]],
+                                 pair[perms$perms[p,]], wilcoxP)
+    }
+    cat("\n")
   }
   nulls.vec <- as.vector(nulls)
   if (estPi0) {
@@ -96,15 +134,21 @@ getSamStat <- function(infRepsArray, condition, p=NULL) {
   if (is.null(p)) {
     stat <- rowMeans(W)
   } else {
-    stopifnot(p >= 0 & p <= 1)
-    medW <- matrixStats::rowMedians(W)
-    stat <- numeric(dims[1])
-    stat[medW >= 0] <- matrixStats::rowQuantiles(W[medW >= 0,,drop=FALSE], probs=1-p)
-    stat[medW < 0] <- matrixStats::rowQuantiles(W[medW < 0,,drop=FALSE], probs=1-p)
-    idx <- abs(stat) > abs(medW)
-    if (sum(idx) > 0) {
-      stat[idx] <- medW[idx]
-    }
+    stat <- rowQuantilesTowardZero(W, p)
+  }
+  stat
+}
+
+rowQuantilesTowardZero <- function(W, p) {
+  stopifnot(p >= 0 & p <= 1)
+  medW <- matrixStats::rowMedians(W)
+  stat <- numeric(dims[1])
+  stat[medW >= 0] <- matrixStats::rowQuantiles(W[medW >= 0,,drop=FALSE], probs=1-p)
+  stat[medW < 0] <- matrixStats::rowQuantiles(W[medW < 0,,drop=FALSE], probs=1-p)
+  # prefer the median, if this is closer to zero
+  idx <- abs(stat) > abs(medW)
+  if (sum(idx) > 0) {
+    stat[idx] <- medW[idx]
   }
   stat
 }

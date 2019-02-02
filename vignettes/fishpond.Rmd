@@ -46,3 +46,11 @@ y <- swish(y, x="condition", cov="batch")
 ```{r}
 plotInfReps(y, 3, "condition", "batch")
 ```
+
+```{r}
+y <- makeSimSwishData()
+y$pair <- rep(1:5,2)
+y <- scaleInfReps(y)
+y <- labelKeep(y)
+y <- swish(y, x="condition", pair="pair")
+```

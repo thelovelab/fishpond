@@ -4,17 +4,26 @@
 \alias{swish}
 \title{swish: SAMseq With Inferential Samples Helps}
 \usage{
-swish(y, x, cov = NULL, nperms = 30, wilcoxP = 0.25,
+swish(y, x, cov = NULL, pair = NULL, nperms = 30, wilcoxP = 0.25,
   estPi0 = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
 matrices of median-ratio-scaled TPM as assays 'infRep1', 'infRep2', etc.}
 
-\item{x}{the name of the condition variable}
+\item{x}{the name of the condition variable. A factor with two
+levels for a two group analysis (possible to adjust for covariate
+or matched samples, see next two arguments)}
 
 \item{cov}{the name of the covariate for adjustment.
-if provided a stratified Wilcoxon in performed}
+If provided a stratified Wilcoxon in performed.
+Cannot be used with \code{pair}}
+
+\item{pair}{the name of the pair variable, which should be the
+number of the pair. Can be an integer or factor.
+If specified, a signed rank test is used
+to build the statistic. All samples across \code{x} must be
+pairs if this is specified. Cannot be used with \code{cov}.}
 
 \item{nperms}{the number of permutations}
 
