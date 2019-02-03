@@ -72,6 +72,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     #######################
     stat <- getSamStat(infRepsArray, condition, wilcoxP)
     perms <- samr:::getperms(condition, nperms)
+    nperms <- permsNote(perms, nperms)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
     for (p in seq_len(nperms)) {
       cat(p, "")
@@ -93,17 +94,16 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     pair <- colData(y)[[pair]]
     stopifnot(is.integer(pair) | is.factor(pair)) 
     pair <- as.integer(factor(pair))
-    stopifnot(all(table(pair,condition) == 1))
+    stopifnot(all(table(pair, condition) == 1))
     stat <- getSignedRank(infRepsArray, condition, pair, wilcoxP)
-
-    # TODO fix with block perms
-    
-    # perms <- samr:::getperms(condition, nperms)
+    cond.sign <- ifelse(condition == levels(condition)[1], 1, -1)
+    perms <- samr:::compute.block.perms(cond.sign * pair, pair, nperms)
+    nperms <- permsNote(perms, nperms)
+    perms <- fixPerms(perms, condition, pair)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
     for (p in seq_len(nperms)) {
       cat(p, "")
-      nulls[,p] <- getSignedRank(infRepsArray, condition[perms$perms[p,]],
-                                 pair[perms$perms[p,]], wilcoxP)
+      nulls[,p] <- getSignedRank(infRepsArray, condition[perms[p,]], pair[perms[p,]], wilcoxP)
     }
     cat("\n")
   }
@@ -142,7 +142,7 @@ getSamStat <- function(infRepsArray, condition, p=NULL) {
 rowQuantilesTowardZero <- function(W, p) {
   stopifnot(p >= 0 & p <= 1)
   medW <- matrixStats::rowMedians(W)
-  stat <- numeric(dims[1])
+  stat <- numeric(nrow(W))
   stat[medW >= 0] <- matrixStats::rowQuantiles(W[medW >= 0,,drop=FALSE], probs=1-p)
   stat[medW < 0] <- matrixStats::rowQuantiles(W[medW < 0,,drop=FALSE], probs=1-p)
   # prefer the median, if this is closer to zero
@@ -192,4 +192,25 @@ makeSamrObj <- function(stat, nulls, pi0) {
     evo=rowMeans(apply(nulls, 2, sort)),
     pi0=pi0,
     assay.type="seq")
+}
+
+permsNote <- function(perms, nperms) {
+  if (perms$nperms.act < nperms) {
+    message("note: less permuatations are available than requested")
+    perms$nperms.act
+  } else {
+    nperms
+  }
+}
+
+fixPerms <- function(perms, condition, pair) {
+  perms.in <- perms$perms
+  perms <- matrix(rep(seq_along(condition), nrow(perms.in)),
+                  nrow=nrow(perms.in), byrow=TRUE)
+  for (i in seq_len(max(pair))) {
+    idx1 <- perms.in[,2*i - 1] < 0
+    idx2 <- pair == i
+    perms[idx1,idx2] <- perms[idx1,idx2,drop=FALSE][,2:1]
+  }
+  perms
 }

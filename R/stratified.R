@@ -10,6 +10,7 @@ swish.strat <- function(infRepsArray, condition, covariate, nperms=30, wilcoxP) 
     infRepsArray.sub <- infRepsArray[,covariate == g,]
     cond.sub <- condition[covariate == g]
     perms <- samr:::getperms(cond.sub, nperms)
+    nperms <- permsNote(perms, nperms)
     stats[,i] <- getSamStat(infRepsArray.sub, cond.sub, wilcoxP)
     for (p in seq_len(nperms)) {
       cat(p, "")

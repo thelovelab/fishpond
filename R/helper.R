@@ -168,7 +168,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     cols <- rep(cols.drk, table(condition))
     cols.in <- rep(cols.lgt, table(condition))
   } else {
-    covariate <- colData(y)[[cov]]
+    covariate <- factor(colData(y)[[cov]])
     ngrp <- nlevels(covariate)
     cts <- unlist(infReps)[,order(covariate, condition)]
     vec.tab <- as.vector(table(condition, covariate))

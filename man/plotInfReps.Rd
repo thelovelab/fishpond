@@ -4,9 +4,8 @@
 \alias{plotInfReps}
 \title{Plot inferential replicates for a gene or transcript}
 \usage{
-plotInfReps(y, idx, x, cov = NULL, cols.drk = c("dodgerblue",
-  "goldenrod4"), cols.lgt = c("lightblue1", "goldenrod1"),
-  xaxis = TRUE)
+plotInfReps(y, idx, x, cov = NULL, cols.drk = c("dodgerblue", "goldenrod4"),
+  cols.lgt = c("lightblue1", "goldenrod1"), xaxis = TRUE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment (see \code{swish})}

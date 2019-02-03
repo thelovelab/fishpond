@@ -54,3 +54,7 @@ y <- scaleInfReps(y)
 y <- labelKeep(y)
 y <- swish(y, x="condition", pair="pair")
 ```
+
+```{r}
+plotInfReps(y, 3, "condition", "pair")
+```
