@@ -60,7 +60,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE, meanDepth=NULL, sfFun=NULL, minC
     infReps[[k]] <- t( t(tpm)/sf )
   }
   cat("\n")
-  assays(y) <- infReps
+  assays(y)[grep("infRep",assayNames(y))] <- infReps
   y
 }
 
@@ -114,7 +114,7 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20) {
   stopifnot(n %% 2 == 0)
   cts <- matrix(rpois(m*n, lambda=80), ncol=n)
   grp2 <- (n/2+1):n
-  cts[1:6,grp2] <- rpois(3*n, lambda=160)
+  cts[1:6,grp2] <- rpois(3*n, lambda=120)
   cts[7:8,] <- 0
   length <- matrix(1000, nrow=m, ncol=n)
   abundance <- t(t(cts)/colSums(cts))*1e6

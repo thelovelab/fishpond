@@ -4,6 +4,7 @@ swish.strat <- function(infRepsArray, condition, covariate, nperms=30, wilcoxP) 
   groups <- levels(covariate)
   nr <- nrow(infRepsArray)
   stats <- matrix(nrow=nr, ncol=ngroups)
+  lfc.mat <- matrix(nrow=nr, ncol=ngroups)
   nulls.big <- array(dim=list(nr, nperms, ngroups))
   for (i in seq_len(ngroups)) {
     g <- groups[i]
@@ -12,6 +13,7 @@ swish.strat <- function(infRepsArray, condition, covariate, nperms=30, wilcoxP) 
     perms <- samr:::getperms(cond.sub, nperms)
     nperms <- permsNote(perms, nperms)
     stats[,i] <- getSamStat(infRepsArray.sub, cond.sub, wilcoxP)
+    lfc.mat[,i] <- getLog2FC(infRepsArray.sub, cond.sub)
     for (p in seq_len(nperms)) {
       cat(p, "")
       nulls.big[,p,i] <- getSamStat(infRepsArray.sub, cond.sub[perms$perms[p,]], wilcoxP)
@@ -21,9 +23,11 @@ swish.strat <- function(infRepsArray, condition, covariate, nperms=30, wilcoxP) 
   ns <- unname(table(covariate))
   wts <- 1/(ns + 1)
   stat <- as.vector(stats %*% wts)
+  lfc.wts <- ns/sum(ns)
+  log2FC <- as.vector(lfc.mat %*% lfc.wts)
   nulls <- matrix(nrow=nr, ncol=nperms)
   for (p in seq_len(nperms)) {
     nulls[,p] <- nulls.big[,p,] %*% wts
   }
-  list(stat=stat, nulls=nulls)
+  list(stat=stat, log2FC=log2FC, nulls=nulls)
 }

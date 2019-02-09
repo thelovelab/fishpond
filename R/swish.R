@@ -71,6 +71,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     ## simple two groups ##
     #######################
     stat <- getSamStat(infRepsArray, condition, wilcoxP)
+    log2FC <- getLog2FC(infRepsArray, condition)
     perms <- samr:::getperms(condition, nperms)
     nperms <- permsNote(perms, nperms)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
@@ -86,6 +87,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     covariate <- colData(y)[[cov]]
     out <- swish.strat(infRepsArray, condition, covariate, nperms=nperms, wilcoxP)
     stat <- out$stat
+    log2FC <- out$log2FC
     nulls <- out$nulls
   } else {
     #####################
@@ -96,6 +98,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     pair <- as.integer(factor(pair))
     stopifnot(all(table(pair, condition) == 1))
     stat <- getSignedRank(infRepsArray, condition, pair, wilcoxP)
+    log2FC <- getLog2FCPair(infRepsArray, condition, pair)
     cond.sign <- ifelse(condition == levels(condition)[1], 1, -1)
     perms <- samr:::compute.block.perms(cond.sign * pair, pair, nperms)
     nperms <- permsNote(perms, nperms)
@@ -115,7 +118,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   }
   locfdr <- makeLocFDR(stat, nulls, pi0)
   qvalue <- makeQvalue(stat, nulls, pi0)
-  df <- data.frame(stat, locfdr, qvalue)
+  df <- data.frame(stat, log2FC, locfdr, qvalue)
   y <- postprocess(y, df)
   y
 }
@@ -137,6 +140,30 @@ getSamStat <- function(infRepsArray, condition, p=NULL) {
     stat <- rowQuantilesTowardZero(W, p)
   }
   stat
+}
+
+getLog2FC <- function(infRepsArray, condition, pc=0.5) {
+  dims <- dim(infRepsArray)
+  cond1 <- condition == levels(condition)[1]
+  cond2 <- condition == levels(condition)[2]
+  log2Cond1 <- log2(apply(infRepsArray[,cond1,],c(1,3),mean) + pc)
+  log2Cond2 <- log2(apply(infRepsArray[,cond2,],c(1,3),mean) + pc)
+  # median over inferential replicates
+  matrixStats::rowMedians(log2Cond2 - log2Cond1)
+}
+
+getLog2FCPair <- function(infRepsArray, condition, pair, pc=0.5) {
+  dims <- dim(infRepsArray)
+  o <- order(condition, pair)
+  if (!all(o == seq_along(condition))) {
+    infRepsArray <- infRepsArray[,o,]
+  }
+  n <- dims[2]
+  cond1 <- 1:(n/2)
+  cond2 <- (n/2 + 1):n
+  lfc.mat <- log2(infRepsArray[,cond2,] + pc) - log2(infRepsArray[,cond1,] + pc)
+  # median over inferential replicates
+  apply(lfc.mat, 1, median)
 }
 
 rowQuantilesTowardZero <- function(W, p) {
