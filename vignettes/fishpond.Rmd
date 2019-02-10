@@ -19,42 +19,118 @@ knitr::opts_chunk$set(tidy=FALSE, cache=TRUE,
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
+# Macrophage data package
+
+We begin the *fishpond* vignette by loading data from a Bioconductor
+Experiment Data package, *macrophage*. The package contains RNA-seq
+quantification from 24 RNA-seq samples described in the paper, 
+Alasoo, et al. "Shared genetic effects on chromatin and gene
+expression indicate a role for enhancer priming in immune response",
+published in Nature Genetics, January 2018 
+[doi: 10.1038/s41588-018-0046-7](https://doi.org/10.1038/s41588-018-0046-7).
+The experiment involved treatment of macrophage cell lines from a number
+of human donors with IFN gamma, *Salmonella* infection, or both
+treatments combined. In this vignette, we will focus on comparing the
+IFN gamma stimulated cell lines with the control cell lines,
+accounting for the paired nature of the data (cells from the same
+donor).
+
+We load the package, and point to the `extdata` directory. For a
+typical analysis, the user would just point `dir` to the location on
+the machine or cluster where the transcript quantifications are stored.
+
+```{r}
+library(macrophage)
+dir <- system.file("extdata", package="macrophage")
+```
+
+The data was quantified using *Salmon* 0.12.0 against the Gencode v29
+human reference transcripts. For more details and all code used for
+quantification, refer the *macrophage* package vignette.
+
+Importantly, `--numGibbsSamples 20` was used to generate 20
+inferential replicates with *Salmon*'s Gibbs sampler. Inferential
+replicates, either from Gibbs sampling or bootstrapping of reads is
+required for the *swish* method shown below. We also recommend to use
+`--gcBias` when running *Salmon* to protect against common
+sample-specific biases present in RNA-seq data.
+
+# Read in the column data from CSV
+
+We start by reading in a CSV with the *column data*, that is,
+information about the samples, which are represented as *columns* of
+the *SummarizedExperiment* object we will construct containing the
+counts of reads per gene or transcript.
+
+```{r}
+coldata <- read.csv(file.path(dir, "coldata.csv"))
+head(coldata)
+```
+
+```{r}
+coldata <- coldata[,c(1,2,3,5)]
+names(coldata) <- c("names","id","line","condition")
+```
+
+# Add a column `files`
+
+```{r}
+coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
+all(file.exists(coldata$files))
+```
+
+```{r}
+coldata <- coldata[coldata$condition %in% c("naive","IFNg"),]
+coldata$condition <- factor(coldata$condition, c("naive","IFNg"))
+```
+
+# Read in quants with *tximeta*
+
 ```{r}
 suppressPackageStartupMessages(library(SummarizedExperiment))
 ```
 
+
+```{r}
+library(tximeta)
+se <- tximeta(coldata)
+```
+
+# Running `swish` at the transcript level
+
 ```{r}
 library(fishpond)
-y <- makeSimSwishData()
-y <- scaleInfReps(y)
+y <- scaleInfReps(se)
 y <- labelKeep(y)
-y <- swish(y, x="condition")
+y <- swish(y, x="condition", pair="line")
+```
+
+# Plotting inferential replicates
+
+```{r}
+plotInfReps(y, 1, x="condition", cov="line")
+```
+
+# Running `swish` at the gene level
+
+```{r}
+gse <- summarizeToGene(se)
 ```
 
 ```{r}
-plotInfReps(y, 3, "condition")
-```
-
-```{r}
-y <- makeSimSwishData(n=20)
-y$batch <- factor(rep(c(1,2,1,2),each=5))
-y <- scaleInfReps(y)
+y <- scaleInfReps(gse)
 y <- labelKeep(y)
-y <- swish(y, x="condition", cov="batch")
+y <- swish(y, x="condition", pair="line")
 ```
 
-```{r}
-plotInfReps(y, 3, "condition", "batch")
-```
+# Analysis types supported by `swish`
+
+* Two group analysis 
+* Two groups with two or more batches
+* Two group paired or matched samples
+
+# Session information
 
 ```{r}
-y <- makeSimSwishData()
-y$pair <- rep(1:5,2)
-y <- scaleInfReps(y)
-y <- labelKeep(y)
-y <- swish(y, x="condition", pair="pair")
-```
-
-```{r}
-plotInfReps(y, 3, "condition", "pair")
+sessionInfo()
 ```

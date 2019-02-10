@@ -29,7 +29,9 @@
 #'
 #' @export
 scaleInfReps <- function(y, lengthCorrect=TRUE, meanDepth=NULL, sfFun=NULL, minCount=10, minN=3) {
-  infReps <- assays(y)[grep("infRep",assayNames(y))]
+  infRepIdx <- grep("infRep",assayNames(y))
+  infRepError(infRepIdx)
+  infReps <- assays(y)[infRepIdx]
   counts <- assays(y)[["counts"]]
   length <- assays(y)[["length"]]
   nreps <- length(infReps)
@@ -80,7 +82,9 @@ scaleInfReps <- function(y, lengthCorrect=TRUE, meanDepth=NULL, sfFun=NULL, minC
 #'
 #' @export
 labelKeep <- function(y, minCount=10, minN=3) {
-  infReps <- assays(y)[grep("infRep",assayNames(y))]
+  infRepIdx <- grep("infRep",assayNames(y))
+  infRepError(infRepIdx)
+  infReps <- assays(y)[infRepIdx]
   nreps <- length(infReps)
   keep.mat <- matrix(nrow=nrow(y), ncol=nreps)
   for (k in seq_len(nreps)) {
@@ -199,4 +203,8 @@ postprocess <- function(y, df) {
     mcols(y)[[stat]][!mcols(y)$keep] <- NA
   }
   y
+}
+
+infRepError <- function(infRepIdx) {
+  if (length(infRepIdx) == 0) stop("there are no inferential replicates in the assays of 'y'")
 }

@@ -58,10 +58,12 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   # 'cov' or 'pair' or neither, but not both
   stopifnot(is.null(cov) | is.null(pair))
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
-    y <- preprocess(y)
+    y <- labelKeep(y)
   }
   ys <- y[mcols(y)$keep,]
-  infReps <- assays(ys)[grep("infRep",assayNames(ys))]
+  infRepIdx <- grep("infRep",assayNames(y))
+  infRepError(infRepIdx)
+  infReps <- assays(ys)[infRepIdx]
   infRepsArray <- abind::abind(as.list(infReps), along=3)
   condition <- colData(y)[[x]]
   stopifnot(is.factor(condition))
