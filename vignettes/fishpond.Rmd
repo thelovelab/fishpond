@@ -5,6 +5,8 @@ author: "Anqi Zhu, Rob Patro, Michael Love"
 output:
   rmarkdown::html_document:
     highlight: tango
+    toc: true
+    toc_float: true
 vignette: |
   %\VignetteIndexEntry{Fishpond}
   %\VignetteEngine{knitr::rmarkdown}
@@ -19,15 +21,17 @@ knitr::opts_chunk$set(tidy=FALSE, cache=TRUE,
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
-# Macrophage data package
+# Macrophage stimulation experiment
 
 We begin the *fishpond* vignette by loading data from a Bioconductor
 Experiment Data package, *macrophage*. The package contains RNA-seq
-quantification from 24 RNA-seq samples described in the paper, 
+quantification from 24 RNA-seq samples, which are a subset of the
+RNA-seq samples used in a paper, 
 Alasoo, et al. "Shared genetic effects on chromatin and gene
 expression indicate a role for enhancer priming in immune response",
 published in Nature Genetics, January 2018 
 [doi: 10.1038/s41588-018-0046-7](https://doi.org/10.1038/s41588-018-0046-7).
+
 The experiment involved treatment of macrophage cell lines from a number
 of human donors with IFN gamma, *Salmonella* infection, or both
 treatments combined. In this vignette, we will focus on comparing the
@@ -37,7 +41,8 @@ donor).
 
 We load the package, and point to the `extdata` directory. For a
 typical analysis, the user would just point `dir` to the location on
-the machine or cluster where the transcript quantifications are stored.
+the machine or cluster where the transcript quantifications are stored
+(e.g. the `quant.sf` files).
 
 ```{r}
 library(macrophage)
@@ -136,7 +141,6 @@ y <- se
 y <- y[seqnames(y) == "chr1",]
 ```
 
-
 # Running `swish` at the transcript level
 
 Running `swish` has three steps: scaling the inferential replicates,
@@ -168,6 +172,7 @@ q-value.
 
 ```{r}
 sig.indicator <- mcols(y)$qvalue < .05
+table(sig.indicator, sign.lfc=sign(mcols(y)$log2FC))
 o.lo <- order(mcols(y)$log2FC * sig.indicator)
 o.hi <- order(-mcols(y)$log2FC * sig.indicator)
 mcols(y)[head(o.hi),]
@@ -181,7 +186,7 @@ analysis was paired, so the statistic assessed if the change within
 pairs was consistent.
 
 ```{r}
-plotInfReps(y, idx=o.hi[100], x="condition", cov="line")
+plotInfReps(y, idx=o.hi[150], x="condition", cov="line")
 ```
 
 # Running `swish` at the gene level
@@ -215,14 +220,35 @@ As before, finding the genes with the most extreme log2 fold change:
 
 ```{r}
 sig.indicator <- mcols(y)$qvalue < .05
+table(sig.indicator, sign.lfc=sign(mcols(y)$log2FC))
 o.lo <- order(mcols(y)$log2FC * sig.indicator)
 o.hi <- order(-mcols(y)$log2FC * sig.indicator)
 mcols(y)[head(o.hi),]
-plotInfReps(y, idx=o.hi[100], x="condition", cov="line")
+plotInfReps(y, idx=o.hi[120], x="condition", cov="line")
 ```
 
 As expected, the highly up-regulated genes are involved in immune
 response.
+
+As with *SAMseq* and *SAM*, `swish` makes use of the permutation
+plug-in approach for q-value calculation. `swish` directly calls
+functions from *samr* to calculate the q-values. One note about this
+approach is that provides asymmetric cutoffs for the statistic for
+various q-values, unlike methods using a Wald statistic, in which case
+$-t$ and $t$ are given the same p-value. If we plot the q-values
+against the statistic, or against the log2 fold change, one can see
+clusters of genes with the same q-value (because they have the same or
+similar statistic). One consequence of this is that, in order to rank
+the genes, rather than ranking directly by q-value, it makes more
+sense to pick a q-value threshold and then within that set of genes,
+to rank by the log2 fold change, as shown above when the code chunk
+has `log2FC * sig.indicator`.
+
+```{r fig.height=4}
+par(mfrow=c(1,2))
+with(mcols(y), plot(stat, -log10(qvalue)))
+with(mcols(y), plot(log2FC, -log10(qvalue)))
+```
 
 # Analysis types supported by `swish`
 

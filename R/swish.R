@@ -144,7 +144,7 @@ getSamStat <- function(infRepsArray, condition, p=NULL) {
   stat
 }
 
-getLog2FC <- function(infRepsArray, condition, pc=0.5) {
+getLog2FC <- function(infRepsArray, condition, pc=5) {
   dims <- dim(infRepsArray)
   cond1 <- condition == levels(condition)[1]
   cond2 <- condition == levels(condition)[2]
@@ -154,7 +154,7 @@ getLog2FC <- function(infRepsArray, condition, pc=0.5) {
   matrixStats::rowMedians(log2Cond2 - log2Cond1)
 }
 
-getLog2FCPair <- function(infRepsArray, condition, pair, pc=0.5) {
+getLog2FCPair <- function(infRepsArray, condition, pair, pc=5) {
   dims <- dim(infRepsArray)
   o <- order(condition, pair)
   if (!all(o == seq_along(condition))) {
