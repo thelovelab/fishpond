@@ -1,5 +1,5 @@
 ---
-title: "Fishpond: DGE and DTE with inferential replicates"
+title: "Fishpond: DTE and DGE with inferential replicates"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 author: "Anqi Zhu, Rob Patro, Michael Love"
 output:
@@ -58,7 +58,7 @@ sample-specific biases present in RNA-seq data.
 # Read in the column data from CSV
 
 We start by reading in a CSV with the *column data*, that is,
-information about the samples, which are represented as *columns* of
+information about the samples, which are represented as columns of
 the *SummarizedExperiment* object we will construct containing the
 counts of reads per gene or transcript.
 
@@ -67,67 +67,174 @@ coldata <- read.csv(file.path(dir, "coldata.csv"))
 head(coldata)
 ```
 
+We will subset to certain columns of interest, and re-name them for
+later.
+
 ```{r}
 coldata <- coldata[,c(1,2,3,5)]
 names(coldata) <- c("names","id","line","condition")
 ```
 
-# Add a column `files`
+# Add a column pointing to your files
+
+`coldata` needs to have a column `files` which specifies the path to
+the quantification files. In this case, we've gzipped the
+quantification files, so we point to the `quant.sf.gz` file. We make
+sure that all the files exist in the location we specified.
 
 ```{r}
 coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
 all(file.exists(coldata$files))
 ```
 
+Two demonstrate a two group comparison, we subset to the "naive" and
+"IFNg" groups. This step could be done after running `tximeta` as well.
+
 ```{r}
 coldata <- coldata[coldata$condition %in% c("naive","IFNg"),]
 coldata$condition <- factor(coldata$condition, c("naive","IFNg"))
 ```
 
+
 # Read in quants with *tximeta*
+
+We will read in quantification data for some of the samples. First we
+load the *SummarizedExperiment* package. We will store out data and
+the output of the statistical method in a *SummarizedExperiment*
+object. 
 
 ```{r}
 suppressPackageStartupMessages(library(SummarizedExperiment))
 ```
 
+We load in the quantification data with `tximeta`:
 
 ```{r}
 library(tximeta)
 se <- tximeta(coldata)
 ```
 
+We can see that all the assays have been loaded:
+
+```{r}
+assayNames(se)
+```
+
+`tximeta` loads transcript-level data, although it can later be
+summarized to the gene levels:
+
+```{r}
+head(rownames(se))
+```
+
+We will rename our *SummarizedExperiment* `y` for the statistical
+analysis. For speed of the vignette, we subset to the transcripts on
+chromosome 1.
+
+```{r}
+y <- se
+y <- y[seqnames(y) == "chr1",]
+```
+
+
 # Running `swish` at the transcript level
+
+Running `swish` has three steps: scaling the inferential replicates,
+labeling the rows with sufficient counts for running differential
+expression, and then calculating the statistics. 
 
 ```{r}
 library(fishpond)
-y <- scaleInfReps(se)
+y <- scaleInfReps(y)
 y <- labelKeep(y)
 y <- swish(y, x="condition", pair="line")
+```
+
+The results are stored in `mcols(y)`:
+
+```{r}
+mcols(y)
+```
+
+We can see how many transcripts are in a 5% FDR set:
+
+```{r}
+table(mcols(y)$qvalue < .05)
+```
+
+Of the transcripts in this set, which have the most extreme log2
+fold change? Note that often many transcripts will share the same
+q-value.
+
+```{r}
+sig.indicator <- mcols(y)$qvalue < .05
+o.lo <- order(mcols(y)$log2FC * sig.indicator)
+o.hi <- order(-mcols(y)$log2FC * sig.indicator)
+mcols(y)[head(o.hi),]
 ```
 
 # Plotting inferential replicates
 
+We can plot the scaled counts for the inferential replicates, and also
+group the samples by a covariate, in this case the cell line. The
+analysis was paired, so the statistic assessed if the change within
+pairs was consistent.
+
 ```{r}
-plotInfReps(y, 1, x="condition", cov="line")
+plotInfReps(y, idx=o.hi[100], x="condition", cov="line")
 ```
 
 # Running `swish` at the gene level
 
-```{r}
-gse <- summarizeToGene(se)
-```
+We can also run swish at the gene level. First we summarize all of the
+data to the gene level, using the `summarizeToGene` function from
+*tximeta*. Again, we rename the object for statistical analysis, and
+then we subset to the genes on chromosome 1 for the demonstration.
 
 ```{r}
-y <- scaleInfReps(gse)
+gse <- summarizeToGene(se)
+y <- gse
+y <- y[seqnames(y) == "chr1",]
+```
+
+Next we can run the same steps as before:
+
+```{r}
+y <- scaleInfReps(y)
 y <- labelKeep(y)
 y <- swish(y, x="condition", pair="line")
 ```
 
+As before, the number of genes in a 1% FDR set:
+
+```{r}
+table(mcols(y)$qvalue < .05)
+```
+
+As before, finding the genes with the most extreme log2 fold change:
+
+```{r}
+sig.indicator <- mcols(y)$qvalue < .05
+o.lo <- order(mcols(y)$log2FC * sig.indicator)
+o.hi <- order(-mcols(y)$log2FC * sig.indicator)
+mcols(y)[head(o.hi),]
+plotInfReps(y, idx=o.hi[100], x="condition", cov="line")
+```
+
+As expected, the highly up-regulated genes are involved in immune
+response.
+
 # Analysis types supported by `swish`
 
-* Two group analysis 
+There are currently three types of analysis supported by `swish`:
+
+* Two group analysis
 * Two groups with two or more batches
 * Two group paired or matched samples
+
+This vignette demonstrated the third in this list, but the other two
+can be run by either not specifying any additional covariates, or by
+specifying a batch variable with the argument `cov` instead of `pair`.
 
 # Session information
 

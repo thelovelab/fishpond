@@ -19,10 +19,10 @@ test_that("basic variable errors thrown", {
   y2$pair <- rep(1:5,2)
   expect_error(swish(y2, "condition", "batch", "pair"))
 
-  # wrong number of pairs (this tests wrong now, bc on integer weirdness)
+  # wrong number of pairs
   y2 <- y
   y2$pair <- c(1,2,3,4,5,1,1,2,2,3)
-  expect_error(swish(y2, "condition", pair="pair"))
+  expect_error(swish(y2, "condition", pair="pair"), "single sample for both levels")
   
   # no inferential replicates
   y <- makeSimSwishData()

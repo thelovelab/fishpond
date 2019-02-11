@@ -96,9 +96,9 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     ## paired analysis ##
     #####################
     pair <- colData(y)[[pair]]
-    stopifnot(is.integer(pair) | is.factor(pair)) 
+    stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair)) 
     pair <- as.integer(factor(pair))
-    stopifnot(all(table(pair, condition) == 1))
+    if (!all(table(pair, condition) == 1)) stop("'pair' should have a single sample for both levels of condition")
     stat <- getSignedRank(infRepsArray, condition, pair, wilcoxP)
     log2FC <- getLog2FCPair(infRepsArray, condition, pair)
     cond.sign <- ifelse(condition == levels(condition)[1], 1, -1)

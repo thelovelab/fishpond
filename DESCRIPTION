@@ -1,7 +1,7 @@
 Package: fishpond
 Title: Fishpond: differential gene expression and differential
     transcript expression with inferential replicates
-Version: 0.0.19
+Version: 0.0.20
 Author: Anqi Zhu, Rob Patro, Michael Love
 Maintainer: Michael Love <michaelisaiahlove@gmail.com>
 Description: Fishpond
