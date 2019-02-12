@@ -23,3 +23,10 @@ which rows of the SummarizedExperiment will be included
 in statistical testing. Rows are not removed, just marked
 with the logical \code{keep}.
 }
+\examples{
+
+y <- makeSimSwishData()
+y <- scaleInfReps(y)
+y <- labelKeep(y)
+
+}

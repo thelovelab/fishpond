@@ -26,7 +26,8 @@ the scaledTPM so as to remove remaining library size differences}
 
 \item{minCount}{for internal filtering, the minimum count}
 
-\item{minN}{for internal filtering, the minimum sample size at \code{minCount}}
+\item{minN}{for internal filtering, the minimum sample size
+at \code{minCount}}
 }
 \value{
 a SummarizedExperiment wiht the inferential replicates
@@ -41,4 +42,10 @@ First, counts are converted to TPM, then scaled to
 the mean sequence depth, finally the scaledTPM are
 adjusted up or down by the median ratio size factor to
 minimize systematic differences across samples.
+}
+\examples{
+
+y <- makeSimSwishData()
+y <- scaleInfReps(y)
+
 }

@@ -8,7 +8,7 @@ output:
     toc: true
     toc_float: true
 vignette: |
-  %\VignetteIndexEntry{Fishpond}
+  %\VignetteIndexEntry{Fishpond: DTE and DGE with inferential replicates}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ vignette: |
 <!-- run this document with library(rmarkdown); render("fishpond.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=TRUE,
+knitr::opts_chunk$set(tidy=FALSE, cache=FALSE,
                       dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```

@@ -8,22 +8,36 @@ deswish(y, x, coef)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential
-replicate matrices, as output by \code{tximeta}}
+replicate matrices, as output by \code{tximeta}, and
+then with \code{labelKeep} applied. One does not need to
+run \code{scaleInfReps} as scaling is done internally via
+DESeq2.}
 
 \item{x}{the design matrix}
 
 \item{coef}{the coefficient to test (see \code{lfcShrink})}
 }
 \value{
-a SummarizedExperiment with metadata columns added
+a SummarizedExperiment with metadata columns added:
+the log2 fold change and posterior SD using inferential replicates,
+and the original log2 fold change (apeglm) and its posterior SD
 }
 \description{
 The DESeq2-apeglm With Inferential Samples implementation supposes
 a hierarchical distribution of log2 fold changes.
 The final posterior standard deviation is calculated by
 adding the posterior variance from modeling biological replicates
-computed by apeglm, and the observed variance on the posterior mode
-over inferential replicates.
+computed by \code{apeglm}, and the observed variance on the posterior mode
+over inferential replicates. This function requires the DESeq2 and
+apeglm packages to be installed and will print an error if they are
+not found.
+}
+\examples{
+
+y <- makeSimSwishData()
+y <- labelKeep(y)
+y <- deswish(y, ~condition, "condition_2_vs_1")
+
 }
 \references{
 The \code{DESeq} and \code{lfcShrink} function in the \code{DESeq2} package:

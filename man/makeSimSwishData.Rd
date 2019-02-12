@@ -20,6 +20,14 @@ a SummarizedExperiment
 Makes a small swish dataset for examples and testing.
 The first six genes have some differential expression
 evidence in the counts, with varying degree of inferential
-variance across inferential replicates. The 7th and 8th
+variance across inferential replicates (1-2: minor,
+3-4: some, 5-6: substantial). The 7th and 8th
 genes have all zeros to demonstrate \code{labelKeep}.
+}
+\examples{
+
+library(SummarizedExperiment)
+y <- makeSimSwishData()
+assayNames(y)
+
 }

@@ -23,6 +23,9 @@ plotInfReps(y, idx, x, cov = NULL, cols.drk = c("dodgerblue",
 
 \item{xaxis}{logical, whether to label the sample numbers}
 }
+\value{
+nothing, a plot is displayed
+}
 \description{
 Plot inferential replicates for a gene or transcript
 }

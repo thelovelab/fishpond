@@ -1,4 +1,5 @@
-swish.strat <- function(infRepsArray, condition, covariate, nperms=30, wilcoxP) {
+swish.strat <- function(infRepsArray, condition, covariate,
+                        nperms=30, wilcoxP) {
   stopifnot(is.factor(covariate))
   ngroups <- nlevels(covariate)
   groups <- levels(covariate)
@@ -16,7 +17,8 @@ swish.strat <- function(infRepsArray, condition, covariate, nperms=30, wilcoxP) 
     lfc.mat[,i] <- getLog2FC(infRepsArray.sub, cond.sub)
     for (p in seq_len(nperms)) {
       cat(p, "")
-      nulls.big[,p,i] <- getSamStat(infRepsArray.sub, cond.sub[perms$perms[p,]], wilcoxP)
+      nulls.big[,p,i] <- getSamStat(infRepsArray.sub,
+                                    cond.sub[perms$perms[p,]], wilcoxP)
     }
     cat("\n")
   }

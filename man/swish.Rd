@@ -34,7 +34,12 @@ If set to NULL this will use the mean over inferential replicates}
 \item{estPi0}{logical, whether to estimate pi0}
 }
 \value{
-a SummarizedExperiment with metadata columns added
+a SummarizedExperiment with metadata columns added:
+the statistic (either a centered Wilcoxon Mann-Whitney
+or a signed rank statistic, aggregated over inferential replicates),
+a log2 fold change (the median over inferential replicates,
+and averaged over pairs or groups (if groups, weighted by sample size),
+the local FDR and q-value, as estimated by the \code{samr} package.
 }
 \description{
 swish: SAMseq With Inferential Samples Helps

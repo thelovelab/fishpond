@@ -6,7 +6,8 @@ getSignedRank <- function(infRepsArray, condition, pair, p=NULL) {
   grp2 <- tail(o, length(condition)/2)
   for (k in seq_len(dims[3])) {
     diff <- infRepsArray[,grp2,k] - infRepsArray[,grp1,k]
-    sgn.ranks[,,k] <- sign(diff) * matrixStats::rowRanks(abs(diff) + 0.1 * runif(dims[1]*dims[2]/2))
+    sgn.ranks[,,k] <- sign(diff) * matrixStats::rowRanks(abs(diff) +
+                        0.1 * runif(dims[1]*dims[2]/2))
   }
   # sums of signed rank, expectation is 0
   W <- apply(sgn.ranks, c(1,3), sum)

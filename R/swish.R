@@ -19,7 +19,12 @@
 #' If set to NULL this will use the mean over inferential replicates
 #' @param estPi0 logical, whether to estimate pi0
 #'
-#' @return a SummarizedExperiment with metadata columns added
+#' @return a SummarizedExperiment with metadata columns added:
+#' the statistic (either a centered Wilcoxon Mann-Whitney
+#' or a signed rank statistic, aggregated over inferential replicates),
+#' a log2 fold change (the median over inferential replicates,
+#' and averaged over pairs or groups (if groups, weighted by sample size),
+#' the local FDR and q-value, as estimated by the \code{samr} package.
 #'
 #' @references
 #'
@@ -51,10 +56,18 @@
 #' plotInfReps(y, 1, "condition")
 #' plotInfReps(y, 3, "condition")
 #' plotInfReps(y, 5, "condition")
+#'
+#' @importFrom graphics axis boxplot segments
+#' @importFrom stats median quantile rpois runif
+#' @importFrom utils head tail
+#' @importFrom SummarizedExperiment SummarizedExperiment assayNames
+#' assays assays<- colData colData<- mcols mcols<-
+#' @importFrom S4Vectors DataFrame metadata metadata<-
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
-                  nperms=30, wilcoxP=0.25, estPi0=FALSE) {
+                  nperms=30, wilcoxP=0.25,
+                  estPi0=FALSE) {
   # 'cov' or 'pair' or neither, but not both
   stopifnot(is.null(cov) | is.null(pair))
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
@@ -79,7 +92,8 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
     for (p in seq_len(nperms)) {
       cat(p, "")
-      nulls[,p] <- getSamStat(infRepsArray, condition[perms$perms[p,]], wilcoxP)
+      nulls[,p] <- getSamStat(infRepsArray,
+                              condition[perms$perms[p,]], wilcoxP)
     }
     cat("\n")
   } else if (is.null(pair)) {
@@ -87,7 +101,8 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     ## stratified analysis ##
     #########################
     covariate <- colData(y)[[cov]]
-    out <- swish.strat(infRepsArray, condition, covariate, nperms=nperms, wilcoxP)
+    out <- swish.strat(infRepsArray, condition, covariate,
+                       nperms=nperms, wilcoxP)
     stat <- out$stat
     log2FC <- out$log2FC
     nulls <- out$nulls
@@ -98,7 +113,9 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     pair <- colData(y)[[pair]]
     stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair)) 
     pair <- as.integer(factor(pair))
-    if (!all(table(pair, condition) == 1)) stop("'pair' should have a single sample for both levels of condition")
+    if (!all(table(pair, condition) == 1)) {
+      stop("'pair' should have a single sample for both levels of condition")
+    }
     stat <- getSignedRank(infRepsArray, condition, pair, wilcoxP)
     log2FC <- getLog2FCPair(infRepsArray, condition, pair)
     cond.sign <- ifelse(condition == levels(condition)[1], 1, -1)
@@ -108,7 +125,8 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
     for (p in seq_len(nperms)) {
       cat(p, "")
-      nulls[,p] <- getSignedRank(infRepsArray, condition[perms[p,]], pair[perms[p,]], wilcoxP)
+      nulls[,p] <- getSignedRank(infRepsArray, condition[perms[p,]],
+                                 pair[perms[p,]], wilcoxP)
     }
     cat("\n")
   }
@@ -130,7 +148,8 @@ getSamStat <- function(infRepsArray, condition, p=NULL) {
   ranks <- array(dim=dims)
   for (k in seq_len(dims[3])) {
     # modified from samr:::resample
-    ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] + 0.1 * runif(dims[1]*dims[2]))
+    ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] +
+                    0.1 * runif(dims[1]*dims[2]))
   }
   cond2 <- condition == levels(condition)[2]
   rankSums <- sapply(seq_len(dims[3]), function(i) rowSums(ranks[,cond2,i]))
@@ -161,9 +180,10 @@ getLog2FCPair <- function(infRepsArray, condition, pair, pc=5) {
     infRepsArray <- infRepsArray[,o,]
   }
   n <- dims[2]
-  cond1 <- 1:(n/2)
-  cond2 <- (n/2 + 1):n
-  lfc.mat <- log2(infRepsArray[,cond2,] + pc) - log2(infRepsArray[,cond1,] + pc)
+  cond1 <- (1):(n/2)
+  cond2 <- (n/2 + 1):(n)
+  lfc.mat <- log2(infRepsArray[,cond2,] + pc) -
+               log2(infRepsArray[,cond1,] + pc)
   # median over inferential replicates
   apply(lfc.mat, 1, median)
 }
@@ -172,8 +192,12 @@ rowQuantilesTowardZero <- function(W, p) {
   stopifnot(p >= 0 & p <= 1)
   medW <- matrixStats::rowMedians(W)
   stat <- numeric(nrow(W))
-  stat[medW >= 0] <- matrixStats::rowQuantiles(W[medW >= 0,,drop=FALSE], probs=1-p)
-  stat[medW < 0] <- matrixStats::rowQuantiles(W[medW < 0,,drop=FALSE], probs=1-p)
+  stat[medW >= 0] <- matrixStats::rowQuantiles(
+                       W[medW >= 0,,drop=FALSE], probs=1-p
+                     )
+  stat[medW < 0] <- matrixStats::rowQuantiles(
+                      W[medW < 0,,drop=FALSE], probs=1-p
+                    )
   # prefer the median, if this is closer to zero
   idx <- abs(stat) > abs(medW)
   if (sum(idx) > 0) {
@@ -191,8 +215,10 @@ estimatePi0 <- function(stat, nulls.vec) {
 makeLocFDR <- function(stat, nulls, pi0) {
   samr.obj <- makeSamrObj(stat, nulls, pi0)
   locfdr.obj <- samr:::localfdr(samr.obj, min.foldchange=0)
-  locfdr.up <- samr:::predictlocalfdr(locfdr.obj$smooth.object, samr.obj$tt[samr.obj$tt >= 0])
-  locfdr.lo <- samr:::predictlocalfdr(locfdr.obj$smooth.object, samr.obj$tt[samr.obj$tt < 0])
+  locfdr.up <- samr:::predictlocalfdr(locfdr.obj$smooth.object,
+                 samr.obj$tt[samr.obj$tt >= 0])
+  locfdr.lo <- samr:::predictlocalfdr(locfdr.obj$smooth.object,
+                 samr.obj$tt[samr.obj$tt < 0])
   locfdr <- numeric(length(stat))
   locfdr[stat >= 0] <- locfdr.up/100
   locfdr[stat < 0] <- locfdr.lo/100

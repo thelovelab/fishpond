@@ -21,14 +21,22 @@
 #' alternative to the median ratio can be provided here to adjust
 #' the scaledTPM so as to remove remaining library size differences
 #' @param minCount for internal filtering, the minimum count 
-#' @param minN for internal filtering, the minimum sample size at \code{minCount}
+#' @param minN for internal filtering, the minimum sample size
+#' at \code{minCount}
 #'
 #' @return a SummarizedExperiment wiht the inferential replicates
 #' as scaledTPM with library size already corrected (no need for further
 #' normalization)
 #'
+#' @examples
+#'
+#' y <- makeSimSwishData()
+#' y <- scaleInfReps(y)
+#' 
 #' @export
-scaleInfReps <- function(y, lengthCorrect=TRUE, meanDepth=NULL, sfFun=NULL, minCount=10, minN=3) {
+scaleInfReps <- function(y, lengthCorrect=TRUE,
+                         meanDepth=NULL, sfFun=NULL,
+                         minCount=10, minN=3) {
   infRepIdx <- grep("infRep",assayNames(y))
   infRepError(infRepIdx)
   infReps <- assays(y)[infRepIdx]
@@ -80,6 +88,12 @@ scaleInfReps <- function(y, lengthCorrect=TRUE, meanDepth=NULL, sfFun=NULL, minC
 #' @return a SummarizedExperiment with a new column \code{keep}
 #' in \code{mcols(y)}
 #'
+#' @examples
+#' 
+#' y <- makeSimSwishData()
+#' y <- scaleInfReps(y)
+#' y <- labelKeep(y)
+#' 
 #' @export
 labelKeep <- function(y, minCount=10, minN=3) {
   infRepIdx <- grep("infRep",assayNames(y))
@@ -103,7 +117,8 @@ labelKeep <- function(y, minCount=10, minN=3) {
 #' Makes a small swish dataset for examples and testing.
 #' The first six genes have some differential expression
 #' evidence in the counts, with varying degree of inferential
-#' variance across inferential replicates. The 7th and 8th
+#' variance across inferential replicates (1-2: minor,
+#' 3-4: some, 5-6: substantial). The 7th and 8th
 #' genes have all zeros to demonstrate \code{labelKeep}.
 #' 
 #' @param m number of genes
@@ -112,6 +127,12 @@ labelKeep <- function(y, minCount=10, minN=3) {
 #'
 #' @return a SummarizedExperiment
 #'
+#' @examples
+#'
+#' library(SummarizedExperiment)
+#' y <- makeSimSwishData()
+#' assayNames(y)
+#' 
 #' @export
 makeSimSwishData <- function(m=1000, n=10, numReps=20) {
   stopifnot(m>8)
@@ -124,6 +145,7 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20) {
   abundance <- t(t(cts)/colSums(cts))*1e6
   infReps <- lapply(seq_len(numReps), function(i) {
     m <- matrix(rpois(m*n, lambda=80), ncol=n)
+    # these row numbers are fixed for the demo dataset
     m[1:6,grp2] <- rpois(3*n, lambda=120)
     m[3:4,] <- round(m[3:4,] * runif(2*n,.5,1.5))
     m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
@@ -150,6 +172,8 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20) {
 #' @param cols.lgt light colors for the inside of the boxes
 #' @param xaxis logical, whether to label the sample numbers
 #'
+#' @return nothing, a plot is displayed
+#' 
 #' @examples
 #'
 #' y <- makeSimSwishData()
@@ -186,7 +210,8 @@ plotInfReps <- function(y, idx, x, cov=NULL,
             if (is.character(idx)) idx else rownames(y)[idx]
           }
   boxplot(cts,range=0,border=cols,col=cols.in,xaxt="n",
-          ylim=c(0,max(cts)),xlab="samples",ylab="scaled counts",
+          ylim=c(0,max(cts)),
+          xlab="samples",ylab="scaled counts",
           main=main)
   if (xaxis) axis(1, seq_along(condition), samp.nums)
   if (!is.null(cov)) {
@@ -206,5 +231,7 @@ postprocess <- function(y, df) {
 }
 
 infRepError <- function(infRepIdx) {
-  if (length(infRepIdx) == 0) stop("there are no inferential replicates in the assays of 'y'")
+  if (length(infRepIdx) == 0) {
+    stop("there are no inferential replicates in the assays of 'y'")
+  }
 }
