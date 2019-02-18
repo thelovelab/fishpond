@@ -18,6 +18,8 @@
 #' inferential replicates to use as the test statistic.
 #' If set to NULL this will use the mean over inferential replicates
 #' @param estPi0 logical, whether to estimate pi0
+#' @param pc pseudocount for finite estimation of \code{log2FC}, not used
+#' in calculation of test statistics, \code{locfdr} or \code{qvalue}
 #'
 #' @return a SummarizedExperiment with metadata columns added:
 #' the statistic (either a centered Wilcoxon Mann-Whitney
@@ -67,7 +69,7 @@
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
                   nperms=30, wilcoxP=0.25,
-                  estPi0=FALSE) {
+                  estPi0=FALSE, pc=5) {
   # 'cov' or 'pair' or neither, but not both
   stopifnot(is.null(cov) | is.null(pair))
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
@@ -86,7 +88,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     ## simple two groups ##
     #######################
     stat <- getSamStat(infRepsArray, condition, wilcoxP)
-    log2FC <- getLog2FC(infRepsArray, condition)
+    log2FC <- getLog2FC(infRepsArray, condition, pc)
     perms <- samr:::getperms(condition, nperms)
     nperms <- permsNote(perms, nperms)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
@@ -102,7 +104,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     #########################
     covariate <- colData(y)[[cov]]
     out <- swish.strat(infRepsArray, condition, covariate,
-                       nperms=nperms, wilcoxP)
+                       nperms=nperms, wilcoxP, pc)
     stat <- out$stat
     log2FC <- out$log2FC
     nulls <- out$nulls
@@ -117,7 +119,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
       stop("'pair' should have a single sample for both levels of condition")
     }
     stat <- getSignedRank(infRepsArray, condition, pair, wilcoxP)
-    log2FC <- getLog2FCPair(infRepsArray, condition, pair)
+    log2FC <- getLog2FCPair(infRepsArray, condition, pair, pc)
     cond.sign <- ifelse(condition == levels(condition)[1], 1, -1)
     perms <- samr:::compute.block.perms(cond.sign * pair, pair, nperms)
     nperms <- permsNote(perms, nperms)

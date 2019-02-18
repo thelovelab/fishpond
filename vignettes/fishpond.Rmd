@@ -168,7 +168,11 @@ table(mcols(y)$qvalue < .05)
 
 Of the transcripts in this set, which have the most extreme log2
 fold change? Note that often many transcripts will share the same
-q-value.
+q-value, so it's valuable to look at the log2 fold change as well (see
+further note below on q-values computed by *samr*). The log2 fold
+change computed by `swish` is the median over inferential replicates,
+and uses a pseudo-count of 5 on the scaled counts, to stabilize
+the variance on the fold change from division by small counts.
 
 ```{r}
 sig.indicator <- mcols(y)$qvalue < .05
@@ -245,6 +249,7 @@ to rank by the log2 fold change, as shown above when the code chunk
 has `log2FC * sig.indicator`.
 
 ```{r fig.height=4}
+min(mcols(y)$qvalue, na.rm=TRUE) # min nominal FDR is not 0
 par(mfrow=c(1,2))
 with(mcols(y), plot(stat, -log10(qvalue)))
 with(mcols(y), plot(log2FC, -log10(qvalue)))
