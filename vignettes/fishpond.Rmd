@@ -1,7 +1,7 @@
 ---
 title: "Fishpond: DTE and DGE with inferential replicates"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
-author: "Anqi Zhu, Rob Patro, Michael Love"
+author: "Anqi Zhu, Avi Srivastava, Joseph Ibrahim, Rob Patro, Michael Love"
 output:
   rmarkdown::html_document:
     highlight: tango
@@ -145,9 +145,13 @@ y <- y[seqnames(y) == "chr1",]
 
 Running `swish` has three steps: scaling the inferential replicates,
 labeling the rows with sufficient counts for running differential
-expression, and then calculating the statistics. 
+expression, and then calculating the statistics. As `swish` makes use
+of pseudo-random number generation in breaking ties and in calculating
+permutations (through *samr*), to obtain identical results, one needs
+to set a random seed before running `swish()`, as we do below:
 
 ```{r}
+set.seed(1)
 library(fishpond)
 y <- scaleInfReps(y)
 y <- labelKeep(y)
@@ -187,10 +191,11 @@ mcols(y)[head(o.hi),]
 We can plot the scaled counts for the inferential replicates, and also
 group the samples by a covariate, in this case the cell line. The
 analysis was paired, so the statistic assessed if the change within
-pairs was consistent.
+pairs was consistent. Here we plot the 100th top up-regulated
+transcript: 
 
 ```{r}
-plotInfReps(y, idx=o.hi[150], x="condition", cov="line")
+plotInfReps(y, idx=o.hi[100], x="condition", cov="line")
 ```
 
 # Running `swish` at the gene level
@@ -206,9 +211,11 @@ y <- gse
 y <- y[seqnames(y) == "chr1",]
 ```
 
-Next we can run the same steps as before:
+Next we can run the same steps as before. Again we set a random seed
+in order to be able to reproduce exact results in the future:
 
 ```{r}
+set.seed(1)
 y <- scaleInfReps(y)
 y <- labelKeep(y)
 y <- swish(y, x="condition", pair="line")
@@ -228,7 +235,12 @@ table(sig.indicator, sign.lfc=sign(mcols(y)$log2FC))
 o.lo <- order(mcols(y)$log2FC * sig.indicator)
 o.hi <- order(-mcols(y)$log2FC * sig.indicator)
 mcols(y)[head(o.hi),]
-plotInfReps(y, idx=o.hi[120], x="condition", cov="line")
+```
+
+We can plot a particular one of these genes:
+
+```{r}
+plotInfReps(y, idx=o.hi[200], x="condition", cov="line")
 ```
 
 As expected, the highly up-regulated genes are involved in immune
