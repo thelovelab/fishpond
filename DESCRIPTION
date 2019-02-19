@@ -16,7 +16,8 @@ Imports:
     samr,
     S4Vectors,
     SummarizedExperiment,
-    matrixStats
+    matrixStats,
+    svMisc
 Suggests: 
     testthat,
     knitr,

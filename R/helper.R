@@ -23,6 +23,7 @@
 #' @param minCount for internal filtering, the minimum count 
 #' @param minN for internal filtering, the minimum sample size
 #' at \code{minCount}
+#' @param quiet display no messages
 #'
 #' @return a SummarizedExperiment wiht the inferential replicates
 #' as scaledTPM with library size already corrected (no need for further
@@ -36,7 +37,7 @@
 #' @export
 scaleInfReps <- function(y, lengthCorrect=TRUE,
                          meanDepth=NULL, sfFun=NULL,
-                         minCount=10, minN=3) {
+                         minCount=10, minN=3, quiet=FALSE) {
   infRepIdx <- grep("infRep",assayNames(y))
   infRepError(infRepIdx)
   infReps <- assays(y)[infRepIdx]
@@ -47,7 +48,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
     meanDepth <- exp(mean(log(colSums(counts))))
   }
   for (k in seq_len(nreps)) {
-    message(k," ",appendLF=FALSE)
+    if (!quiet) progress(k, max.value=nreps, init=(k==1))
     # we don't technically create TPM, but something proportion to
     if (lengthCorrect) {
       tpm <- infReps[[k]] / length
@@ -69,7 +70,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
     }
     infReps[[k]] <- t( t(tpm)/sf )
   }
-  message("")
+  if (!quiet) message("")
   assays(y)[grep("infRep",assayNames(y))] <- infReps
   y
 }
@@ -84,6 +85,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
 #' @param y a SummarizedExperiment
 #' @param minCount the minimum count
 #' @param minN the minimum sample size at \code{minCount}
+#' @param quiet display no messages
 #'
 #' @return a SummarizedExperiment with a new column \code{keep}
 #' in \code{mcols(y)}
@@ -95,20 +97,20 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
 #' y <- labelKeep(y)
 #' 
 #' @export
-labelKeep <- function(y, minCount=10, minN=3) {
+labelKeep <- function(y, minCount=10, minN=3, quiet=FALSE) {
   infRepIdx <- grep("infRep",assayNames(y))
   infRepError(infRepIdx)
   infReps <- assays(y)[infRepIdx]
   nreps <- length(infReps)
   keep.mat <- matrix(nrow=nrow(y), ncol=nreps)
   for (k in seq_len(nreps)) {
-    message(k," ",appendLF=FALSE)
+    if (!quiet) progress(k, max.value=nreps, init=(k==1))
     keep.mat[,k] <- rowSums(infReps[[k]] >= minCount) >= minN
   }
   keep <- apply(keep.mat, 1, all)
   mcols(y)$keep <- keep
   metadata(y)$preprocessed <- TRUE
-  message("")
+  if (!quiet) message("")
   y
 }
 

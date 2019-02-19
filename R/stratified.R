@@ -1,5 +1,5 @@
 swish.strat <- function(infRepsArray, condition, covariate,
-                        nperms=30, wilcoxP, pc=5) {
+                        nperms=30, wilcoxP, pc=5, quiet=FALSE) {
   stopifnot(is.factor(covariate))
   ngroups <- nlevels(covariate)
   groups <- levels(covariate)
@@ -15,12 +15,13 @@ swish.strat <- function(infRepsArray, condition, covariate,
     nperms <- permsNote(perms, nperms)
     stats[,i] <- getSamStat(infRepsArray.sub, cond.sub, wilcoxP)
     lfc.mat[,i] <- getLog2FC(infRepsArray.sub, cond.sub, pc)
+    if (!quiet) message(paste0("Generating test statistics over permutations: ",i,"/",ngroups," groups"))
     for (p in seq_len(nperms)) {
-      message(p, " ",appendLF=FALSE)
+      if (!quiet) progress(p, max.value=nperms, init=(p==1))
       nulls.big[,p,i] <- getSamStat(infRepsArray.sub,
                                     cond.sub[perms$perms[p,]], wilcoxP)
     }
-    message("")
+    if (!quiet) message("")
   }
   ns <- unname(table(covariate))
   wts <- 1/(ns + 1)

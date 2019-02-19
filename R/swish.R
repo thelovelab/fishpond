@@ -20,6 +20,7 @@
 #' @param estPi0 logical, whether to estimate pi0
 #' @param pc pseudocount for finite estimation of \code{log2FC}, not used
 #' in calculation of test statistics, \code{locfdr} or \code{qvalue}
+#' @param quiet display no messages
 #'
 #' @return a SummarizedExperiment with metadata columns added:
 #' the statistic (either a centered Wilcoxon Mann-Whitney
@@ -65,11 +66,12 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment assayNames
 #' assays assays<- colData colData<- mcols mcols<-
 #' @importFrom S4Vectors DataFrame metadata metadata<-
+#' @importFrom svMisc progress
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
                   nperms=30, wilcoxP=0.25,
-                  estPi0=FALSE, pc=5) {
+                  estPi0=FALSE, pc=5, quiet=FALSE) {
   # 'cov' or 'pair' or neither, but not both
   stopifnot(is.null(cov) | is.null(pair))
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
@@ -92,19 +94,20 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     perms <- samr:::getperms(condition, nperms)
     nperms <- permsNote(perms, nperms)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
+    if (!quiet) message("Generating test statistics over permutations")
     for (p in seq_len(nperms)) {
-      message(p, " ",appendLF=FALSE)
+      if (!quiet) progress(p, max.value=nperms, init=(p==1))
       nulls[,p] <- getSamStat(infRepsArray,
                               condition[perms$perms[p,]], wilcoxP)
     }
-    message("")
+    if (!quiet) message("")
   } else if (is.null(pair)) {
     #########################
     ## stratified analysis ##
     #########################
     covariate <- colData(y)[[cov]]
     out <- swish.strat(infRepsArray, condition, covariate,
-                       nperms=nperms, wilcoxP, pc)
+                       nperms=nperms, wilcoxP, pc, quiet)
     stat <- out$stat
     log2FC <- out$log2FC
     nulls <- out$nulls
@@ -125,12 +128,13 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     nperms <- permsNote(perms, nperms)
     perms <- fixPerms(perms, condition, pair)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
+    if (!quiet) message("Generating test statistics over permutations")
     for (p in seq_len(nperms)) {
-      message(p, " ",appendLF=FALSE)
+      if (!quiet) progress(p, max.value=nperms, init=(p==1))
       nulls[,p] <- getSignedRank(infRepsArray, condition[perms[p,]],
                                  pair[perms[p,]], wilcoxP)
     }
-    message("")
+    if (!quiet) message("")
   }
   nulls.vec <- as.vector(nulls)
   if (estPi0) {

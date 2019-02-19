@@ -5,7 +5,7 @@
 \title{Scale inferential replicate counts}
 \usage{
 scaleInfReps(y, lengthCorrect = TRUE, meanDepth = NULL, sfFun = NULL,
-  minCount = 10, minN = 3)
+  minCount = 10, minN = 3, quiet = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment with: \code{infReps} a list of
@@ -28,6 +28,8 @@ the scaledTPM so as to remove remaining library size differences}
 
 \item{minN}{for internal filtering, the minimum sample size
 at \code{minCount}}
+
+\item{quiet}{display no messages}
 }
 \value{
 a SummarizedExperiment wiht the inferential replicates

@@ -4,7 +4,7 @@
 \alias{labelKeep}
 \title{Label rows to keep based on minimal count}
 \usage{
-labelKeep(y, minCount = 10, minN = 3)
+labelKeep(y, minCount = 10, minN = 3, quiet = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment}
@@ -12,6 +12,8 @@ labelKeep(y, minCount = 10, minN = 3)
 \item{minCount}{the minimum count}
 
 \item{minN}{the minimum sample size at \code{minCount}}
+
+\item{quiet}{display no messages}
 }
 \value{
 a SummarizedExperiment with a new column \code{keep}

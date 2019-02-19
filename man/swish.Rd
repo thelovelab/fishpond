@@ -5,7 +5,7 @@
 \title{swish: SAMseq With Inferential Samples Helps}
 \usage{
 swish(y, x, cov = NULL, pair = NULL, nperms = 30, wilcoxP = 0.25,
-  estPi0 = FALSE, pc = 5)
+  estPi0 = FALSE, pc = 5, quiet = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
@@ -35,6 +35,8 @@ If set to NULL this will use the mean over inferential replicates}
 
 \item{pc}{pseudocount for finite estimation of \code{log2FC}, not used
 in calculation of test statistics, \code{locfdr} or \code{qvalue}}
+
+\item{quiet}{display no messages}
 }
 \value{
 a SummarizedExperiment with metadata columns added:
