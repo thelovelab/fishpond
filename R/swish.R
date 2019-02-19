@@ -198,9 +198,11 @@ rowQuantilesTowardZero <- function(W, p) {
   stopifnot(p >= 0 & p <= 1)
   medW <- matrixStats::rowMedians(W)
   stat <- numeric(nrow(W))
+  # for the positive median Wilcoxon, take Q1
   stat[medW >= 0] <- matrixStats::rowQuantiles(
-                       W[medW >= 0,,drop=FALSE], probs=1-p
-                     )
+                       W[medW >= 0,,drop=FALSE], probs=p
+                       )
+  # for the negative median Wilcoxon, take Q3
   stat[medW < 0] <- matrixStats::rowQuantiles(
                       W[medW < 0,,drop=FALSE], probs=1-p
                     )
