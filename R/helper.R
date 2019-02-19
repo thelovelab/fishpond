@@ -38,6 +38,9 @@
 scaleInfReps <- function(y, lengthCorrect=TRUE,
                          meanDepth=NULL, sfFun=NULL,
                          minCount=10, minN=3, quiet=FALSE) {
+  if (!interactive()) {
+    quiet <- TRUE
+  }
   infRepIdx <- grep("infRep",assayNames(y))
   infRepError(infRepIdx)
   infReps <- assays(y)[infRepIdx]
@@ -98,6 +101,9 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
 #' 
 #' @export
 labelKeep <- function(y, minCount=10, minN=3, quiet=FALSE) {
+  if (!interactive()) {
+    quiet <- TRUE
+  }
   infRepIdx <- grep("infRep",assayNames(y))
   infRepError(infRepIdx)
   infReps <- assays(y)[infRepIdx]

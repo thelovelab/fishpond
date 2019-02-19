@@ -1,5 +1,5 @@
 ---
-title: "Fishpond: DTE and DGE with inferential replicates"
+title: "DTE and DGE with inferential replicates"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 author: "Anqi Zhu, Avi Srivastava, Joseph Ibrahim, Rob Patro, Michael Love"
 output:
@@ -8,7 +8,7 @@ output:
     toc: true
     toc_float: true
 vignette: |
-  %\VignetteIndexEntry{Fishpond: DTE and DGE with inferential replicates}
+  %\VignetteIndexEntry{DTE and DGE with inferential replicates}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ vignette: |
 <!-- run this document with library(rmarkdown); render("fishpond.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=FALSE,
+knitr::opts_chunk$set(tidy=FALSE, cache=TRUE,
                       dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
@@ -150,7 +150,7 @@ of pseudo-random number generation in breaking ties and in calculating
 permutations (through *samr*), to obtain identical results, one needs
 to set a random seed before running `swish()`, as we do below:
 
-```{r}
+```{r results="hide", message=FALSE}
 set.seed(1)
 library(fishpond)
 y <- scaleInfReps(y)
@@ -158,11 +158,8 @@ y <- labelKeep(y)
 y <- swish(y, x="condition", pair="line")
 ```
 
-The results are stored in `mcols(y)`:
-
-```{r}
-mcols(y)
-```
+The results are stored in `mcols(y)`. We will show below how to pull
+out the top up- and down-regulated transcripts.
 
 We can see how many transcripts are in a 5% FDR set:
 
@@ -214,7 +211,7 @@ y <- y[seqnames(y) == "chr1",]
 Next we can run the same steps as before. Again we set a random seed
 in order to be able to reproduce exact results in the future:
 
-```{r}
+```{r results="hide", message=FALSE}
 set.seed(1)
 y <- scaleInfReps(y)
 y <- labelKeep(y)
@@ -279,7 +276,7 @@ This vignette demonstrated the third in this list, but the other two
 can be run by either not specifying any additional covariates, or by
 specifying a batch variable with the argument `cov` instead of `pair`.
 
-# How to import Alevin inferential replicate scRNA-seq data
+# *Alevin* inferential replicates
 
 The *Alevin* and *tximport* / *tximeta* maintainers are working on an
 efficient format for storing and importing the sparse scRNA-seq

@@ -74,6 +74,9 @@ swish <- function(y, x, cov=NULL, pair=NULL,
                   estPi0=FALSE, pc=5, quiet=FALSE) {
   # 'cov' or 'pair' or neither, but not both
   stopifnot(is.null(cov) | is.null(pair))
+  if (!interactive()) {
+    quiet <- TRUE
+  }
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- labelKeep(y)
   }
