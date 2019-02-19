@@ -47,7 +47,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
     meanDepth <- exp(mean(log(colSums(counts))))
   }
   for (k in seq_len(nreps)) {
-    cat(k,"")
+    message(k," ",appendLF=FALSE)
     # we don't technically create TPM, but something proportion to
     if (lengthCorrect) {
       tpm <- infReps[[k]] / length
@@ -69,7 +69,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
     }
     infReps[[k]] <- t( t(tpm)/sf )
   }
-  cat("\n")
+  message("")
   assays(y)[grep("infRep",assayNames(y))] <- infReps
   y
 }
@@ -102,13 +102,13 @@ labelKeep <- function(y, minCount=10, minN=3) {
   nreps <- length(infReps)
   keep.mat <- matrix(nrow=nrow(y), ncol=nreps)
   for (k in seq_len(nreps)) {
-    cat(k,"")
+    message(k," ",appendLF=FALSE)
     keep.mat[,k] <- rowSums(infReps[[k]] >= minCount) >= minN
   }
   keep <- apply(keep.mat, 1, all)
   mcols(y)$keep <- keep
   metadata(y)$preprocessed <- TRUE
-  cat("\n")
+  message("")
   y
 }
 

@@ -16,11 +16,11 @@ swish.strat <- function(infRepsArray, condition, covariate,
     stats[,i] <- getSamStat(infRepsArray.sub, cond.sub, wilcoxP)
     lfc.mat[,i] <- getLog2FC(infRepsArray.sub, cond.sub, pc)
     for (p in seq_len(nperms)) {
-      cat(p, "")
+      message(p, " ",appendLF=FALSE)
       nulls.big[,p,i] <- getSamStat(infRepsArray.sub,
                                     cond.sub[perms$perms[p,]], wilcoxP)
     }
-    cat("\n")
+    message("")
   }
   ns <- unname(table(covariate))
   wts <- 1/(ns + 1)

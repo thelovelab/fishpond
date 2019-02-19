@@ -93,11 +93,11 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     nperms <- permsNote(perms, nperms)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
     for (p in seq_len(nperms)) {
-      cat(p, "")
+      message(p, " ",appendLF=FALSE)
       nulls[,p] <- getSamStat(infRepsArray,
                               condition[perms$perms[p,]], wilcoxP)
     }
-    cat("\n")
+    message("")
   } else if (is.null(pair)) {
     #########################
     ## stratified analysis ##
@@ -126,11 +126,11 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     perms <- fixPerms(perms, condition, pair)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
     for (p in seq_len(nperms)) {
-      cat(p, "")
+      message(p, " ",appendLF=FALSE)
       nulls[,p] <- getSignedRank(infRepsArray, condition[perms[p,]],
                                  pair[perms[p,]], wilcoxP)
     }
-    cat("\n")
+    message("")
   }
   nulls.vec <- as.vector(nulls)
   if (estPi0) {

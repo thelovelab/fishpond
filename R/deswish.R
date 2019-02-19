@@ -58,7 +58,7 @@ deswish <- function(y, x, coef) {
   nreps <- length(grep("infRep", assayNames(ys)))
   lfcs <- matrix(nrow=nrow(ys), ncol=nreps)
   for (i in seq_len(nreps)) {
-    cat(i,"")
+    message(i," ",appendLF=FALSE)
     rep.cts <- round(assays(ys)[[paste0("infRep",i)]])
     mode(rep.cts) <- "integer"
     DESeq2::counts(dds) <- rep.cts
@@ -66,7 +66,7 @@ deswish <- function(y, x, coef) {
                                  apeMethod="nbinomC", quiet=TRUE)
     lfcs[,i] <- rep.res$log2FoldChange
   }
-  cat("\n")
+  message("")
 
   infVarLFC <- matrixStats::rowVars(lfcs)
   log2FC <- rowMeans(lfcs)
