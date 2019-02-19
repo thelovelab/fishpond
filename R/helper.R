@@ -48,7 +48,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
     meanDepth <- exp(mean(log(colSums(counts))))
   }
   for (k in seq_len(nreps)) {
-    if (!quiet) progress(k, max.value=nreps, init=(k==1))
+    if (!quiet) progress(k, max.value=nreps, init=(k==1), gui=FALSE)
     # we don't technically create TPM, but something proportion to
     if (lengthCorrect) {
       tpm <- infReps[[k]] / length
@@ -104,7 +104,7 @@ labelKeep <- function(y, minCount=10, minN=3, quiet=FALSE) {
   nreps <- length(infReps)
   keep.mat <- matrix(nrow=nrow(y), ncol=nreps)
   for (k in seq_len(nreps)) {
-    if (!quiet) progress(k, max.value=nreps, init=(k==1))
+    if (!quiet) progress(k, max.value=nreps, init=(k==1), gui=FALSE)
     keep.mat[,k] <- rowSums(infReps[[k]] >= minCount) >= minN
   }
   keep <- apply(keep.mat, 1, all)

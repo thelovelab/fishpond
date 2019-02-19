@@ -17,7 +17,7 @@ swish.strat <- function(infRepsArray, condition, covariate,
     lfc.mat[,i] <- getLog2FC(infRepsArray.sub, cond.sub, pc)
     if (!quiet) message(paste0("Generating test statistics over permutations: ",i,"/",ngroups," groups"))
     for (p in seq_len(nperms)) {
-      if (!quiet) progress(p, max.value=nperms, init=(p==1))
+      if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
       nulls.big[,p,i] <- getSamStat(infRepsArray.sub,
                                     cond.sub[perms$perms[p,]], wilcoxP)
     }

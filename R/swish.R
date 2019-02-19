@@ -96,7 +96,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
     if (!quiet) message("Generating test statistics over permutations")
     for (p in seq_len(nperms)) {
-      if (!quiet) progress(p, max.value=nperms, init=(p==1))
+      if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
       nulls[,p] <- getSamStat(infRepsArray,
                               condition[perms$perms[p,]], wilcoxP)
     }
@@ -130,7 +130,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
     if (!quiet) message("Generating test statistics over permutations")
     for (p in seq_len(nperms)) {
-      if (!quiet) progress(p, max.value=nperms, init=(p==1))
+      if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
       nulls[,p] <- getSignedRank(infRepsArray, condition[perms[p,]],
                                  pair[perms[p,]], wilcoxP)
     }
