@@ -151,10 +151,10 @@ permutations (through *samr*), to obtain identical results, one needs
 to set a random seed before running `swish()`, as we do below:
 
 ```{r results="hide", message=FALSE}
-set.seed(1)
 library(fishpond)
 y <- scaleInfReps(y)
 y <- labelKeep(y)
+set.seed(1)
 y <- swish(y, x="condition", pair="line")
 ```
 
@@ -212,9 +212,9 @@ Next we can run the same steps as before. Again we set a random seed
 in order to be able to reproduce exact results in the future:
 
 ```{r results="hide", message=FALSE}
-set.seed(1)
 y <- scaleInfReps(y)
 y <- labelKeep(y)
+set.seed(1)
 y <- swish(y, x="condition", pair="line")
 ```
 
