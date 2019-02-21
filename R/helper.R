@@ -3,9 +3,10 @@
 #' A helper function to scale the inferential replicates
 #' to the mean sequencing depth. The scaling takes into account
 #' a robust estimator of size factor (median ratio method is used).
-#' First, counts are converted to TPM, then scaled to
-#' the mean sequence depth, finally the scaledTPM are
-#' adjusted up or down by the median ratio size factor to
+#' First, counts are corrected per row using the effective lengths
+#' (for gene counts, the average transcript lengths), then scaled
+#' per column to the geometric mean sequence depth, and finally are
+#' adjusted per-column up or down by the median ratio size factor to
 #' minimize systematic differences across samples.
 #'
 #' @param y a SummarizedExperiment with: \code{infReps} a list of
@@ -41,6 +42,9 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
   if (!interactive()) {
     quiet <- TRUE
   }
+  if (!is.null(metadata(y)$infRepsScaled)) {
+    if (metadata(y)$infRepsScaled) stop("inferential replicates already scaled")
+  }
   infRepIdx <- grep("infRep",assayNames(y))
   infRepError(infRepIdx)
   infReps <- assays(y)[infRepIdx]
@@ -52,29 +56,32 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
   }
   for (k in seq_len(nreps)) {
     if (!quiet) progress(k, max.value=nreps, init=(k==1), gui=FALSE)
-    # we don't technically create TPM, but something proportion to
     if (lengthCorrect) {
-      tpm <- infReps[[k]] / length
+      # new length bias correction matrix centered on 1
+      length <- length / exp(rowMeans(log(length)))
+      # a temporary matrix 'cts' which will store the inferential replicate counts
+      cts <- infReps[[k]] / length
     } else {
       # for 3' tagged scRNA-seq for example, don't length correct
-      tpm <- infReps[[k]]
+      cts <- infReps[[k]]
     }
     # divide out the column sum, then set all to the meanDepth
-    tpm <- t(t(tpm) / colSums(tpm)) * meanDepth
+    cts <- t(t(cts) / colSums(cts)) * meanDepth
     # filtering for calculting median ratio size factors
     use <- rowSums(infReps[[k]] >= minCount) >= minN
     if (is.null(sfFun)) {
-      loggeomeans <- rowMeans(log(tpm[use,]))
-      sf <- apply(tpm[use,], 2, function(s) {
+      loggeomeans <- rowMeans(log(cts[use,]))
+      sf <- apply(cts[use,], 2, function(s) {
         exp(median((log(s) - loggeomeans)[is.finite(loggeomeans)]))
       })
     } else {
-      sf <- sfFun(tpm)
+      sf <- sfFun(cts)
     }
-    infReps[[k]] <- t( t(tpm)/sf )
+    infReps[[k]] <- t( t(cts)/sf )
   }
   if (!quiet) message("")
   assays(y)[grep("infRep",assayNames(y))] <- infReps
+  metadata(y)$infRepsScaled <- TRUE
   y
 }
 
