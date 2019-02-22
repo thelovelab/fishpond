@@ -97,7 +97,10 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
 #' @param minN the minimum sample size at \code{minCount}.
 #' If not specified, \code{x} will be used instead
 #' @param x the name of the condition variable, will
-#' use the smaller of the two groups to set \code{minN}
+#' use the smaller of the two groups to set \code{minN}.
+#' Similar to edgeR's \code{filterByExpr}, as the smaller group
+#' grows past 12, \code{minN} grows only by 0.7 increments
+#' of sample size
 #'
 #' @return a SummarizedExperiment with a new column \code{keep}
 #' in \code{mcols(y)}
@@ -113,6 +116,10 @@ labelKeep <- function(y, minCount=10, minN, x) {
   if (missing(minN)) {
     if (missing(x)) stop("specify 'minN' or 'x'")
     minN <- min(table(colData(y)[[x]]))
+    # this modeled after edgeR::filterByExpr()
+    if (minN > 12) {
+      minN <- 12 + (minN - 12) * 0.7
+    }
   }
   keep <- rowSums(assays(y)[["counts"]] >= minCount) >= minN
   mcols(y)$keep <- keep
