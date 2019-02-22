@@ -94,8 +94,10 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
 #'
 #' @param y a SummarizedExperiment
 #' @param minCount the minimum count
-#' @param minN the minimum sample size at \code{minCount}
-#' @param quiet display no messages
+#' @param minN the minimum sample size at \code{minCount}.
+#' If not specified, \code{x} will be used instead
+#' @param x the name of the condition variable, will
+#' use the smaller of the two groups to set \code{minN}
 #'
 #' @return a SummarizedExperiment with a new column \code{keep}
 #' in \code{mcols(y)}
@@ -104,26 +106,17 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
 #' 
 #' y <- makeSimSwishData()
 #' y <- scaleInfReps(y)
-#' y <- labelKeep(y)
+#' y <- labelKeep(y, x="condition")
 #' 
 #' @export
-labelKeep <- function(y, minCount=10, minN=3, quiet=FALSE) {
-  if (!interactive()) {
-    quiet <- TRUE
+labelKeep <- function(y, minCount=10, minN, x) {
+  if (missing(minN)) {
+    if (missing(x)) stop("specify 'minN' or 'x'")
+    minN <- min(table(colData(y)[[x]]))
   }
-  infRepIdx <- grep("infRep",assayNames(y))
-  infRepError(infRepIdx)
-  infReps <- assays(y)[infRepIdx]
-  nreps <- length(infReps)
-  keep.mat <- matrix(nrow=nrow(y), ncol=nreps)
-  for (k in seq_len(nreps)) {
-    if (!quiet) progress(k, max.value=nreps, init=(k==1), gui=FALSE)
-    keep.mat[,k] <- rowSums(infReps[[k]] >= minCount) >= minN
-  }
-  keep <- apply(keep.mat, 1, all)
+  keep <- rowSums(assays(y)[["counts"]] >= minCount) >= minN
   mcols(y)$keep <- keep
   metadata(y)$preprocessed <- TRUE
-  if (!quiet) message("")
   y
 }
 

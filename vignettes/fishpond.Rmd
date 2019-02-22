@@ -153,7 +153,7 @@ to set a random seed before running `swish()`, as we do below:
 ```{r results="hide", message=FALSE}
 library(fishpond)
 y <- scaleInfReps(y)
-y <- labelKeep(y)
+y <- labelKeep(y, x="condition")
 set.seed(1)
 y <- swish(y, x="condition", pair="line")
 ```
@@ -213,7 +213,7 @@ in order to be able to reproduce exact results in the future:
 
 ```{r results="hide", message=FALSE}
 y <- scaleInfReps(y)
-y <- labelKeep(y)
+y <- labelKeep(y, x="condition")
 set.seed(1)
 y <- swish(y, x="condition", pair="line")
 ```

@@ -55,8 +55,8 @@ library(SummarizedExperiment)
 set.seed(1)
 y <- makeSimSwishData()
 y <- scaleInfReps(y)
-y <- labelKeep(y)
-y <- swish(y, "condition")
+y <- labelKeep(y, x="condition")
+y <- swish(y, x="condition")
 
 # histogram of the swish statistics
 hist(mcols(y)$stat, breaks=40, col="grey")

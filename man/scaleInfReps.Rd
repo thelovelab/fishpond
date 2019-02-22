@@ -40,9 +40,10 @@ normalization)
 A helper function to scale the inferential replicates
 to the mean sequencing depth. The scaling takes into account
 a robust estimator of size factor (median ratio method is used).
-First, counts are converted to TPM, then scaled to
-the mean sequence depth, finally the scaledTPM are
-adjusted up or down by the median ratio size factor to
+First, counts are corrected per row using the effective lengths
+(for gene counts, the average transcript lengths), then scaled
+per column to the geometric mean sequence depth, and finally are
+adjusted per-column up or down by the median ratio size factor to
 minimize systematic differences across samples.
 }
 \examples{
