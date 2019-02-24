@@ -95,7 +95,8 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
 #' @param y a SummarizedExperiment
 #' @param minCount the minimum count
 #' @param minN the minimum sample size at \code{minCount}.
-#' If not specified, \code{x} will be used instead
+#' It is required to set either \code{minN} or the next argument
+#' which will determine \code{minN} based on the condition variable
 #' @param x the name of the condition variable, will
 #' use the smaller of the two groups to set \code{minN}.
 #' Similar to edgeR's \code{filterByExpr}, as the smaller group
@@ -109,7 +110,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
 #' 
 #' y <- makeSimSwishData()
 #' y <- scaleInfReps(y)
-#' y <- labelKeep(y, x="condition")
+#' y <- labelKeep(y, minN=3)
 #' 
 #' @export
 labelKeep <- function(y, minCount=10, minN, x) {

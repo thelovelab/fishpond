@@ -12,12 +12,13 @@ labelKeep(y, minCount = 10, minN, x)
 \item{minCount}{the minimum count}
 
 \item{minN}{the minimum sample size at \code{minCount}.
-If not specified, \code{x} will be used instead}
+It is required to set either \code{minN} or the next argument
+which will determine \code{minN} based on the condition variable}
 
 \item{x}{the name of the condition variable, will
 use the smaller of the two groups to set \code{minN}.
 Similar to edgeR's \code{filterByExpr}, as the smaller group
-grows past 12, \code{minN} grows only by 0.7 increments
+grows past 10, \code{minN} grows only by 0.7 increments
 of sample size}
 }
 \value{
@@ -34,6 +35,6 @@ with the logical \code{keep}.
 
 y <- makeSimSwishData()
 y <- scaleInfReps(y)
-y <- labelKeep(y, x="condition")
+y <- labelKeep(y, minN=3)
 
 }

@@ -43,7 +43,7 @@
 #' set.seed(1)
 #' y <- makeSimSwishData()
 #' y <- scaleInfReps(y)
-#' y <- labelKeep(y, x="condition")
+#' y <- labelKeep(y, minN=3)
 #' y <- swish(y, x="condition")
 #'
 #' # histogram of the swish statistics
@@ -78,7 +78,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     quiet <- TRUE
   }
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
-    y <- labelKeep(y, x=x)
+    y <- labelKeep(y, minN=3)
   }
   ys <- y[mcols(y)$keep,]
   infRepIdx <- grep("infRep",assayNames(y))
