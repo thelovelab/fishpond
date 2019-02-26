@@ -21,6 +21,22 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE,
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
+# The `swish` statistical method
+
+The `swish` method for differential expression analysis using
+inferential replicate counts is described in the following reference:
+
+> Zhu, A., Srivastava, A., Ibrahim, J.G., Patro, R., Love, M.I.
+> *Nonparametric expression analysis using inferential replicate counts*
+> bioRxiv (2019)
+
+We note that `swish` extends and builds on another method *SAMseq*,
+by taking into account inferential uncertainty, and allowing to
+control for batch effects and matched samples. `swish` calls functions
+from the *samr* package for calculation of local FDR and q-value.
+This vignette gives an example of differential analysis of matched
+samples.
+
 # Macrophage stimulation experiment
 
 We begin the *fishpond* vignette by loading data from a Bioconductor
