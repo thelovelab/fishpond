@@ -187,10 +187,13 @@ getLog2FC <- function(infRepsArray, condition, pc=5) {
   dims <- dim(infRepsArray)
   cond1 <- condition == levels(condition)[1]
   cond2 <- condition == levels(condition)[2]
-  log2Cond1 <- log2(apply(infRepsArray[,cond1,],c(1,3),mean) + pc)
-  log2Cond2 <- log2(apply(infRepsArray[,cond2,],c(1,3),mean) + pc)
+  diffs <- matrix(nrow=dims[1],ncol=dims[3])
+  for (k in seq_len(dims[3])) {
+    diffs[,k] <- log2(rowMeans(infRepsArray[,cond2,k]) + pc) -
+                 log2(rowMeans(infRepsArray[,cond1,k]) + pc)
+  }
   # median over inferential replicates
-  matrixStats::rowMedians(log2Cond2 - log2Cond1)
+  matrixStats::rowMedians(diffs)
 }
 
 getLog2FCPair <- function(infRepsArray, condition, pair, pc=5) {
@@ -205,7 +208,7 @@ getLog2FCPair <- function(infRepsArray, condition, pair, pc=5) {
   lfc.mat <- log2(infRepsArray[,cond2,] + pc) -
                log2(infRepsArray[,cond1,] + pc)
   # median over inferential replicates
-  apply(lfc.mat, 1, median)
+  matrixStats::rowMedians(lfc.mat)
 }
 
 rowQuantilesTowardZero <- function(W, p) {
