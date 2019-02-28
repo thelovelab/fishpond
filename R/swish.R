@@ -54,7 +54,7 @@
 #' set.seed(1)
 #' y <- makeSimSwishData()
 #' y <- scaleInfReps(y)
-#' y <- labelKeep(y, minN=3)
+#' y <- labelKeep(y)
 #' y <- swish(y, x="condition")
 #'
 #' # histogram of the swish statistics
@@ -89,7 +89,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     quiet <- TRUE
   }
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
-    y <- labelKeep(y, minN=3)
+    y <- labelKeep(y)
   }
   ys <- y[mcols(y)$keep,]
   infRepIdx <- grep("infRep",assayNames(y))
@@ -157,7 +157,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     pi0 <- 1
   }
   locfdr <- makeLocFDR(stat, nulls, pi0)
-  qvalue <- makeQvalue(stat, nulls, pi0)
+  qvalue <- makeQvalue(stat, nulls, pi0, quiet)
   df <- data.frame(stat, log2FC, locfdr, qvalue)
   y <- postprocess(y, df)
   y
@@ -250,9 +250,12 @@ makeLocFDR <- function(stat, nulls, pi0) {
   locfdr
 }
 
-makeQvalue <- function(stat, nulls, pi0) {
+makeQvalue <- function(stat, nulls, pi0, quiet=FALSE) {
   samr.obj <- makeSamrObj(stat, nulls, pi0)
-  delta.table <- samr:::samr.compute.delta.table.seq(samr.obj)
+  out <- capture.output({
+    delta.table <- samr:::samr.compute.delta.table.seq(samr.obj)
+  })
+  if (!quiet) message(paste(out,collapse="\n"))
   sig <- list(pup=which(stat >= 0), plo=which(stat < 0))
   qlist <- samr:::qvalue.func(samr.obj, sig, delta.table)
   qvalue <- numeric(length(stat))

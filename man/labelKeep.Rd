@@ -4,16 +4,14 @@
 \alias{labelKeep}
 \title{Label rows to keep based on minimal count}
 \usage{
-labelKeep(y, minCount = 10, minN, x)
+labelKeep(y, minCount = 10, minN = 3, x)
 }
 \arguments{
 \item{y}{a SummarizedExperiment}
 
 \item{minCount}{the minimum count}
 
-\item{minN}{the minimum sample size at \code{minCount}.
-It is required to set either \code{minN} or the next argument
-which will determine \code{minN} based on the condition variable}
+\item{minN}{the minimum sample size at \code{minCount}}
 
 \item{x}{the name of the condition variable, will
 use the smaller of the two groups to set \code{minN}.
@@ -35,6 +33,6 @@ with the logical \code{keep}.
 
 y <- makeSimSwishData()
 y <- scaleInfReps(y)
-y <- labelKeep(y, minN=3)
+y <- labelKeep(y)
 
 }
