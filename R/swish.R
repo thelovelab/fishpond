@@ -18,6 +18,8 @@
 #' inferential replicates to use as the test statistic.
 #' If set to NULL this will use the mean over inferential replicates
 #' @param estPi0 logical, whether to estimate pi0
+#' @param qvaluePkg character, which package to use for q-value estimation,
+#' \code{samr} or \code{qvalue}
 #' @param pc pseudocount for finite estimation of \code{log2FC}, not used
 #' in calculation of test statistics, \code{locfdr} or \code{qvalue}
 #' @param quiet display no messages
@@ -82,7 +84,8 @@
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
                   nperms=30, wilcoxP=0.25,
-                  estPi0=FALSE, pc=5, quiet=FALSE) {
+                  estPi0=FALSE, qvaluePkg="samr",
+                  pc=5, quiet=FALSE) {
   # 'cov' or 'pair' or neither, but not both
   stopifnot(is.null(cov) | is.null(pair))
   if (!interactive()) {
@@ -156,8 +159,17 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   } else {
     pi0 <- 1
   }
-  locfdr <- makeLocFDR(stat, nulls, pi0)
-  qvalue <- makeQvalue(stat, nulls, pi0, quiet)
+  if (qvaluePkg == "samr") {
+    locfdr <- makeLocFDR(stat, nulls, pi0)
+    qvalue <- makeQvalue(stat, nulls, pi0, quiet)
+  } else if (qvaluePkg == "qvalue") {
+    pvalue <- qvalue::empPvals(stat, nulls)
+    q.res <- qvalue::qvalue(pvalue)
+    locfdr <- q.res$lfdr
+    qvalue <- q.res$qvalues
+  } else {
+    stop("'qvaluePkg' should be 'samr' or 'qvalue'")
+  }
   df <- data.frame(stat, log2FC, locfdr, qvalue)
   y <- postprocess(y, df)
   y
