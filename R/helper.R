@@ -206,32 +206,52 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   if (is.null(cov)) {
     cts <- unlist(infReps)[,order(condition)]
     samp.nums <- as.vector(sapply(table(condition), seq_len))
-    cols <- rep(cols.drk, table(condition))
-    cols.in <- rep(cols.lgt, table(condition))
+    col <- rep(cols.drk, table(condition))
+    col.in <- rep(cols.lgt, table(condition))
   } else {
     covariate <- factor(colData(y)[[cov]])
     ngrp <- nlevels(covariate)
     cts <- unlist(infReps)[,order(covariate, condition)]
     vec.tab <- as.vector(table(condition, covariate))
     samp.nums <- unlist(lapply(vec.tab, seq_len))
-    cols <- rep(rep(cols.drk, ngrp), vec.tab)
-    cols.in <- rep(rep(cols.lgt, ngrp), vec.tab)
+    col <- rep(rep(cols.drk, ngrp), vec.tab)
+    col.in <- rep(rep(cols.lgt, ngrp), vec.tab)
   }
   main <- if (is.null(rownames(y))) {
             ""
           } else {
             if (is.character(idx)) idx else rownames(y)[idx]
           }
-  boxplot(cts,range=0,border=cols,col=cols.in,xaxt="n",
-          ylim=c(0,max(cts)),
-          xlab="samples",ylab="scaled counts",
-          main=main)
+  #boxplot(cts,border=col,col=col.in,xaxt="n", ylim=c(0,max(cts)),
+  #        xlab="samples",ylab="scaled counts", main=main)
+  boxplot2(cts, col=col, col.in=col.in, ylim=c(0,max(cts)),
+           xlab="samples", ylab="scaled counts", main=main)
   if (xaxis) axis(1, seq_along(condition), samp.nums)
   if (!is.null(cov)) {
     cuts <- cumsum(table(covariate))
     segments(c(1,cuts[-ngrp]+1),0,cuts,0,lwd=3,
              col=rep(c("black","grey"),length=ngrp))
   }
+}
+
+boxplot2 <- function(x, w=.4, ylim, col, col.in, xlab="", ylab="", main="") {
+  qs <- matrixStats::rowQuantiles(t(x), probs=0:4/4)
+  if (missing(ylim)) {
+    ylim <- c(min(x),max(x))
+  }
+  plot(qs[,3], type="n", xlim=c(0.5,ncol(x)+.5), xaxt="n",
+       xlab=xlab, ylab=ylab, main=main, ylim=ylim)
+  s <- seq_len(ncol(x))
+  for (i in s) {
+    polygon(c(i-w,i-w,i+w,i+w),
+            c(qs[i,2],qs[i,4],qs[i,4],qs[i,2]),
+            col=col.in[i], border=col[i])
+  }
+  segments(s-w, qs[,3], s+w, qs[,3], col=col, lwd=3, lend=1)
+  segments(s, qs[,2], s, qs[,1], col=col, lty=2)
+  segments(s, qs[,4], s, qs[,5], col=col, lty=2)
+  segments(s-w/2, qs[,1], s+w/2, qs[,1], col=col)
+  segments(s-w/2, qs[,5], s+w/2, qs[,5], col=col)
 }
 
 postprocess <- function(y, df) {
