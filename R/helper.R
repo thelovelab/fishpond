@@ -242,14 +242,10 @@ boxplot2 <- function(x, w=.4, ylim, col, col.in, xlab="", ylab="", main="") {
   plot(qs[,3], type="n", xlim=c(0.5,ncol(x)+.5), xaxt="n",
        xlab=xlab, ylab=ylab, main=main, ylim=ylim)
   s <- seq_len(ncol(x))
-  for (i in s) {
-    polygon(c(i-w,i-w,i+w,i+w),
-            c(qs[i,2],qs[i,4],qs[i,4],qs[i,2]),
-            col=col.in[i], border=col[i])
-  }
+  rect(s-w,qs[,2],s+w,qs[,4], col=col.in, border=col)
   segments(s-w, qs[,3], s+w, qs[,3], col=col, lwd=3, lend=1)
-  segments(s, qs[,2], s, qs[,1], col=col, lty=2)
-  segments(s, qs[,4], s, qs[,5], col=col, lty=2)
+  segments(s, qs[,2], s, qs[,1], col=col, lty=2, lend=1)
+  segments(s, qs[,4], s, qs[,5], col=col, lty=2, lend=1)
   segments(s-w/2, qs[,1], s+w/2, qs[,1], col=col)
   segments(s-w/2, qs[,5], s+w/2, qs[,5], col=col)
 }
