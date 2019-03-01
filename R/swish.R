@@ -80,6 +80,7 @@
 #' assays assays<- colData colData<- mcols mcols<-
 #' @importFrom S4Vectors DataFrame metadata metadata<-
 #' @importFrom svMisc progress
+#' @importFrom qvalue empPvals qvalue
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
