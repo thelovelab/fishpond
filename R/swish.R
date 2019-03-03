@@ -164,7 +164,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     locfdr <- makeLocFDR(stat, nulls, pi0)
     qvalue <- makeQvalue(stat, nulls, pi0, quiet)
   } else if (qvaluePkg == "qvalue") {
-    pvalue <- qvalue::empPvals(stat, nulls)
+    pvalue <- qvalue::empPvals(abs(stat), abs(nulls))
     q.res <- qvalue::qvalue(pvalue)
     locfdr <- q.res$lfdr
     qvalue <- q.res$qvalues
