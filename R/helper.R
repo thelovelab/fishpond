@@ -59,7 +59,8 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
     if (lengthCorrect) {
       # new length bias correction matrix centered on 1
       length <- length / exp(rowMeans(log(length)))
-      # a temporary matrix 'cts' which will store the inferential replicate counts
+      # a temporary matrix 'cts' which will store
+      # the inferential replicate counts
       cts <- infReps[[k]] / length
     } else {
       # for 3' tagged scRNA-seq for example, don't length correct
@@ -208,7 +209,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   condition <- colData(y)[[x]]
   if (is.null(cov)) {
     cts <- unlist(infReps)[,order(condition)]
-    samp.nums <- as.vector(sapply(table(condition), seq_len))
+    samp.nums <- unlist(lapply(table(condition), seq_len))
     cols <- rep(cols.drk, table(condition))
     cols.in <- rep(cols.lgt, table(condition))
   } else {

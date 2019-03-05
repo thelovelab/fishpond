@@ -83,26 +83,17 @@
 swish <- function(y, x, cov=NULL, pair=NULL,
                   nperms=30, wilcoxP=0.25,
                   estPi0=FALSE, pc=5, quiet=FALSE) {
-  # 'cov' or 'pair' or neither, but not both
   stopifnot(is.null(cov) | is.null(pair))
-  if (!interactive()) {
-    quiet <- TRUE
-  }
+  if (!interactive()) { quiet <- TRUE }
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- labelKeep(y, minN=3)
   }
   ys <- y[mcols(y)$keep,]
-  infRepIdx <- grep("infRep",assayNames(y))
-  infRepError(infRepIdx)
-  infReps <- assays(ys)[infRepIdx]
-  infRepsArray <- abind::abind(as.list(infReps), along=3)
+  infRepsArray <- getInfReps(ys)
   condition <- colData(y)[[x]]
   stopifnot(is.factor(condition))
   stopifnot(nlevels(condition) == 2)
   if (is.null(cov) & is.null(pair)) {
-    #######################
-    ## simple two groups ##
-    #######################
     stat <- getSamStat(infRepsArray, condition, wilcoxP)
     log2FC <- getLog2FC(infRepsArray, condition, pc)
     perms <- samr:::getperms(condition, nperms)
@@ -116,51 +107,33 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     }
     if (!quiet) message("")
   } else if (is.null(pair)) {
-    #########################
-    ## stratified analysis ##
-    #########################
-    covariate <- colData(y)[[cov]]
+    covariate <- colData(y)[[cov]] # covariate, e.g. batch effects
     out <- swish.strat(infRepsArray, condition, covariate,
-                       nperms=nperms, wilcoxP, pc, quiet)
+                       nperms, wilcoxP, pc, quiet)
     stat <- out$stat
     log2FC <- out$log2FC
     nulls <- out$nulls
   } else {
-    #####################
-    ## paired analysis ##
-    #####################
-    pair <- colData(y)[[pair]]
-    stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair)) 
-    pair <- as.integer(factor(pair))
-    if (!all(table(pair, condition) == 1)) {
-      stop("'pair' should have a single sample for both levels of condition")
-    }
-    stat <- getSignedRank(infRepsArray, condition, pair, wilcoxP)
-    log2FC <- getLog2FCPair(infRepsArray, condition, pair, pc)
-    cond.sign <- ifelse(condition == levels(condition)[1], 1, -1)
-    perms <- samr:::compute.block.perms(cond.sign * pair, pair, nperms)
-    nperms <- permsNote(perms, nperms)
-    perms <- fixPerms(perms, condition, pair)
-    nulls <- matrix(nrow=nrow(ys), ncol=nperms)
-    if (!quiet) message("Generating test statistics over permutations")
-    for (p in seq_len(nperms)) {
-      if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
-      nulls[,p] <- getSignedRank(infRepsArray, condition[perms[p,]],
-                                 pair[perms[p,]], wilcoxP)
-    }
-    if (!quiet) message("")
+    pair <- colData(y)[[pair]] # sample pairing
+    out <- swish.pair(infRepsArray, condition, pair,
+                      nperms, wilcoxP, pc, quiet)
+    stat <- out$stat
+    log2FC <- out$log2FC
+    nulls <- out$nulls
   }
   nulls.vec <- as.vector(nulls)
-  if (estPi0) {
-    pi0 <- estimatePi0(stat, nulls.vec)
-  } else {
-    pi0 <- 1
-  }
+  pi0 <- if (estPi0) estimatePi0(stat, nulls.vec) else 1
   locfdr <- makeLocFDR(stat, nulls, pi0)
   qvalue <- makeQvalue(stat, nulls, pi0)
   df <- data.frame(stat, log2FC, locfdr, qvalue)
-  y <- postprocess(y, df)
-  y
+  postprocess(y, df)
+}
+
+getInfReps <- function(ys) {
+  infRepIdx <- grep("infRep",assayNames(ys))
+  infRepError(infRepIdx)
+  infReps <- assays(ys)[infRepIdx]
+  abind::abind(as.list(infReps), along=3)
 }
 
 getSamStat <- function(infRepsArray, condition, p=NULL) {
@@ -172,7 +145,8 @@ getSamStat <- function(infRepsArray, condition, p=NULL) {
                     0.1 * runif(dims[1]*dims[2]))
   }
   cond2 <- condition == levels(condition)[2]
-  rankSums <- sapply(seq_len(dims[3]), function(i) rowSums(ranks[,cond2,i]))
+  rankSums <- vapply(seq_len(dims[3]), function(i)
+    rowSums(ranks[,cond2,i]), numeric(dims[1]))
   # Wilcoxon, centered on 0:
   W <- rankSums - sum(cond2) * (dims[2] + 1)/2
   if (is.null(p)) {
