@@ -85,7 +85,7 @@
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
                   nperms=30, wilcoxP=0.25,
-                  estPi0=FALSE, qvaluePkg="samr",
+                  estPi0=FALSE, qvaluePkg="qvalue",
                   pc=5, quiet=FALSE) {
   # 'cov' or 'pair' or neither, but not both
   stopifnot(is.null(cov) | is.null(pair))

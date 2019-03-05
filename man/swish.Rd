@@ -5,7 +5,7 @@
 \title{swish: SAMseq With Inferential Samples Helps}
 \usage{
 swish(y, x, cov = NULL, pair = NULL, nperms = 30, wilcoxP = 0.25,
-  estPi0 = FALSE, qvaluePkg = "samr", pc = 5, quiet = FALSE)
+  estPi0 = FALSE, qvaluePkg = "qvalue", pc = 5, quiet = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate

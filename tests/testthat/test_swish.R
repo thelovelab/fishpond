@@ -51,6 +51,9 @@ test_that("basic swish analyses", {
   # estimate pi0
   y <- swish(y, x="condition", estPi0=TRUE)
 
+  # use samr for qvalue
+  y <- swish(y, x="condition", qvaluePkg="samr")
+
   # don't use the lower quantile
   y <- swish(y, x="condition", wilcoxP=NULL)
   
