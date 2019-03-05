@@ -18,6 +18,8 @@
 #' inferential replicates to use as the test statistic.
 #' If set to NULL this will use the mean over inferential replicates
 #' @param estPi0 logical, whether to estimate pi0
+#' @param qvaluePkg character, which package to use for q-value estimation,
+#' \code{samr} or \code{qvalue}
 #' @param pc pseudocount for finite estimation of \code{log2FC}, not used
 #' in calculation of test statistics, \code{locfdr} or \code{qvalue}
 #' @param quiet display no messages
@@ -54,7 +56,7 @@
 #' set.seed(1)
 #' y <- makeSimSwishData()
 #' y <- scaleInfReps(y)
-#' y <- labelKeep(y, minN=3)
+#' y <- labelKeep(y)
 #' y <- swish(y, x="condition")
 #'
 #' # histogram of the swish statistics
@@ -78,15 +80,18 @@
 #' assays assays<- colData colData<- mcols mcols<-
 #' @importFrom S4Vectors DataFrame metadata metadata<-
 #' @importFrom svMisc progress
+#' @importFrom qvalue empPvals qvalue
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
                   nperms=30, wilcoxP=0.25,
-                  estPi0=FALSE, pc=5, quiet=FALSE) {
+                  estPi0=FALSE, qvaluePkg="samr",
+                  pc=5, quiet=FALSE) {
+  # 'cov' or 'pair' or neither, but not both
   stopifnot(is.null(cov) | is.null(pair))
   if (!interactive()) { quiet <- TRUE }
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
-    y <- labelKeep(y, minN=3)
+    y <- labelKeep(y)
   }
   ys <- y[mcols(y)$keep,]
   infRepsArray <- getInfReps(ys)
@@ -123,8 +128,17 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   }
   nulls.vec <- as.vector(nulls)
   pi0 <- if (estPi0) estimatePi0(stat, nulls.vec) else 1
-  locfdr <- makeLocFDR(stat, nulls, pi0)
-  qvalue <- makeQvalue(stat, nulls, pi0)
+  if (qvaluePkg == "samr") {
+    locfdr <- makeLocFDR(stat, nulls, pi0)
+    qvalue <- makeQvalue(stat, nulls, pi0, quiet)
+  } else if (qvaluePkg == "qvalue") {
+    pvalue <- qvalue::empPvals(abs(stat), abs(nulls))
+    q.res <- qvalue::qvalue(pvalue, pi0=1)
+    locfdr <- q.res$lfdr
+    qvalue <- q.res$qvalues
+  } else {
+    stop("'qvaluePkg' should be 'samr' or 'qvalue'")
+  }
   df <- data.frame(stat, log2FC, locfdr, qvalue)
   postprocess(y, df)
 }
@@ -161,25 +175,13 @@ getLog2FC <- function(infRepsArray, condition, pc=5) {
   dims <- dim(infRepsArray)
   cond1 <- condition == levels(condition)[1]
   cond2 <- condition == levels(condition)[2]
-  log2Cond1 <- log2(apply(infRepsArray[,cond1,],c(1,3),mean) + pc)
-  log2Cond2 <- log2(apply(infRepsArray[,cond2,],c(1,3),mean) + pc)
-  # median over inferential replicates
-  matrixStats::rowMedians(log2Cond2 - log2Cond1)
-}
-
-getLog2FCPair <- function(infRepsArray, condition, pair, pc=5) {
-  dims <- dim(infRepsArray)
-  o <- order(condition, pair)
-  if (!all(o == seq_along(condition))) {
-    infRepsArray <- infRepsArray[,o,]
+  diffs <- matrix(nrow=dims[1],ncol=dims[3])
+  for (k in seq_len(dims[3])) {
+    diffs[,k] <- log2(rowMeans(infRepsArray[,cond2,k]) + pc) -
+                 log2(rowMeans(infRepsArray[,cond1,k]) + pc)
   }
-  n <- dims[2]
-  cond1 <- (1):(n/2)
-  cond2 <- (n/2 + 1):(n)
-  lfc.mat <- log2(infRepsArray[,cond2,] + pc) -
-               log2(infRepsArray[,cond1,] + pc)
   # median over inferential replicates
-  apply(lfc.mat, 1, median)
+  matrixStats::rowMedians(diffs)
 }
 
 rowQuantilesTowardZero <- function(W, p) {
@@ -221,9 +223,12 @@ makeLocFDR <- function(stat, nulls, pi0) {
   locfdr
 }
 
-makeQvalue <- function(stat, nulls, pi0) {
+makeQvalue <- function(stat, nulls, pi0, quiet=FALSE) {
   samr.obj <- makeSamrObj(stat, nulls, pi0)
-  delta.table <- samr:::samr.compute.delta.table.seq(samr.obj)
+  out <- capture.output({
+    delta.table <- samr:::samr.compute.delta.table.seq(samr.obj)
+  })
+  if (!quiet) message(paste(out,collapse="\n"))
   sig <- list(pup=which(stat >= 0), plo=which(stat < 0))
   qlist <- samr:::qvalue.func(samr.obj, sig, delta.table)
   qvalue <- numeric(length(stat))

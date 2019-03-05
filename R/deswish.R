@@ -34,7 +34,7 @@
 #' @examples
 #'
 #' y <- makeSimSwishData()
-#' y <- labelKeep(y, x="condition")
+#' y <- labelKeep(y)
 #' y <- deswish(y, ~condition, "condition_2_vs_1")
 #' 
 #' @export

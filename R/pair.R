@@ -20,3 +20,20 @@ swish.pair <- function(infRepsArray, condition, pair,
   if (!quiet) message("")
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
+
+getLog2FCPair <- function(infRepsArray, condition, pair, pc=5) {
+  dims <- dim(infRepsArray)
+  o <- order(condition, pair)
+  if (!all(o == seq_along(condition))) {
+    infRepsArray <- infRepsArray[,o,]
+  }
+  n <- dims[2]
+  cond1 <- (1):(n/2)
+  cond2 <- (n/2 + 1):(n)
+  # mean over samples
+  lfc.mat <- apply(log2(infRepsArray[,cond2,] + pc) -
+                   log2(infRepsArray[,cond1,] + pc),
+                   c(1,3), mean)
+  # median over inferential replicates
+  matrixStats::rowMedians(lfc.mat)
+}

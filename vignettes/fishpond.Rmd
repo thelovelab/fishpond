@@ -169,16 +169,18 @@ to set a random seed before running `swish()`, as we do below:
 ```{r results="hide", message=FALSE}
 library(fishpond)
 y <- scaleInfReps(y)
-y <- labelKeep(y, minN=3)
+y <- labelKeep(y)
 set.seed(1)
 y <- swish(y, x="condition", pair="line")
 ```
 
-A note about `labelKeep`: by default we keep features with `minN`
+A note about `labelKeep`: by default we keep features with `minN=3`
 samples with a minimal count of 10. For scRNA-seq data with
 de-duplicated UMI counts, we recommend to lower the count, e.g. a
 count of 3, across a higher number of `minN` cells, depending on the
-number of cells being compared.
+number of cells being compared. You can also set `x="condition"` when
+running `labelKeep` which will use the condition variable to set
+`minN`.
 
 The results are stored in `mcols(y)`. We will show below how to pull
 out the top up- and down-regulated transcripts.
@@ -235,7 +237,7 @@ in order to be able to reproduce exact results in the future:
 
 ```{r results="hide", message=FALSE}
 y <- scaleInfReps(y)
-y <- labelKeep(y, minN=3)
+y <- labelKeep(y)
 set.seed(1)
 y <- swish(y, x="condition", pair="line")
 ```

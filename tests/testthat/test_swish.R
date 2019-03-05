@@ -6,7 +6,7 @@ test_that("basic variable errors thrown", {
 
   y <- makeSimSwishData()
   y <- scaleInfReps(y)
-  y <- labelKeep(y, minN=3)
+  y <- labelKeep(y)
 
   # too many levels of condition
   y2 <- y
@@ -33,7 +33,7 @@ test_that("basic variable errors thrown", {
   # too many permutations requested
   y <- makeSimSwishData(m=100,n=4)
   y <- scaleInfReps(y)
-  y <- labelKeep(y, minN=3)
+  y <- labelKeep(y)
   # there are 4! = 24 permutations
   expect_message(swish(y, x="condition", nperms=25), "less permutations")
   
@@ -44,7 +44,7 @@ test_that("basic swish analyses", {
   # two group
   y <- makeSimSwishData()
   y <- scaleInfReps(y)
-  y <- labelKeep(y, minN=3)
+  y <- labelKeep(y)
   y <- swish(y, x="condition")
   plotInfReps(y, 1, "condition")
 
@@ -58,7 +58,7 @@ test_that("basic swish analyses", {
   y <- makeSimSwishData(n=20)
   y$batch <- factor(rep(c(1,2,1,2),each=5))
   y <- scaleInfReps(y)
-  y <- labelKeep(y, minN=3)
+  y <- labelKeep(y)
   y <- swish(y, x="condition", cov="batch")
   plotInfReps(y, 1, "condition", "batch")
   
@@ -66,7 +66,7 @@ test_that("basic swish analyses", {
   y <- makeSimSwishData()
   y$pair <- rep(1:5,2)
   y <- scaleInfReps(y)
-  y <- labelKeep(y, minN=3)
+  y <- labelKeep(y)
   y <- swish(y, x="condition", pair="pair")
 
   # alternative scaling
@@ -81,7 +81,7 @@ test_that("basic swish analyses", {
 test_that("basic deswish analyses", {
 
   y <- makeSimSwishData()
-  y <- labelKeep(y, minN=3)
+  y <- labelKeep(y)
   y <- deswish(y, ~condition, "condition_2_vs_1")
   
 })
