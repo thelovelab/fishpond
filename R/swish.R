@@ -101,7 +101,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   if (is.null(cov) & is.null(pair)) {
     stat <- getSamStat(infRepsArray, condition, wilcoxP)
     log2FC <- getLog2FC(infRepsArray, condition, pc)
-    perms <- samr:::getperms(condition, nperms)
+    perms <- getPerms(condition, nperms)
     nperms <- permsNote(perms, nperms)
     nulls <- matrix(nrow=nrow(ys), ncol=nperms)
     if (!quiet) message("Generating test statistics over permutations")
@@ -133,14 +133,15 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     q.res <- qvalue::qvalue(pvalue, pi0=pi0)
     locfdr <- q.res$lfdr
     qvalue <- q.res$qvalues
+    df <- data.frame(stat, log2FC, pvalue, locfdr, qvalue)
   } else if (qvaluePkg == "samr") {
     pi0 <- if (estPi0) estimatePi0(stat, nulls.vec) else 1
     locfdr <- makeLocFDR(stat, nulls, pi0)
     qvalue <- makeQvalue(stat, nulls, pi0, quiet)
+    df <- data.frame(stat, log2FC, locfdr, qvalue)
   } else {
     stop("'qvaluePkg' should be 'samr' or 'qvalue'")
   }
-  df <- data.frame(stat, log2FC, locfdr, qvalue)
   postprocess(y, df)
 }
 
@@ -268,6 +269,18 @@ fixPerms <- function(perms, condition, pair) {
     idx1 <- perms.in[,2*i - 1] < 0
     idx2 <- pair == i
     perms[idx1,idx2] <- perms[idx1,idx2,drop=FALSE][,2:1]
+  }
+  perms
+}
+
+getPerms <- function(condition, nperms) {
+  if (length(condition) <= 150) {
+    perms <- samr:::getperms(condition, nperms)
+  } else {
+    # with >150 samples we have a good number of permutations
+    # just do random sampling and avoid gammafn errors from samr
+    x <- t(replicate(nperms, sample(length(condition))))
+    perms <- list(perms=x, nperms.act=nperms)
   }
   perms
 }

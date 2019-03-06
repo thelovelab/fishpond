@@ -5,7 +5,7 @@ library(fishpond)
 test_that("basic variable errors thrown", {
 
   y <- makeSimSwishData()
-  y <- scaleInfReps(y)
+  y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
 
   # too many levels of condition
@@ -32,10 +32,10 @@ test_that("basic variable errors thrown", {
 
   # too many permutations requested
   y <- makeSimSwishData(m=100,n=4)
-  y <- scaleInfReps(y)
+  y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
   # there are 4! = 24 permutations
-  expect_message(swish(y, x="condition", nperms=25), "less permutations")
+  expect_message(swish(y, x="condition", nperms=25, quiet=TRUE), "less permutations")
   
 })
 
@@ -43,45 +43,46 @@ test_that("basic swish analyses", {
 
   # two group
   y <- makeSimSwishData()
-  y <- scaleInfReps(y)
+  y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
-  y <- swish(y, x="condition")
+  y <- swish(y, x="condition", quiet=TRUE)
+  expect_true("qvalue" %in% colnames(mcols(y)))
   plotInfReps(y, 1, "condition")
   dev.off()
 
   # estimate pi0
   # for estimating pi0, 'qvalue' package doesn't seem to like the discrete stats
-  y <- swish(y, x="condition", wilcoxP=NULL, estPi0=TRUE, qvaluePkg="qvalue")
-  y <- swish(y, x="condition", estPi0=TRUE, qvaluePkg="samr")
+  y <- swish(y, x="condition", wilcoxP=NULL, estPi0=TRUE, qvaluePkg="qvalue", quiet=TRUE)
+  y <- swish(y, x="condition", estPi0=TRUE, qvaluePkg="samr", quiet=TRUE)
 
   # use samr for qvalue
-  y <- swish(y, x="condition", qvaluePkg="samr")
+  y <- swish(y, x="condition", qvaluePkg="samr", quiet=TRUE)
 
   # don't use the lower quantile
-  y <- swish(y, x="condition", wilcoxP=NULL)
+  y <- swish(y, x="condition", wilcoxP=NULL, quiet=TRUE)
   
   # two group with batch covariate
   y <- makeSimSwishData(n=20)
   y$batch <- factor(rep(c(1,2,1,2),each=5))
-  y <- scaleInfReps(y)
+  y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
-  y <- swish(y, x="condition", cov="batch")
+  y <- swish(y, x="condition", cov="batch", quiet=TRUE)
   plotInfReps(y, 1, "condition", "batch")
   dev.off()
   
   # two group, matched samples
   y <- makeSimSwishData()
   y$pair <- rep(1:5,2)
-  y <- scaleInfReps(y)
+  y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
-  y <- swish(y, x="condition", pair="pair")
+  y <- swish(y, x="condition", pair="pair", quiet=TRUE)
 
   # alternative scaling
 
   y <- makeSimSwishData()
-  y <- scaleInfReps(y, lengthCorrect=FALSE)
+  y <- scaleInfReps(y, lengthCorrect=FALSE, quiet=TRUE)
   y <- makeSimSwishData()
-  y <- scaleInfReps(y, sfFun=function(x) colSums(x)/mean(colSums(x)))
+  y <- scaleInfReps(y, sfFun=function(x) colSums(x)/mean(colSums(x)), quiet=TRUE)
   
 })
 

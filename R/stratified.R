@@ -11,7 +11,7 @@ swish.strat <- function(infRepsArray, condition, covariate,
     g <- groups[i]
     infRepsArray.sub <- infRepsArray[,covariate == g,]
     cond.sub <- condition[covariate == g]
-    perms <- samr:::getperms(cond.sub, nperms)
+    perms <- getPerms(cond.sub, nperms)
     nperms <- permsNote(perms, nperms)
     stats[,i] <- getSamStat(infRepsArray.sub, cond.sub, wilcoxP)
     lfc.mat[,i] <- getLog2FC(infRepsArray.sub, cond.sub, pc)
