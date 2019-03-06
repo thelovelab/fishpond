@@ -127,15 +127,16 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     nulls <- out$nulls
   }
   nulls.vec <- as.vector(nulls)
-  pi0 <- if (estPi0) estimatePi0(stat, nulls.vec) else 1
-  if (qvaluePkg == "samr") {
-    locfdr <- makeLocFDR(stat, nulls, pi0)
-    qvalue <- makeQvalue(stat, nulls, pi0, quiet)
-  } else if (qvaluePkg == "qvalue") {
+  if (qvaluePkg == "qvalue") {
     pvalue <- qvalue::empPvals(abs(stat), abs(nulls))
-    q.res <- qvalue::qvalue(pvalue, pi0=1)
+    pi0 <- if (estPi0) NULL else 1
+    q.res <- qvalue::qvalue(pvalue, pi0=pi0)
     locfdr <- q.res$lfdr
     qvalue <- q.res$qvalues
+  } else if (qvaluePkg == "samr") {
+    pi0 <- if (estPi0) estimatePi0(stat, nulls.vec) else 1
+    locfdr <- makeLocFDR(stat, nulls, pi0)
+    qvalue <- makeQvalue(stat, nulls, pi0, quiet)
   } else {
     stop("'qvaluePkg' should be 'samr' or 'qvalue'")
   }

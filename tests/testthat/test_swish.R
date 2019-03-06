@@ -47,9 +47,12 @@ test_that("basic swish analyses", {
   y <- labelKeep(y)
   y <- swish(y, x="condition")
   plotInfReps(y, 1, "condition")
+  dev.off()
 
   # estimate pi0
-  y <- swish(y, x="condition", estPi0=TRUE)
+  # for estimating pi0, 'qvalue' package doesn't seem to like the discrete stats
+  y <- swish(y, x="condition", wilcoxP=NULL, estPi0=TRUE, qvaluePkg="qvalue")
+  y <- swish(y, x="condition", estPi0=TRUE, qvaluePkg="samr")
 
   # use samr for qvalue
   y <- swish(y, x="condition", qvaluePkg="samr")
@@ -64,6 +67,7 @@ test_that("basic swish analyses", {
   y <- labelKeep(y)
   y <- swish(y, x="condition", cov="batch")
   plotInfReps(y, 1, "condition", "batch")
+  dev.off()
   
   # two group, matched samples
   y <- makeSimSwishData()
