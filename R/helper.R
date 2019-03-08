@@ -114,6 +114,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
 #' @export
 labelKeep <- function(y, minCount=10, minN=3, x) {
   if (!missing(x)) {
+    stopifnot(x %in% names(colData(y)))
     minN <- min(table(colData(y)[[x]]))
     # this modeled after edgeR::filterByExpr()
     if (minN > 10) {
@@ -203,6 +204,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
                         cols.lgt=c("lightblue1","goldenrod1"),
                         xaxis=TRUE) {
   infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
+  stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
   if (is.null(cov)) {
     cts <- unlist(infReps)[,order(condition)]
@@ -210,6 +212,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     col <- rep(cols.drk, table(condition))
     col.in <- rep(cols.lgt, table(condition))
   } else {
+    stopifnot(cov %in% names(colData(y)))
     covariate <- factor(colData(y)[[cov]])
     ngrp <- nlevels(covariate)
     cts <- unlist(infReps)[,order(covariate, condition)]

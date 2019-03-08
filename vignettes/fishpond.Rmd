@@ -16,7 +16,7 @@ vignette: |
 <!-- run this document with library(rmarkdown); render("fishpond.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=FALSE,
+knitr::opts_chunk$set(tidy=FALSE, cache=TRUE,
                       dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
@@ -37,6 +37,38 @@ control for batch effects and matched samples. `swish` calls functions
 from the *qvalue* or *samr* package for calculation of local FDR and
 q-value. This vignette gives an example of differential analysis of
 matched samples.
+
+# Quick start
+
+The following lines of code will perform a transcript-level `swish`
+two group analysis. For more details, read on.
+
+```{r eval=FALSE}
+# 'coldata.csv': sample information table
+coldata <- read.csv("coldata.csv")
+library(tximeta)
+y <- tximeta(coldata)
+library(swish)
+y <- scaleInfReps(y)
+y <- labelKeep(y)
+set.seed(1)
+y <- swish(y, x="condition")
+```
+
+The results can be found in `mcols(y)`. For example, one can calculate
+the number of genes passing a 5% FDR threshold:
+
+```{r eval=FALSE}
+table(mcols(y)$qvalue < .05)
+```
+
+One can remove the genes that didn't pass the expression filter with
+the following line of code. These genes are ignored by `swish`, and so
+will have `NA` in the results columns in `mcols(y)`.
+
+```{r eval=FALSE}
+y <- y[mcols(y)$keep,]
+```
 
 # Macrophage stimulation experiment
 
@@ -198,14 +230,25 @@ q-value, so it's valuable to look at the log2 fold change as well (see
 further note below on q-values computed by *samr*). The log2 fold
 change computed by `swish` is the median over inferential replicates,
 and uses a pseudo-count of 5 on the scaled counts, to stabilize
-the variance on the fold change from division by small counts.
+the variance on the fold change from division by small counts. Here we
+make two vectors that give the significant genes with the lowest (most
+negative) and highest (most positive) log fold changes.
 
 ```{r}
-sig.indicator <- mcols(y)$qvalue < .05
-table(sig.indicator, sign.lfc=sign(mcols(y)$log2FC))
-o.lo <- order(mcols(y)$log2FC * sig.indicator)
-o.hi <- order(-mcols(y)$log2FC * sig.indicator)
-mcols(y)[head(o.hi),]
+sig <- mcols(y)$qvalue < .05
+table(sig, sign.lfc=sign(mcols(y)$log2FC))
+lo <- order(mcols(y)$log2FC * sig)
+hi <- order(-mcols(y)$log2FC * sig)
+```
+
+Here we print a small table with just the calculated statistics for
+the large postive log fold change transcipts:
+
+
+```{r}
+top <- mcols(y)[head(hi),]
+names(top)
+print(as.data.frame(top)[,5:9], digits=3)
 ```
 
 # Plotting inferential replicates
@@ -217,7 +260,7 @@ pairs was consistent. Here we plot the 100th top up-regulated
 transcript: 
 
 ```{r}
-plotInfReps(y, idx=o.hi[100], x="condition", cov="line")
+plotInfReps(y, idx=hi[100], x="condition", cov="line")
 ```
 
 # Running `swish` at the gene level
@@ -229,44 +272,51 @@ then we subset to the genes on chromosome 1 for the demonstration.
 
 ```{r}
 gse <- summarizeToGene(se)
-y <- gse
-y <- y[seqnames(y) == "chr1",]
+gy <- gse
+gy <- gy[seqnames(gy) == "chr1",]
 ```
 
 Next we can run the same steps as before. Again we set a random seed
 in order to be able to reproduce exact results in the future:
 
 ```{r results="hide", message=FALSE}
-y <- scaleInfReps(y)
-y <- labelKeep(y)
+gy <- scaleInfReps(gy)
+gy <- labelKeep(gy)
 set.seed(1)
-y <- swish(y, x="condition", pair="line")
+gy <- swish(gy, x="condition", pair="line")
 ```
 
 As before, the number of genes in a 1% FDR set:
 
 ```{r}
-table(mcols(y)$qvalue < .05)
+table(mcols(gy)$qvalue < .05)
 ```
 
 As before, finding the genes with the most extreme log2 fold change:
 
 ```{r}
-sig.indicator <- mcols(y)$qvalue < .05
-table(sig.indicator, sign.lfc=sign(mcols(y)$log2FC))
-o.lo <- order(mcols(y)$log2FC * sig.indicator)
-o.hi <- order(-mcols(y)$log2FC * sig.indicator)
-mcols(y)[head(o.hi),]
+sig <- mcols(gy)$qvalue < .05
+table(sig, sign.lfc=sign(mcols(gy)$log2FC))
+glo <- order(mcols(gy)$log2FC * sig)
+ghi <- order(-mcols(gy)$log2FC * sig)
+```
+
+```{r}
+gtop <- mcols(gy)[head(ghi),]
+names(gtop)
+print(as.data.frame(gtop)[,3:7], digits=3)
 ```
 
 We can plot a particular one of these genes:
 
 ```{r}
-plotInfReps(y, idx=o.hi[200], x="condition", cov="line")
+plotInfReps(gy, idx=ghi[100], x="condition", cov="line")
 ```
 
 As expected, the highly up-regulated genes are involved in immune
 response.
+
+# Plotting q-values over statistics
 
 As with *SAMseq* and *SAM*, `swish` makes use of the permutation
 plug-in approach for q-value calculation. `swish` calls the `empPvals`
@@ -278,13 +328,18 @@ fold change, one can see clusters of genes with the same q-value
 this is that, in order to rank the genes, rather than ranking directly
 by q-value, it makes more sense to pick a q-value threshold and then
 within that set of genes, to rank by the log2 fold change, as shown
-above when the code chunk has `log2FC * sig.indicator`.
+above when the code chunk has `log2FC * sig`.
 
-```{r fig.height=4}
-min(mcols(y)$qvalue, na.rm=TRUE) # min nominal FDR is not 0
-par(mfrow=c(1,2))
-with(mcols(y), plot(stat, -log10(qvalue)))
-with(mcols(y), plot(log2FC, -log10(qvalue)))
+```{r}
+gres <- mcols(gy)[mcols(gy)$keep,]
+min(gres$qvalue, na.rm=TRUE) # min nominal FDR is not 0
+with(gres, plot(stat, -log10(qvalue)))
+with(gres, plot(log2FC, -log10(qvalue)))
+abline(v=0, col="red")
+jitter <- runif(nrow(gres),-.02,.02)
+with(gres, plot(log2FC, -log10(qvalue)+jitter,
+                xlim=c(-.7,.7), ylim=c(0,1.5)))
+abline(v=0, col="red")
 ```
 
 # Analysis types supported by `swish`

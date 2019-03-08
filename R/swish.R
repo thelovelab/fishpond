@@ -95,6 +95,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   }
   ys <- y[mcols(y)$keep,]
   infRepsArray <- getInfReps(ys)
+  stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
   stopifnot(is.factor(condition))
   stopifnot(nlevels(condition) == 2)
@@ -112,6 +113,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     }
     if (!quiet) message("")
   } else if (is.null(pair)) {
+    stopifnot(cov %in% names(mcols(colData(y))))
     covariate <- colData(y)[[cov]] # covariate, e.g. batch effects
     out <- swish.strat(infRepsArray, condition, covariate,
                        nperms, wilcoxP, pc, quiet)
@@ -119,6 +121,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     log2FC <- out$log2FC
     nulls <- out$nulls
   } else {
+    stopifnot(pair %in% names(colData(y)))
     pair <- colData(y)[[pair]] # sample pairing
     out <- swish.pair(infRepsArray, condition, pair,
                       nperms, wilcoxP, pc, quiet)
