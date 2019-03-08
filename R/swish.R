@@ -113,7 +113,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     }
     if (!quiet) message("")
   } else if (is.null(pair)) {
-    stopifnot(cov %in% names(mcols(colData(y))))
+    stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]] # covariate, e.g. batch effects
     out <- swish.strat(infRepsArray, condition, covariate,
                        nperms, wilcoxP, pc, quiet)
