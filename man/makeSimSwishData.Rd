@@ -4,7 +4,7 @@
 \alias{makeSimSwishData}
 \title{Make simulated data for swish for examples/testing}
 \usage{
-makeSimSwishData(m = 1000, n = 10, numReps = 20)
+makeSimSwishData(m = 1000, n = 10, numReps = 20, null = FALSE)
 }
 \arguments{
 \item{m}{number of genes}
@@ -12,6 +12,8 @@ makeSimSwishData(m = 1000, n = 10, numReps = 20)
 \item{n}{number of samples}
 
 \item{numReps}{how many inferential replicates}
+
+\item{null}{logical, whether to make an all null dataset}
 }
 \value{
 a SummarizedExperiment

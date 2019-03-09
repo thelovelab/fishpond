@@ -4,6 +4,8 @@ library(fishpond)
 
 test_that("basic variable errors thrown", {
 
+  set.seed(1)
+  
   y <- makeSimSwishData()
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
@@ -41,6 +43,8 @@ test_that("basic variable errors thrown", {
 
 test_that("basic swish analyses", {
 
+  set.seed(1)
+  
   # two group
   y <- makeSimSwishData()
   y <- scaleInfReps(y, quiet=TRUE)

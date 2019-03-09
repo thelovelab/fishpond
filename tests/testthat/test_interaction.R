@@ -1,0 +1,50 @@
+context("interaction")
+library(SummarizedExperiment)
+library(fishpond)
+
+test_that("matched samples interactions work", {
+
+  set.seed(1)
+  
+  # two group matched samples interaction
+  y <- makeSimSwishData(n=20, null=TRUE)
+  nms <- c("counts",paste0("infRep",1:20))
+  lambda1 <- rep(c(40,80),length=20)
+  lambda2 <- c(rep(c(40,80),length=10),rep(c(40,160),length=10))
+  for (a in nms) {
+    assays(y)[[a]][1,] <- rpois(20,lambda1)
+    assays(y)[[a]][2,] <- rpois(20,lambda2)
+    assays(y)
+  }
+  y$condition <- factor(rep(1:2,length=20))
+  y$pair <- factor(rep(1:10,each=2))
+  y$group <- factor(rep(1:2,each=10))
+
+  y <- scaleInfReps(y, quiet=TRUE)
+  y <- labelKeep(y)
+  y <- swish(y, x="condition", pair="pair", quiet=TRUE)
+
+})
+
+test_that("two group interactions work", {
+
+  set.seed(1)
+  
+  # two group interaction
+  y <- makeSimSwishData(n=20, null=TRUE)
+  nms <- c("counts",paste0("infRep",1:20))
+  lambda1 <- rep(c(40,80,40,80),each=5)
+  lambda2 <- rep(c(40,80,40,160),each=5)
+  for (a in nms) {
+    assays(y)[[a]][1,] <- rpois(20,lambda1)
+    assays(y)[[a]][2,] <- rpois(20,lambda2)
+    assays(y)
+  }
+  y$condition <- factor(rep(c(1,2,1,2),each=5))
+  y$group <- factor(rep(1:2,each=10))
+
+  y <- scaleInfReps(y, quiet=TRUE)
+  y <- labelKeep(y)
+  y <- swish(y, x="condition", cov="group", quiet=TRUE)
+  
+})

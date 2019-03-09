@@ -142,6 +142,7 @@ labelKeep <- function(y, minCount=10, minN=3, x) {
 #' @param m number of genes
 #' @param n number of samples
 #' @param numReps how many inferential replicates
+#' @param null logical, whether to make an all null dataset
 #'
 #' @return a SummarizedExperiment
 #'
@@ -152,22 +153,26 @@ labelKeep <- function(y, minCount=10, minN=3, x) {
 #' assayNames(y)
 #' 
 #' @export
-makeSimSwishData <- function(m=1000, n=10, numReps=20) {
+makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
   stopifnot(m>8)
   stopifnot(n %% 2 == 0)
   cts <- matrix(rpois(m*n, lambda=80), ncol=n)
-  grp2 <- (n/2+1):n
-  cts[1:6,grp2] <- rpois(3*n, lambda=120)
-  cts[7:8,] <- 0
+  if (!null) {
+    grp2 <- (n/2+1):n
+    cts[1:6,grp2] <- rpois(3*n, lambda=120)
+    cts[7:8,] <- 0
+  }
   length <- matrix(1000, nrow=m, ncol=n)
   abundance <- t(t(cts)/colSums(cts))*1e6
   infReps <- lapply(seq_len(numReps), function(i) {
     m <- matrix(rpois(m*n, lambda=80), ncol=n)
-    # these row numbers are fixed for the demo dataset
-    m[1:6,grp2] <- rpois(3*n, lambda=120)
-    m[3:4,] <- round(m[3:4,] * runif(2*n,.5,1.5))
-    m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
-    m[7:8,] <- 0
+    if (!null) {
+      # these row numbers are fixed for the demo dataset
+      m[1:6,grp2] <- rpois(3*n, lambda=120)
+      m[3:4,] <- round(m[3:4,] * runif(2*n,.5,1.5))
+      m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
+      m[7:8,] <- 0
+    }
     m
   })
   names(infReps) <- paste0("infRep", seq_len(numReps))
@@ -243,6 +248,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
 #'
 #' @param y a SummarizedExperiment (see \code{swish})
 #' @param alpha the FDR threshold for coloring points
+#' @param sigcolor the color for the significant points
 #' @param ... passed to plot
 #'
 #' @return nothing, a plot is displayed
@@ -256,12 +262,12 @@ plotInfReps <- function(y, idx, x, cov=NULL,
 #' plotMASwish(y)
 #' 
 #' @export
-plotMASwish <- function(y, alpha=.05, ...) {
+plotMASwish <- function(y, alpha=.05, sigcolor="blue", ...) {
   dat <- data.frame(log10mean=mcols(y)$log10mean,
                     log2FC=mcols(y)$log2FC,
                     sig=mcols(y)$qvalue < alpha)
   with(dat, plot(log10mean, log2FC, pch=20, cex=.4,
-                 col=ifelse(sig, "red", "grey50"), ...))
+                 col=ifelse(sig, sigcolor, "grey60"), ...))
   abline(h=0, col="grey40")
 }
 

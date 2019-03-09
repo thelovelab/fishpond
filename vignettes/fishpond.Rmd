@@ -278,7 +278,7 @@ plotInfReps(y, idx=hi[100], x="condition", cov="line")
 ## MA plot
 
 We can make an MA plot, where the transcripts in our FDR set are
-colored in red:
+colored:
 
 ```{r}
 plotMASwish(y, alpha=.05)
@@ -300,7 +300,7 @@ plotMASwish(y, alpha=.05, xlim=c(.5,5.5))
 with(
   subset(mcols(y), qvalue < .05 & abs(log2FC) > 4),
      text(log10mean, log2FC, SYMBOL,
-          col="red", pos=4, cex=.7)
+          col="blue", pos=4, cex=.7)
 )
 ```
 
@@ -363,8 +363,7 @@ response. Many genes encoding guanylate-binding proteins (GBP) are
 up-regulated, and these proteins are induced by interferon,
 produced in response to infection by pathogenic microbes.
 
-We can make an MA plot, where the genes in our FDR set are colored in
-red:
+We can make an MA plot, where the genes in our FDR set are colored:
 
 ```{r}
 plotMASwish(gy, alpha=.05)
@@ -385,7 +384,7 @@ plotMASwish(gy, alpha=.05, xlim=c(.5,5.5))
 with(
   subset(mcols(gy), qvalue < .05 & abs(log2FC) > 3),
      text(log10mean, log2FC, SYMBOL,
-          col="red", pos=4, cex=.7)
+          col="blue", pos=4, cex=.7)
 )
 ```
 
