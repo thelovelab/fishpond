@@ -16,12 +16,11 @@ vignette: |
 <!-- run this document with library(rmarkdown); render("fishpond.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=FALSE,
-                      dev="png",
+knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
-# The `swish` statistical method
+# The `swish` method
 
 The `swish` method for differential expression analysis of RNA-seq
 data using inferential replicate counts is described in the following
@@ -70,7 +69,7 @@ will have `NA` in the results columns in `mcols(y)`.
 y <- y[mcols(y)$keep,]
 ```
 
-# Macrophage stimulation experiment
+## Macrophage stimulation experiment
 
 We begin the *fishpond* vignette by loading data from a Bioconductor
 Experiment Data package, *macrophage*. The package contains RNA-seq
@@ -109,7 +108,9 @@ required for the *swish* method shown below. We also recommend to use
 `--gcBias` when running *Salmon* to protect against common
 sample-specific biases present in RNA-seq data.
 
-# Read in the column data from CSV
+# Data import
+
+## Read in the column data from CSV
 
 We start by reading in a CSV with the *column data*, that is,
 information about the samples, which are represented as columns of
@@ -129,7 +130,7 @@ coldata <- coldata[,c(1,2,3,5)]
 names(coldata) <- c("names","id","line","condition")
 ```
 
-# Add a column pointing to your files
+## Add a column pointing to your files
 
 `coldata` needs to have a column `files` which specifies the path to
 the quantification files. In this case, we've gzipped the
@@ -150,7 +151,7 @@ coldata$condition <- factor(coldata$condition, c("naive","IFNg"))
 ```
 
 
-# Read in quants with *tximeta*
+## Read in quants with *tximeta*
 
 We will read in quantification data for some of the samples. First we
 load the *SummarizedExperiment* package. We will store out data and
@@ -190,7 +191,9 @@ y <- se
 y <- y[seqnames(y) == "chr1",]
 ```
 
-# Running `swish` at the transcript level
+# Differential transcript expression
+
+## Running `swish` at the transcript level
 
 Running `swish` has three steps: scaling the inferential replicates,
 labeling the rows with sufficient counts for running differential
@@ -203,6 +206,7 @@ to set a random seed before running `swish()`, as we do below:
 library(fishpond)
 y <- scaleInfReps(y)
 y <- labelKeep(y)
+y <- y[mcols(y)$keep,]
 set.seed(1)
 y <- swish(y, x="condition", pair="line")
 ```
@@ -235,7 +239,6 @@ make two vectors that give the significant genes with the lowest (most
 negative) and highest (most positive) log fold changes.
 
 ```{r}
-y <- y[mcols(y)$keep,]
 sig <- mcols(y)$qvalue < .05
 table(sig, sign.lfc=sign(mcols(y)$log2FC))
 lo <- order(mcols(y)$log2FC * sig)
@@ -243,16 +246,24 @@ hi <- order(-mcols(y)$log2FC * sig)
 ```
 
 Here we print a small table with just the calculated statistics for
-the large postive log fold change transcipts:
-
+the large postive log fold change transcripts (up-regulation):
 
 ```{r}
-top <- mcols(y)[head(hi),]
-names(top)
-print(as.data.frame(top)[,5:9], digits=3)
+top.up <- mcols(y)[head(hi),]
+names(top.up)
+cols <- c("log10mean","log2FC","pvalue","qvalue")
+print(as.data.frame(top.up)[,cols], digits=3)
 ```
 
-# Plotting inferential replicates
+Likewise for the largest negative log fold change transcripts
+(down-regulation): 
+
+```{r}
+top.down <- mcols(y)[head(lo),]
+print(as.data.frame(top.down)[,cols], digits=3)
+```
+
+## Plotting inferential replicates
 
 We can plot the scaled counts for the inferential replicates, and also
 group the samples by a covariate, in this case the cell line. The
@@ -264,16 +275,18 @@ transcript:
 plotInfReps(y, idx=hi[100], x="condition", cov="line")
 ```
 
-# MA plot
+## MA plot
 
-We can make an MA plot, where the genes in our FDR set are colored in
-red:
+We can make an MA plot, where the transcripts in our FDR set are
+colored in red:
 
 ```{r}
 plotMASwish(y, alpha=.05)
 ```
 
-# Running `swish` at the gene level
+# Differential gene expression
+
+## Running `swish` at the gene level
 
 We can also run swish at the gene level. First we summarize all of the
 data to the gene level, using the `summarizeToGene` function from
@@ -292,6 +305,7 @@ in order to be able to reproduce exact results in the future:
 ```{r results="hide", message=FALSE}
 gy <- scaleInfReps(gy)
 gy <- labelKeep(gy)
+gy <- gy[mcols(gy)$keep,]
 set.seed(1)
 gy <- swish(gy, x="condition", pair="line")
 ```
@@ -312,9 +326,10 @@ ghi <- order(-mcols(gy)$log2FC * sig)
 ```
 
 ```{r}
-gtop <- mcols(gy)[head(ghi),]
-names(gtop)
-print(as.data.frame(gtop)[,3:7], digits=3)
+gtop.up <- mcols(gy)[head(ghi),]
+print(as.data.frame(gtop.up)[,cols], digits=3)
+gtop.down <- mcols(gy)[head(glo),]
+print(as.data.frame(gtop.down)[,cols], digits=3)
 ```
 
 We can plot a particular one of these genes:
@@ -326,7 +341,33 @@ plotInfReps(gy, idx=ghi[100], x="condition", cov="line")
 As expected, the highly up-regulated genes are involved in immune
 response.
 
-# Plotting q-values over statistics
+We can make an MA plot, where the genes in our FDR set are colored in
+red:
+
+```{r}
+plotMASwish(gy, alpha=.05)
+```
+
+Using the `addIds` function from *tximeta*, we can easily add gene
+symbols: 
+
+```{r}
+library(org.Hs.eg.db)
+gy <- addIds(gy, "SYMBOL", gene=TRUE)
+```
+
+We can then add gene symbols to our MA plot:
+
+```{r}
+plotMASwish(gy, alpha=.05, xlim=c(.5,5.5))
+with(
+  subset(mcols(gy), qvalue < .05 & abs(log2FC) > 3),
+     text(log10mean, log2FC, SYMBOL,
+          col="red", pos=4, cex=.7)
+)
+```
+
+## Plotting q-values over statistics
 
 As with *SAMseq* and *SAM*, `swish` makes use of the permutation
 plug-in approach for q-value calculation. `swish` calls the `empPvals`
@@ -352,7 +393,9 @@ with(gres, plot(log2FC, -log10(qvalue)+jitter,
 abline(v=0, col="red")
 ```
 
-# Analysis types supported by `swish`
+# Further details
+
+## Analysis types supported by `swish`
 
 There are currently three types of analysis supported by `swish`:
 
@@ -364,7 +407,7 @@ This vignette demonstrated the third in this list, but the other two
 can be run by either not specifying any additional covariates, or by
 specifying a batch variable with the argument `cov` instead of `pair`.
 
-# *Alevin* inferential replicates
+## *Alevin* inferential replicates
 
 The *Alevin* and *tximport* / *tximeta* maintainers are working on an
 efficient format for storing and importing the sparse scRNA-seq
@@ -410,7 +453,7 @@ recommended approach for data storage, from the *loom* documentation:
 > use loom files as your primary data storage. They are for working with
 > data, not keeping it safe. 
 
-# Session information
+## Session information
 
 ```{r}
 sessionInfo()

@@ -54,6 +54,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
   if (is.null(meanDepth)) {
     meanDepth <- exp(mean(log(colSums(counts))))
   }
+  means <- matrix(nrow=nrow(y), ncol=nreps)
   for (k in seq_len(nreps)) {
     if (!quiet) progress(k, max.value=nreps, init=(k==1), gui=FALSE)
     if (lengthCorrect) {
@@ -79,9 +80,11 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
       sf <- sfFun(cts)
     }
     infReps[[k]] <- t( t(cts)/sf )
+    means[,k] <- rowMeans(infReps[[k]])
   }
   if (!quiet) message("")
   assays(y)[grep("infRep",assayNames(y))] <- infReps
+  mcols(y)$log10mean <- log10(rowMeans(means) + 1)
   metadata(y)$infRepsScaled <- TRUE
   y
 }
@@ -254,9 +257,9 @@ plotInfReps <- function(y, idx, x, cov=NULL,
 #' 
 #' @export
 plotMASwish <- function(y, alpha=.05, ...) {
-  # TODO change this to scaled inf reps
-  rmu <- rowMeans(assays(y)[["counts"]])
-  dat <- data.frame(log10mean=log10(rmu+1), log2FC=mcols(y)$log2FC, sig=mcols(y)$qvalue < alpha)
+  dat <- data.frame(log10mean=mcols(y)$log10mean,
+                    log2FC=mcols(y)$log2FC,
+                    sig=mcols(y)$qvalue < alpha)
   with(dat, plot(log10mean, log2FC, pch=20, cex=.4,
                  col=ifelse(sig, "red", "grey50"), ...))
   abline(h=0, col="grey40")
