@@ -239,7 +239,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
 #' MA plot
 #'
 #' @param y a SummarizedExperiment (see \code{swish})
-#' @param alpha the FDR threshold
+#' @param alpha the FDR threshold for coloring points
 #' @param ... passed to plot
 #'
 #' @return nothing, a plot is displayed
@@ -253,7 +253,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
 #' plotMASwish(y)
 #' 
 #' @export
-plotMASwish <- function(y, alpha, ...) {
+plotMASwish <- function(y, alpha=.05, ...) {
   # TODO change this to scaled inf reps
   rmu <- rowMeans(assays(y)[["counts"]])
   dat <- data.frame(log10mean=log10(rmu+1), log2FC=mcols(y)$log2FC, sig=mcols(y)$qvalue < alpha)
