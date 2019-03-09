@@ -1,2 +1,7 @@
+Changes in version 0.99.18
++ major changes to vignette, with DTE and DGE examples
++ incorporate qvalue package for pvalue, locfdr and qvalue
++ Added plotMASwish() to facilitate plotting
+
 Changes in version 0.99.0
 + fishpond getting ready for submission to Bioc

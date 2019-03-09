@@ -284,6 +284,26 @@ colored in red:
 plotMASwish(y, alpha=.05)
 ```
 
+Using the `addIds` function from *tximeta*, we can easily add gene
+symbols. By specifying `gene=TRUE`, this will use the gene ID to match
+to gene symbols for all of the transcripts.
+
+```{r}
+library(org.Hs.eg.db)
+y <- addIds(y, "SYMBOL", gene=TRUE)
+```
+
+We can then add gene symbols to our MA plot:
+
+```{r}
+plotMASwish(y, alpha=.05, xlim=c(.5,5.5))
+with(
+  subset(mcols(y), qvalue < .05 & abs(log2FC) > 4),
+     text(log10mean, log2FC, SYMBOL,
+          col="red", pos=4, cex=.7)
+)
+```
+
 # Differential gene expression
 
 ## Running `swish` at the gene level
@@ -339,7 +359,9 @@ plotInfReps(gy, idx=ghi[100], x="condition", cov="line")
 ```
 
 As expected, the highly up-regulated genes are involved in immune
-response.
+response. Many genes encoding guanylate-binding proteins (GBP) are
+up-regulated, and these proteins are induced by interferon,
+produced in response to infection by pathogenic microbes.
 
 We can make an MA plot, where the genes in our FDR set are colored in
 red:
@@ -348,8 +370,8 @@ red:
 plotMASwish(gy, alpha=.05)
 ```
 
-Using the `addIds` function from *tximeta*, we can easily add gene
-symbols: 
+Again, using the `addIds` function from *tximeta*, we can easily add
+gene symbols to our gene-level expression analysis:
 
 ```{r}
 library(org.Hs.eg.db)
