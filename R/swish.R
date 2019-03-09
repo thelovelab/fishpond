@@ -73,7 +73,7 @@
 #' plotInfReps(y, 3, "condition")
 #' plotInfReps(y, 5, "condition")
 #'
-#' @importFrom graphics axis segments plot rect
+#' @importFrom graphics axis segments plot rect abline
 #' @importFrom stats median quantile rpois runif
 #' @importFrom utils head tail capture.output
 #' @importFrom SummarizedExperiment SummarizedExperiment assayNames

@@ -259,7 +259,7 @@ plotMASwish <- function(y, alpha=.05, ...) {
   dat <- data.frame(log10mean=log10(rmu+1), log2FC=mcols(y)$log2FC, sig=mcols(y)$qvalue < alpha)
   with(dat, plot(log10mean, log2FC, pch=20, cex=.4,
                  col=ifelse(sig, "red", "grey50"), ...))
-  abline(h=0, col=rgb(0,0,0,.3))
+  abline(h=0, col="grey40")
 }
 
 boxplot2 <- function(x, w=.4, ylim, col, col.in, xlab="", ylab="", main="") {
