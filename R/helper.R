@@ -236,6 +236,32 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   }
 }
 
+#' MA plot
+#'
+#' @param y a SummarizedExperiment (see \code{swish})
+#' @param alpha the FDR threshold
+#' @param ... passed to plot
+#'
+#' @return nothing, a plot is displayed
+#' 
+#' @examples
+#'
+#' y <- makeSimSwishData()
+#' y <- scaleInfReps(y)
+#' y <- labelKeep(y)
+#' y <- swish(y, x="condition")
+#' plotMASwish(y)
+#' 
+#' @export
+plotMASwish <- function(y, alpha, ...) {
+  # TODO change this to scaled inf reps
+  rmu <- rowMeans(assays(y)[["counts"]])
+  dat <- data.frame(log10mean=log10(rmu+1), log2FC=mcols(y)$log2FC, sig=mcols(y)$qvalue < alpha)
+  with(dat, plot(log10mean, log2FC, pch=20, cex=.4,
+                 col=ifelse(sig, "red", "grey50"), ...))
+  abline(h=0, col=rgb(0,0,0,.3))
+}
+
 boxplot2 <- function(x, w=.4, ylim, col, col.in, xlab="", ylab="", main="") {
   qs <- matrixStats::rowQuantiles(t(x), probs=0:4/4)
   if (missing(ylim)) {

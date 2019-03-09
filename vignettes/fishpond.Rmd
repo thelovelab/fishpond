@@ -16,7 +16,7 @@ vignette: |
 <!-- run this document with library(rmarkdown); render("fishpond.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=TRUE,
+knitr::opts_chunk$set(tidy=FALSE, cache=FALSE,
                       dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
@@ -235,6 +235,7 @@ make two vectors that give the significant genes with the lowest (most
 negative) and highest (most positive) log fold changes.
 
 ```{r}
+y <- y[mcols(y)$keep,]
 sig <- mcols(y)$qvalue < .05
 table(sig, sign.lfc=sign(mcols(y)$log2FC))
 lo <- order(mcols(y)$log2FC * sig)
@@ -261,6 +262,15 @@ transcript:
 
 ```{r}
 plotInfReps(y, idx=hi[100], x="condition", cov="line")
+```
+
+# MA plot
+
+We can make an MA plot, where the genes in our FDR set are colored in
+red:
+
+```{r}
+plotMASwish(y, alpha=.05)
 ```
 
 # Running `swish` at the gene level
