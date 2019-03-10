@@ -4,8 +4,9 @@
 \alias{swish}
 \title{swish: SAMseq With Inferential Samples Helps}
 \usage{
-swish(y, x, cov = NULL, pair = NULL, nperms = 30, wilcoxP = 0.25,
-  estPi0 = FALSE, qvaluePkg = "qvalue", pc = 5, quiet = FALSE)
+swish(y, x, cov = NULL, pair = NULL, interaction = FALSE,
+  nperms = 30, wilcoxP = 0.25, estPi0 = FALSE,
+  qvaluePkg = "qvalue", pc = 5, quiet = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
@@ -24,6 +25,8 @@ number of the pair. Can be an integer or factor.
 If specified, a signed rank test is used
 to build the statistic. All samples across \code{x} must be
 pairs if this is specified. Cannot be used with \code{cov}.}
+
+\item{interaction}{logical (in development)}
 
 \item{nperms}{the number of permutations}
 

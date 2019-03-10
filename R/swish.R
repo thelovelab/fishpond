@@ -13,6 +13,7 @@
 #' If specified, a signed rank test is used
 #' to build the statistic. All samples across \code{x} must be
 #' pairs if this is specified. Cannot be used with \code{cov}.
+#' @param interaction logical (in development)
 #' @param nperms the number of permutations
 #' @param wilcoxP the quantile of the Wilcoxon statistics across
 #' inferential replicates to use as the test statistic.
@@ -84,22 +85,29 @@
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
+                  interaction=FALSE,
                   nperms=30, wilcoxP=0.25,
                   estPi0=FALSE, qvaluePkg="qvalue",
                   pc=5, quiet=FALSE) {
+
   # 'cov' or 'pair' or neither, but not both
-  stopifnot(is.null(cov) | is.null(pair))
+  if (!interaction) stopifnot(is.null(cov) | is.null(pair))
+  # interactions require a two level covariate
+  if (interaction) stopifnot(!is.null(cov))
   if (!interactive()) { quiet <- TRUE }
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- labelKeep(y)
   }
+  
   ys <- y[mcols(y)$keep,]
   infRepsArray <- getInfReps(ys)
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
   stopifnot(is.factor(condition))
   stopifnot(nlevels(condition) == 2)
-  if (is.null(cov) & is.null(pair)) {
+
+  if (!interaction & is.null(cov) & is.null(pair)) {
+    # basic two group
     stat <- getSamStat(infRepsArray, condition, wilcoxP)
     log2FC <- getLog2FC(infRepsArray, condition, pc)
     perms <- getPerms(condition, nperms)
@@ -112,7 +120,9 @@ swish <- function(y, x, cov=NULL, pair=NULL,
                               condition[perms$perms[p,]], wilcoxP)
     }
     if (!quiet) message("")
-  } else if (is.null(pair)) {
+    
+  } else if (!interaction & !is.null(cov)) {
+    # two group with covariate stratification
     stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]] # covariate, e.g. batch effects
     out <- swish.strat(infRepsArray, condition, covariate,
@@ -120,7 +130,9 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     stat <- out$stat
     log2FC <- out$log2FC
     nulls <- out$nulls
-  } else {
+    
+  } else if (!interaction & !is.null(pair)) {
+    # two group with matched samples
     stopifnot(pair %in% names(colData(y)))
     pair <- colData(y)[[pair]] # sample pairing
     out <- swish.pair(infRepsArray, condition, pair,
@@ -128,7 +140,19 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     stat <- out$stat
     log2FC <- out$log2FC
     nulls <- out$nulls
+    
+  } else if (interaction & !is.null(pair)) {
+    # two group 'x', two group 'cov', with matched samples
+    stopifnot(cov %in% names(colData(y)))
+    stopifnot(pair %in% names(colData(y)))
+    covariate <- colData(y)[[cov]]
+    pair <- colData(y)[[pair]]
+    out <- swish.interx.pair(infRepsArray, condition, covariate, pair,
+                             nperms, wilcoxP, pc, quiet)
+    return(NULL)
+    
   }
+
   nulls.vec <- as.vector(nulls)
   if (qvaluePkg == "qvalue") {
     pvalue <- qvalue::empPvals(abs(stat), abs(nulls))
