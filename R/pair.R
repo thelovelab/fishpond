@@ -42,7 +42,7 @@ getSignedRank <- function(infRepsArray, condition, pair, p=NULL) {
   stat
 }
 
-getLog2FCPair <- function(infRepsArray, condition, pair, pc=5, mat=FALSE) {
+getLog2FCPair <- function(infRepsArray, condition, pair, pc=5, array=FALSE) {
   dims <- dim(infRepsArray)
   o <- order(condition, pair)
   if (!all(o == seq_along(condition))) {
@@ -51,11 +51,13 @@ getLog2FCPair <- function(infRepsArray, condition, pair, pc=5, mat=FALSE) {
   n <- dims[2]
   cond1 <- (1):(n/2)
   cond2 <- (n/2 + 1):(n)
+  lfcArray <- log2(infRepsArray[,cond2,] + pc) -
+              log2(infRepsArray[,cond1,] + pc)
+  if (array) {
+    return(lfcArray)
+  }
   # mean over samples
-  lfc.mat <- apply(log2(infRepsArray[,cond2,] + pc) -
-                   log2(infRepsArray[,cond1,] + pc),
-                   c(1,3), mean)
-  if (mat) return(lfc.mat)
+  lfcMat <- apply(lfcArray, c(1,3), mean)
   # median over inferential replicates
-  matrixStats::rowMedians(lfc.mat)
+  matrixStats::rowMedians(lfcMat)
 }

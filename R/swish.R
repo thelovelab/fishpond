@@ -149,7 +149,9 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     pair <- colData(y)[[pair]]
     out <- swish.interx.pair(infRepsArray, condition, covariate, pair,
                              nperms, wilcoxP, pc, quiet)
-    return(NULL)
+    stat <- out$stat
+    log2FC <- out$log2FC
+    nulls <- out$nulls
     
   }
 

@@ -24,7 +24,7 @@ test_that("matched samples interactions work", {
   
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
-  z <- swish(y, x="condition", cov="group", pair="pair", interaction=TRUE, quiet=TRUE)
+  y <- swish(y, x="condition", cov="group", pair="pair", interaction=TRUE, quiet=TRUE)
 
 })
 
