@@ -20,11 +20,11 @@ test_that("matched samples interactions work", {
   y$pair <- factor(rep(1:10,each=2))
   y$group <- factor(rep(1:2,each=10))
 
-  plotInfReps(y, 2, "condition", "group")
-  
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
   y <- swish(y, x="condition", cov="group", pair="pair", interaction=TRUE, quiet=TRUE)
+
+  expect_true(mcols(y)$pvalue[2] < .01)
 
 })
 
@@ -47,6 +47,8 @@ test_that("two group interactions work", {
 
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
-  y <- swish(y, x="condition", cov="group", quiet=TRUE)
+  y <- swish(y, x="condition", cov="group", interaction=TRUE, quiet=TRUE)
+
+  expect_true(is.null(y))
   
 })

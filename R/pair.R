@@ -1,4 +1,4 @@
-swish.pair <- function(infRepsArray, condition, pair,
+swishPair <- function(infRepsArray, condition, pair,
                         nperms=30, wilcoxP, pc=5, quiet=FALSE) {
   stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair)) 
   pair <- as.integer(factor(pair))

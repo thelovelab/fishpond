@@ -108,38 +108,22 @@ swish <- function(y, x, cov=NULL, pair=NULL,
 
   if (!interaction & is.null(cov) & is.null(pair)) {
     # basic two group
-    stat <- getSamStat(infRepsArray, condition, wilcoxP)
-    log2FC <- getLog2FC(infRepsArray, condition, pc)
-    perms <- getPerms(condition, nperms)
-    nperms <- permsNote(perms, nperms)
-    nulls <- matrix(nrow=nrow(ys), ncol=nperms)
-    if (!quiet) message("Generating test statistics over permutations")
-    for (p in seq_len(nperms)) {
-      if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
-      nulls[,p] <- getSamStat(infRepsArray,
-                              condition[perms$perms[p,]], wilcoxP)
-    }
-    if (!quiet) message("")
+    out <- swishTwoGroup(infRepsArray, condition,
+                         nperms, wilcoxP, pc, quiet)
     
   } else if (!interaction & !is.null(cov)) {
     # two group with covariate stratification
     stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]] # covariate, e.g. batch effects
-    out <- swish.strat(infRepsArray, condition, covariate,
-                       nperms, wilcoxP, pc, quiet)
-    stat <- out$stat
-    log2FC <- out$log2FC
-    nulls <- out$nulls
+    out <- swishStrat(infRepsArray, condition, covariate,
+                      nperms, wilcoxP, pc, quiet)
     
   } else if (!interaction & !is.null(pair)) {
     # two group with matched samples
     stopifnot(pair %in% names(colData(y)))
     pair <- colData(y)[[pair]] # sample pairing
-    out <- swish.pair(infRepsArray, condition, pair,
-                      nperms, wilcoxP, pc, quiet)
-    stat <- out$stat
-    log2FC <- out$log2FC
-    nulls <- out$nulls
+    out <- swishPair(infRepsArray, condition, pair,
+                     nperms, wilcoxP, pc, quiet)
     
   } else if (interaction & !is.null(pair)) {
     # two group 'x', two group 'cov', with matched samples
@@ -147,14 +131,23 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     stopifnot(pair %in% names(colData(y)))
     covariate <- colData(y)[[cov]]
     pair <- colData(y)[[pair]]
-    out <- swish.interx.pair(infRepsArray, condition, covariate, pair,
-                             nperms, wilcoxP, pc, quiet)
-    stat <- out$stat
-    log2FC <- out$log2FC
-    nulls <- out$nulls
+    out <- swishInterxPair(infRepsArray, condition, covariate, pair,
+                           nperms, wilcoxP, pc, quiet)
+    
+  } else if (interaction & is.null(pair)) {
+    # two group 'x', two group 'cov', samples not matched
+    stopifnot(cov %in% names(colData(y)))
+    covariate <- colData(y)[[cov]]
+    out <- swishInterx(infRepsArray, condition, covariate,
+                       nperms, wilcoxP, pc, quiet)
+    return(NULL)
     
   }
 
+  # gather results from functions above
+  stat <- out$stat
+  log2FC <- out$log2FC
+  nulls <- out$nulls
   nulls.vec <- as.vector(nulls)
   if (qvaluePkg == "qvalue") {
     pvalue <- qvalue::empPvals(abs(stat), abs(nulls))
@@ -179,6 +172,24 @@ getInfReps <- function(ys) {
   infRepError(infRepIdx)
   infReps <- assays(ys)[infRepIdx]
   abind::abind(as.list(infReps), along=3)
+}
+
+swishTwoGroup <- function(infRepsArray, condition,
+                          nperms=30, wilcoxP, pc=5, quiet=FALSE) {
+  dims <- dim(infRepsArray)
+  stat <- getSamStat(infRepsArray, condition, wilcoxP)
+  log2FC <- getLog2FC(infRepsArray, condition, pc)
+  perms <- getPerms(condition, nperms)
+  nperms <- permsNote(perms, nperms)
+  nulls <- matrix(nrow=dims[1], ncol=nperms)
+  if (!quiet) message("Generating test statistics over permutations")
+  for (p in seq_len(nperms)) {
+    if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
+    nulls[,p] <- getSamStat(infRepsArray,
+                            condition[perms$perms[p,]], wilcoxP)
+  }
+  if (!quiet) message("")
+  list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
 getSamStat <- function(infRepsArray, condition, p=NULL) {
