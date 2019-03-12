@@ -45,7 +45,34 @@ swishInterx <- function(infRepsArray, condition, covariate,
   if (!all(table(condition, covariate) > 0))
     stop("swish with interaction across two variables requires samples for each combination")
   dims <- dim(infRepsArray)
-  return(NULL)
-  #if (!quiet) message("")
-  #list(stat=stat, log2FC=log2FC, nulls=nulls)
+  # here the statistic is the difference between condition xLFC across covariate groups
+  stat <- getDeltaLFC(infRepsArray, condition, covariate, wilcoxP, pc)
+  # in this case, the stat and the reported log2FC are the same
+  log2FC <- stat
+  perms <- getPerms(covariate, nperms)
+  nperms <- permsNote(perms, nperms)
+  nulls <- matrix(nrow=dims[1], ncol=nperms)
+  if (!quiet) message("Generating test statistics over permutations")
+  for (p in seq_len(nperms)) {
+    if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
+    nulls[,p] <- getDeltaLFC(infRepsArray, condition,
+                             covariate[perms$perms[p,]],
+                             wilcoxP, pc)
+  }
+  if (!quiet) message("")
+  list(stat=stat, log2FC=log2FC, nulls=nulls)
+}
+
+getDeltaLFC <- function(infRepsArray, condition, covariate, wilcoxP, pc) {
+  grp1 <- covariate == levels(covariate)[1]
+  grp2 <- covariate == levels(covariate)[2]
+  lfc1 <- getLog2FC(infRepsArray[,grp1,], condition[grp1], pc=pc, array=TRUE)
+  lfc2 <- getLog2FC(infRepsArray[,grp2,], condition[grp2], pc=pc, array=TRUE)
+  # here our statistic is the difference in LFC between the two groups
+  if (is.null(wilcoxP)) {
+    stat <- rowMeans(lfc2 - lfc1)
+  } else {
+    stat <- rowQuantilesTowardZero(lfc2 - lfc1, wilcoxP)
+  }
+  stat
 }

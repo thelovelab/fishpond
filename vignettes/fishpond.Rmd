@@ -418,15 +418,19 @@ abline(v=0, col="red")
 
 ## Analysis types supported by `swish`
 
-There are currently three types of analysis supported by `swish`:
+There are currently five types of analysis supported by `swish`:
 
 * Two group analysis
 * Two groups with two or more batches
 * Two group paired or matched samples
+* Two condition x two group paired samples, interaction test
+* Two condition x two group samples, not paired, interaction test
 
-This vignette demonstrated the third in this list, but the other two
+This vignette demonstrated the third in this list, but the others
 can be run by either not specifying any additional covariates, or by
 specifying a batch variable with the argument `cov` instead of `pair`.
+The two interaction tests can be run by specifying `interaction=TRUE`
+and providing `x`, `cov`, and optionally `pair`.
 
 ## *Alevin* inferential replicates
 

@@ -13,7 +13,15 @@
 #' If specified, a signed rank test is used
 #' to build the statistic. All samples across \code{x} must be
 #' pairs if this is specified. Cannot be used with \code{cov}.
-#' @param interaction logical (in development)
+#' @param interaction logical, whether to perform a test of an interaction
+#' between \code{x} and \code{cov}. These are different than the other
+#' tests produced by the software, in that they focus on a difference
+#' in the log2 fold change across levels of \code{x} when comparing
+#' the two levels in \code{cov}. If \code{pair} is specified, this
+#' will perform a Wilcoxon rank sum test on the two groups
+#' of matched sample LFCs. If \code{pair} is not included, the LFC
+#' difference itself will be taken as the test statistic, and permutation
+#' test used to assess the p-value and q-value (as with other statistics)
 #' @param nperms the number of permutations
 #' @param wilcoxP the quantile of the Wilcoxon statistics across
 #' inferential replicates to use as the test statistic.
@@ -90,6 +98,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
                   estPi0=FALSE, qvaluePkg="qvalue",
                   pc=5, quiet=FALSE) {
 
+  stopifnot(is(y, "SummarizedExperiment"))
   # 'cov' or 'pair' or neither, but not both
   if (!interaction) stopifnot(is.null(cov) | is.null(pair))
   # interactions require a two level covariate
@@ -140,7 +149,6 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     covariate <- colData(y)[[cov]]
     out <- swishInterx(infRepsArray, condition, covariate,
                        nperms, wilcoxP, pc, quiet)
-    return(NULL)
     
   }
 
@@ -213,7 +221,7 @@ getSamStat <- function(infRepsArray, condition, p=NULL) {
   stat
 }
 
-getLog2FC <- function(infRepsArray, condition, pc=5) {
+getLog2FC <- function(infRepsArray, condition, pc=5, array=FALSE) {
   dims <- dim(infRepsArray)
   cond1 <- condition == levels(condition)[1]
   cond2 <- condition == levels(condition)[2]
@@ -221,6 +229,9 @@ getLog2FC <- function(infRepsArray, condition, pc=5) {
   for (k in seq_len(dims[3])) {
     diffs[,k] <- log2(rowMeans(infRepsArray[,cond2,k]) + pc) -
                  log2(rowMeans(infRepsArray[,cond1,k]) + pc)
+  }
+  if (array) {
+    return(diffs)
   }
   # median over inferential replicates
   matrixStats::rowMedians(diffs)

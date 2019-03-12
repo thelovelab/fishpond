@@ -49,6 +49,6 @@ test_that("two group interactions work", {
   y <- labelKeep(y)
   y <- swish(y, x="condition", cov="group", interaction=TRUE, quiet=TRUE)
 
-  expect_true(is.null(y))
+  expect_true(mcols(y)$pvalue[2] < .01)
   
 })
