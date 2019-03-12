@@ -85,6 +85,7 @@
 #' @importFrom graphics axis segments plot rect abline
 #' @importFrom stats median quantile rpois runif
 #' @importFrom utils head tail capture.output
+#' @importFrom methods is
 #' @importFrom SummarizedExperiment SummarizedExperiment assayNames
 #' assays assays<- colData colData<- mcols mcols<-
 #' @importFrom S4Vectors DataFrame metadata metadata<-

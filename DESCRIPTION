@@ -12,6 +12,7 @@ Imports:
     graphics,
     stats,
     utils,
+    methods,
     abind,
     samr,
     qvalue,
