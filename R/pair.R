@@ -1,5 +1,5 @@
 swishPair <- function(infRepsArray, condition, pair,
-                        nperms=30, wilcoxP, pc=5, quiet=FALSE) {
+                        nperms=30, pc=5, wilcoxP, quiet=FALSE) {
   stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair)) 
   pair <- as.integer(factor(pair))
   if (!all(table(pair, condition) == 1))

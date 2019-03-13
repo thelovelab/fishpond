@@ -5,8 +5,8 @@
 \title{swish: SAMseq With Inferential Samples Helps}
 \usage{
 swish(y, x, cov = NULL, pair = NULL, interaction = FALSE,
-  nperms = 30, wilcoxP = 0.25, estPi0 = FALSE,
-  qvaluePkg = "qvalue", pc = 5, quiet = FALSE)
+  nperms = 30, estPi0 = FALSE, qvaluePkg = "qvalue", pc = 5,
+  wilcoxP = NULL, quiet = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
@@ -38,10 +38,6 @@ test used to assess the p-value and q-value (as with other statistics)}
 
 \item{nperms}{the number of permutations}
 
-\item{wilcoxP}{the quantile of the Wilcoxon statistics across
-inferential replicates to use as the test statistic.
-If set to NULL this will use the mean over inferential replicates}
-
 \item{estPi0}{logical, whether to estimate pi0}
 
 \item{qvaluePkg}{character, which package to use for q-value estimation,
@@ -49,6 +45,16 @@ If set to NULL this will use the mean over inferential replicates}
 
 \item{pc}{pseudocount for finite estimation of \code{log2FC}, not used
 in calculation of test statistics, \code{locfdr} or \code{qvalue}}
+
+\item{wilcoxP}{a numeric, default is NULL, skipping this feature.
+When set to NULL, the sample mean over inferential replicates
+is used, similar to SAMseq.
+Specifying a number gives the probability to use, if computing a
+lower quantile (or upper quantile, for negative median Wilcoxon)
+of the Wilcoxon statistics across inferential replicates for the
+test statistic.
+For the first swish preprint, 0.25 was used. This argument may be
+removed in future versions of the package.}
 
 \item{quiet}{display no messages}
 }

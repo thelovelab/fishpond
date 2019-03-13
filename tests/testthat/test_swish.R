@@ -55,15 +55,14 @@ test_that("basic swish analyses", {
   dev.off()
 
   # estimate pi0
-  # for estimating pi0, 'qvalue' package doesn't seem to like the discrete stats
-  y <- swish(y, x="condition", wilcoxP=NULL, estPi0=TRUE, qvaluePkg="qvalue", quiet=TRUE)
+  y <- swish(y, x="condition", estPi0=TRUE, qvaluePkg="qvalue", quiet=TRUE)
   y <- swish(y, x="condition", estPi0=TRUE, qvaluePkg="samr", quiet=TRUE)
 
   # use samr for qvalue
   y <- swish(y, x="condition", qvaluePkg="samr", quiet=TRUE)
 
-  # don't use the lower quantile
-  y <- swish(y, x="condition", wilcoxP=NULL, quiet=TRUE)
+  # use the lower quantile
+  y <- swish(y, x="condition", wilcoxP=0.25, quiet=TRUE)
   
   # two group with batch covariate
   y <- makeSimSwishData(n=20)

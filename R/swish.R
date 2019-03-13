@@ -23,14 +23,20 @@
 #' difference itself will be taken as the test statistic, and permutation
 #' test used to assess the p-value and q-value (as with other statistics)
 #' @param nperms the number of permutations
-#' @param wilcoxP the quantile of the Wilcoxon statistics across
-#' inferential replicates to use as the test statistic.
-#' If set to NULL this will use the mean over inferential replicates
 #' @param estPi0 logical, whether to estimate pi0
 #' @param qvaluePkg character, which package to use for q-value estimation,
 #' \code{samr} or \code{qvalue}
 #' @param pc pseudocount for finite estimation of \code{log2FC}, not used
 #' in calculation of test statistics, \code{locfdr} or \code{qvalue}
+#' @param wilcoxP a numeric, default is NULL, skipping this feature.
+#' When set to NULL, the sample mean over inferential replicates
+#' is used, similar to SAMseq.
+#' Specifying a number gives the probability to use, if computing a
+#' lower quantile (or upper quantile, for negative median Wilcoxon)
+#' of the Wilcoxon statistics across inferential replicates for the
+#' test statistic.
+#' For the first swish preprint, 0.25 was used. This argument may be
+#' removed in future versions of the package.
 #' @param quiet display no messages
 #'
 #' @return a SummarizedExperiment with metadata columns added:
@@ -94,10 +100,10 @@
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
-                  interaction=FALSE,
-                  nperms=30, wilcoxP=0.25,
+                  interaction=FALSE, nperms=30, 
                   estPi0=FALSE, qvaluePkg="qvalue",
-                  pc=5, quiet=FALSE) {
+                  pc=5, wilcoxP=NULL,
+                  quiet=FALSE) {
 
   stopifnot(is(y, "SummarizedExperiment"))
   # 'cov' or 'pair' or neither, but not both
@@ -119,21 +125,21 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   if (!interaction & is.null(cov) & is.null(pair)) {
     # basic two group
     out <- swishTwoGroup(infRepsArray, condition,
-                         nperms, wilcoxP, pc, quiet)
+                         nperms, pc, wilcoxP, quiet)
     
   } else if (!interaction & !is.null(cov)) {
     # two group with covariate stratification
     stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]] # covariate, e.g. batch effects
     out <- swishStrat(infRepsArray, condition, covariate,
-                      nperms, wilcoxP, pc, quiet)
+                      nperms, pc, wilcoxP, quiet)
     
   } else if (!interaction & !is.null(pair)) {
     # two group with matched samples
     stopifnot(pair %in% names(colData(y)))
     pair <- colData(y)[[pair]] # sample pairing
     out <- swishPair(infRepsArray, condition, pair,
-                     nperms, wilcoxP, pc, quiet)
+                     nperms, pc, wilcoxP, quiet)
     
   } else if (interaction & !is.null(pair)) {
     # two group 'x', two group 'cov', with matched samples
@@ -142,14 +148,14 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     covariate <- colData(y)[[cov]]
     pair <- colData(y)[[pair]]
     out <- swishInterxPair(infRepsArray, condition, covariate, pair,
-                           nperms, wilcoxP, pc, quiet)
+                           nperms, pc, wilcoxP, quiet)
     
   } else if (interaction & is.null(pair)) {
     # two group 'x', two group 'cov', samples not matched
     stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]]
     out <- swishInterx(infRepsArray, condition, covariate,
-                       nperms, wilcoxP, pc, quiet)
+                       nperms, pc, wilcoxP, quiet)
     
   }
 
@@ -184,7 +190,7 @@ getInfReps <- function(ys) {
 }
 
 swishTwoGroup <- function(infRepsArray, condition,
-                          nperms=30, wilcoxP, pc=5, quiet=FALSE) {
+                          nperms=30, pc=5, wilcoxP, quiet=FALSE) {
   dims <- dim(infRepsArray)
   stat <- getSamStat(infRepsArray, condition, wilcoxP)
   log2FC <- getLog2FC(infRepsArray, condition, pc)
@@ -201,7 +207,7 @@ swishTwoGroup <- function(infRepsArray, condition,
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
-getSamStat <- function(infRepsArray, condition, p=NULL) {
+getSamStat <- function(infRepsArray, condition, wilcoxP=NULL) {
   dims <- dim(infRepsArray)
   ranks <- array(dim=dims)
   for (k in seq_len(dims[3])) {
@@ -214,10 +220,10 @@ getSamStat <- function(infRepsArray, condition, p=NULL) {
     rowSums(ranks[,cond2,i]), numeric(dims[1]))
   # Wilcoxon, centered on 0:
   W <- rankSums - sum(cond2) * (dims[2] + 1)/2
-  if (is.null(p)) {
+  if (is.null(wilcoxP)) {
     stat <- rowMeans(W)
   } else {
-    stat <- rowQuantilesTowardZero(W, p)
+    stat <- rowQuantilesTowardZero(W, wilcoxP)
   }
   stat
 }

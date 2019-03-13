@@ -1,5 +1,5 @@
 swishInterxPair <- function(infRepsArray, condition, covariate, pair,
-                              nperms=30, wilcoxP, pc=5, quiet=FALSE) {
+                              nperms=30, pc=5, wilcoxP, quiet=FALSE) {
   stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair)) 
   pair <- as.integer(factor(pair))
   if (!all(table(pair, condition) == 1))
@@ -17,7 +17,7 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
   group <- dat$covariate # this is now along 'lfcArray'
   stopifnot(length(group) == dim(lfcArray)[2])
   # here we perform Wilcoxon rank sum testing of the condition LFCs across group
-  stat <- getSamStat(lfcArray, group, p=wilcoxP)
+  stat <- getSamStat(lfcArray, group, wilcoxP=wilcoxP)
   grp1 <- group == levels(group)[1]
   grp2 <- group == levels(group)[2]
   lfcMat <- apply(lfcArray[,grp2,], c(1,3), mean) -
@@ -33,20 +33,20 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
   for (p in seq_len(nperms)) {
     if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getSamStat(lfcArray,
-                            group[perms$perms[p,]], wilcoxP)
+                            group[perms$perms[p,]], wilcoxP=wilcoxP)
   }
   if (!quiet) message("")
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
 swishInterx <- function(infRepsArray, condition, covariate,
-                        nperms=30, wilcoxP, pc=5, quiet=FALSE) {
+                        nperms=30, pc=5, wilcoxP, quiet=FALSE) {
   stopifnot(nlevels(covariate) == 2)
   if (!all(table(condition, covariate) > 0))
     stop("swish with interaction across two variables requires samples for each combination")
   dims <- dim(infRepsArray)
   # here the statistic is the difference between condition xLFC across covariate groups
-  stat <- getDeltaLFC(infRepsArray, condition, covariate, wilcoxP, pc)
+  stat <- getDeltaLFC(infRepsArray, condition, covariate, pc, wilcoxP)
   # in this case, the stat and the reported log2FC are the same
   log2FC <- stat
   perms <- getPerms(covariate, nperms)
@@ -57,13 +57,13 @@ swishInterx <- function(infRepsArray, condition, covariate,
     if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getDeltaLFC(infRepsArray, condition,
                              covariate[perms$perms[p,]],
-                             wilcoxP, pc)
+                             pc, wilcoxP)
   }
   if (!quiet) message("")
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
-getDeltaLFC <- function(infRepsArray, condition, covariate, wilcoxP, pc) {
+getDeltaLFC <- function(infRepsArray, condition, covariate, pc, wilcoxP) {
   grp1 <- covariate == levels(covariate)[1]
   grp2 <- covariate == levels(covariate)[2]
   lfc1 <- getLog2FC(infRepsArray[,grp1,], condition[grp1], pc=pc, array=TRUE)
