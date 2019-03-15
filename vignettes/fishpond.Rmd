@@ -7,6 +7,7 @@ output:
     highlight: tango
     toc: true
     toc_float: true
+bibliography: library.bib
 vignette: |
   %\VignetteIndexEntry{DTE and DGE with inferential replicates}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,7 +17,7 @@ vignette: |
 <!-- run this document with library(rmarkdown); render("fishpond.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
+knitr::opts_chunk$set(tidy=FALSE, cache=TRUE, dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
@@ -24,23 +25,24 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
 
 The `swish` method for differential expression analysis of RNA-seq
 data using inferential replicate counts is described in the following
-reference:
+reference: @swish - [doi: 10.1101/561084](https://doi.org/10.1101/561084).
 
-> Zhu, A., Srivastava, A., Ibrahim, J.G., Patro, R., Love, M.I.
-> *Nonparametric expression analysis using inferential replicate counts*
-> bioRxiv (2019)
-
-We note that `swish` extends and builds on another method *SAMseq*,
+We note that `swish` extends and builds on another method, *SAMseq*
+[@samseq], implemented in the *samr* package,
 by taking into account inferential uncertainty, and allowing to
-control for batch effects and matched samples. `swish` calls functions
-from the *qvalue* or *samr* package for calculation of local FDR and
-q-value. This vignette gives an example of differential analysis of
-matched samples.
+control for batch effects and matched samples. Additionally, `swish`
+has methods for testing changes in effect size across secondary
+covariates, which we refer to as "interactions".
+`swish` calls functions from the *qvalue* [@qvalue] or *samr* package
+for calculation of local FDR and q-value. This vignette gives an
+example of differential analysis of matched samples, and an
+interaction test for matched samples, to see if a condition effect
+changes in magnitude across two groups of samples.
 
 # Quick start
 
-The following lines of code will perform a transcript-level `swish`
-two group analysis. For more details, read on.
+The following lines of code will perform a basic transcript-level
+`swish` two group analysis. For more details, read on.
 
 ```{r eval=FALSE}
 # 'coldata.csv': sample information table
@@ -61,31 +63,34 @@ the number of genes passing a 5% FDR threshold:
 table(mcols(y)$qvalue < .05)
 ```
 
-One can remove the genes that didn't pass the expression filter with
-the following line of code. These genes are ignored by `swish`, and so
-will have `NA` in the results columns in `mcols(y)`.
+One can at any point remove the genes that didn't pass the expression
+filter with the following line of code (can be run before or after
+`swish`). These genes are ignored by `swish`, and so will have `NA` in
+the results columns in `mcols(y)`.
 
 ```{r eval=FALSE}
 y <- y[mcols(y)$keep,]
 ```
+
+A gene-level analysis looks identical to a transcript-level analysis,
+only the input data changes. Examples follow.
 
 ## Macrophage stimulation experiment
 
 We begin the *fishpond* vignette by loading data from a Bioconductor
 Experiment Data package, *macrophage*. The package contains RNA-seq
 quantification from 24 RNA-seq samples, which are a subset of the
-RNA-seq samples used in a paper, 
-Alasoo, et al. "Shared genetic effects on chromatin and gene
-expression indicate a role for enhancer priming in immune response",
-published in Nature Genetics, January 2018 
+RNA-seq samples generated and analyzed by @alasoo - 
 [doi: 10.1038/s41588-018-0046-7](https://doi.org/10.1038/s41588-018-0046-7).
 
 The experiment involved treatment of macrophage cell lines from a number
 of human donors with IFN gamma, *Salmonella* infection, or both
-treatments combined. In this vignette, we will focus on comparing the
-IFN gamma stimulated cell lines with the control cell lines,
-accounting for the paired nature of the data (cells from the same
-donor).
+treatments combined. In the beginning of this vignette, we will focus
+on comparing the IFN gamma stimulated cell lines with the control cell
+lines, accounting for the paired nature of the data (cells from the
+same donor). Later in the vignette we will analyze differences in the
+*Salmonella* infection response by IFN gamma treatment status --
+whether the cells are primed for immune response.
 
 We load the package, and point to the `extdata` directory. For a
 typical analysis, the user would just point `dir` to the location on
@@ -97,16 +102,18 @@ library(macrophage)
 dir <- system.file("extdata", package="macrophage")
 ```
 
-The data was quantified using *Salmon* 0.12.0 against the Gencode v29
-human reference transcripts. For more details and all code used for
-quantification, refer the *macrophage* package vignette.
+The data was quantified using *Salmon* [@salmon] 0.12.0 against the
+Gencode v29 human reference transcripts [@gencode]. For more details
+and all code used for quantification, refer to the
+[macrophage](https://bioconductor.org/packages/macrophage) 
+package vignette. 
 
 Importantly, `--numGibbsSamples 20` was used to generate 20
-inferential replicates with *Salmon*'s Gibbs sampler. Inferential
-replicates, either from Gibbs sampling or bootstrapping of reads is
-required for the *swish* method shown below. We also recommend to use
-`--gcBias` when running *Salmon* to protect against common
-sample-specific biases present in RNA-seq data.
+inferential replicates with *Salmon*'s Gibbs sampling procedure.
+Inferential replicates, either from Gibbs sampling or bootstrapping of
+reads, are required for the *swish* method shown below. We also
+recommend to use `--gcBias` when running *Salmon* to protect against
+common sample-specific biases present in RNA-seq data.
 
 # Data import
 
@@ -151,7 +158,7 @@ coldata$condition <- factor(coldata$condition, c("naive","IFNg"))
 ```
 
 
-## Read in quants with *tximeta*
+## Read in quants with `tximeta`
 
 We will read in quantification data for some of the samples. First we
 load the *SummarizedExperiment* package. We will store out data and
@@ -228,10 +235,21 @@ We can see how many transcripts are in a 5% FDR set:
 table(mcols(y)$qvalue < .05)
 ```
 
+## Plotting results
+
+We can check the distribution of p-values. This looks as expected for
+a comparison where we expect many transcripts will be affected by the
+treatment (IFNg stimulation of macrophage cells). There is a flat
+component and then an enrichment of transcripts with p-values near 0.
+
+```{r}
+hist(mcols(y)$pvalue, col="grey")
+```
+
 Of the transcripts in this set, which have the most extreme log2
 fold change? Note that often many transcripts will share the same
 q-value, so it's valuable to look at the log2 fold change as well (see
-further note below on q-values computed by *samr*). The log2 fold
+further note below on q-value computation). The log2 fold
 change computed by `swish` is the median over inferential replicates,
 and uses a pseudo-count of 5 on the scaled counts, to stabilize
 the variance on the fold change from division by small counts. Here we
@@ -239,14 +257,16 @@ make two vectors that give the significant genes with the lowest (most
 negative) and highest (most positive) log fold changes.
 
 ```{r}
+with(mcols(y),
+     table(sig=qvalue < .05, sign.lfc=sign(log2FC))
+     )
 sig <- mcols(y)$qvalue < .05
-table(sig, sign.lfc=sign(mcols(y)$log2FC))
 lo <- order(mcols(y)$log2FC * sig)
 hi <- order(-mcols(y)$log2FC * sig)
 ```
 
 Here we print a small table with just the calculated statistics for
-the large postive log fold change transcripts (up-regulation):
+the large positive log fold change transcripts (up-regulation):
 
 ```{r}
 top.up <- mcols(y)[head(hi),]
@@ -263,8 +283,6 @@ top.down <- mcols(y)[head(lo),]
 print(as.data.frame(top.down)[,cols], digits=3)
 ```
 
-## Plotting inferential replicates
-
 We can plot the scaled counts for the inferential replicates, and also
 group the samples by a covariate, in this case the cell line. The
 analysis was paired, so the statistic assessed if the change within
@@ -274,8 +292,6 @@ transcript:
 ```{r}
 plotInfReps(y, idx=hi[100], x="condition", cov="line")
 ```
-
-## MA plot
 
 We can make an MA plot, where the transcripts in our FDR set are
 colored:
@@ -336,11 +352,21 @@ As before, the number of genes in a 1% FDR set:
 table(mcols(gy)$qvalue < .05)
 ```
 
+## Plotting results
+
+The histogram of p-values:
+
+```{r}
+hist(mcols(y)$pvalue, col="grey")
+```
+
 As before, finding the genes with the most extreme log2 fold change:
 
 ```{r}
+with(mcols(gy),
+     table(sig=qvalue < .05, sign.lfc=sign(log2FC))
+     )     
 sig <- mcols(gy)$qvalue < .05
-table(sig, sign.lfc=sign(mcols(gy)$log2FC))
 glo <- order(mcols(gy)$log2FC * sig)
 ghi <- order(-mcols(gy)$log2FC * sig)
 ```
@@ -388,30 +414,144 @@ with(
 )
 ```
 
-## Plotting q-values over statistics
+# Interaction designs
 
-As with *SAMseq* and *SAM*, `swish` makes use of the permutation
-plug-in approach for q-value calculation. `swish` calls the `empPvals`
-and `qvalue` functions from the *qvalue* package to calculate the
-q-values (or optionally similar functions from the *samr* package).
-If we plot the q-values against the statistic, or against the log2
-fold change, one can see clusters of genes with the same q-value
-(because they have the same or similar statistic). One consequence of
-this is that, in order to rank the genes, rather than ranking directly
-by q-value, it makes more sense to pick a q-value threshold and then
-within that set of genes, to rank by the log2 fold change, as shown
-above when the code chunk has `log2FC * sig`.
+We also provide in `swish` methods for testing if a condition effect
+varies *across a secondary covariate*, using matched samples for
+condition, or un-matched samples, which we refer to as "interactions"
+in the software.
+
+If matched samples are available, we compute the log2 fold change for
+each pair of samples across condition in the same covariate group, and
+then we use a Wilcoxon rank sum statistic for comparing the log2 fold
+changes across the secondary covariate. For permutation significance,
+the secondary covariate labels are permuted while keeping the main
+condition labels fixed. For unmatched samples, the difference in
+condition log2 fold change across the secondary covariate is used as
+the test statistic, and the permutation scheme just described is again
+used.
+
+For the macrophage dataset we have been working with [@alasoo], we
+have a 2x2 experimental design, with IFN gamma stimulation,
+*Salmonella* infection, and both treatments, as well as control
+samples. We have these four conditions across 6 cell lines from 6
+donors (a subset of all the RNA-seq samples available). So we can use
+the first method described above, where the cell line is used to match
+samples across condition. Our implementation does not make use of the
+pairing information across the secondary covariate, but we will still
+be well powered to detect differences in the log2 fold change.
+
+## Condition and secondary covariates
+
+We begin the interaction analysis by re-reading in the data, now
+including all of the samples, and not just the control and IFN gamma
+stimulated samples as before:
 
 ```{r}
-gres <- mcols(gy)[mcols(gy)$keep,]
-min(gres$qvalue, na.rm=TRUE) # min nominal FDR is not 0
-with(gres, plot(stat, -log10(qvalue)))
-with(gres, plot(log2FC, -log10(qvalue)))
-abline(v=0, col="red")
-jitter <- runif(nrow(gres),-.02,.02)
-with(gres, plot(log2FC, -log10(qvalue)+jitter,
-                xlim=c(-.7,.7), ylim=c(0,1.5)))
-abline(v=0, col="red")
+coldata <- read.csv(file.path(dir, "coldata.csv"))
+coldata <- coldata[,c(1,2,3,5)]
+names(coldata) <- c("names","id","line","condition")
+coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
+```
+
+We create two new factors indicating IFNg status and *Salmonella* status:
+
+```{r}
+coldata$ifng <- factor(ifelse(
+  grepl("IFNg",coldata$condition),
+  "treated","control"))
+coldata$salmonella <- factor(ifelse(
+  grepl("SL1344",coldata$condition),
+  "infected","control"))
+with(coldata,
+     table(ifng, salmonella)
+     )
+```
+
+Now we read in the quantification data using `tximeta`:
+
+```{r}
+se2 <- tximeta(coldata)
+```
+
+We will work with the chromosome 1 transcripts for demonstration:
+
+```{r}
+y2 <- se2
+y2 <- y2[seqnames(y2) == "chr1",]
+```
+
+## Create and check paired samples
+
+Our implementation of the interaction design for matched samples takes
+into account matched samples within the `x` condition, which we will
+specify to be the *Salmonella* infection status. We will specify the
+secondary covariate `cov` to be the IFN gamma treatment. We will look
+for transcripts where the infection response changes based on IFN
+gamma treatment.
+
+We actually have matched samples across both IFN gamma treatment and
+*Salmonella* infection, but the extra pairing is not used by our
+current implementation of interactions (it is common that there would
+not be pairing across the secondary covariate).
+
+To perform the analysis, we create a new variable `pair` which will
+record which samples are related within a group based on IFN gamma
+treatment status.
+
+```{r}
+y2$pair <- as.numeric(y2$line)
+y2$pair[y2$ifng == "control"]
+y2$pair[y2$ifng == "treated"]
+y2$pair[y2$ifng == "treated"] <- rep(7:12,each=2)
+y2$pair <- factor(y2$pair)
+table(y2$pair, y2$salmonella)
+```
+
+## `swish` for interaction effects
+
+We now perform `swish` analysis, specifying the *Salmonella* infection
+as our main condition, the IFN gamma treatment as the secondary
+covariate, and providing the pairing within IFN gamma treatment
+groups. We specify `interaction=TRUE` to test for differences in
+infection response across IFN gamma treatment group.
+
+```{r results="hide", message=FALSE}
+y2 <- scaleInfReps(y2)
+y2 <- labelKeep(y2)
+y2 <- y2[mcols(y2)$keep,]
+set.seed(1)
+y2 <- swish(y2, x="salmonella", cov="ifng", pair="pair", interaction=TRUE)
+```
+
+## Plotting results
+
+In this case, we appear to have fewer non-null p-values from first
+impression of the p-value histogram:
+
+```{r}
+hist(mcols(y2)$pvalue, col="grey")
+```
+
+The MA plot shows significant transcripts on either side of
+`log2FC=0`. Note that the log2 fold change reported is the
+*difference* between the log2 fold change in the IFN gamma treated and
+IFN gamma control group. So positive `log2FC` in this plot indicates
+that the effect is higher with IGN gamma treatment than in absence of
+the treatment.
+
+```{r}
+plotMASwish(y2, alpha=.05)
+```
+
+We can plot some of the transcripts with high log2 fold change
+*difference* across IFN gamma treatment group, and which belong to the
+less than 5% nominal FDR group:
+
+```{r}
+idx <- with(mcols(y2), which(qvalue < .05 & log2FC > 5))
+plotInfReps(y2, idx[1], x="ifng", cov="salmonella")
+plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 ```
 
 # Further details
@@ -432,20 +572,45 @@ specifying a batch variable with the argument `cov` instead of `pair`.
 The two interaction tests can be run by specifying `interaction=TRUE`
 and providing `x`, `cov`, and optionally `pair`.
 
+## Plotting q-values over statistics
+
+As with *SAMseq* and *SAM*, `swish` makes use of the permutation
+plug-in approach for q-value calculation. `swish` calls the `empPvals`
+and `qvalue` functions from the *qvalue* package to calculate the
+q-values (or optionally similar functions from the *samr* package).
+If we plot the q-values against the statistic, or against the log2
+fold change, one can see clusters of genes with the same q-value
+(because they have the same or similar statistic). One consequence of
+this is that, in order to rank the genes, rather than ranking directly
+by q-value, it makes more sense to pick a q-value threshold and then
+within that set of genes, to rank by the log2 fold change, as shown
+above when the code chunk has `log2FC * sig`.
+
+```{r}
+gres <- mcols(gy)[mcols(gy)$keep,]
+min(gres$qvalue, na.rm=TRUE) # min nominal FDR is not 0
+with(gres, plot(stat, -log10(qvalue)))
+with(gres, plot(log2FC, -log10(qvalue)))
+abline(v=0, col="red")
+with(gres, plot(log2FC, -log10(qvalue),
+                xlim=c(-1.5,1.5), ylim=c(0,1.5)))
+abline(v=0, col="red")
+```
+
 ## *Alevin* inferential replicates
 
-The *Alevin* and *tximport* / *tximeta* maintainers are working on an
-efficient format for storing and importing the sparse scRNA-seq
-estimated gene counts. We plan to develop an official importer for
-*Alevin* bootstrap inferential replicates in March-April 2019, and add
-to *tximport* before the Bioconductor 3.9 release (import of *Alevin*
-counts without inferential replicates is already supported in
-*tximport*). Currently, *Alevin* outputs dense binary inferential
-replicates, which is a format we would like to move away from, as the
-quantification data is then larger on disk than necessary. For
-example, the 900 mouse neuron dataset from 10x Genomics with 30
-bootstrap replicates takes up 365 Mb. We are coordinating with other
-Bioconductor developers to avoid duplicated efforts.
+The *Alevin* [@alevin] and *tximport* / *tximeta* maintainers are
+working on an efficient format for storing and importing the sparse
+scRNA-seq estimated gene counts. We plan to develop an official
+importer for *Alevin* bootstrap inferential replicates in March-April
+2019, and add to *tximport* before the Bioconductor 3.9 release
+(import of *Alevin* counts without inferential replicates is already
+supported in *tximport*). Currently, *Alevin* outputs dense binary
+inferential replicates, which is a format we would like to move away
+from, as the quantification data is then larger on disk than
+necessary. For example, the 900 mouse neuron dataset from 10x Genomics
+with 30 bootstrap replicates takes up 365 Mb. We are coordinating with
+other Bioconductor developers to avoid duplicated efforts.
 
 Between now and the release of Bioconductor 3.9 in April 2019, one can
 use the following code snippet to import *Alevin* bootstrap inferential
@@ -483,3 +648,5 @@ recommended approach for data storage, from the *loom* documentation:
 ```{r}
 sessionInfo()
 ```
+
+# References
