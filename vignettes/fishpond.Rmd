@@ -647,6 +647,56 @@ recommended approach for data storage, from the *loom* documentation:
 > use loom files as your primary data storage. They are for working with
 > data, not keeping it safe. 
 
+## Permutation schemes for interactions
+
+The following diagrams describe the permutation schemes used for the
+interaction designs implemented in `swish`. The case with matched
+samples (pair indicated by number, primary condition indicated by
+color, the vertical line separating the pairs by secondary covariate):
+
+```{r echo=FALSE}
+n <- 8
+condition <- rep(1:2,length=2*n)
+group <- rep(1:2,each=n)
+pair <- rep(c(1:n),each=2)
+cols <- c("dodgerblue","goldenrod4")
+plot(1:(2*n), rep(0,2*n), ylim=c(-.5,3.5),
+     type="n", xaxt="n", yaxt="n",
+     xlab="samples", ylab="permutation")
+abline(v=8.5, lty=2)
+axis(2, 0:3, c("orig",1:3), las=2)
+text(1:(2*n), rep(0,2*n), pair, col=cols[condition], cex=2)
+set.seed(1)
+for (i in 1:3) {
+  perms <- rep(2*sample(n,n),each=2) - rep(1:0,length=2*n)
+  text(1:(2*n), rep(i,2*n), pair[perms], col=cols[condition[perms]], cex=2)
+}
+```
+
+The case without matched samples (sample indicated by letter, primary
+condition indicated by color, the vertical line separating the samples
+by secondary covariate):
+
+```{r echo=FALSE}
+n <- 8
+condition <- rep(c(1:2,1:2),each=n/2)
+group <- rep(1:2,each=n)
+id <- LETTERS[1:(2*n)]
+cols <- c("dodgerblue","goldenrod4")
+plot(1:(2*n), rep(0,2*n), ylim=c(-.5,3.5),
+     type="n", xaxt="n", yaxt="n",
+     xlab="samples", ylab="permutation")
+abline(v=8.5, lty=2)
+axis(2, 0:3, c("orig",1:3), las=2)
+text(1:(2*n), rep(0,2*n), id, col=cols[condition], cex=2)
+set.seed(1)
+for (i in 1:3) {
+  id.perms <- c(sample(id[condition==1],n),
+                sample(id[condition==2],n))[c(1:4,9:12,5:8,13:16)]
+  text(1:(2*n), rep(i,2*n), id.perms, col=cols[condition], cex=2)
+}
+```
+
 ## Session information
 
 ```{r}
