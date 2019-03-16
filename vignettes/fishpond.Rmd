@@ -426,10 +426,14 @@ each pair of samples across condition in the same covariate group, and
 then we use a Wilcoxon rank sum statistic for comparing the log2 fold
 changes across the secondary covariate. For permutation significance,
 the secondary covariate labels are permuted while keeping the main
-condition labels fixed. For unmatched samples, the difference in
+condition labels fixed. For unmatched samples, the difference in the
 condition log2 fold change across the secondary covariate is used as
-the test statistic, and the permutation scheme just described is again
-used.
+the test statistic, and the permutation scheme just described is
+used. The motivation for the above permutation schemes is to ensure
+the following condition, that "under the null hypothesis, the
+likelihood of the data is invariant under these permutations"
+[@anderson], where our null hypothesis specifically involves the
+interaction between condition and the secondary covariate.
 
 For the macrophage dataset we have been working with [@alasoo], we
 have a 2x2 experimental design, with IFN gamma stimulation,
