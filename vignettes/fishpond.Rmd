@@ -425,15 +425,15 @@ If matched samples are available, we compute the log2 fold change for
 each pair of samples across condition in the same covariate group, and
 then we use a Wilcoxon rank sum statistic for comparing the log2 fold
 changes across the secondary covariate. For permutation significance,
-the secondary covariate labels are permuted while keeping the main
-condition labels fixed. For unmatched samples, the difference in the
-condition log2 fold change across the secondary covariate is used as
-the test statistic, and the permutation scheme just described is
-used. The motivation for the above permutation schemes is to ensure
-the following condition, that "under the null hypothesis, the
-likelihood of the data is invariant under these permutations"
-[@anderson], where our null hypothesis specifically involves the
-interaction between condition and the secondary covariate.
+the secondary covariate labels of the pairs are permuted. For
+unmatched samples, multiple random pairs of samples across condition
+within the two covariate groups are chosen, and the statistic computed
+as above, averaging over the random pairings. The motivation for the
+above permutation schemes is to ensure the following condition, that
+"under the null hypothesis, the likelihood of the data is invariant
+under these permutations" [@anderson], where our null hypothesis
+specifically involves the interaction between condition and the
+secondary covariate.
 
 For the macrophage dataset we have been working with [@alasoo], we
 have a 2x2 experimental design, with IFN gamma stimulation,
@@ -675,7 +675,9 @@ for (i in 1:3) {
 
 The case without matched samples (sample indicated by letter, primary
 condition indicated by color, the vertical line separating the samples
-by secondary covariate):
+by secondary covariate). Here random pairs are chosen across
+condition. The permutation scheme ensures that LFCs are always
+calculated between samples from the same covariate group. 
 
 ```{r echo=FALSE}
 n <- 8
@@ -689,12 +691,20 @@ plot(1:(2*n), rep(0,2*n), ylim=c(-.5,3.5),
 abline(v=8.5, lty=2)
 axis(2, 0:3, c("orig",1:3), las=2)
 text(1:(2*n), rep(0,2*n), id, col=cols[condition], cex=2)
-set.seed(1)
+set.seed(3)
 for (i in 1:3) {
-  id.perms <- c(sample(id[condition==1],n),
-                sample(id[condition==2],n))[c(1:4,9:12,5:8,13:16)]
+  id.perms <- character(2*n)
+  grp1 <- id[group==1]
+  grp2 <- id[group==2]
+  id.perms[c(1:4,9:12)] <- sample(id[condition==1],n)
+  idx1 <- id.perms[c(1:4,9:12)] %in% grp1
+  id.perms[c(5:8,13:16)][idx1] <- sample(id[condition==2 & group==1],sum(idx1))
+  idx2 <- id.perms[c(1:4,9:12)] %in% grp2
+  id.perms[c(5:8,13:16)][idx2] <- sample(id[condition==2 & group==2],sum(idx2))
   text(1:(2*n), rep(i,2*n), id.perms, col=cols[condition], cex=2)
 }
+arrows(3,1.5,1.3,1.15,,length=.1)
+arrows(3,1.5,4.7,1.15,length=.1)
 ```
 
 ## Session information

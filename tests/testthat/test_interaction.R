@@ -14,7 +14,6 @@ test_that("matched samples interactions work", {
   for (a in nms) {
     assays(y)[[a]][1,] <- rpois(20,lambda1)
     assays(y)[[a]][2,] <- rpois(20,lambda2)
-    assays(y)
   }
   y$condition <- factor(rep(1:2,length=20))
   y$pair <- factor(rep(1:10,each=2))
@@ -40,7 +39,6 @@ test_that("two group interactions work", {
   for (a in nms) {
     assays(y)[[a]][1,] <- rpois(20,lambda1)
     assays(y)[[a]][2,] <- rpois(20,lambda2)
-    assays(y)
   }
   y$condition <- factor(rep(c(1,2,1,2),each=5))
   y$group <- factor(rep(1:2,each=10))

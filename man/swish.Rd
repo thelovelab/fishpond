@@ -32,9 +32,9 @@ tests produced by the software, in that they focus on a difference
 in the log2 fold change across levels of \code{x} when comparing
 the two levels in \code{cov}. If \code{pair} is specified, this
 will perform a Wilcoxon rank sum test on the two groups
-of matched sample LFCs. If \code{pair} is not included, the LFC
-difference itself will be taken as the test statistic, and permutation
-test used to assess the p-value and q-value (as with other statistics)}
+of matched sample LFCs. If \code{pair} is not included, multiple
+random pairs of samples within the two groups are chosen,
+and again a Wilcoxon rank sum test compared the LFCs across groups.}
 
 \item{nperms}{the number of permutations}
 
