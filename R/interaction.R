@@ -40,35 +40,37 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
 }
 
 swishInterx <- function(infRepsArray, condition, covariate,
-                        nperms=30, nRandomPairs=30,
-                        pc=5, wilcoxP, quiet=FALSE) {
+                        nperms=30, pc=5, nRandomPairs=30,
+                        wilcoxP, quiet=FALSE) {
   stopifnot(nlevels(covariate) == 2)
   if (!all(table(condition, covariate) > 0))
     stop("swish with interaction across two variables requires samples for each combination")
   dims <- dim(infRepsArray)
 
-  # don't sample with replacement if not needed:
-  # if condition 2 always has smaller sample size
-  # then use replace=FALSE
   tab <- table(condition, covariate)
-  replace <- any(tab[,2] > tab[,1])
   # if sizes are equal, don't need to double or splice out columns
   allEqual <- all(tab[,2] == tab[,1])
-
-  # for now
-  if (!allEqual)
-    stop("un-matched interaction is currently only implemented for
-  designs where the number of samples across condition is equal")
 
   # don't have pairs, but instead we use pseudo-pairs multiple times
   stats <- matrix(nrow=dims[1], ncol=nRandomPairs)
   for (r in seq_len(nRandomPairs)) {
-    pair <- getPseudoPair(condition, covariate, replace)
-    out <- getInterxPairStat(infRepsArray, condition, covariate,
-                             pair, pc, wilcoxP)
+    # the easy case: balanced numbers of samples across condition
+    if (allEqual) {
+      pair <- getPseudoPair(condition, covariate)
+      out <- getInterxPairStat(infRepsArray, condition, covariate,
+                               pair, pc, wilcoxP)
+    } else {
+      # random subsetting to balance groups, then use pseudo pairs
+      idx <- randomSamplesToRemove(tab, condition, covariate)
+      pair <- getPseudoPair(condition[-idx], covariate[-idx])
+      out <- getInterxPairStat(infRepsArray[,-idx,],
+                               condition[-idx], covariate[-idx],
+                               pair, pc, wilcoxP)
+    }
     stats[,r] <- out$stat
   }
   stat <- rowMeans(stats)
+  
   # any of the iterations works to define group
   # (this is an ordered integer vector of pairs
   # across covariate, with condition collapsed as LFCs)
@@ -79,17 +81,26 @@ swishInterx <- function(infRepsArray, condition, covariate,
 
   # this permutation scheme is different than others in swish
   # (and slower) because we reform lfcArray inside the
-  # permutation loop
+  # permutation loop - necessary because of the random
+  # pseudo pairs
   perms <- getPerms(group, nperms)
   nperms <- permsNote(perms, nperms)
   nulls <- matrix(nrow=dims[1], ncol=nperms)
   if (!quiet) message("Generating test statistics over permutations")
   for (p in seq_len(nperms)) {
     if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
-    # first draw a pseudo-pairing
-    pair <- getPseudoPair(condition, covariate, replace)
-    out <- getInterxPairStat(infRepsArray, condition, covariate,
-                             pair, pc, wilcoxP)
+    if (allEqual) {
+      # first draw a pseudo-pairing
+      pair <- getPseudoPair(condition, covariate)
+      out <- getInterxPairStat(infRepsArray, condition, covariate,
+                               pair, pc, wilcoxP)
+    } else {
+      idx <- randomSamplesToRemove(tab, condition, covariate)
+      pair <- getPseudoPair(condition[-idx], covariate[-idx])
+      out <- getInterxPairStat(infRepsArray[,-idx,],
+                               condition[-idx], covariate[-idx],
+                               pair, pc, wilcoxP)
+    }
     lfcArray <- out$lfcArray
     # then permute the pseudo-pairs across covariate
     nulls[,p] <- getSamStat(lfcArray,
@@ -123,7 +134,7 @@ getDeltaLFC <- function(infRepsArray, condition, covariate, pc) {
   matrixStats::rowMedians(lfc2 - lfc1)
 }
 
-getPseudoPair <- function(condition, covariate, replace) {
+getPseudoPair <- function(condition, covariate) {
   pair <- integer(length(condition))
   cond1 <- condition == levels(condition)[1]
   cond2 <- condition == levels(condition)[2]
@@ -132,7 +143,27 @@ getPseudoPair <- function(condition, covariate, replace) {
     grp <- covariate == levels(covariate)[i]
     pair[cond1 & grp] <- sample(x=pair[cond2 & grp],
                                 size=sum(cond1 & grp),
-                                replace=replace)
+                                replace=FALSE)
   }
   pair
+}
+
+randomSamplesToRemove <- function(tab, condition, covariate) {
+  cond1 <- condition == levels(condition)[1]
+  cond2 <- condition == levels(condition)[2]
+  cov.lvls <- levels(covariate)
+  idx <- numeric()
+  for (i in which(tab[,1] != tab[,2])) {
+    cond1small <- tab[1,i] < tab[2,i]
+    if (cond1small) {
+      idx <- c(idx, sample(which(cond2 & covariate == cov.lvls[i]),
+                           tab[2,i] - tab[1,i],
+                           replace=FALSE))
+    } else {
+      idx <- c(idx, sample(which(cond1 & covariate == cov.lvls[i]),
+                           tab[1,i] - tab[2,i],
+                           replace=FALSE))
+    }
+  }
+  idx
 }

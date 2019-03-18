@@ -6,7 +6,7 @@
 \usage{
 swish(y, x, cov = NULL, pair = NULL, interaction = FALSE,
   nperms = 30, estPi0 = FALSE, qvaluePkg = "qvalue", pc = 5,
-  wilcoxP = NULL, quiet = FALSE)
+  nRandomPairs = 30, wilcoxP = NULL, quiet = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
@@ -45,6 +45,10 @@ and again a Wilcoxon rank sum test compared the LFCs across groups.}
 
 \item{pc}{pseudocount for finite estimation of \code{log2FC}, not used
 in calculation of test statistics, \code{locfdr} or \code{qvalue}}
+
+\item{nRandomPairs}{the number of random pseudo-pairs (only used with
+\code{interaction=TRUE} and un-matched samples) to use to calculate
+the test statistic}
 
 \item{wilcoxP}{a numeric, default is NULL, skipping this feature.
 When set to NULL, the sample mean over inferential replicates

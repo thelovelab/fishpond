@@ -28,6 +28,9 @@
 #' \code{samr} or \code{qvalue}
 #' @param pc pseudocount for finite estimation of \code{log2FC}, not used
 #' in calculation of test statistics, \code{locfdr} or \code{qvalue}
+#' @param nRandomPairs the number of random pseudo-pairs (only used with
+#' \code{interaction=TRUE} and un-matched samples) to use to calculate
+#' the test statistic
 #' @param wilcoxP a numeric, default is NULL, skipping this feature.
 #' When set to NULL, the sample mean over inferential replicates
 #' is used, similar to SAMseq.
@@ -102,7 +105,8 @@
 swish <- function(y, x, cov=NULL, pair=NULL,
                   interaction=FALSE, nperms=30, 
                   estPi0=FALSE, qvaluePkg="qvalue",
-                  pc=5, wilcoxP=NULL,
+                  pc=5, nRandomPairs=30,
+                  wilcoxP=NULL,
                   quiet=FALSE) {
 
   stopifnot(is(y, "SummarizedExperiment"))
@@ -157,7 +161,8 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     covariate <- colData(y)[[cov]]
     out <- swishInterx(infRepsArray, condition,
                        covariate, nperms,
-                       pc=pc, wilcoxP=wilcoxP, quiet=quiet)
+                       pc, nRandomPairs,
+                       wilcoxP, quiet)
     
   }
 

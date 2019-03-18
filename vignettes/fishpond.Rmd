@@ -426,14 +426,14 @@ each pair of samples across condition in the same covariate group, and
 then we use a Wilcoxon rank sum statistic for comparing the log2 fold
 changes across the secondary covariate. For permutation significance,
 the secondary covariate labels of the pairs are permuted. For
-unmatched samples, multiple random pairs of samples across condition
-within the two covariate groups are chosen, and the statistic computed
-as above, averaging over the random pairings. The motivation for the
-above permutation schemes is to ensure the following condition, that
-"under the null hypothesis, the likelihood of the data is invariant
-under these permutations" [@anderson], where our null hypothesis
-specifically involves the interaction between condition and the
-secondary covariate.
+unmatched samples, multiple random "pseudo-pairs" of samples across
+condition within the two covariate groups are chosen, and the
+statistic computed as above, averaging over the random
+pseudo-pairings. The motivation for the above permutation schemes is
+to ensure the following condition, that "under the null hypothesis,
+the likelihood of the data is invariant under these permutations"
+[@anderson], where our null hypothesis specifically involves the
+interaction between condition and the secondary covariate.
 
 For the macrophage dataset we have been working with [@alasoo], we
 have a 2x2 experimental design, with IFN gamma stimulation,
@@ -675,9 +675,9 @@ for (i in 1:3) {
 
 The case without matched samples (sample indicated by letter, primary
 condition indicated by color, the vertical line separating the samples
-by secondary covariate). Here random pairs are chosen across
-condition. The permutation scheme ensures that LFCs are always
-calculated between samples from the same covariate group. 
+by secondary covariate). Here multiple random pseudo-pairs are chosen
+across condition. The permutation scheme ensures that LFCs are always 
+calculated between samples from the same covariate group.
 
 ```{r echo=FALSE}
 n <- 8

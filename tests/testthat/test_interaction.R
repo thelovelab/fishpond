@@ -48,5 +48,23 @@ test_that("two group interactions work", {
   y <- swish(y, x="condition", cov="group", interaction=TRUE, quiet=TRUE)
 
   expect_true(mcols(y)$pvalue[2] < .01)
+
+  # two groups with unbalanced sample sizes
+  y <- makeSimSwishData(n=20, null=TRUE)
+  nms <- c("counts",paste0("infRep",1:20))
+  lambda1 <- rep(c(40,80,40,80),c(4,6,6,4))
+  lambda2 <- rep(c(40,80,40,160),c(4,6,6,4))
+  for (a in nms) {
+    assays(y)[[a]][1,] <- rpois(20,lambda1)
+    assays(y)[[a]][2,] <- rpois(20,lambda2)
+  }
+  y$condition <- factor(rep(c(1,2,1,2),c(4,6,6,4)))
+  y$group <- factor(rep(1:2,each=10))
+
+  y <- scaleInfReps(y, quiet=TRUE)
+  y <- labelKeep(y)
+  y <- swish(y, x="condition", cov="group", interaction=TRUE, quiet=TRUE)
+
+  expect_true(mcols(y)$pvalue[2] < .01)
   
 })
