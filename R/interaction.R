@@ -1,5 +1,5 @@
 swishInterxPair <- function(infRepsArray, condition, covariate, pair,
-                              nperms=30, pc=5, wilcoxP, quiet=FALSE) {
+                              nperms=30, pc=5, quiet=FALSE) {
   stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair)) 
   pair <- as.integer(factor(pair))
   if (!all(table(pair, condition) == 1))
@@ -10,7 +10,7 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
   dims <- dim(infRepsArray)
 
   out <- getInterxPairStat(infRepsArray, condition, covariate,
-                           pair, pc, wilcoxP)
+                           pair, pc)
   stat <- out$stat
   group <- out$group
   lfcArray <- out$lfcArray
@@ -32,8 +32,7 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
   for (p in seq_len(nperms)) {
     if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getSamStat(lfcArray,
-                            group[perms$perms[p,]],
-                            wilcoxP=wilcoxP)
+                            group[perms$perms[p,]])
   }
   if (!quiet) message("")
   list(stat=stat, log2FC=log2FC, nulls=nulls)
@@ -41,7 +40,7 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
 
 swishInterx <- function(infRepsArray, condition, covariate,
                         nperms=30, pc=5, nRandomPairs=30,
-                        wilcoxP, quiet=FALSE) {
+                        quiet=FALSE) {
   stopifnot(nlevels(covariate) == 2)
   if (!all(table(condition, covariate) > 0))
     stop("swish with interaction across two variables requires samples for each combination")
@@ -58,14 +57,14 @@ swishInterx <- function(infRepsArray, condition, covariate,
     if (allEqual) {
       pair <- getPseudoPair(condition, covariate)
       out <- getInterxPairStat(infRepsArray, condition, covariate,
-                               pair, pc, wilcoxP)
+                               pair, pc)
     } else {
       # random subsetting to balance groups, then use pseudo pairs
       idx <- randomSamplesToRemove(tab, condition, covariate)
       pair <- getPseudoPair(condition[-idx], covariate[-idx])
       out <- getInterxPairStat(infRepsArray[,-idx,],
                                condition[-idx], covariate[-idx],
-                               pair, pc, wilcoxP)
+                               pair, pc)
     }
     stats[,r] <- out$stat
   }
@@ -93,25 +92,24 @@ swishInterx <- function(infRepsArray, condition, covariate,
       # first draw a pseudo-pairing
       pair <- getPseudoPair(condition, covariate)
       out <- getInterxPairStat(infRepsArray, condition, covariate,
-                               pair, pc, wilcoxP)
+                               pair, pc)
     } else {
       idx <- randomSamplesToRemove(tab, condition, covariate)
       pair <- getPseudoPair(condition[-idx], covariate[-idx])
       out <- getInterxPairStat(infRepsArray[,-idx,],
                                condition[-idx], covariate[-idx],
-                               pair, pc, wilcoxP)
+                               pair, pc)
     }
     lfcArray <- out$lfcArray
     # then permute the pseudo-pairs across covariate
     nulls[,p] <- getSamStat(lfcArray,
-                            group[perms$perms[p,]],
-                            wilcoxP=wilcoxP)
+                            group[perms$perms[p,]])
   }
   if (!quiet) message("")
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
-getInterxPairStat <- function(infRepsArray, condition, covariate, pair, pc, wilcoxP) {
+getInterxPairStat <- function(infRepsArray, condition, covariate, pair, pc) {
   # 'lfcArray' is an array of genes x pair x inf rep
   # it is in the order of the pair (1,2,3,...)
   lfcArray <- getLog2FCPair(infRepsArray, condition, pair, pc, array=TRUE)
@@ -121,7 +119,7 @@ getInterxPairStat <- function(infRepsArray, condition, covariate, pair, pc, wilc
   group <- dat$covariate # this is now along 'lfcArray'
   stopifnot(length(group) == dim(lfcArray)[2])
   # here we perform Wilcoxon rank sum testing of the condition LFCs across group
-  stat <- getSamStat(lfcArray, group, wilcoxP=wilcoxP)
+  stat <- getSamStat(lfcArray, group)
   list(stat=stat, group=group, lfcArray=lfcArray)
 }
 

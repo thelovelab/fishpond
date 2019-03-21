@@ -1,11 +1,8 @@
-Changes in version 0.99.23
+Changes in version 0.99.30
 + added two interaction tests, described in ?swish
 + incorporate qvalue package for pvalue, locfdr and qvalue
 + added plotMASwish() to facilitate plotting
-+ changed from wilcoxP=0.25 to computing mean instead.
-  the preprint used 0.25, but the mean appears better in
-  further testing and helps to produce smoother histograms.
-  wilcoxP may be deprecated and removed in future versions
++ wilcoxP is removed, and the mean is used instead
 
 Changes in version 0.99.0
 + fishpond getting ready for submission to Bioc

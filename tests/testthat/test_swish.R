@@ -61,9 +61,6 @@ test_that("basic swish analyses", {
   # use samr for qvalue
   y <- swish(y, x="condition", qvaluePkg="samr", quiet=TRUE)
 
-  # use the lower quantile
-  y <- swish(y, x="condition", wilcoxP=0.25, quiet=TRUE)
-  
   # two group with batch covariate
   y <- makeSimSwishData(n=20)
   y$batch <- factor(rep(c(1,2,1,2),each=5))

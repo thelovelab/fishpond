@@ -6,7 +6,7 @@
 \usage{
 swish(y, x, cov = NULL, pair = NULL, interaction = FALSE,
   nperms = 30, estPi0 = FALSE, qvaluePkg = "qvalue", pc = 5,
-  nRandomPairs = 30, wilcoxP = NULL, quiet = FALSE)
+  nRandomPairs = 30, quiet = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
@@ -49,16 +49,6 @@ in calculation of test statistics, \code{locfdr} or \code{qvalue}}
 \item{nRandomPairs}{the number of random pseudo-pairs (only used with
 \code{interaction=TRUE} and un-matched samples) to use to calculate
 the test statistic}
-
-\item{wilcoxP}{a numeric, default is NULL, skipping this feature.
-When set to NULL, the sample mean over inferential replicates
-is used, similar to SAMseq.
-Specifying a number gives the probability to use, if computing a
-lower quantile (or upper quantile, for negative median Wilcoxon)
-of the Wilcoxon statistics across inferential replicates for the
-test statistic.
-For the first swish preprint, 0.25 was used. This argument may be
-removed in future versions of the package.}
 
 \item{quiet}{display no messages}
 }
