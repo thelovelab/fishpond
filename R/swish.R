@@ -89,8 +89,6 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment assayNames
 #' assays assays<- colData colData<- mcols mcols<-
 #' @importFrom S4Vectors DataFrame metadata metadata<-
-#' @importFrom svMisc progress
-#' @importFrom qvalue empPvals qvalue
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
@@ -196,7 +194,7 @@ swishTwoGroup <- function(infRepsArray, condition,
   nulls <- matrix(nrow=dims[1], ncol=nperms)
   if (!quiet) message("Generating test statistics over permutations")
   for (p in seq_len(nperms)) {
-    if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
+    if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getSamStat(infRepsArray,
                             condition[perms$perms[p,]])
   }

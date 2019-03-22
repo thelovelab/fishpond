@@ -56,7 +56,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
   }
   means <- matrix(nrow=nrow(y), ncol=nreps)
   for (k in seq_len(nreps)) {
-    if (!quiet) progress(k, max.value=nreps, init=(k==1), gui=FALSE)
+    if (!quiet) svMisc::progress(k, max.value=nreps, init=(k==1), gui=FALSE)
     if (lengthCorrect) {
       # new length bias correction matrix centered on 1
       length <- length / exp(rowMeans(log(length)))

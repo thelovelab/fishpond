@@ -19,7 +19,7 @@ swishStrat <- function(infRepsArray, condition, covariate,
                   "Generating test statistics over permutations: ",
                   i,"/",ngroups," groups"))
     for (p in seq_len(nperms)) {
-      if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
+      if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
       nulls.big[,p,i] <- getSamStat(infRepsArray.sub,
                                     cond.sub[perms$perms[p,]])
     }

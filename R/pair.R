@@ -13,7 +13,7 @@ swishPair <- function(infRepsArray, condition, pair,
   nulls <- matrix(nrow=nrow(infRepsArray), ncol=nperms)
   if (!quiet) message("Generating test statistics over permutations")
   for (p in seq_len(nperms)) {
-    if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
+    if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getSignedRank(infRepsArray, condition[perms[p,]],
                                pair[perms[p,]])
   }
@@ -21,7 +21,7 @@ swishPair <- function(infRepsArray, condition, pair,
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
-getSignedRank <- function(infRepsArray, condition, pair, p=NULL) {
+getSignedRank <- function(infRepsArray, condition, pair) {
   dims <- dim(infRepsArray)
   sgn.ranks <- array(dim=c(dims[1],dims[2]/2,dims[3]))
   o <- order(condition, pair)
@@ -34,12 +34,7 @@ getSignedRank <- function(infRepsArray, condition, pair, p=NULL) {
   }
   # sums of signed rank, expectation is 0
   W <- apply(sgn.ranks, c(1,3), sum)
-  if (is.null(p)) {
-    stat <- rowMeans(W)
-  } else {
-    stat <- rowQuantilesTowardZero(W, p)
-  }
-  stat
+  rowMeans(W)
 }
 
 getLog2FCPair <- function(infRepsArray, condition, pair, pc=5, array=FALSE) {

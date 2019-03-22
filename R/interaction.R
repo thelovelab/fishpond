@@ -30,7 +30,7 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
   nulls <- matrix(nrow=dims[1], ncol=nperms)
   if (!quiet) message("Generating test statistics over permutations")
   for (p in seq_len(nperms)) {
-    if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
+    if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getSamStat(lfcArray,
                             group[perms$perms[p,]])
   }
@@ -87,7 +87,7 @@ swishInterx <- function(infRepsArray, condition, covariate,
   nulls <- matrix(nrow=dims[1], ncol=nperms)
   if (!quiet) message("Generating test statistics over permutations")
   for (p in seq_len(nperms)) {
-    if (!quiet) progress(p, max.value=nperms, init=(p==1), gui=FALSE)
+    if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     if (allEqual) {
       # first draw a pseudo-pairing
       pair <- getPseudoPair(condition, covariate)
