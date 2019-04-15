@@ -5,8 +5,7 @@
 \title{Plot inferential replicates for a gene or transcript}
 \usage{
 plotInfReps(y, idx, x, cov = NULL, cols.drk = c("dodgerblue",
-  "goldenrod4"), cols.lgt = c("lightblue1", "goldenrod1"),
-  xaxis = TRUE)
+  "goldenrod4"), cols.lgt = c("lightblue1", "goldenrod1"), xaxis)
 }
 \arguments{
 \item{y}{a SummarizedExperiment (see \code{swish})}
@@ -21,7 +20,8 @@ plotInfReps(y, idx, x, cov = NULL, cols.drk = c("dodgerblue",
 
 \item{cols.lgt}{light colors for the inside of the boxes}
 
-\item{xaxis}{logical, whether to label the sample numbers}
+\item{xaxis}{logical, whether to label the sample numbers.
+default is \code{TRUE} if there are less than 30 samples}
 }
 \value{
 nothing, a plot is displayed
@@ -36,6 +36,6 @@ plotInfReps(y, 3, "condition")
 
 y <- makeSimSwishData(n=40)
 y$batch <- factor(rep(c(1,2,3,1,2,3),c(5,10,5,5,10,5)))
-plotInfReps(y, 3, "condition", "batch", xaxis=FALSE)
+plotInfReps(y, 3, "condition", "batch")
 
 }

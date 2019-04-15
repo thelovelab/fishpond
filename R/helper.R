@@ -193,7 +193,8 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
 #' @param cov the name of the covariate for adjustment
 #' @param cols.drk dark colors for the lines of the boxes
 #' @param cols.lgt light colors for the inside of the boxes
-#' @param xaxis logical, whether to label the sample numbers
+#' @param xaxis logical, whether to label the sample numbers.
+#' default is \code{TRUE} if there are less than 30 samples
 #'
 #' @return nothing, a plot is displayed
 #' 
@@ -204,16 +205,19 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
 #'
 #' y <- makeSimSwishData(n=40)
 #' y$batch <- factor(rep(c(1,2,3,1,2,3),c(5,10,5,5,10,5)))
-#' plotInfReps(y, 3, "condition", "batch", xaxis=FALSE)
+#' plotInfReps(y, 3, "condition", "batch")
 #' 
 #' @export
 plotInfReps <- function(y, idx, x, cov=NULL,
                         cols.drk=c("dodgerblue","goldenrod4"),
                         cols.lgt=c("lightblue1","goldenrod1"),
-                        xaxis=TRUE) {
+                        xaxis) {
   infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
+  if (missing(xaxis)) {
+    xaxis <- ncol(y) < 30
+  }
   if (is.null(cov)) {
     cts <- unlist(infReps)[,order(condition)]
     samp.nums <- unlist(lapply(table(condition), seq_len))
