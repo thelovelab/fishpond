@@ -17,7 +17,7 @@ vignette: |
 <!-- run this document with library(rmarkdown); render("fishpond.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=TRUE, dev="png",
+knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
@@ -149,15 +149,6 @@ coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
 all(file.exists(coldata$files))
 ```
 
-Two demonstrate a two group comparison, we subset to the "naive" and
-"IFNg" groups. This step could be done after running `tximeta` as well.
-
-```{r}
-coldata <- coldata[coldata$condition %in% c("naive","IFNg"),]
-coldata$condition <- factor(coldata$condition, c("naive","IFNg"))
-```
-
-
 ## Read in quants with `tximeta`
 
 We will read in quantification data for some of the samples. First we
@@ -196,6 +187,14 @@ chromosome 1.
 ```{r}
 y <- se
 y <- y[seqnames(y) == "chr1",]
+```
+
+Two demonstrate a two group comparison, we subset to the "naive" and
+"IFNg" groups. 
+
+```{r}
+y <- y[,y$condition %in% c("naive","IFNg")]
+y$condition <- factor(y$condition, c("naive","IFNg"))
 ```
 
 # Differential transcript expression
@@ -335,6 +334,14 @@ gy <- gse
 gy <- gy[seqnames(gy) == "chr1",]
 ```
 
+Two demonstrate a two group comparison, we subset to the "naive" and
+"IFNg" groups, as before.
+
+```{r}
+gy <- gy[,gy$condition %in% c("naive","IFNg")]
+gy$condition <- factor(gy$condition, c("naive","IFNg"))
+```
+
 Next we can run the same steps as before. Again we set a random seed
 in order to be able to reproduce exact results in the future:
 
@@ -447,41 +454,26 @@ be well powered to detect differences in the log2 fold change.
 
 ## Condition and secondary covariates
 
-We begin the interaction analysis by re-reading in the data, now
-including all of the samples, and not just the control and IFN gamma
-stimulated samples as before:
+We begin the interaction analysis by re-loading the
+*SummarizedExperiment* with all the samples, and defining two new
+factors indicating IFNg status and *Salmonella* status:
 
 ```{r}
-coldata <- read.csv(file.path(dir, "coldata.csv"))
-coldata <- coldata[,c(1,2,3,5)]
-names(coldata) <- c("names","id","line","condition")
-coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
-```
-
-We create two new factors indicating IFNg status and *Salmonella* status:
-
-```{r}
-coldata$ifng <- factor(ifelse(
-  grepl("IFNg",coldata$condition),
+se$ifng <- factor(ifelse(
+  grepl("IFNg",se$condition),
   "treated","control"))
-coldata$salmonella <- factor(ifelse(
-  grepl("SL1344",coldata$condition),
+se$salmonella <- factor(ifelse(
+  grepl("SL1344",se$condition),
   "infected","control"))
-with(coldata,
+with(colData(se),
      table(ifng, salmonella)
      )
-```
-
-Now we read in the quantification data using `tximeta`:
-
-```{r}
-se2 <- tximeta(coldata)
 ```
 
 We will work with the chromosome 1 transcripts for demonstration:
 
 ```{r}
-y2 <- se2
+y2 <- se
 y2 <- y2[seqnames(y2) == "chr1",]
 ```
 
