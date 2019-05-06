@@ -7,9 +7,10 @@ swishPair <- function(infRepsArray, condition, pair,
   stat <- getSignedRank(infRepsArray, condition, pair)
   log2FC <- getLog2FCPair(infRepsArray, condition, pair, pc)
   cond.sign <- ifelse(condition == levels(condition)[1], 1, -1)
-  perms <- samr:::compute.block.perms(cond.sign * pair, pair, nperms)
+  perms <- getPairPerms(cond.sign * pair, nperms)
   nperms <- permsNote(perms, nperms)
-  perms <- fixPerms(perms, condition, pair)
+  # now just work with the permutations matrix
+  perms <- perms$perms
   nulls <- matrix(nrow=nrow(infRepsArray), ncol=nperms)
   if (!quiet) message("Generating test statistics over permutations")
   for (p in seq_len(nperms)) {
@@ -55,4 +56,55 @@ getLog2FCPair <- function(infRepsArray, condition, pair, pc=5, array=FALSE) {
   lfcMat <- apply(lfcArray, c(1,3), mean)
   # median over inferential replicates
   matrixStats::rowMedians(lfcMat)
+}
+
+# spair = signed pair
+getPairPerms <- function(spair, nperms) {
+  # samr's version needs downstream postprocessing, so we implement new one
+  #perms <- samr:::compute.block.perms(spair, abs(spair), nperms)
+  npairs <- max(spair)
+  # for 10 or less pairs, we compute the assignments and subset
+  if (npairs <= 10) {
+    out0 <- permutations(2, npairs, repeats.allowed=TRUE)
+    if (nrow(out0) > nperms) {
+      idx <- sample(nrow(out0), nperms)
+      out <- out0[idx,]
+    } else {
+      out <- out0
+    }
+    pair.perms <- t(matrix(seq_along(spair),
+                           ncol=nrow(out),
+                           nrow=length(spair)))
+    for (i in seq_len(nrow(pair.perms))) {
+      if (any(out[i,] == 2)) {
+        swap <- which(out[i,] == 2)
+        for (s in swap) {
+          idx <- which(abs(spair) == s)
+          pair.perms[i,idx] <- rev(idx)
+        }
+      }
+    }
+    perms <- list(perms = pair.perms,
+                  all.perms.flag = as.integer(nrow(out0) <= nperms),
+                  nperms.act = nrow(out))
+  } else {
+    # otherwise, change the sign of some of the pairs
+    pair.perms <- t(matrix(seq_along(spair),
+                           ncol=nperms,
+                           nrow=length(spair)))
+    for (i in seq_len(nrow(pair.perms))) {
+      coin.flip <- sample(2, npairs, replace=TRUE)
+      if (any(coin.flip == 2)) {
+        swap <- which(coin.flip == 2)
+        for (s in swap) {
+          idx <- which(abs(spair) == s)
+          pair.perms[i,idx] <- rev(idx)
+        }
+      }        
+    }
+    perms <- list(perms = pair.perms,
+                  all.perms.flag = 0,
+                  nperms.act = nperms)
+  }
+  perms
 }

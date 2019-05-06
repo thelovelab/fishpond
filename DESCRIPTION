@@ -1,7 +1,7 @@
 Package: fishpond
 Title: Fishpond: differential transcript and gene expression
     with inferential replicates
-Version: 1.1.0
+Version: 1.1.1
 Author: Anqi Zhu, Avi Srivastava, Joseph Ibrahim, Rob Patro, Michael Love
 Maintainer: Michael Love <michaelisaiahlove@gmail.com>
 Description: Fishpond contains methods for differential transcript
@@ -14,13 +14,14 @@ Imports:
     utils,
     methods,
     abind,
-    samr,
+    gtools,
     qvalue,
     S4Vectors,
     SummarizedExperiment,
     matrixStats,
     svMisc
-Suggests: 
+Suggests:
+    samr,
     testthat,
     knitr,
     rmarkdown,

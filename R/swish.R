@@ -89,6 +89,7 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment assayNames
 #' assays assays<- colData colData<- mcols mcols<-
 #' @importFrom S4Vectors DataFrame metadata metadata<-
+#' @importFrom gtools permutations
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
@@ -105,6 +106,15 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   if (!interactive()) { quiet <- TRUE }
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- labelKeep(y)
+  }
+  
+  if (!qvaluePkg %in% c("qvalue","samr")) {
+    stop("'qvaluePkg' should be 'qvalue' or 'samr'")
+  }
+  if (qvaluePkg == "samr") {
+    if (!requireNamespace("samr", quietly=TRUE)) {
+      stop("first install the 'samr' package")
+    }
   }
   
   ys <- y[mcols(y)$keep,]
@@ -171,8 +181,6 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     locfdr <- makeLocFDR(stat, nulls, pi0)
     qvalue <- makeQvalue(stat, nulls, pi0, quiet)
     df <- data.frame(stat, log2FC, locfdr, qvalue)
-  } else {
-    stop("'qvaluePkg' should be 'samr' or 'qvalue'")
   }
   postprocess(y, df)
 }
@@ -289,26 +297,28 @@ permsNote <- function(perms, nperms) {
   }
 }
 
-fixPerms <- function(perms, condition, pair) {
-  perms.in <- perms$perms
-  perms <- matrix(rep(seq_along(condition), nrow(perms.in)),
-                  nrow=nrow(perms.in), byrow=TRUE)
-  for (i in seq_len(max(pair))) {
-    idx1 <- perms.in[,2*i - 1] < 0
-    idx2 <- pair == i
-    perms[idx1,idx2] <- perms[idx1,idx2,drop=FALSE][,2:1]
-  }
-  perms
-}
-
 getPerms <- function(condition, nperms) {
-  if (length(condition) <= 150) {
-    perms <- samr:::getperms(condition, nperms)
+  if (length(condition) <= 6) {
+    #perms <- samr:::getperms(condition, nperms)
+    # get all possible permutations from gtools
+    # for n=6 this is 720, and nperms is likely < 100
+    out0 <- gtools::permutations(n=length(condition), r=length(condition))
+    if (nrow(out0) > nperms) {
+      idx <- sample(nrow(out0), nperms)
+      out <- out0[idx,]
+    } else {
+      out <- out0
+    }
+    perms <- list(perms = out,
+                  all.perms.flag = as.integer(nrow(out0) <= nperms),
+                  nperms.act = nrow(out))
   } else {
-    # with >150 samples we have a good number of permutations
-    # just do random sampling and avoid gammafn errors from samr
+    # with > 6 samples we have a good number of permutations (> 5,000),
+    # just do random sampling
     x <- t(replicate(nperms, sample(length(condition))))
-    perms <- list(perms=x, nperms.act=nperms)
+    perms <- list(perms = x,
+                  all.perms.flag = 0,
+                  nperms.act = nperms)
   }
   perms
 }
