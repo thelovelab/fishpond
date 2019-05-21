@@ -75,6 +75,10 @@ y <- y[mcols(y)$keep,]
 A gene-level analysis looks identical to a transcript-level analysis,
 only the input data changes. Examples follow.
 
+Lastly, what is the structure of the output of `tximeta`, which is
+used in `swish`? See the section below, *Structure of tximeta
+output / swish input*.
+
 ## Macrophage stimulation experiment
 
 We begin the *fishpond* vignette by loading data from a Bioconductor
@@ -567,6 +571,31 @@ can be run by either not specifying any additional covariates, or by
 specifying a batch variable with the argument `cov` instead of `pair`.
 The two interaction tests can be run by specifying `interaction=TRUE`
 and providing `x`, `cov`, and optionally `pair`.
+
+## Structure of `tximeta` output / `swish` input
+
+While `tximeta` is the safest way to provide the correct input to
+`swish`, all that `swish` requires for running is a
+*SummarizedExperiment* object with the following assays: `counts`,
+`length`, and `infRep1`, `infRep2`, ..., `infRepN`, where `N` is
+simply the number of Gibbs samples or boostraps samples, e.g. 20 in
+the examples above. The counts and inferential replicates are
+estimated counts from a quantification method, either at the
+transcript level or summed to the gene level (simple sum). These
+counts sum up to the (mapped) library size for each sample. It is
+assumed that the `length` matrix gives the effective lengths for each
+transcript, or average transcript length for each gene as summarized
+by the functions in `tximeta`/`tximport`. If the counts should not be
+corrected for effective length (e.g. 3' tagged RNA-seq), then
+`lengthCorrect=FALSE` should be specified when running
+`scaleInfReps`. 
+
+Note on simulation: it is difficult to simulate inferential uncertainty
+in a realistic manner without construction of reads from transcripts,
+using a method like *polyester*. Constructing reads from the reference
+transcriptome or a sample-specific transcriptome naturally produces
+the structure of read-assignment inferential uncertainty that `swish`
+and other methods control for in real RNA-seq data.
 
 ## Plotting q-values over statistics
 
