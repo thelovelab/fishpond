@@ -88,20 +88,20 @@ plotInfReps(y, 5, "condition")
 
 }
 \references{
-\code{swish} is described in the following reference:
+The citation for \code{swish} method is:
 
 Anqi Zhu, Avi Srivastava, Joseph G Ibrahim, Rob Patro, Michael I Love
 "Nonparametric expression analysis using inferential replicate counts"
-bioRxiv (2019).
+bioRxiv (2019). \url{https://doi.org/10.1101/561084}
 
 The \code{swish} method builds upon the \code{SAMseq} method,
-and extends it by incorporating inferential uncertainty.
-\code{swish} internally calls functions from the \code{samr}
-package, for example, the calculation of local FDR and q-value.
+and extends it by incorporating inferential uncertainty, as well
+as providing methods for additional experimental designs (see vignette).
 
-The citation for \code{SAMseq} is:
+For reference, the publication describing the \code{SAMseq} method is:
 
 Jun Li and Robert Tibshirani "Finding consistent patterns:
 A nonparametric approach for identifying differential expression
 in RNA-Seq data" Stat Methods Med Res (2013).
+\url{https://doi.org/10.1177/0962280211428386}
 }
