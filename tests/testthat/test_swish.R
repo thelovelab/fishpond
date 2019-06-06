@@ -86,6 +86,19 @@ test_that("basic swish analyses", {
   
 })
 
+test_that("infRV calculation and plotting", {
+
+  y <- makeSimSwishData()
+  infReps <- assays(y)[grep("infRep",assayNames(y))]
+  infReps <- abind::abind(as.list(infReps), along=3)
+  infVar <- apply(infReps, 1:2, var)
+  mu <- assays(y)[["counts"]]
+  infRV <- pmax(infVar - mu, 0)/(mu + 5) + .01
+  meanInfRV <- rowMeans(infRV)
+  plot(rowMeans(mu), meanInfRV)
+  
+})
+
 test_that("basic deswish analyses", {
 
   y <- makeSimSwishData()
