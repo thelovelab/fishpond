@@ -285,6 +285,8 @@ plotMASwish <- function(y, alpha=.05, sigcolor="blue", ...) {
 #' See function code for details.
 #'
 #' @param y a SummarizedExperiment
+#' @param pc a pseudocount parameter for the denominator
+#' @param shift a final shift parameter
 #'
 #' @return a SummarizedExperiment with \code{meanInfRV} in the metadata columns
 #'

@@ -8,6 +8,10 @@ computeInfRV(y, pc = 5, shift = 0.01)
 }
 \arguments{
 \item{y}{a SummarizedExperiment}
+
+\item{pc}{a pseudocount parameter for the denominator}
+
+\item{shift}{a final shift parameter}
 }
 \value{
 a SummarizedExperiment with \code{meanInfRV} in the metadata columns
