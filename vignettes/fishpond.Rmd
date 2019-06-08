@@ -622,6 +622,28 @@ with(gres, plot(log2FC, -log10(qvalue),
 abline(v=0, col="red")
 ```
 
+## Plotting InfRV
+
+In the Swish paper, we describe a statistic, InfRV, which is useful
+for categorizing groups of features by their inferential uncertainty.
+Note that InfRV is not used in the `swish` method, but only for
+visualization in the paper. Here we show how to compute and plot the
+InfRV:
+
+```{r}
+y3 <- se
+y3 <- y3[seqnames(y3) == "chr1",]
+y3 <- y3[,y3$condition %in% c("naive","IFNg")]
+y3 <- labelKeep(y3)
+y3 <- y3[mcols(y3)$keep,]
+y3 <- computeInfRV(y3)
+mcols(y3)$meanCts <- rowMeans(assays(y3)[["counts"]])
+with(mcols(y3), plot(meanCts, meanInfRV, log="xy"))
+hist(log10(mcols(y3)$meanInfRV),
+     col="grey50", border="white", breaks=20,
+     xlab="mean InfRV", main="Txp-level inferential uncertainty")
+```
+
 ## *Alevin* inferential replicates
 
 The *Alevin* [@alevin] and *tximport* / *tximeta* maintainers are

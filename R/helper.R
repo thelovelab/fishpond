@@ -275,6 +275,31 @@ plotMASwish <- function(y, alpha=.05, sigcolor="blue", ...) {
   abline(h=0, col="grey40")
 }
 
+#' Compute inferential relative variance (InfRV)
+#'
+#' \code{InfRV} is used the Swish publication for visualization.
+#' This function provides computation of the mean InfRV, a simple
+#' statistic that measures inferential uncertainty.
+#' Note that InfRV is not used in the \code{swish}
+#' statistical method at all, it is just for visualization.
+#' See function code for details.
+#'
+#' @param y a SummarizedExperiment
+#'
+#' @return a SummarizedExperiment with \code{meanInfRV} in the metadata columns
+#'
+#' @export
+computeInfRV <- function(y, pc=5, shift=.01) {
+  infReps <- assays(y)[grep("infRep",assayNames(y))]
+  infReps <- abind::abind(as.list(infReps), along=3)
+  infVar <- apply(infReps, 1:2, var)
+  mu <- assays(y)[["counts"]]
+  # the InfRV computation:
+  InfRV <- pmax(infVar - mu, 0)/(mu + pc) + shift
+  mcols(y)$meanInfRV <- rowMeans(InfRV)
+  y
+}
+
 boxplot2 <- function(x, w=.4, ylim, col, col.in, xlab="", ylab="", main="") {
   qs <- matrixStats::rowQuantiles(t(x), probs=0:4/4)
   if (missing(ylim)) {

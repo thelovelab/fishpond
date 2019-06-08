@@ -1,3 +1,8 @@
+Changes in version 1.1.6
++ Add 'computeInfRV' function. InfRV is not used in the
+  Swish methods, only for visualization purposes in the
+  Swish paper.
+
 Changes in version 1.1.1
 + removed 'samr' from Imports, as it required source
   installation, moved to Suggests, for optional qvalue
