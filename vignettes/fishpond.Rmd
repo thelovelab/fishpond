@@ -646,49 +646,21 @@ hist(log10(mcols(y3)$meanInfRV),
 
 ## *Alevin* inferential replicates
 
-The *Alevin* [@alevin] and *tximport* / *tximeta* maintainers are
-working on an efficient format for storing and importing the sparse
-scRNA-seq estimated gene counts. We plan to develop an official
-importer for *Alevin* bootstrap inferential replicates in March-April
-2019, and add to *tximport* before the Bioconductor 3.9 release
-(import of *Alevin* counts without inferential replicates is already
-supported in *tximport*). Currently, *Alevin* outputs dense binary
-inferential replicates, which is a format we would like to move away
-from, as the quantification data is then larger on disk than
-necessary. For example, the 900 mouse neuron dataset from 10x Genomics
-with 30 bootstrap replicates takes up 365 Mb. We are coordinating with
-other Bioconductor developers to avoid duplicated efforts.
-
-Between now and the release of Bioconductor 3.9 in April 2019, one can
-use the following code snippet to import *Alevin* bootstrap inferential
-replicates into R/Bioconductor, for analysis with `swish`:
-
-* [Alevin Inf Rep Importer](https://gist.github.com/mikelove/7b1537b6e35f031668d460552bb35d5a)
-
-This code reads in point estimates of gene counts as a matrix `mat`.
-It then passes once over the data to count the number of non-zero
-entries per cell and per inferential replicate. It then pre-allocates
-vectors of certain size, representing the non-zero entries per cell
-and per inferential replicate, and passes over the data again to fill
-these vectors. Finally a list of sparse matrices `bmat.list` is
-created which provides all the inferential replicates of estimated
-gene counts. These matrices can be efficiently subsetted to genes and
-cells with sufficient counts before building a *SummarizedExperiment*.
-
-*Why not loom to store the data?* While *loom* and the
-*LoomExperiment* package in Bioconductor are designed for analyzing
-large 'omics datasets, note that *loom* is explicitly not recommended
-for data storage. We imagine that we may want to support
-*LoomExperiment* objects for working with the inferential replicates
-in memory during an R/Bioconductor session, but it is not a
-recommended approach for data storage, from the *loom* documentation:
-
-> Loom files are great for distribution of large datasets, and for use
-> in computational pipelines. They do not support writing and reading
-> concurrently. They also do not support journalling, so if something
-> happens during a write, the entire file can be lost. Therefore, do not
-> use loom files as your primary data storage. They are for working with
-> data, not keeping it safe. 
+The *Alevin* [@alevin] and *tximport* / *tximeta* maintainers have
+created an efficient format for storing and importing the sparse 
+scRNA-seq estimated gene counts, and optionally inferential variance
+and inferential replicate counts. `tximport` or `tximeta` functions
+will automatically import these matrices if *Alevin* was run using
+`--numCellBootstraps` (in order to generate inferential variance) and
+additionally `--dumpFeatures` (in order to dump the inferential
+replicates). The storage format for counts, and for inferential
+replicates, involves writing one cell at a time, storing the locations
+of the non-zero counts, and then the non-zero counts. The matrices are
+imported sparely using the *Matrix* package. The storage format is
+efficient, for example, the estimated counts for the 900 mouse neuron
+dataset from 10x Genomics takes up 4.2 Mb, the variance matrix
+takes up 8.6 Mb, and the inferential replicates takes up 72 Mb (20
+bootstrap inferential replicates).
 
 ## Permutation schemes for interactions
 
