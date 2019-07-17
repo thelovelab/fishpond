@@ -21,7 +21,7 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
-# The `swish` method
+# The Swish method
 
 The `swish` method for differential expression analysis of RNA-seq
 data using inferential replicate counts is described in the following
@@ -153,7 +153,7 @@ coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
 all(file.exists(coldata$files))
 ```
 
-## Read in quants with `tximeta`
+## Read in quants with tximeta
 
 We will read in quantification data for some of the samples. First we
 load the *SummarizedExperiment* package. We will store out data and
@@ -203,7 +203,7 @@ y$condition <- factor(y$condition, c("naive","IFNg"))
 
 # Differential transcript expression
 
-## Running `swish` at the transcript level
+## Running Swish at the transcript level
 
 Running `swish` has three steps: scaling the inferential replicates,
 labeling the rows with sufficient counts for running differential
@@ -325,7 +325,7 @@ with(
 
 # Differential gene expression
 
-## Running `swish` at the gene level
+## Running Swish at the gene level
 
 We can also run swish at the gene level. First we summarize all of the
 data to the gene level, using the `summarizeToGene` function from
@@ -363,7 +363,7 @@ As before, the number of genes in a 1% FDR set:
 table(mcols(gy)$qvalue < .05)
 ```
 
-## Plotting results
+## Plotting gene results
 
 The histogram of p-values:
 
@@ -508,7 +508,7 @@ y2$pair <- factor(y2$pair)
 table(y2$pair, y2$salmonella)
 ```
 
-## `swish` for interaction effects
+## Swish for interaction effects
 
 We now perform `swish` analysis, specifying the *Salmonella* infection
 as our main condition, the IFN gamma treatment as the secondary
@@ -524,7 +524,7 @@ set.seed(1)
 y2 <- swish(y2, x="salmonella", cov="ifng", pair="pair", interaction=TRUE)
 ```
 
-## Plotting results
+## Plotting interaction results
 
 In this case, we appear to have fewer non-null p-values from first
 impression of the p-value histogram:
@@ -556,7 +556,7 @@ plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 
 # Further details
 
-## Analysis types supported by `swish`
+## Analysis types supported by Swish
 
 There are currently five types of analysis supported by `swish`:
 
