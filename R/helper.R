@@ -270,6 +270,7 @@ plotMASwish <- function(y, alpha=.05, sigcolor="blue", ...) {
   dat <- data.frame(log10mean=mcols(y)$log10mean,
                     log2FC=mcols(y)$log2FC,
                     sig=mcols(y)$qvalue < alpha)
+  dat <- dat[order(dat$sig),]
   with(dat, plot(log10mean, log2FC, pch=20, cex=.4,
                  col=ifelse(sig, sigcolor, "grey60"), ...))
   abline(h=0, col="grey40")
