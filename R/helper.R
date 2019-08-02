@@ -238,13 +238,15 @@ plotInfReps <- function(y, idx, x, cov=NULL,
           } else {
             if (is.character(idx)) idx else rownames(y)[idx]
           }
-  boxplot2(cts, col=col, col.in=col.in, ylim=c(0,max(cts)),
+  ymax <- max(cts)
+  ymin <- if (is.null(cov)) 0 else -0.02 * ymax
+  boxplot2(cts, col=col, col.in=col.in, ylim=c(ymin,ymax),
            xlab="samples", ylab="scaled counts", main=main)
   if (xaxis) axis(1, seq_along(condition), samp.nums)
   if (!is.null(cov)) {
     cuts <- cumsum(table(covariate))
-    segments(c(1,cuts[-ngrp]+1),0,cuts,0,lwd=3,
-             col=rep(c("black","grey"),length=ngrp))
+    segments(c(1,cuts[-ngrp]+1),ymin,cuts,ymin,lwd=3,
+             col=rep(c("black","grey60"),length=ngrp))
   }
 }
 
