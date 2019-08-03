@@ -6,9 +6,9 @@ citEntry(entry="article",
                              as.person("Rob Patro"),
                              as.person("Michael I. Love")),
          year = 2019,
-         journal = "bioRxiv",
-         doi = "10.1101/561084",
+         journal = "Nucleic Acids Research",
+         doi = "10.1093/nar/gkz622",
          textVersion =
          paste("Zhu, A., Srivastava, A., Ibrahim, J.G., Patro, R., Love, M.I.",
                "Nonparametric expression analysis using inferential replicate counts",
-               "bioRxiv (2019)" ) )
+               "Nucleic Acids Research (2019)" ) )

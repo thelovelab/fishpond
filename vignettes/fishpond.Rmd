@@ -25,7 +25,7 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
 
 The `swish` method for differential expression analysis of RNA-seq
 data using inferential replicate counts is described in the following
-reference: @swish - [doi: 10.1101/561084](https://doi.org/10.1101/561084).
+reference: @swish - [doi: 10.1093/nar/gkz622](https://doi.org/10.1093/nar/gkz622).
 
 We note that `swish` extends and builds on another method, *SAMseq*
 [@samseq], implemented in the *samr* package,

@@ -92,7 +92,7 @@ The citation for \code{swish} method is:
 
 Anqi Zhu, Avi Srivastava, Joseph G Ibrahim, Rob Patro, Michael I Love
 "Nonparametric expression analysis using inferential replicate counts"
-bioRxiv (2019). \url{https://doi.org/10.1101/561084}
+Nucleic Acids Research (2019). \url{https://doi.org/10.1093/nar/gkz622}
 
 The \code{swish} method builds upon the \code{SAMseq} method,
 and extends it by incorporating inferential uncertainty, as well
