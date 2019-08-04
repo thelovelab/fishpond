@@ -32,7 +32,7 @@ at \code{minCount}}
 \item{quiet}{display no messages}
 }
 \value{
-a SummarizedExperiment wiht the inferential replicates
+a SummarizedExperiment with the inferential replicates
 as scaledTPM with library size already corrected (no need for further
 normalization)
 }

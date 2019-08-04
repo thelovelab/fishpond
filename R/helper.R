@@ -26,7 +26,7 @@
 #' at \code{minCount}
 #' @param quiet display no messages
 #'
-#' @return a SummarizedExperiment wiht the inferential replicates
+#' @return a SummarizedExperiment with the inferential replicates
 #' as scaledTPM with library size already corrected (no need for further
 #' normalization)
 #'
