@@ -34,7 +34,8 @@
 #'
 #' y <- makeSimSwishData()
 #' y <- scaleInfReps(y)
-#' 
+#'
+#' @import Rcpp
 #' @export
 scaleInfReps <- function(y, lengthCorrect=TRUE,
                          meanDepth=NULL, sfFun=NULL,

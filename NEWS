@@ -1,3 +1,8 @@
+Changes in version 1.1.16
++ Adding Rcpp-based function readEDS() written by
+  Avi Srivastava which imports the sparse counts stored
+  in Alevin's Efficient Data Storage (EDS) format.
+
 Changes in version 1.1.10
 + Changed the vignette so that it (will) use a linkedTxome,
   as sometime the build would break if the Bioc build
