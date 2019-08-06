@@ -15,7 +15,9 @@ readEDS(files, num.genes, num.cells)
 }
 \value{
 a list, the positions and the expression values of
-the non-zero expressions in the Alevin EDS file
+the non-zero expressions in the Alevin EDS file.
+\strong{NOTE:} the positions are 0-based, i.e. ranging from
+[0, num.cells-1]
 }
 \description{
 readEDS - a utility function for quickly reading in Alevin's EDS format
