@@ -12,15 +12,13 @@ test_that("Reading in Alevin EDS format works", {
   gene.names <- readLines(gene.file)
   num.cells <- length(cell.names)
   num.genes <- length(gene.names)
-  dat <- readEDS(files, num.genes, num.cells)
+  mat <- readEDS(numOfGenes=num.genes, numOfOriginalCells=num.cells, countMatFilename=files)
 
-  # Note! pos is 0-based (says so in ?readEDS)
-  rng <- range(dat$pos[[1]])
-  expect_gte(rng[1], 0)
-  expect_lte(rng[2], num.genes-1)
-  cts <- dat$exp[[1]]
-  expect_gte(min(cts), 0)
-  # max count is definitely < 1 million for this dataset
+  expect_equal(nrow(mat), num.genes)
+  expect_equal(ncol(mat), num.cells)
+  cts <- mat@x
+  # max count is < 1 million for this dataset
   expect_lte(max(cts), 1e6)
+  expect_gte(min(cts), 0)
   
 })

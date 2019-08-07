@@ -4,20 +4,17 @@
 \alias{readEDS}
 \title{readEDS - a utility function for quickly reading in Alevin's EDS format}
 \usage{
-readEDS(files, num.genes, num.cells)
+readEDS(numOfGenes, numOfOriginalCells, countMatFilename)
 }
 \arguments{
-\item{files}{pointer to the EDS file}
+\item{numOfGenes}{number of genes}
 
-\item{num.genes}{number of genes}
+\item{numOfOriginalCells}{number of cells}
 
-\item{num.cells}{number of cells}
+\item{countMatFilename}{pointer to the EDS file, \code{quants_mat.gz}}
 }
 \value{
-a list, the positions and the expression values of
-the non-zero expressions in the Alevin EDS file.
-\strong{NOTE:} the positions are 0-based, i.e. ranging from
-[0, num.cells-1]
+a genes x cells sparse matrix, of the class \code{dgCMatrix}
 }
 \description{
 readEDS - a utility function for quickly reading in Alevin's EDS format
