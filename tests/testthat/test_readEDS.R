@@ -20,5 +20,5 @@ test_that("Reading in Alevin EDS format works", {
   # max count is < 1 million for this dataset
   expect_lte(max(cts), 1e6)
   expect_gte(min(cts), 0)
-  
+
 })

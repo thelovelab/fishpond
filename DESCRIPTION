@@ -1,7 +1,7 @@
 Package: fishpond
 Title: Fishpond: differential transcript and gene expression
     with inferential replicates
-Version: 1.1.20
+Version: 1.1.21
 Author: Anqi Zhu, Avi Srivastava, Joseph Ibrahim, Rob Patro, Michael Love
 Maintainer: Michael Love <michaelisaiahlove@gmail.com>
 Description: Fishpond contains methods for differential transcript
@@ -33,7 +33,7 @@ Suggests:
     samr,
     DESeq2,
     apeglm
-LinkingTo: Rcpp, RcppEigen
+LinkingTo: Rcpp
 SystemRequirements: C++11
 License: GPL-2
 Encoding: UTF-8
