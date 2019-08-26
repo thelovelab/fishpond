@@ -1,3 +1,10 @@
+Changes in version 1.1.22
++ Working on a faster version of Swish which only
+  computes the ranks of the data once, and then re-uses
+  this for the permutation distribution. This by-passes
+  the addition of uniform noise per permutation, but
+  shouldn't negatively affect inference and is 8x faster.
+
 Changes in version 1.1.18
 + Adding Rcpp-based function readEDS() written by
   Avi Srivastava which imports the sparse counts stored

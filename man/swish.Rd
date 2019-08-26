@@ -6,7 +6,7 @@
 \usage{
 swish(y, x, cov = NULL, pair = NULL, interaction = FALSE,
   nperms = 30, estPi0 = FALSE, qvaluePkg = "qvalue", pc = 5,
-  nRandomPairs = 30, quiet = FALSE)
+  nRandomPairs = 30, fast = 0, quiet = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
@@ -49,6 +49,11 @@ in calculation of test statistics, \code{locfdr} or \code{qvalue}}
 \item{nRandomPairs}{the number of random pseudo-pairs (only used with
 \code{interaction=TRUE} and un-matched samples) to use to calculate
 the test statistic}
+
+\item{fast}{an integer, toggles different methods based on speed.
+'0' is for the default method, '1' is roughly 8x faster by avoiding
+re-computing ranks when generating the permutation distribution
+(currently just for the two group analysis)}
 
 \item{quiet}{display no messages}
 }

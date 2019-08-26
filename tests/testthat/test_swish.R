@@ -51,9 +51,13 @@ test_that("basic swish analyses", {
   y <- labelKeep(y)
   y <- swish(y, x="condition", quiet=TRUE)
   expect_true("qvalue" %in% colnames(mcols(y)))
+
   plotInfReps(y, 1, "condition")
   dev.off()
 
+  # try the fast method
+  y <- swish(y, x="condition", fast=1, quiet=TRUE)
+  
   # estimate pi0
   y <- swish(y, x="condition", estPi0=TRUE, qvaluePkg="qvalue", quiet=TRUE)
   y <- swish(y, x="condition", estPi0=TRUE, qvaluePkg="samr", quiet=TRUE)
