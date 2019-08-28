@@ -1,5 +1,5 @@
 swishStrat <- function(infRepsArray, condition, covariate,
-                        nperms=30, pc=5, quiet=FALSE) {
+                        nperms=30, pc=5, fast, quiet=FALSE) {
   stopifnot(is.factor(covariate))
   ngroups <- nlevels(covariate)
   groups <- levels(covariate)
@@ -13,15 +13,26 @@ swishStrat <- function(infRepsArray, condition, covariate,
     cond.sub <- condition[covariate == g]
     perms <- getPerms(cond.sub, nperms)
     nperms <- permsNote(perms, nperms)
-    stats[,i] <- getSamStat(infRepsArray.sub, cond.sub)
+
+    # if fast==1, avoid re-computing the ranks for the permutation distribution
+    if (fast == 1) {
+      out <- getSamStat(infRepsArray.sub, cond.sub, returnRanks=TRUE)
+      stats[,i] <- out$stat
+      ranks <- out$ranks
+    } else {
+      stats[,i] <- getSamStat(infRepsArray.sub, cond.sub)
+      ranks <- NULL
+    }
     lfc.mat[,i] <- getLog2FC(infRepsArray.sub, cond.sub, pc)
+    
     if (!quiet) message(paste0(
                   "Generating test statistics over permutations: ",
                   i,"/",ngroups," groups"))
     for (p in seq_len(nperms)) {
       if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
       nulls.big[,p,i] <- getSamStat(infRepsArray.sub,
-                                    cond.sub[perms$perms[p,]])
+                                    cond.sub[perms$perms[p,]],
+                                    ranks=ranks)
     }
     if (!quiet) message("")
   }

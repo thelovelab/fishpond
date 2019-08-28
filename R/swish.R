@@ -31,10 +31,15 @@
 #' @param nRandomPairs the number of random pseudo-pairs (only used with
 #' \code{interaction=TRUE} and un-matched samples) to use to calculate
 #' the test statistic
-#' @param fast an integer, toggles different methods based on speed.
-#' '0' is for the default method, '1' is roughly 8x faster by avoiding
-#' re-computing ranks when generating the permutation distribution
-#' (currently just for the two group analysis)
+#' @param fast an integer, toggles different methods based on speed
+#' (\code{fast=1} is default).
+#' '0' involves recomputing ranks of the inferential replicates for each permutation,
+#' '1' is roughly 10x faster by avoiding re-computing ranks for each permutation.
+#' The \code{fast} argument is only used/relevant for the following three
+#' experimental designs: (1) two group Wilcoxon, (2) stratified Wilcoxon, e.g.
+#' \code{cov} is specified, and (3) the paired interaction test,
+#' e.g. \code{pair} and \code{cov} are specified. For paired design and
+#' general interaction test, there are not fast/slow alternatives.
 #' @param quiet display no messages
 #'
 #' @return a SummarizedExperiment with metadata columns added:
@@ -99,7 +104,7 @@
 swish <- function(y, x, cov=NULL, pair=NULL,
                   interaction=FALSE, nperms=30, 
                   estPi0=FALSE, qvaluePkg="qvalue",
-                  pc=5, nRandomPairs=30, fast=0,
+                  pc=5, nRandomPairs=30, fast=1,
                   quiet=FALSE) {
 
   stopifnot(is(y, "SummarizedExperiment"))
@@ -139,7 +144,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]] # covariate, e.g. batch effects
     out <- swishStrat(infRepsArray, condition, covariate,
-                      nperms, pc, quiet)
+                      nperms, pc, fast, quiet)
     
   } else if (!interaction & !is.null(pair)) {
     # two group with matched samples
@@ -156,7 +161,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     pair <- colData(y)[[pair]]
     out <- swishInterxPair(infRepsArray, condition,
                            covariate, pair, nperms,
-                           pc, quiet)
+                           pc, fast, quiet)
     
   } else if (interaction & is.null(pair)) {
     # two group 'x', two group 'cov', samples not matched
@@ -198,66 +203,54 @@ getInfReps <- function(ys) {
 }
 
 swishTwoGroup <- function(infRepsArray, condition,
-                          nperms=30, pc=5, fast=0, quiet=FALSE) {
+                          nperms=30, pc=5, fast, quiet=FALSE) {
   dims <- dim(infRepsArray)
-  stat <- getSamStat(infRepsArray, condition)
+  # if fast==1, avoid re-computing the ranks for the permutation distribution
+  if (fast == 1) {
+    out <- getSamStat(infRepsArray, condition, returnRanks=TRUE)
+    stat <- out$stat
+    ranks <- out$ranks
+  } else {
+    stat <- getSamStat(infRepsArray, condition)
+    ranks <- NULL
+  }
   log2FC <- getLog2FC(infRepsArray, condition, pc)
   perms <- getPerms(condition, nperms)
   nperms <- permsNote(perms, nperms)
   if (!quiet) message("Generating test statistics over permutations")
-  if (fast == 0) {
-    nulls <- matrix(nrow=dims[1], ncol=nperms)
-    for (p in seq_len(nperms)) {
-      if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
-      nulls[,p] <- getSamStat(infRepsArray,
-                              condition[perms$perms[p,]])
-    }
-  } else if (fast == 1) {
-    # avoid re-computing the ranks for the permutation distribution
-    # TODO, re-use ranks from `getSamStat` call above
-    nulls <- permSamStat(infRepsArray, condition, perms$perms, quiet)
+  nulls <- matrix(nrow=dims[1], ncol=nperms)
+  for (p in seq_len(nperms)) {
+    if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
+    nulls[,p] <- getSamStat(infRepsArray,
+                            condition[perms$perms[p,]],
+                            ranks=ranks)
   }
   if (!quiet) message("")
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
-getSamStat <- function(infRepsArray, condition) {
+getSamStat <- function(infRepsArray, condition, ranks=NULL, returnRanks=FALSE) {
   dims <- dim(infRepsArray)
-  ranks <- array(dim=dims)
-  for (k in seq_len(dims[3])) {
-    # modified from samr:::resample
-    ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] +
-                    0.1 * runif(dims[1]*dims[2]))
+  # calculate ranks if they are not provided...
+  # for fast=1, we instead use the pre-calculated ranks to save time
+  if (is.null(ranks)) {
+    ranks <- array(dim=dims)
+    for (k in seq_len(dims[3])) {
+      # modified from samr:::resample
+      ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] +
+                                          0.1 * runif(dims[1]*dims[2]))
+    }
   }
   cond2 <- condition == levels(condition)[2]
   rankSums <- vapply(seq_len(dims[3]), function(i)
     rowSums(ranks[,cond2,i]), numeric(dims[1]))
   # Wilcoxon, centered on 0:
   W <- rankSums - sum(cond2) * (dims[2] + 1)/2
-  rowMeans(W)
-}
-
-permSamStat <- function(infRepsArray, condition, perms, quiet=FALSE) {
-  nperms <- nrow(perms)
-  dims <- dim(infRepsArray)
-  ranks <- array(dim=dims)
-  # compute ranks only to save time
-  for (k in seq_len(dims[3])) {
-    # modified from samr:::resample
-    ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] +
-                    0.1 * runif(dims[1]*dims[2]))
+  if (returnRanks) {
+    list(stat=rowMeans(W), ranks=ranks)
+  } else {
+    rowMeans(W)
   }
-  nulls <- matrix(nrow=dims[1], ncol=nperms)
-  for (p in seq_len(nperms)) {
-    if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
-    cond2 <- condition[perms[p,]] == levels(condition)[2]
-    rankSums <- vapply(seq_len(dims[3]), function(i)
-      rowSums(ranks[,cond2,i]), numeric(dims[1]))
-    # Wilcoxon, centered on 0:
-    W <- rankSums - sum(cond2) * (dims[2] + 1)/2
-    nulls[,p] <- rowMeans(W)
-  }
-  nulls
 }
 
 getLog2FC <- function(infRepsArray, condition, pc=5, array=FALSE) {

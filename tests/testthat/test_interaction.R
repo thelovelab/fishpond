@@ -25,6 +25,9 @@ test_that("matched samples interactions work", {
 
   expect_true(mcols(y)$pvalue[2] < .01)
 
+  # try the old, slower method
+  y <- swish(y, x="condition", cov="group", pair="pair", interaction=TRUE, fast=0, quiet=TRUE)
+
 })
 
 test_that("two group interactions work", {

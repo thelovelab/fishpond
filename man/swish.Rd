@@ -6,7 +6,7 @@
 \usage{
 swish(y, x, cov = NULL, pair = NULL, interaction = FALSE,
   nperms = 30, estPi0 = FALSE, qvaluePkg = "qvalue", pc = 5,
-  nRandomPairs = 30, fast = 0, quiet = FALSE)
+  nRandomPairs = 30, fast = 1, quiet = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
@@ -50,10 +50,15 @@ in calculation of test statistics, \code{locfdr} or \code{qvalue}}
 \code{interaction=TRUE} and un-matched samples) to use to calculate
 the test statistic}
 
-\item{fast}{an integer, toggles different methods based on speed.
-'0' is for the default method, '1' is roughly 8x faster by avoiding
-re-computing ranks when generating the permutation distribution
-(currently just for the two group analysis)}
+\item{fast}{an integer, toggles different methods based on speed
+(\code{fast=1} is default).
+'0' involves recomputing ranks of the inferential replicates for each permutation,
+'1' is roughly 10x faster by avoiding re-computing ranks for each permutation.
+The \code{fast} argument is only used/relevant for the following three
+experimental designs: (1) two group Wilcoxon, (2) stratified Wilcoxon, e.g.
+\code{cov} is specified, and (3) the paired interaction test,
+e.g. \code{pair} and \code{cov} are specified. For paired design and
+general interaction test, there are not fast/slow alternatives.}
 
 \item{quiet}{display no messages}
 }

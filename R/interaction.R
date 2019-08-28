@@ -1,5 +1,5 @@
 swishInterxPair <- function(infRepsArray, condition, covariate, pair,
-                              nperms=30, pc=5, quiet=FALSE) {
+                              nperms=30, pc=5, fast, quiet=FALSE) {
   stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair)) 
   pair <- as.integer(factor(pair))
   if (!all(table(pair, condition) == 1))
@@ -9,11 +9,17 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
     stop("'pair' should be nested within 'covariate'")
   dims <- dim(infRepsArray)
 
-  out <- getInterxPairStat(infRepsArray, condition, covariate,
-                           pair, pc)
+  out <- getInterxPairStat(infRepsArray, condition, covariate, pair, pc)
   stat <- out$stat
   group <- out$group
   lfcArray <- out$lfcArray
+
+  # if fast==1, avoid re-computing the ranks for the permutation distribution
+  if (fast == 1) {
+    ranks <- out$ranks
+  } else {
+    ranks <- NULL
+  }
   
   grp1 <- group == levels(group)[1]
   grp2 <- group == levels(group)[2]
@@ -32,7 +38,8 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
   for (p in seq_len(nperms)) {
     if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getSamStat(lfcArray,
-                            group[perms$perms[p,]])
+                            group[perms$perms[p,]],
+                            ranks=ranks)
   }
   if (!quiet) message("")
   list(stat=stat, log2FC=log2FC, nulls=nulls)
@@ -119,8 +126,8 @@ getInterxPairStat <- function(infRepsArray, condition, covariate, pair, pc) {
   group <- dat$covariate # this is now along 'lfcArray'
   stopifnot(length(group) == dim(lfcArray)[2])
   # here we perform Wilcoxon rank sum testing of the condition LFCs across group
-  stat <- getSamStat(lfcArray, group)
-  list(stat=stat, group=group, lfcArray=lfcArray)
+  out <- getSamStat(lfcArray, group, returnRanks=TRUE)
+  list(stat=out$stat, ranks=out$ranks, group=group, lfcArray=lfcArray)
 }
 
 getDeltaLFC <- function(infRepsArray, condition, covariate, pc) {

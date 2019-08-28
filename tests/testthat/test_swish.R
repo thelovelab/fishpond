@@ -55,8 +55,8 @@ test_that("basic swish analyses", {
   plotInfReps(y, 1, "condition")
   dev.off()
 
-  # try the fast method
-  y <- swish(y, x="condition", fast=1, quiet=TRUE)
+  # try the old, slow method
+  y <- swish(y, x="condition", fast=0, quiet=TRUE)
   
   # estimate pi0
   y <- swish(y, x="condition", estPi0=TRUE, qvaluePkg="qvalue", quiet=TRUE)
@@ -73,6 +73,9 @@ test_that("basic swish analyses", {
   y <- swish(y, x="condition", cov="batch", quiet=TRUE)
   plotInfReps(y, 1, "condition", "batch")
   dev.off()
+
+  # try the old, slow method
+  y <- swish(y, x="condition", cov="batch", fast=0, quiet=TRUE)
   
   # two group, matched samples
   y <- makeSimSwishData()
