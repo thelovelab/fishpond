@@ -33,7 +33,8 @@
 #'
 #' @examples
 #'
-#' y <- makeSimSwishData()
+#' # a small example... 500 genes, 10 inf reps
+#' y <- makeSimSwishData(m=500, numReps=10)
 #' y <- labelKeep(y)
 #' y <- deswish(y, ~condition, "condition_2_vs_1")
 #' 
@@ -44,7 +45,7 @@ deswish <- function(y, x, coef) {
 
   ys.cts <- ys
   assays(ys.cts) <- assays(ys.cts)[c("counts","length")]
-
+  
   if (!requireNamespace("DESeq2", quietly=TRUE)) {
     stop("deswish requires the DESeq2 package")
   }
