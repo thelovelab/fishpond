@@ -75,7 +75,7 @@ y <- y[mcols(y)$keep,]
 A gene-level analysis looks identical to a transcript-level analysis,
 only the input data changes. Examples follow.
 
-Lastly, what is the structure of the output of `tximeta`, which is
+Lastly, what is the structure of the output of `tximeta` [@tximeta], which is
 used in `swish`? See the section below, *Structure of tximeta
 output / swish input*.
 
@@ -158,7 +158,7 @@ all(file.exists(coldata$files))
 We will read in quantification data for some of the samples. First we
 load the *SummarizedExperiment* package. We will store out data and
 the output of the statistical method in a *SummarizedExperiment*
-object. 
+object. We use the *tximeta* [@tximeta] package to read in the data:
 
 ```{r}
 suppressPackageStartupMessages(library(SummarizedExperiment))
