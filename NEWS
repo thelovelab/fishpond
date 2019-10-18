@@ -1,4 +1,4 @@
-Changes in version 1.1.23
+Changes in version 1.2.0
 + Switching to a faster version of Swish which only
   computes the ranks of the data once, and then re-uses
   this for the permutation distribution. This bypasses
@@ -10,23 +10,15 @@ Changes in version 1.1.23
   interaction analysis now default to the new fast
   method, but the original, slower method can be used
   by setting fast=0 in the call to swish().
-
-Changes in version 1.1.18
 + Adding Rcpp-based function readEDS() written by
   Avi Srivastava which imports the sparse counts stored
   in Alevin's Efficient Data Storage (EDS) format.
-
-Changes in version 1.1.10
 + Changed the vignette so that it (will) use a linkedTxome,
   as sometime the build would break if the Bioc build
   machine couldn't access ftp.ebi.ac.uk.
-
-Changes in version 1.1.6
 + Add 'computeInfRV' function. InfRV is not used in the
   Swish methods, only for visualization purposes in the
   Swish paper.
-
-Changes in version 1.1.1
 + removed 'samr' from Imports, as it required source
   installation, moved to Suggests, for optional qvalue
   calculation
