@@ -1,7 +1,7 @@
 Package: fishpond
 Title: Fishpond: differential transcript and gene expression
     with inferential replicates
-Version: 1.3.0
+Version: 1.3.1
 Author: Anqi Zhu, Avi Srivastava, Joseph Ibrahim, Rob Patro, Michael Love
 Maintainer: Michael Love <michaelisaiahlove@gmail.com>
 Description: Fishpond contains methods for differential transcript
@@ -11,28 +11,10 @@ Description: Fishpond contains methods for differential transcript
     package contains utilities for working with Salmon and Alevin
     quantification files.
 Imports:
-    graphics,
-    stats,
-    utils,
-    methods,
-    abind,
-    gtools,
-    qvalue,
-    S4Vectors,
-    SummarizedExperiment,
-    matrixStats,
-    svMisc,
-    Rcpp
-Suggests:
-    testthat,
-    knitr,
-    rmarkdown,
-    macrophage,
-    tximeta,
-    org.Hs.eg.db,
-    samr,
-    DESeq2,
-    apeglm
+    graphics, stats, utils, methods, abind, gtools, qvalue, S4Vectors,
+    SummarizedExperiment, matrixStats, svMisc, Rcpp
+Suggests: testthat, knitr, rmarkdown, macrophage, tximeta, org.Hs.eg.db,
+    samr, DESeq2, apeglm
 LinkingTo: Rcpp
 SystemRequirements: C++11
 License: GPL-2
