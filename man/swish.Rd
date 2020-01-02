@@ -4,9 +4,20 @@
 \alias{swish}
 \title{swish: SAMseq With Inferential Samples Helps}
 \usage{
-swish(y, x, cov = NULL, pair = NULL, interaction = FALSE,
-  nperms = 30, estPi0 = FALSE, qvaluePkg = "qvalue", pc = 5,
-  nRandomPairs = 30, fast = 1, quiet = FALSE)
+swish(
+  y,
+  x,
+  cov = NULL,
+  pair = NULL,
+  interaction = FALSE,
+  nperms = 100,
+  estPi0 = FALSE,
+  qvaluePkg = "qvalue",
+  pc = 5,
+  nRandomPairs = 30,
+  fast = 1,
+  quiet = FALSE
+)
 }
 \arguments{
 \item{y}{a SummarizedExperiment containing the inferential replicate
@@ -36,7 +47,9 @@ of matched sample LFCs. If \code{pair} is not included, multiple
 random pairs of samples within the two groups are chosen,
 and again a Wilcoxon rank sum test compared the LFCs across groups.}
 
-\item{nperms}{the number of permutations}
+\item{nperms}{the number of permutations. if set above the possible
+number of permutations, the function will print a message that the
+value is set to the maximum number of permutations possible}
 
 \item{estPi0}{logical, whether to estimate pi0}
 

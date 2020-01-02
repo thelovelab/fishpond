@@ -62,7 +62,9 @@ NULL
 #' of matched sample LFCs. If \code{pair} is not included, multiple
 #' random pairs of samples within the two groups are chosen,
 #' and again a Wilcoxon rank sum test compared the LFCs across groups.
-#' @param nperms the number of permutations
+#' @param nperms the number of permutations. if set above the possible
+#' number of permutations, the function will print a message that the
+#' value is set to the maximum number of permutations possible
 #' @param estPi0 logical, whether to estimate pi0
 #' @param qvaluePkg character, which package to use for q-value estimation,
 #' \code{samr} or \code{qvalue}
@@ -142,7 +144,7 @@ NULL
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
-                  interaction=FALSE, nperms=30, 
+                  interaction=FALSE, nperms=100, 
                   estPi0=FALSE, qvaluePkg="qvalue",
                   pc=5, nRandomPairs=30, fast=1,
                   quiet=FALSE) {
@@ -243,7 +245,7 @@ getInfReps <- function(ys) {
 }
 
 swishTwoGroup <- function(infRepsArray, condition,
-                          nperms=30, pc=5, fast, quiet=FALSE) {
+                          nperms=100, pc=5, fast, quiet=FALSE) {
   dims <- dim(infRepsArray)
   # if fast==1, avoid re-computing the ranks for the permutation distribution
   if (fast == 1) {

@@ -1,3 +1,12 @@
+Changes in version 1.3.4
++ Default number of permutations increased from 30 to 100.
+  It was observed that there was too much fluctuation in the
+  DE called set for nperms=30 across different seeds, and
+  setting to 100 helped to stabilize results across seeds,
+  without increasing running time too much. For further reduced
+  dependence on the seed, even higher values of nperms
+  (e.g. 200, 300) can be used.
+
 Changes in version 1.2.0
 + Switching to a faster version of Swish which only
   computes the ranks of the data once, and then re-uses

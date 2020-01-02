@@ -1,5 +1,5 @@
 swishInterxPair <- function(infRepsArray, condition, covariate, pair,
-                              nperms=30, pc=5, fast, quiet=FALSE) {
+                              nperms=100, pc=5, fast, quiet=FALSE) {
   stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair)) 
   pair <- as.integer(factor(pair))
   if (!all(table(pair, condition) == 1))
@@ -46,7 +46,7 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
 }
 
 swishInterx <- function(infRepsArray, condition, covariate,
-                        nperms=30, pc=5, nRandomPairs=30,
+                        nperms=100, pc=5, nRandomPairs=30,
                         quiet=FALSE) {
   stopifnot(nlevels(covariate) == 2)
   if (!all(table(condition, covariate) > 0))

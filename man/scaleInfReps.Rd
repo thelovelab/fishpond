@@ -4,8 +4,15 @@
 \alias{scaleInfReps}
 \title{Scale inferential replicate counts}
 \usage{
-scaleInfReps(y, lengthCorrect = TRUE, meanDepth = NULL, sfFun = NULL,
-  minCount = 10, minN = 3, quiet = FALSE)
+scaleInfReps(
+  y,
+  lengthCorrect = TRUE,
+  meanDepth = NULL,
+  sfFun = NULL,
+  minCount = 10,
+  minN = 3,
+  quiet = FALSE
+)
 }
 \arguments{
 \item{y}{a SummarizedExperiment with: \code{infReps} a list of

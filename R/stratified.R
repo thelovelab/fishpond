@@ -1,5 +1,5 @@
 swishStrat <- function(infRepsArray, condition, covariate,
-                        nperms=30, pc=5, fast, quiet=FALSE) {
+                        nperms=100, pc=5, fast, quiet=FALSE) {
   stopifnot(is.factor(covariate))
   ngroups <- nlevels(covariate)
   groups <- levels(covariate)

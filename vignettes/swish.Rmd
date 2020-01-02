@@ -229,8 +229,16 @@ Running `swish` has three steps: scaling the inferential replicates,
 labeling the rows with sufficient counts for running differential
 expression, and then calculating the statistics. As `swish` makes use
 of pseudo-random number generation in breaking ties and in calculating
-permutations (through *samr*), to obtain identical results, one needs
-to set a random seed before running `swish()`, as we do below:
+permutations, to obtain identical results, one needs to set a random
+seed before running `swish()`, as we do below.
+
+The default number of permutations in `swish` is
+`nperms=100`. However, for paired datasets as this one, you may have
+fewer maximum permutations. In this case, there are 64 possible ways
+to switch the condition labels for six pairs of samples. We can set
+the `nperms` manually (or if we had just used the default value,
+`swish` would set `nperms` to the maximum value possible and notify
+the user that it had done so).
 
 ```{r results="hide", message=FALSE}
 library(fishpond)
@@ -238,7 +246,7 @@ y <- scaleInfReps(y)
 y <- labelKeep(y)
 y <- y[mcols(y)$keep,]
 set.seed(1)
-y <- swish(y, x="condition", pair="line")
+y <- swish(y, x="condition", pair="line", nperms=64)
 ```
 
 A note about `labelKeep`: by default we keep features with `minN=3`
@@ -374,7 +382,7 @@ gy <- scaleInfReps(gy)
 gy <- labelKeep(gy)
 gy <- gy[mcols(gy)$keep,]
 set.seed(1)
-gy <- swish(gy, x="condition", pair="line")
+gy <- swish(gy, x="condition", pair="line", nperms=64)
 ```
 
 As before, the number of genes in a 1% FDR set:
