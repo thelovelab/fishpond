@@ -358,6 +358,7 @@ makeSamrObj <- function(stat, nulls, pi0) {
 permsNote <- function(perms, nperms) {
   if (perms$nperms.act < nperms) {
     message("note: less permutations are available than requested")
+    message(paste(length(perms$nperms.act), "are available"))
     perms$nperms.act
   } else {
     nperms
