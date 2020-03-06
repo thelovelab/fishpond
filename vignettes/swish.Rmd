@@ -453,6 +453,29 @@ with(
 )
 ```
 
+```{r eval=FALSE, echo=FALSE}
+# some unevaluated code for looking into DTE within non-DGE gene
+# (DTE vs DGE plot)
+fisherP <- function(p) {
+  pchisq(-2 * sum(log(p)), 2*length(p), lower.tail=FALSE)
+}
+stopifnot(all(lengths(mcols(y)$gene_id) == 1))
+dat <- as.data.frame(mcols(y)[,c("gene_id","pvalue")])
+dat$gene_id <- unlist(dat$gene_id)
+pvals <- tapply(dat$pvalue, dat$gene_id, fisherP)
+dte <- data.frame(gene_id=names(pvals), pvalue=pvals)
+dte <- dte[rownames(gy),]
+plot(-log10(mcols(gy)$pvalue), -log10(dte$pvalue))
+#identify(-log10(mcols(gy)$pvalue), -log10(dte$pvalue))
+idx <- 193
+idx2 <- which(unlist(mcols(y)$gene_id) == rownames(gy)[idx])
+plotInfReps(gy, idx, x="condition", cov="line", xaxis=FALSE)
+par(mfrow=c(1,3))
+for (i in 1:3) {
+  plotInfReps(y, idx2[i], x="condition", cov="line", xaxis=FALSE)
+}
+```
+
 # Interaction designs
 
 We also provide in `swish` methods for testing if a condition effect
