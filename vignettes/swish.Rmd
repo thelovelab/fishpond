@@ -39,6 +39,9 @@ example of differential analysis of matched samples, and an
 interaction test for matched samples, to see if a condition effect
 changes in magnitude across two groups of samples.
 
+**Acknowledgments:** We have benefited in the development of *Swish*
+from the feedback of Hirak Sarkar.
+
 # Quick start
 
 The following lines of code will perform a basic transcript-level
