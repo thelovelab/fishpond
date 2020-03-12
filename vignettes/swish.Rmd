@@ -456,6 +456,29 @@ with(
 )
 ```
 
+# Differential transcript usage
+
+We have added a new function `isoformProportions` which can be run
+after `scaleInfReps` (and optionally after removing genes via 
+`labelKeep` and subsetting the SummarizedExperiment). This function,
+`isoformProportions` will create a new assay `isoProp` from the
+scaledTPM counts, contain isoform proportions per gene. The same
+procedure will also be applied to all the inferential replicates. Note
+that after `isoformProportions` the transcripts from single isoform
+genes will be removed, and the transcripts will be re-ordered by gene
+(alphabetically by gene).
+
+Following this function, running `swish` will be equivalent to a test
+of differential transcript usage, taking account of the uncertainty in
+transcript abundances, as it will look for transcripts where the
+isoform proportions change across condition.
+
+```{r}
+# run on the transcript-level dataset
+iso <- isoformProportions(y)
+iso <- swish(iso, x="condition", pair="line", nperms=64)
+```
+
 ```{r eval=FALSE, echo=FALSE}
 # some unevaluated code for looking into DTE within non-DGE gene
 # (DTE vs DGE plot)

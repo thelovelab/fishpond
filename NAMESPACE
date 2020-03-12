@@ -2,6 +2,7 @@
 
 export(computeInfRV)
 export(deswish)
+export(isoformProportions)
 export(labelKeep)
 export(makeSimSwishData)
 export(plotInfReps)

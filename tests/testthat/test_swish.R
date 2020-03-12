@@ -55,6 +55,12 @@ test_that("basic swish analyses", {
   plotInfReps(y, 1, "condition")
   dev.off()
 
+  # differential transcript usage
+  # requires a gene ID column
+  mcols(y)$gene_id <- as.character(rep(1:(nrow(y)/5), each=5))
+  iso <- isoformProportions(y, quiet=TRUE)
+  iso <- swish(iso, x="condition", quiet=TRUE)
+  
   # try the old, slow method
   y <- swish(y, x="condition", fast=0, quiet=TRUE)
   

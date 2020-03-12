@@ -12,6 +12,7 @@
 #' \item \code{\link{labelKeep}} - labelling which features have sufficient counts
 #' \item \code{\link{swish}} - perform non-parametric differential analysis
 #' \item Plots, e.g., \code{\link{plotMASwish}}, \code{\link{plotInfReps}}
+#' \item \code{\link{isoformProportions}} - convert counts to isoform proportions
 #' }
 #' 
 #' All software-related questions should be posted to the Bioconductor Support Site:
