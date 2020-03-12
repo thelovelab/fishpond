@@ -462,7 +462,7 @@ We have added a new function `isoformProportions` which can be run
 after `scaleInfReps` (and optionally after removing genes via 
 `labelKeep` and subsetting the SummarizedExperiment). This function,
 `isoformProportions` will create a new assay `isoProp` from the
-scaledTPM counts, contain isoform proportions per gene. The same
+scaledTPM counts, containing isoform proportions per gene. The same
 procedure will also be applied to all the inferential replicates. Note
 that after `isoformProportions` the transcripts from single isoform
 genes will be removed, and the transcripts will be re-ordered by gene
