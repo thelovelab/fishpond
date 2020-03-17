@@ -176,6 +176,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   condition <- colData(y)[[x]]
   stopifnot(is.factor(condition))
   stopifnot(nlevels(condition) == 2)
+  stopifnot(!anyNA(condition))
 
   if (!interaction & is.null(cov) & is.null(pair)) {
     # basic two group

@@ -1,6 +1,8 @@
 swishInterxPair <- function(infRepsArray, condition, covariate, pair,
                               nperms=100, pc=5, fast, quiet=FALSE) {
-  stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair)) 
+  stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair))
+  stopifnot(!anyNA(covariate))
+  stopifnot(!anyNA(pair))
   pair <- as.integer(factor(pair))
   if (!all(table(pair, condition) == 1))
     stop("'pair' should have a single sample for both levels of 'condition'")
@@ -49,6 +51,7 @@ swishInterx <- function(infRepsArray, condition, covariate,
                         nperms=100, pc=5, nRandomPairs=30,
                         quiet=FALSE) {
   stopifnot(nlevels(covariate) == 2)
+  stopifnot(!anyNA(covariate))
   if (!all(table(condition, covariate) > 0))
     stop("swish with interaction across two variables requires samples for each combination")
   dims <- dim(infRepsArray)

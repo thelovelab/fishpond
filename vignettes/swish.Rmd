@@ -577,7 +577,7 @@ record which samples are related within a group based on IFN gamma
 treatment status.
 
 ```{r}
-y2$pair <- as.numeric(y2$line)
+y2$pair <- as.numeric(factor(y2$line))
 y2$pair[y2$ifng == "control"]
 y2$pair[y2$ifng == "treated"]
 y2$pair[y2$ifng == "treated"] <- rep(7:12,each=2)
