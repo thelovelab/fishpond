@@ -108,6 +108,31 @@ test_that("infRV calculation and plotting", {
   
 })
 
+test_that("alevin to fishpond", {
+
+  if (FALSE) {
+
+    dir <- system.file("extdata", package="tximportData")
+    files <- file.path(dir,"alevin/neurons_900_v014/alevin/quants_mat.gz")
+    file.exists(files)
+    library(tximeta)
+    se <- tximeta(files, type="alevin") # this makes a ~1 Gb SE
+    se <- se[1:1000,1:100] # 12 Mb
+    y <- se
+
+    y <- labelKeep(y, minCount=3, minN=10)
+    y <- y[mcols(y)$keep,]
+
+    assays(y) <- lapply(assays(y), as.matrix)
+    y <- scaleInfReps(y, lengthCorrect=FALSE)
+    y$condition <- factor(rep(1:2, each=50))
+    y <- swish(y, x="condition")
+    hist(mcols(y)$pvalue)
+
+  }
+  
+})
+
 test_that("basic deswish analyses", {
 
   y <- makeSimSwishData()
@@ -115,3 +140,4 @@ test_that("basic deswish analyses", {
   y <- deswish(y, ~condition, "condition_2_vs_1")
   
 })
+

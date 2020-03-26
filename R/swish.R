@@ -142,6 +142,7 @@ NULL
 #' assays assays<- colData colData<- mcols mcols<-
 #' @importFrom S4Vectors DataFrame metadata metadata<-
 #' @importFrom gtools permutations
+#' @importFrom Matrix rowSums
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,

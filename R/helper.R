@@ -56,6 +56,12 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
     meanDepth <- exp(mean(log(colSums(counts))))
   }
   means <- matrix(nrow=nrow(y), ncol=nreps)
+  if (is.null(length)) {
+    if (lengthCorrect) {
+      if (!quiet) message("not correcting for feature length (lengthCorrect=FALSE)")
+    }
+    lengthCorrect <- FALSE
+  }
   for (k in seq_len(nreps)) {
     if (!quiet) svMisc::progress(k, max.value=nreps, init=(k==1), gui=FALSE)
     if (lengthCorrect) {
@@ -125,7 +131,12 @@ labelKeep <- function(y, minCount=10, minN=3, x) {
       minN <- 10 + (minN - 10) * 0.7
     }
   }
-  keep <- rowSums(assays(y)[["counts"]] >= minCount) >= minN
+  cts <- assays(y)[["counts"]]
+  if (is(cts, "dgCMatrix")) {
+    keep <- Matrix::rowSums(cts >= minCount) >= minN
+  } else {
+    keep <- rowSums(cts >= minCount) >= minN
+  }
   mcols(y)$keep <- keep
   metadata(y)$preprocessed <- TRUE
   y
