@@ -3,6 +3,7 @@
 #' @param numOfGenes number of genes
 #' @param numOfOriginalCells number of cells
 #' @param countMatFilename pointer to the EDS file, \code{quants_mat.gz}
+#' @param tierImport whether the \code{countMatFilename} refers to a quants tier file
 #'
 #' @return a genes x cells sparse matrix, of the class \code{dgCMatrix}
 #'

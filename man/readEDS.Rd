@@ -4,7 +4,7 @@
 \alias{readEDS}
 \title{readEDS - a utility function for quickly reading in Alevin's EDS format}
 \usage{
-readEDS(numOfGenes, numOfOriginalCells, countMatFilename)
+readEDS(numOfGenes, numOfOriginalCells, countMatFilename, tierImport = FALSE)
 }
 \arguments{
 \item{numOfGenes}{number of genes}
@@ -12,6 +12,8 @@ readEDS(numOfGenes, numOfOriginalCells, countMatFilename)
 \item{numOfOriginalCells}{number of cells}
 
 \item{countMatFilename}{pointer to the EDS file, \code{quants_mat.gz}}
+
+\item{tierImport}{whether the \code{countMatFilename} refers to a quants tier file}
 }
 \value{
 a genes x cells sparse matrix, of the class \code{dgCMatrix}
