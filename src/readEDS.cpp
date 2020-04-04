@@ -15,7 +15,8 @@ using namespace Rcpp;
 // C++ internal function to figure out the spaces to reserve
 size_t getReserveSpaces(size_t numOfGenes, size_t numOfOriginalCells,
                       Rcpp::IntegerVector& bitVecLengths,
-                      std::string& countMatFilename) {
+                      std::string& countMatFilename,
+                      bool tierImport = false) {
 
   // opening gzipped compressed stream
   gzFile fileHandler = gzopen(countMatFilename.c_str(), "rb") ;
@@ -27,9 +28,10 @@ size_t getReserveSpaces(size_t numOfGenes, size_t numOfOriginalCells,
   std::vector<uint8_t> alphasFlag (numFlags, 0);
 
   // getting the sizs of u8 and float 32
+  size_t totalSpace { 0 };
   size_t flagSize = sizeof(decltype(alphasFlag)::value_type);
   size_t elSize = sizeof(float);
-  size_t totalSpace { 0 };
+  if(tierImport) { elSize = sizeof(uint8_t); }
 
   // iterating over cells
   for (size_t cellId = 0 ; cellId < numOfOriginalCells ; ++cellId) {
@@ -57,14 +59,38 @@ size_t getReserveSpaces(size_t numOfGenes, size_t numOfOriginalCells,
   return totalSpace;
 }
 
+template <typename T>
+bool populateCounts(size_t elSize, size_t numExpGenes, gzFile& fileHandler,
+                    size_t& valCounter, size_t totalSpace, 
+                    Rcpp::NumericVector& values) {
+    // reading in the expression
+    std::vector<T> alphasSparse(numExpGenes);
+    gzread(fileHandler, reinterpret_cast<char*>(alphasSparse.data()), elSize * numExpGenes);
+
+    // saving the positions and expression
+    for (size_t i = 0; i < numExpGenes; i++) {
+      if ( valCounter >= totalSpace ) {
+        return false;
+      }
+
+      values[valCounter] = alphasSparse[i];
+      valCounter += 1;
+    }
+
+    return true;
+}
+
 // [[Rcpp::export]]
-SEXP getSparseMatrix(size_t numOfGenes, size_t numOfOriginalCells, std::string countMatFilename) {
+SEXP getSparseMatrix(size_t numOfGenes, size_t numOfOriginalCells, 
+                     std::string countMatFilename,
+                     bool tierImport = false) {
   Rcpp::S4 mat("dgCMatrix");
   
   // initializing vector to store bitvecSpaces
   Rcpp::IntegerVector bitVecLengths(numOfOriginalCells + 1, 0);
-  size_t totalSpace = getReserveSpaces( numOfGenes, numOfOriginalCells, 
-                                        bitVecLengths, countMatFilename );
+  size_t totalSpace = getReserveSpaces(numOfGenes, numOfOriginalCells, 
+                                       bitVecLengths, countMatFilename,
+                                       tierImport);
 
   // initializing sparse matrix
   typedef Rcpp::NumericVector ValuesT;
@@ -86,6 +112,7 @@ SEXP getSparseMatrix(size_t numOfGenes, size_t numOfOriginalCells, std::string c
   // getting the sizs of u8 and float 32
   size_t flagSize = sizeof(decltype(alphasFlag)::value_type);
   size_t elSize = sizeof(float);
+  if(tierImport) { elSize = sizeof(uint8_t); }
 
   size_t valCounter { 0 };
   // iterating over cells
@@ -112,18 +139,13 @@ SEXP getSparseMatrix(size_t numOfGenes, size_t numOfOriginalCells, std::string c
       }
     }
     
-    // reading in the expression
-    std::vector<float> alphasSparse(numExpGenes);
-    gzread(fileHandler, reinterpret_cast<char*>(alphasSparse.data()), elSize * numExpGenes);
+    bool parseOk = tierImport ? populateCounts<uint8_t>(elSize, numExpGenes, fileHandler,
+                                                        valCounter, totalSpace, values) :
+                                populateCounts<float>(elSize, numExpGenes, fileHandler,
+                                                      valCounter, totalSpace, values);
 
-    // saving the positions and expression
-    for (size_t i = 0; i < numExpGenes; i++) {
-      if ( valCounter >= totalSpace ) {
+    if ( not parseOk ) {
         return Rcpp::List();
-      }
-
-      values[valCounter] = alphasSparse[i];
-      valCounter += 1;
     }
   }
 
