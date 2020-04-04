@@ -6,21 +6,22 @@
 using namespace Rcpp;
 
 // getSparseMatrix
-SEXP getSparseMatrix(size_t numOfGenes, size_t numOfOriginalCells, std::string countMatFilename);
-RcppExport SEXP _fishpond_getSparseMatrix(SEXP numOfGenesSEXP, SEXP numOfOriginalCellsSEXP, SEXP countMatFilenameSEXP) {
+SEXP getSparseMatrix(size_t numOfGenes, size_t numOfOriginalCells, std::string countMatFilename, bool tierImport);
+RcppExport SEXP _fishpond_getSparseMatrix(SEXP numOfGenesSEXP, SEXP numOfOriginalCellsSEXP, SEXP countMatFilenameSEXP, SEXP tierImportSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< size_t >::type numOfGenes(numOfGenesSEXP);
     Rcpp::traits::input_parameter< size_t >::type numOfOriginalCells(numOfOriginalCellsSEXP);
     Rcpp::traits::input_parameter< std::string >::type countMatFilename(countMatFilenameSEXP);
-    rcpp_result_gen = Rcpp::wrap(getSparseMatrix(numOfGenes, numOfOriginalCells, countMatFilename));
+    Rcpp::traits::input_parameter< bool >::type tierImport(tierImportSEXP);
+    rcpp_result_gen = Rcpp::wrap(getSparseMatrix(numOfGenes, numOfOriginalCells, countMatFilename, tierImport));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fishpond_getSparseMatrix", (DL_FUNC) &_fishpond_getSparseMatrix, 3},
+    {"_fishpond_getSparseMatrix", (DL_FUNC) &_fishpond_getSparseMatrix, 4},
     {NULL, NULL, 0}
 };
 

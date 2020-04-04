@@ -8,6 +8,6 @@
 #'
 #' @useDynLib fishpond
 #' @export
-readEDS <- function(numOfGenes, numOfOriginalCells, countMatFilename) {
-  getSparseMatrix(numOfGenes, numOfOriginalCells, path.expand(countMatFilename))
+readEDS <- function(numOfGenes, numOfOriginalCells, countMatFilename, tierImport=FALSE) {
+  getSparseMatrix(numOfGenes, numOfOriginalCells, path.expand(countMatFilename), tierImport)
 }
