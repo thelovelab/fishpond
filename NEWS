@@ -1,3 +1,18 @@
+Changes in version 1.4.0
+* Added isoformProportions(), which can be run after
+  scaleInfReps() and optionally after filtering out
+  transcripts using labelKeep(). Running swish() after
+  isoformProportions() will produce differential transcript
+  usage (DTU) results, instead of differential transcript
+  expression (DTE) results. Example in vignette.
++ Default number of permutations increased from 30 to 100.
+  It was observed that there was too much fluctuation in the
+  DE called set for nperms=30 across different seeds, and
+  setting to 100 helped to stabilize results across seeds,
+  without increasing running time too much. For further reduced
+  dependence on the seed, even higher values of nperms
+  (e.g. 200, 300) can be used.
+
 Changes in version 1.3.8
 * Added isoformProportions(), which can be run after
   scaleInfReps() and optionally after filtering out
