@@ -5,7 +5,7 @@ Changes in version 1.4.0
   isoformProportions() will produce differential transcript
   usage (DTU) results, instead of differential transcript
   expression (DTE) results. Example in vignette.
-+ Default number of permutations increased from 30 to 100.
+* Default number of permutations increased from 30 to 100.
   It was observed that there was too much fluctuation in the
   DE called set for nperms=30 across different seeds, and
   setting to 100 helped to stabilize results across seeds,
@@ -22,7 +22,7 @@ Changes in version 1.3.8
   expression (DTE) results. Example in vignette.
 
 Changes in version 1.3.4
-+ Default number of permutations increased from 30 to 100.
+* Default number of permutations increased from 30 to 100.
   It was observed that there was too much fluctuation in the
   DE called set for nperms=30 across different seeds, and
   setting to 100 helped to stabilize results across seeds,
@@ -31,7 +31,7 @@ Changes in version 1.3.4
   (e.g. 200, 300) can be used.
 
 Changes in version 1.2.0
-+ Switching to a faster version of Swish which only
+* Switching to a faster version of Swish which only
   computes the ranks of the data once, and then re-uses
   this for the permutation distribution. This bypasses
   the addition of uniform noise per permutation and
@@ -42,24 +42,24 @@ Changes in version 1.2.0
   interaction analysis now default to the new fast
   method, but the original, slower method can be used
   by setting fast=0 in the call to swish().
-+ Adding Rcpp-based function readEDS() written by
+* Adding Rcpp-based function readEDS() written by
   Avi Srivastava which imports the sparse counts stored
   in Alevin's Efficient Data Storage (EDS) format.
-+ Changed the vignette so that it (will) use a linkedTxome,
+* Changed the vignette so that it (will) use a linkedTxome,
   as sometime the build would break if the Bioc build
   machine couldn't access ftp.ebi.ac.uk.
-+ Add 'computeInfRV' function. InfRV is not used in the
+* Add 'computeInfRV' function. InfRV is not used in the
   Swish methods, only for visualization purposes in the
   Swish paper.
-+ removed 'samr' from Imports, as it required source
+* removed 'samr' from Imports, as it required source
   installation, moved to Suggests, for optional qvalue
   calculation
 
 Changes in version 0.99.30
-+ added two interaction tests, described in ?swish
-+ incorporate qvalue package for pvalue, locfdr and qvalue
-+ added plotMASwish() to facilitate plotting
-+ wilcoxP is removed, and the mean is used instead
+* added two interaction tests, described in ?swish
+* incorporate qvalue package for pvalue, locfdr and qvalue
+* added plotMASwish() to facilitate plotting
+* wilcoxP is removed, and the mean is used instead
 
 Changes in version 0.99.0
-+ fishpond getting ready for submission to Bioc
+* fishpond getting ready for submission to Bioc
