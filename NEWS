@@ -1,3 +1,8 @@
+Changes in version 1.5.2
+* First version of makeInfReps(), to create pseudo-infReps
+  via negative binomial simulation from set of mean and
+  variance matrices in the assays of the SummarizedExperiment.
+
 Changes in version 1.4.0
 * Added isoformProportions(), which can be run after
   scaleInfReps() and optionally after filtering out

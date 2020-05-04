@@ -217,7 +217,40 @@ makeIsoProp <- function(counts, gene) {
   big.totals <- totals[idx,]
   counts / big.totals
 }
-  
+
+#' Make inferential replicates from mean and variance
+#'
+#' Creates simulated inferential replicate counts from
+#' \code{mean} and \code{variance} assays.
+#'
+#' @param y a SummarizedExperiment
+#' @param numReps how many inferential replicates
+#'
+#' @return a SummarizedExperiment
+#' @export
+makeInfReps <- function(y, numReps) {
+  stopifnot(is(y, "SummarizedExperiment"))
+  stopifnot("mean" %in% assayNames(y))
+  stopifnot("variance" %in% assayNames(y))
+  stopifnot(numReps > 1)
+  stopifnot(round(numReps) == numReps)
+  if (any(grepl("infRep", assayNames(y)))) {
+    stop("infReps already exist, remove these first")
+  }  
+  m <- assays(y)[["mean"]]
+  v <- assays(y)[["variance"]]
+  eps <- 1e-6
+  disp <- ifelse(m > 0, pmax(eps, (v - m)/m^2), eps)
+  infReps <- list()
+  for (k in seq_len(numReps)) {
+    infReps[[k]] <- matrix(rnbinom(n=nrow(y)*ncol(y), mu=m, size=1/disp),
+                           ncol=ncol(y), dimnames=dimnames(m))
+  }
+  names(infReps) <- paste0("infRep", 1:numReps)
+  assays(y) <- c(assays(y), infReps)
+  metadata(y)$infRepsScaled <- FALSE
+  y
+}
 
 #' Make simulated data for swish for examples/testing
 #'

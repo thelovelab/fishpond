@@ -40,7 +40,7 @@ interaction test for matched samples, to see if a condition effect
 changes in magnitude across two groups of samples.
 
 **Acknowledgments:** We have benefited in the development of *Swish*
-from the feedback of Hirak Sarkar.
+from the feedback of Hirak Sarkar and Scott Van Buren.
 
 # Quick start
 
