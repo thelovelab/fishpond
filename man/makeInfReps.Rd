@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper.R
 \name{makeInfReps}
 \alias{makeInfReps}
-\title{Make inferential replicates from mean and variance}
+\title{Make pseudo-inferential replicates from mean and variance}
 \usage{
 makeInfReps(y, numReps)
 }
@@ -15,6 +15,25 @@ makeInfReps(y, numReps)
 a SummarizedExperiment
 }
 \description{
-Creates simulated inferential replicate counts from
-\code{mean} and \code{variance} assays.
+Makes pseudo-inferential replicate counts from
+\code{mean} and \code{variance} assays. The simulated
+counts are drawn from a negative binomial distribution,
+with \code{mu=mean} and \code{size} set using a method
+of moments estimator for dispersion.
+}
+\details{
+Note that these simulated counts only reflect marginal
+variance (one transcript or gene at a time),
+and do not capture the covariance of counts across
+transcripts or genes, unlike imported inferential
+replicate data.
+}
+\examples{
+
+library(SummarizedExperiment)
+mean <- matrix(1:4,ncol=2)
+variance <- mean
+se <- SummarizedExperiment(list(mean=mean, variance=variance))
+se <- makeInfReps(se, numReps=50)
+
 }

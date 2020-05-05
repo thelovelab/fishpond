@@ -218,15 +218,33 @@ makeIsoProp <- function(counts, gene) {
   counts / big.totals
 }
 
-#' Make inferential replicates from mean and variance
+#' Make pseudo-inferential replicates from mean and variance
 #'
-#' Creates simulated inferential replicate counts from
-#' \code{mean} and \code{variance} assays.
+#' Makes pseudo-inferential replicate counts from
+#' \code{mean} and \code{variance} assays. The simulated
+#' counts are drawn from a negative binomial distribution,
+#' with \code{mu=mean} and \code{size} set using a method
+#' of moments estimator for dispersion.
+#'
+#' Note that these simulated counts only reflect marginal
+#' variance (one transcript or gene at a time),
+#' and do not capture the covariance of counts across
+#' transcripts or genes, unlike imported inferential
+#' replicate data.
 #'
 #' @param y a SummarizedExperiment
 #' @param numReps how many inferential replicates
 #'
 #' @return a SummarizedExperiment
+#'
+#' @examples
+#'
+#' library(SummarizedExperiment)
+#' mean <- matrix(1:4,ncol=2)
+#' variance <- mean
+#' se <- SummarizedExperiment(list(mean=mean, variance=variance))
+#' se <- makeInfReps(se, numReps=50)
+#' 
 #' @export
 makeInfReps <- function(y, numReps) {
   stopifnot(is(y, "SummarizedExperiment"))
