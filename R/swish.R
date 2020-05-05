@@ -41,6 +41,29 @@ NULL
 
 #' swish: SAMseq With Inferential Samples Helps
 #'
+#' Performs non-parametric inference on rows of \code{y} for
+#' various experimental designs. See References for details.
+#'
+#' \strong{interaction:}
+#' The interaction tests are different than the
+#' other tests produced by \code{swish}, in that they focus on a difference
+#' in the log2 fold change across levels of \code{x} when comparing
+#' the two levels in \code{cov}. If \code{pair} is specified, this
+#' will perform a Wilcoxon rank sum test on the two groups
+#' of matched sample LFCs. If \code{pair} is not included, multiple
+#' random pairs of samples within the two groups are chosen,
+#' and again a Wilcoxon rank sum test compared the LFCs across groups.
+#'
+#' \strong{fast:}
+#' '0' involves recomputing ranks of the inferential replicates for
+#' each permutation, '1' (default) is roughly 10x faster by avoiding
+#' re-computing ranks for each permutation.
+#' The \code{fast} argument is only relevant for the following three
+#' experimental designs: (1) two group Wilcoxon, (2) stratified Wilcoxon, e.g.
+#' \code{cov} is specified, and (3) the paired interaction test,
+#' e.g. \code{pair} and \code{cov} are specified. For paired design and
+#' general interaction test, there are not fast/slow alternatives.
+#' 
 #' @param y a SummarizedExperiment containing the inferential replicate
 #' matrices of median-ratio-scaled TPM as assays 'infRep1', 'infRep2', etc.
 #' @param x the name of the condition variable. A factor with two
@@ -55,14 +78,7 @@ NULL
 #' to build the statistic. All samples across \code{x} must be
 #' pairs if this is specified. Cannot be used with \code{cov}.
 #' @param interaction logical, whether to perform a test of an interaction
-#' between \code{x} and \code{cov}. These are different than the other
-#' tests produced by the software, in that they focus on a difference
-#' in the log2 fold change across levels of \code{x} when comparing
-#' the two levels in \code{cov}. If \code{pair} is specified, this
-#' will perform a Wilcoxon rank sum test on the two groups
-#' of matched sample LFCs. If \code{pair} is not included, multiple
-#' random pairs of samples within the two groups are chosen,
-#' and again a Wilcoxon rank sum test compared the LFCs across groups.
+#' between \code{x} and \code{cov}. See Details.
 #' @param nperms the number of permutations. if set above the possible
 #' number of permutations, the function will print a message that the
 #' value is set to the maximum number of permutations possible
@@ -75,14 +91,7 @@ NULL
 #' \code{interaction=TRUE} and un-matched samples) to use to calculate
 #' the test statistic
 #' @param fast an integer, toggles different methods based on speed
-#' (\code{fast=1} is default).
-#' '0' involves recomputing ranks of the inferential replicates for each permutation,
-#' '1' is roughly 10x faster by avoiding re-computing ranks for each permutation.
-#' The \code{fast} argument is only used/relevant for the following three
-#' experimental designs: (1) two group Wilcoxon, (2) stratified Wilcoxon, e.g.
-#' \code{cov} is specified, and (3) the paired interaction test,
-#' e.g. \code{pair} and \code{cov} are specified. For paired design and
-#' general interaction test, there are not fast/slow alternatives.
+#' (\code{fast=1} is default, \code{0} is slower). See Details.
 #' @param quiet display no messages
 #'
 #' @return a SummarizedExperiment with metadata columns added:
