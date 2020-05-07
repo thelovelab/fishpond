@@ -46,8 +46,11 @@ test_that("compressing uncertainty works", {
   y <- labelKeep(y)
   y <- y[mcols(y)$keep,]
 
-  #splitSwish(y, 4, prefix="~/Desktop/foo/swish")
-  #miniSwish("~/Desktop/foo/swish1.rds", "foo/swish1.csv", x="condition")
+  #library(Matrix)
+  #assays(y)[["mean"]] <- as(assays(y)[["mean"]], "sparseMatrix")
+  #assays(y)[["variance"]] <- as(assays(y)[["variance"]], "sparseMatrix")
+  #splitSwish(y, 4, prefix="foo/swish", snakefile="foo/Snakefile")
+  #miniSwish("foo/swish1.rds", "foo/swish1.csv", x="condition")
   #y <- addStatsFromCSV(y, "foo/swish_total.csv")
   
 })

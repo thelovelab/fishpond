@@ -257,9 +257,10 @@ makeInfReps <- function(y, numReps) {
   stopifnot(round(numReps) == numReps)
   if (any(grepl("infRep", assayNames(y)))) {
     stop("infReps already exist, remove these first")
-  }  
-  m <- assays(y)[["mean"]]
-  v <- assays(y)[["variance"]]
+  }
+  # drop sparsity here
+  m <- as.matrix(assays(y)[["mean"]])
+  v <- as.matrix(assays(y)[["variance"]])
   eps <- 1e-6
   disp <- ifelse(m > 0, pmax(eps, (v - m)/m^2), eps)
   infReps <- list()
@@ -289,7 +290,8 @@ makeInfReps <- function(y, numReps) {
 #' @return nothing, files are written out
 #'
 #' @export
-splitSwish <- function(y, nsplits, prefix="swish", snakefile=NULL, overwrite=FALSE) {
+splitSwish <- function(y, nsplits, prefix="swish",
+                       snakefile=NULL, overwrite=FALSE) {
   stopifnot(nsplits > 1)
   stopifnot(nsplits == round(nsplits))
   stopifnot(nsplits < nrow(y))
@@ -300,7 +302,8 @@ splitSwish <- function(y, nsplits, prefix="swish", snakefile=NULL, overwrite=FAL
     if (file.exists(snakefile) & !overwrite)
       stop("snakefile already exists at specified location, see 'overwrite'")
     snake <- scan(system.file("extdata/Snakefile", package="fishpond"),
-                  what="character", sep="\n", blank.lines.skip=FALSE)
+                  what="character", sep="\n", blank.lines.skip=FALSE,
+                  quiet=TRUE)
     write(snake, file=snakefile)
   }
   files <- paste0(prefix,seq_len(nsplits),".rds")
