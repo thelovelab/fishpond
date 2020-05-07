@@ -92,6 +92,9 @@ NULL
 #' the test statistic
 #' @param fast an integer, toggles different methods based on speed
 #' (\code{fast=1} is default, \code{0} is slower). See Details.
+#' @param returnNulls logical, only return the \code{stat} vector,
+#' the \code{log2FC} vector, and the \code{nulls} matrix
+#' (default FALSE)
 #' @param quiet display no messages
 #'
 #' @return a SummarizedExperiment with metadata columns added:
@@ -145,7 +148,7 @@ NULL
 #'
 #' @importFrom graphics axis segments plot rect abline
 #' @importFrom stats median quantile rpois runif rnbinom var
-#' @importFrom utils head tail capture.output
+#' @importFrom utils head tail capture.output read.table write.table
 #' @importFrom methods is
 #' @importFrom SummarizedExperiment SummarizedExperiment assayNames
 #' assays assays<- colData colData<- mcols mcols<-
@@ -158,6 +161,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
                   interaction=FALSE, nperms=100, 
                   estPi0=FALSE, qvaluePkg="qvalue",
                   pc=5, nRandomPairs=30, fast=1,
+                  returnNulls=FALSE,
                   quiet=FALSE) {
 
   stopifnot(is(y, "SummarizedExperiment"))
@@ -232,6 +236,10 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   stat <- out$stat
   log2FC <- out$log2FC
   nulls <- out$nulls
+
+  # for miniSwish, we just return these pieces
+  if (returnNulls) return(out)
+
   nulls.vec <- as.vector(nulls)
   if (qvaluePkg == "qvalue") {
     pvalue <- qvalue::empPvals(abs(stat), abs(nulls))

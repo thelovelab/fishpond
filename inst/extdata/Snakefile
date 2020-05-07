@@ -1,0 +1,24 @@
+IDS, = glob_wildcards("swish{id}.rds")
+
+rule all:
+    input:
+        "summary.csv"
+
+rule swish:
+    input:
+        "{sample}.rds"
+    output:
+        "{sample}.csv"
+    shell:
+        "Rscript --vanilla -e 'x <- commandArgs(trail=TRUE); "
+	"library(fishpond); set.seed(1); "
+	"miniSwish(x[1], x[2], x=\"condition\")' "
+	"{input} {output}"
+
+rule combine:
+    input:
+        expand("swish{id}.csv", id=IDS)
+    output:
+        "summary.csv"
+    shell:
+        "cat {input} > {output}"

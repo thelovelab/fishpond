@@ -11,7 +11,7 @@ makeSimSwishData(m = 1000, n = 10, numReps = 20, null = FALSE)
 
 \item{n}{number of samples}
 
-\item{numReps}{how many inferential replicates}
+\item{numReps}{how many inferential replicates to generate}
 
 \item{null}{logical, whether to make an all null dataset}
 }

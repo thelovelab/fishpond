@@ -29,7 +29,8 @@ the geometric mean sequencing depth is computed}
 
 \item{sfFun}{(optional) size factors function. An
 alternative to the median ratio can be provided here to adjust
-the scaledTPM so as to remove remaining library size differences}
+the scaledTPM so as to remove remaining library size differences.
+Alternatively, one can provide a numeric vector of size factors}
 
 \item{minCount}{for internal filtering, the minimum count}
 

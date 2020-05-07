@@ -16,6 +16,7 @@ swish(
   pc = 5,
   nRandomPairs = 30,
   fast = 1,
+  returnNulls = FALSE,
   quiet = FALSE
 )
 }
@@ -58,6 +59,10 @@ the test statistic}
 
 \item{fast}{an integer, toggles different methods based on speed
 (\code{fast=1} is default, \code{0} is slower). See Details.}
+
+\item{returnNulls}{logical, only return the \code{stat} vector,
+the \code{log2FC} vector, and the \code{nulls} matrix
+(default FALSE)}
 
 \item{quiet}{display no messages}
 }
