@@ -11,9 +11,9 @@ rule swish:
         "{sample}.csv"
     shell:
         "Rscript --vanilla -e 'x <- commandArgs(trail=TRUE); "
-	"library(fishpond); set.seed(1); "
-	"miniSwish(x[1], x[2], x=\"condition\")' "
-	"{input} {output}"
+        "library(fishpond); set.seed(1); "
+        "miniSwish(x[1], x[2], x=\"condition\")' "
+        "{input} {output}"
 
 rule combine:
     input:
