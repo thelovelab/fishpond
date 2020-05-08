@@ -17,7 +17,7 @@ rule swish:
 
 rule combine:
     input:
-        expand("swish{id}.csv", id=IDS)
+        sorted(expand("swish{id}.csv", id=IDS))
     output:
         "summary.csv"
     shell:

@@ -306,7 +306,11 @@ splitSwish <- function(y, nsplits, prefix="swish",
                   quiet=TRUE)
     write(snake, file=snakefile)
   }
-  files <- paste0(prefix,seq_len(nsplits),".rds")
+  # how many leading 0's
+  width <- floor(log10(nsplits)) + 1
+  nums <- formatC(seq_len(nsplits), width=max(2, width),
+                  format="d", flag="0")
+  files <- paste0(prefix, nums, ".rds")
   if (any(file.exists(files)) & !overwrite)
     stop("Swish RDS files exist at specified locations, see 'overwrite'")
   idx <- sort(rep(seq_len(nsplits), length.out=nrow(y)))
