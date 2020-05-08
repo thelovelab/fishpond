@@ -51,6 +51,6 @@ test_that("compressing uncertainty works", {
   #assays(y)[["variance"]] <- as(assays(y)[["variance"]], "sparseMatrix")
   #splitSwish(y, 4, prefix="foo/swish", snakefile="foo/Snakefile")
   #miniSwish("foo/swish1.rds", "foo/swish1.csv", x="condition")
-  #y <- addStatsFromCSV(y, "foo/swish_total.csv")
+  #y <- addStatsFromCSV(y, "foo/summary.csv")
   
 })
