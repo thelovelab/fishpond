@@ -137,7 +137,7 @@ test_that("basic deswish analyses", {
 
   y <- makeSimSwishData()
   y <- labelKeep(y)
-  y <- deswish(y, ~condition, "condition_2_vs_1")
+  # y <- deswish(y, ~condition, "condition_2_vs_1")
   
 })
 

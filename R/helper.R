@@ -53,7 +53,7 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
   counts <- assays(y)[["counts"]]
   length <- assays(y)[["length"]]
   nreps <- length(infReps)
-  if (is.null(meanDepth)) {
+  if (is.null(meanDepth) & !is(sfFun,"numeric")) {
     meanDepth <- exp(mean(log(colSums(counts))))
   }
   means <- matrix(nrow=nrow(y), ncol=nreps)
@@ -75,18 +75,23 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
       # for 3' tagged scRNA-seq for example, don't length correct
       cts <- infReps[[k]]
     }
-    # divide out the column sum, then set all to the meanDepth
-    cts <- t(t(cts) / colSums(cts)) * meanDepth
-    # filtering for calculting median ratio size factors
-    use <- rowSums(infReps[[k]] >= minCount) >= minN
-    if (is.null(sfFun)) {
-      loggeomeans <- rowMeans(log(cts[use,]))
-      sf <- apply(cts[use,], 2, function(s) {
-        exp(median((log(s) - loggeomeans)[is.finite(loggeomeans)]))
-      })
-    } else if (is(sfFun, "function")) {
-      sf <- sfFun(cts)
-    } else if (is(sfFun, "numeric")) {
+    # if size factors (numeric) were _not_ provided...
+    if (!is(sfFun, "numeric")) {
+      # divide out the column sum, then set all to the meanDepth
+      cts <- t(t(cts) / colSums(cts)) * meanDepth
+      # filtering for calculting median ratio size factors
+      use <- rowSums(infReps[[k]] >= minCount) >= minN
+      # calculate size factors
+      if (is.null(sfFun)) {
+        loggeomeans <- rowMeans(log(cts[use,]))
+        sf <- apply(cts[use,], 2, function(s) {
+          exp(median((log(s) - loggeomeans)[is.finite(loggeomeans)]))
+        })
+      } else if (is(sfFun, "function")) {
+        sf <- sfFun(cts)
+      }
+      # ...otherwise we just divide counts by provided size factors
+    } else {
       sf <- sfFun
     }
     infReps[[k]] <- t( t(cts)/sf )
