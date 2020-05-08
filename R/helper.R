@@ -334,7 +334,8 @@ splitSwish <- function(y, nsplits, prefix="swish",
 #' @return nothing, files are written out
 #'
 #' @export
-miniSwish <- function(infile, outfile, numReps=20, lengthCorrect=FALSE, overwrite=FALSE, ...) {
+miniSwish <- function(infile, outfile, numReps=20,
+                      lengthCorrect=FALSE, overwrite=FALSE, ...) {
   stopifnot(all(is(c(infile, outfile), "character")))
   stopifnot(file.exists(infile))
   if (file.exists(outfile) & !overwrite)
@@ -343,7 +344,7 @@ miniSwish <- function(infile, outfile, numReps=20, lengthCorrect=FALSE, overwrit
   stopifnot(!is.null(rownames(y)))
   stopifnot(all(mcols(y)$keep))
   y <- makeInfReps(y, numReps=numReps)
-  if (is.null(mcols(y)$sizeFactors))
+  if (is.null(colData(y)$sizeFactors))
     stop("miniSwish requires pre-estimated sizeFactors stored in colData(...)")
   y <- scaleInfReps(y, lengthCorrect=lengthCorrect, sfFun=colData(y)$sizeFactors)
   out <- swish(y=y, returnNulls=TRUE, ...)
