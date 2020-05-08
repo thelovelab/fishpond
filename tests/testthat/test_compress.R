@@ -41,7 +41,7 @@ test_that("compressing uncertainty works", {
             )
   }
   sf <- sfFun(assays(y)[["counts"]])
-  mcols(y)$sizeFactors <- sf
+  colData(y)$sizeFactors <- sf
 
   y <- labelKeep(y)
   y <- y[mcols(y)$keep,]
