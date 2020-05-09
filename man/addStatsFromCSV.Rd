@@ -10,13 +10,17 @@ addStatsFromCSV(y = NULL, infile, estPi0 = FALSE)
 \item{y}{a SummarizedExperiment (if NULL, function will
 output a data.frame)}
 
-\item{infile}{character, path to CSV file}
+\item{infile}{character, path to the \code{summary.csv} file}
 
 \item{estPi0}{logical, see \code{\link{swish}}}
 }
 \value{
-data.frame of compiled results
+the SummarizedExperiment with metadata columns added,
+or if \code{y} is NULL, a data.frame of compiled results
 }
 \description{
-Read statistics and nulls from CSV file
+After running \code{\link{splitSwish}} and the associated
+\code{Snakefile}, this function can be used to gather and
+add the results to the original object. See the alevin
+section of the vignette for an example.
 }

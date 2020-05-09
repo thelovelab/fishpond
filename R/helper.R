@@ -279,8 +279,18 @@ makeInfReps <- function(y, numReps) {
   y
 }
 
-#' Function for breaking SummarizedExperiment into separate RDS files
+#' Function for splitting SummarizedExperiment into separate RDS files
 #'
+#' The \code{splitSwish} function splits up the \code{y} object
+#' along genes and writes a \code{Snakefile} that can be used with
+#' Snakemake to distribute running \code{swish} across genes.
+#' This workflow is primarily designed for large single cell datasets,
+#' and so the default is to not perform length correction
+#' within the distributed jobs.
+#' See the alevin section of the vignette for an example. See
+#' the Snakemake documention for details on how to run and customize
+#' a \code{Snakefile}: \url{https://snakemake.readthedocs.io}
+#' 
 #' @param y a SummarizedExperiment
 #' @param nsplits integer, how many pieces to break \code{y} into
 #' @param prefix character, the path of the RDS files to write out,
@@ -324,8 +334,17 @@ splitSwish <- function(y, nsplits, prefix="swish",
   }
 }
 
-#' Function for running scaling and Swish on a subset of data
+#' Helper function for distributing Swish on a subset of data
 #'
+#' This function is called by the \code{Snakefile} that is generated
+#' by \code{\link{splitSwish}}. See alevin example in the vignette.
+#' As such, it doesn't need to be run by users in an interactive
+#' R session.
+#' 
+#' Note that the default for length correction is FALSE, as
+#' opposed to the default in \code{\link{scaleInfReps}} which
+#' is TRUE. The default for \code{numReps} here is 20.
+#' 
 #' @param infile path to an RDS file of a SummarizedExperiment
 #' @param outfile a CSV file to write out
 #' @param numReps how many inferential replicates to generate
@@ -360,12 +379,18 @@ miniSwish <- function(infile, outfile, numReps=20,
 
 #' Read statistics and nulls from CSV file
 #'
+#' After running \code{\link{splitSwish}} and the associated
+#' \code{Snakefile}, this function can be used to gather and
+#' add the results to the original object. See the alevin
+#' section of the vignette for an example.
+#'
 #' @param y a SummarizedExperiment (if NULL, function will
 #' output a data.frame)
-#' @param infile character, path to CSV file
+#' @param infile character, path to the \code{summary.csv} file
 #' @param estPi0 logical, see \code{\link{swish}}
 #'
-#' @return data.frame of compiled results
+#' @return the SummarizedExperiment with metadata columns added,
+#' or if \code{y} is NULL, a data.frame of compiled results
 #'
 #' @export
 addStatsFromCSV <- function(y=NULL, infile, estPi0=FALSE) {

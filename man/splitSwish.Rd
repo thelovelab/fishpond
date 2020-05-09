@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper.R
 \name{splitSwish}
 \alias{splitSwish}
-\title{Function for breaking SummarizedExperiment into separate RDS files}
+\title{Function for splitting SummarizedExperiment into separate RDS files}
 \usage{
 splitSwish(y, nsplits, prefix = "swish", snakefile = NULL, overwrite = FALSE)
 }
@@ -26,5 +26,13 @@ RDS files (\code{swish1.rds}, ...) should overwrite existing files}
 nothing, files are written out
 }
 \description{
-Function for breaking SummarizedExperiment into separate RDS files
+The \code{splitSwish} function splits up the \code{y} object
+along genes and writes a \code{Snakefile} that can be used with
+Snakemake to distribute running \code{swish} across genes.
+This workflow is primarily designed for large single cell datasets,
+and so the default is to not perform length correction
+within the distributed jobs.
+See the alevin section of the vignette for an example. See
+the Snakemake documention for details on how to run and customize
+a \code{Snakefile}: \url{https://snakemake.readthedocs.io}
 }

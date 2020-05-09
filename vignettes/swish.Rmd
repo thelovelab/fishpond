@@ -631,6 +631,136 @@ plotInfReps(y2, idx[1], x="ifng", cov="salmonella")
 plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 ```
 
+# Running swish with output from *alevin*
+
+The *alevin* [@alevin] and *tximport* / *tximeta* maintainers have
+created an efficient format for storing and importing the sparse 
+scRNA-seq estimated gene counts, and optionally inferential mean and
+variance, and the inferential replicate counts. `tximeta` will
+automatically  import these matrices if *alevin* was run using
+`--numCellBootstraps` (in order to generate inferential variance) and
+additionally `--dumpFeatures` (in order to dump the inferential
+replicates themselves, see below on thoughts on optionally avoiding
+this step though).
+
+The storage format for counts, and for inferential
+replicates, involves writing one cell at a time, storing the locations
+of the non-zero counts, and then the non-zero counts. The matrices are
+loaded into R sparely using the *Matrix* package. The storage format is
+efficient, for example, the estimated counts for the 900 mouse neuron
+dataset from 10x Genomics takes up 4.2 Mb, the mean/variance matrices
+take up 8.6 Mb each, and the inferential replicates takes up 72 Mb (20
+bootstrap inferential replicates).
+
+The `swish` and *alevin* authors have developed a workflow that uses
+pseudo-inferential replicates in place of the actual inferential
+replicates, which are generated using the inferential mean and
+variance matrices. Storing and importing only the inferential mean and
+variance is much more efficient (dramatically faster load time and
+less space on disk and in memory). The faster workflow would then skip
+`--dumpFeatures` above, or use `dropInfReps=TRUE` to not load the
+inferential replicates into R. We describe both workflows below.
+
+`swish` can be run on *alevin* counts imported with `tximeta`, but
+there are a few extra steps suggested:
+
+**Filter genes:** we recommend to filter
+genes as the first step, to reduce the size of the data before losing
+sparsity on the count matrices (conversion of data to ranks loses data
+sparsity inside the `swish()` function). One can run `labelKeep`
+therefore before `scaleInfReps`. E.g., to remove genes for which there
+are not 10 cells with a count of 3 or more:
+
+```{r eval=FALSE}
+y <- labelKeep(y, minCount=3, minN=10)
+y <- y[mcols(y)$keep,] # subset genes
+```
+
+**Filter cells:** One should also subset to the groups of cells of
+interest for differential testing, in order to take up the least
+amount of memory when the sparse matrices are converted to dense
+matrices.
+
+**(Slower) With inferential replicates:** After one has filtered both
+genes and cells down to the set that are of interest for differential
+testing, one can run the following commands, to make the sparse
+matrices into dense ones, scale the cells, and perform *Swish*
+differential expression.
+
+```{r eval=FALSE}
+assays(y) <- lapply(assays(y), as.matrix) # make dense matrices
+y <- scaleInfReps(y, lengthCorrect=FALSE, sfFun=sfFun)
+y <- swish(y, x="condition")
+```
+
+**Size factor function:** Note that `scaleInfReps` has an argument
+`sfFun` which allows the user to provide their own size factor
+calculation function. One could use `computeSumFactors` in the *scran*
+package for example. The code chunk below provides the `"poscounts"`
+size factor estimation function that was used in the *Swish* paper.
+
+```{r eval=FALSE}
+sfFun <- function(m) {
+  DESeq2::estimateSizeFactorsForMatrix(
+    m, geoMeans=exp(rowSums(log(m) * as.numeric(m > 0))/ncol(m))
+  )
+}
+```
+
+**(Faster) Without inferential replicates:** If one has avoided
+storing the inferential replicates, or avoided loading them into R,
+then we first need to generate pseudo-inferential replicates from
+inferential mean and variance matrices before running `scaleInfReps`
+from the code chunk above.
+
+The following function can be used just before `scaleInfReps`:
+
+```{r, eval=FALSE}
+y <- makeInfReps(y, 20)
+```
+
+There is alternatively a scheme for splitting the operation of
+generating (dense) inferential replicate matrices across multiple
+jobs, and running `swish` across batches of genes at a time. This
+helps to reduce the total memory used, in the case that the counts,
+mean, and variance matrices are too large to be made dense
+altogether. This scheme involves 1) splitting the object into smaller
+pieces, written out to `.rds` files, 2) running `swish` as a
+distributed job, 3) reading the `.csv` output back into R. The
+following code chunk would start with a 'y' with sparse matrix assays,
+and without ever running `scaleInfReps` (it is run within the
+distributed job, and with `lengthCorrect=FALSE` by default).
+
+```{r, eval=FALSE}
+# after filtering genes and cells...
+
+# compute and store size factors calculated over all genes
+cts <- as.matrix(assays(y)[["counts"]])
+sf <- sfFun(cts)
+colData(y)$sizeFactors <- sf
+
+# split swish objects into 8 RDS files:
+splitSwish(y, nsplits=8, prefix="swish", snakefile="Snakefile")
+
+# now, run snakemake from command line
+
+# after finished, results back into R:
+y <- addStatsFromCSV(y, "summary.csv")
+```
+
+The `splitSwish` function will write out a `Snakefile` that can be
+used with [snakemake](https://snakemake.readthedocs.io/en/stable/) in
+order to run distributed `swish` jobs in an easily customized
+workflow. Then the `addStatsFromCSV` will read in and attach the
+results to the original object. This final alternative avoids
+generating dense matrices until they have been split into `nsplits`
+pieces, and so can be used to reduce the memory requirements for the
+individual jobs. If one is new to running `snakemake`, it is
+recommended to first run with the flags `-np` as a "dry-run" to see
+the operations that will be performed. The `swish` command can be
+customized in the `swish` rule in the `Snakefile`, e.g. to control for
+batches or test for interactions.
+
 # Further details
 
 ## Analysis types supported by Swish
@@ -719,67 +849,6 @@ with(mcols(y3), plot(meanCts, meanInfRV, log="xy"))
 hist(log10(mcols(y3)$meanInfRV),
      col="grey50", border="white", breaks=20,
      xlab="mean InfRV", main="Txp-level inferential uncertainty")
-```
-
-## *alevin* inferential replicates
-
-The *alevin* [@alevin] and *tximport* / *tximeta* maintainers have
-created an efficient format for storing and importing the sparse 
-scRNA-seq estimated gene counts, and optionally inferential variance
-and inferential replicate counts. `tximeta` will automatically 
-import these matrices if *alevin* was run using
-`--numCellBootstraps` (in order to generate inferential variance) and
-additionally `--dumpFeatures` (in order to dump the inferential
-replicates). The storage format for counts, and for inferential
-replicates, involves writing one cell at a time, storing the locations
-of the non-zero counts, and then the non-zero counts. The matrices are
-imported sparely using the *Matrix* package. The storage format is
-efficient, for example, the estimated counts for the 900 mouse neuron
-dataset from 10x Genomics takes up 4.2 Mb, the variance matrix
-takes up 8.6 Mb, and the inferential replicates takes up 72 Mb (20
-bootstrap inferential replicates).
-
-`swish` can be run on *alevin* counts imported with `tximeta`, but
-there are a few extra steps required. First, we recommend to filter
-genes as the first step, to reduce the size of the data before losing
-sparsity on the count matrices (conversion of data to ranks loses data
-sparsity inside the `swish()` function). One can run `labelKeep`
-therefore before `scaleInfReps`. E.g., to remove genes for which there
-are not 10 cells with a count of 3 or more:
-
-```{r eval=FALSE}
-y <- labelKeep(y, minCount=3, minN=10)
-y <- y[mcols(y)$keep,]
-```
-
-One can also subset to cells of interest in order to take up the least
-amount of memory when the sparse matrices in the
-*SummarizedExperiment* are converted to dense matrices.
-
-After one has filtered both genes and cells down to the set that are
-of interest for differential expression, one can run the following
-commands, to (1) make the sparse matrices into dense ones, (2) scale
-the cells, and (3) perform *Swish* differential expression. 
-
-```{r eval=FALSE}
-assays(y) <- lapply(assays(y), as.matrix)
-y <- scaleInfReps(y, lengthCorrect=FALSE)
-y <- swish(y, x="condition")
-```
-
-Note that `scaleInfReps` has an argument `sfFun` which allows the user
-to provide their own size factor calculation function. One could use
-`computeSumFactors` in the *scran* package for example. 
-The code chunk below is the `"poscounts"` size factor estimation
-function that was used in the *Swish* paper, because we felt this
-would outperform the default median ratio method used in `swish`.
-
-```{r eval=FALSE}
-sfFun <- function(m) {
-  DESeq2::estimateSizeFactorsForMatrix(
-            m, geoMeans=exp(rowSums(log(m) * as.numeric(m > 0))/ncol(m))
-          )
-}
 ```
 
 ## Permutation schemes for interactions

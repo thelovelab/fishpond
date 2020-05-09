@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper.R
 \name{miniSwish}
 \alias{miniSwish}
-\title{Function for running scaling and Swish on a subset of data}
+\title{Helper function for distributing Swish on a subset of data}
 \usage{
 miniSwish(
   infile,
@@ -33,5 +33,13 @@ should overwrite an existing file}
 nothing, files are written out
 }
 \description{
-Function for running scaling and Swish on a subset of data
+This function is called by the \code{Snakefile} that is generated
+by \code{\link{splitSwish}}. See alevin example in the vignette.
+As such, it doesn't need to be run by users in an interactive
+R session.
+}
+\details{
+Note that the default for length correction is FALSE, as
+opposed to the default in \code{\link{scaleInfReps}} which
+is TRUE. The default for \code{numReps} here is 20.
 }
