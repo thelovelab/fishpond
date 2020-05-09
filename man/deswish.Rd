@@ -37,7 +37,7 @@ not found.
 # a small example... 500 genes, 10 inf reps
 y <- makeSimSwishData(m=500, numReps=10)
 y <- labelKeep(y)
-y <- deswish(y, ~condition, "condition_2_vs_1")
+#y <- deswish(y, ~condition, "condition_2_vs_1")
 
 }
 \references{
