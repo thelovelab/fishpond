@@ -1,7 +1,7 @@
 Package: fishpond
 Title: Fishpond: differential transcript and gene expression
     with inferential replicates
-Version: 1.5.12
+Version: 1.5.13
 Authors@R: c(
     person("Anzi", "Zhu", role = c("aut","ctb")),
     person("Michael", "Love", email="michaelisaiahlove@gmail.com", role = c("aut","cre")),

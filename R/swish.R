@@ -146,8 +146,8 @@ NULL
 #' plotInfReps(y, 3, "condition")
 #' plotInfReps(y, 5, "condition")
 #'
-#' @importFrom graphics axis segments plot rect abline
-#' @importFrom stats median quantile rpois runif rnbinom var
+#' @importFrom graphics plot points segments rect abline title axis
+#' @importFrom stats median quantile qnorm rpois runif rnbinom var
 #' @importFrom utils head tail capture.output read.table write.table
 #' @importFrom methods is
 #' @importFrom SummarizedExperiment SummarizedExperiment assayNames

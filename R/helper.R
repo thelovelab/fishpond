@@ -483,6 +483,7 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
 #' @param cols.lgt light colors for the inside of the boxes
 #' @param xaxis logical, whether to label the sample numbers.
 #' default is \code{TRUE} if there are less than 30 samples
+#' @param xlab the x-axis label
 #' @param useMean logical, when inferential replicates
 #' are not present, use the \code{mean} assay or the
 #' \code{counts} assay for plotting
@@ -505,7 +506,8 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
 plotInfReps <- function(y, idx, x, cov=NULL,
                         cols.drk=c("dodgerblue","goldenrod4"),
                         cols.lgt=c("lightblue1","goldenrod1"),
-                        xaxis, useMean=TRUE, reorder=FALSE) {
+                        xaxis, xlab,
+                        useMean=TRUE, reorder=FALSE) {
   
   hasInfReps <- any(grepl("infRep", assayNames(y)))
   if (!hasInfReps) {
@@ -526,8 +528,14 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   if (!is.null(metadata(y)$infRepsScaled)) {
     infRepsScaled <- metadata(y)$infRepsScaled
   }
+  if (missing(xlab)) {
+    xlab <- "samples"
+  }
   ylab <- if (infRepsScaled) "scaled counts" else "counts"
-  xlab <- if (xaxis) "samples" else ""
+  # this is a dummy variable used when making the plot()
+  # if we don't put x-axis ticks, then we will move
+  # the label up higher using title()
+  xlabel <- if (xaxis) xlab else ""
   main <- if (is.null(rownames(y))) {
             ""
           } else {
@@ -571,7 +579,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     ymax <- max(cts)
     ymin <- if (is.null(cov)) 0 else -0.02 * ymax
     boxplot2(cts, col=col, col.in=col.in, ylim=c(ymin,ymax),
-             xlab=xlab, ylab=ylab, main=main)
+             xlab=xlabel, ylab=ylab, main=main)
   } else {
     which.assay <- if (useMean) "mean" else "counts"
     cts <- assays(y)[[which.assay]][idx,o]
@@ -580,7 +588,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     ymax <- max(cts + Q*sds)
     ymin <- if (is.null(cov)) 0 else -0.02 * ymax
     plot(cts, ylim=c(ymin, ymax), type="n", main=main,
-         xaxt="n", xlab=xlab, ylab=ylab)
+         xaxt="n", xlab=xlabel, ylab=ylab)
     segments(seq_along(cts), pmax(cts - Q*sds, 0),
              seq_along(cts), cts + Q*sds,
              col=col, lwd=2)
@@ -589,7 +597,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   }
   if (xaxis) axis(1, seq_along(condition), samp.nums)
   if (!xaxis) {
-    title(xlab="samples", mgp=c(1,1,0))
+    title(xlab=xlab, mgp=c(1,1,0))
   }
   if (!is.null(cov)) {
     cuts <- cumsum(table(covariate))

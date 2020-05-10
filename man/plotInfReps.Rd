@@ -12,6 +12,7 @@ plotInfReps(
   cols.drk = c("dodgerblue", "goldenrod4"),
   cols.lgt = c("lightblue1", "goldenrod1"),
   xaxis,
+  xlab,
   useMean = TRUE,
   reorder = FALSE
 )
@@ -31,6 +32,8 @@ plotInfReps(
 
 \item{xaxis}{logical, whether to label the sample numbers.
 default is \code{TRUE} if there are less than 30 samples}
+
+\item{xlab}{the x-axis label}
 
 \item{useMean}{logical, when inferential replicates
 are not present, use the \code{mean} assay or the
