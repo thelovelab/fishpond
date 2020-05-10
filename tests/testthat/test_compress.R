@@ -5,7 +5,12 @@ library(fishpond)
 test_that("compressing uncertainty works", {
 
   set.seed(1)
-  y <- makeSimSwishData()
+  y <- makeSimSwishData(m=200, n=100)
+  y$batch <- factor(rep(3:1,c(30,40,30)))
+  plotInfReps(y, 5, x="condition", reorder=TRUE)
+  dev.off()
+  plotInfReps(y, 5, x="condition", cov="batch", reorder=TRUE)
+  dev.off()
 
   a <- assays(y)
   infRepIdx <- grep("infRep",names(a))
@@ -19,6 +24,11 @@ test_that("compressing uncertainty works", {
   infRepIdx <- grep("infRep",assayNames(y))
   assays(y) <- assays(y)[-infRepIdx]
 
+  plotInfReps(y, idx=5, x="condition", reorder=TRUE)
+  dev.off()
+  plotInfReps(y, idx=5, x="condition", cov="batch", reorder=TRUE)
+  dev.off()
+  
   y2 <- y
   y2 <- makeInfReps(y2, numReps=50)
   y2 <- scaleInfReps(y2)
@@ -37,8 +47,8 @@ test_that("compressing uncertainty works", {
 
   sfFun <- function(m) {
     DESeq2::estimateSizeFactorsForMatrix(
-              m, geoMeans=exp(rowSums(log(m) * as.numeric(m > 0))/ncol(m))
-            )
+      m, geoMeans=exp(rowSums(log(m) * as.numeric(m > 0))/ncol(m))
+    )
   }
   sf <- sfFun(assays(y)[["counts"]])
   colData(y)$sizeFactors <- sf

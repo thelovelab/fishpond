@@ -469,6 +469,12 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
 
 #' Plot inferential replicates for a gene or transcript
 #'
+#' For datasets with inferential replicates, boxplots are
+#' drawn for the two groups and potentially grouped by
+#' covariates. For datasets with only mean and variance,
+#' points and intervals (95% intervals using Normal
+#' approximation) are drawn.
+#' 
 #' @param y a SummarizedExperiment (see \code{swish})
 #' @param idx the name or row number of the gene or transcript
 #' @param x the name of the condition variable
@@ -477,6 +483,12 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
 #' @param cols.lgt light colors for the inside of the boxes
 #' @param xaxis logical, whether to label the sample numbers.
 #' default is \code{TRUE} if there are less than 30 samples
+#' @param useMean logical, when inferential replicates
+#' are not present, use the \code{mean} assay or the
+#' \code{counts} assay for plotting
+#' @param reorder logical, should points within a group
+#' defined by condition and covariate be re-ordered by
+#' their count value
 #'
 #' @return nothing, a plot is displayed
 #' 
@@ -493,45 +505,99 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
 plotInfReps <- function(y, idx, x, cov=NULL,
                         cols.drk=c("dodgerblue","goldenrod4"),
                         cols.lgt=c("lightblue1","goldenrod1"),
-                        xaxis) {
-  infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
+                        xaxis, useMean=TRUE, reorder=FALSE) {
+  
+  hasInfReps <- any(grepl("infRep", assayNames(y)))
+  if (!hasInfReps) {
+    if (!("variance" %in% assayNames(y)))
+      stop("if inferential replicates not present, requires 'variance' assay")
+  }
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
   if (missing(xaxis)) {
     xaxis <- ncol(y) < 30
   }
-  if (is.null(cov)) {
-    cts <- unlist(infReps)[,order(condition)]
-    samp.nums <- unlist(lapply(table(condition), seq_len))
-    col <- rep(cols.drk, table(condition))
-    col.in <- rep(cols.lgt, table(condition))
-  } else {
+  if (!is.null(cov)) {
     stopifnot(cov %in% names(colData(y)))
     covariate <- factor(colData(y)[[cov]])
     ngrp <- nlevels(covariate)
-    cts <- unlist(infReps)[,order(covariate, condition)]
-    vec.tab <- as.vector(table(condition, covariate))
-    samp.nums <- unlist(lapply(vec.tab, seq_len))
-    col <- rep(rep(cols.drk, ngrp), vec.tab)
-    col.in <- rep(rep(cols.lgt, ngrp), vec.tab)
   }
+  infRepsScaled <- FALSE
+  if (!is.null(metadata(y)$infRepsScaled)) {
+    infRepsScaled <- metadata(y)$infRepsScaled
+  }
+  ylab <- if (infRepsScaled) "scaled counts" else "counts"
+  xlab <- if (xaxis) "samples" else ""
   main <- if (is.null(rownames(y))) {
             ""
           } else {
             if (is.character(idx)) idx else rownames(y)[idx]
           }
-  ymax <- max(cts)
-  ymin <- if (is.null(cov)) 0 else -0.02 * ymax
-  boxplot2(cts, col=col, col.in=col.in, ylim=c(ymin,ymax),
-           xlab="samples", ylab="scaled counts", main=main)
+
+  if (reorder) {
+    if (hasInfReps) {
+      infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
+      value <- colMeans(unlist(infReps))
+    } else {
+      which.assay <- if (useMean) "mean" else "counts"
+      value <- assays(y)[[which.assay]][idx,]
+    }
+    if (is.null(cov)) {
+      o <- order(condition, value)
+    } else {
+      o <- order(covariate, condition, value)
+    }    
+  } else {
+    if (is.null(cov)) {
+      o <- order(condition)
+    } else {
+      o <- order(covariate, condition)
+    }
+  }
+  
+  if (is.null(cov)) {
+    samp.nums <- unlist(lapply(table(condition), seq_len))
+    col <- rep(cols.drk, table(condition))
+    col.in <- rep(cols.lgt, table(condition))
+  } else {
+    vec.tab <- as.vector(table(condition, covariate))
+    samp.nums <- unlist(lapply(vec.tab, seq_len))
+    col <- rep(rep(cols.drk, ngrp), vec.tab)
+    col.in <- rep(rep(cols.lgt, ngrp), vec.tab)
+  }
+  if (hasInfReps) {
+    infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
+    cts <- unlist(infReps)[,o]
+    ymax <- max(cts)
+    ymin <- if (is.null(cov)) 0 else -0.02 * ymax
+    boxplot2(cts, col=col, col.in=col.in, ylim=c(ymin,ymax),
+             xlab=xlab, ylab=ylab, main=main)
+  } else {
+    which.assay <- if (useMean) "mean" else "counts"
+    cts <- assays(y)[[which.assay]][idx,o]
+    Q <- qnorm(.975)
+    sds <- sqrt(assays(y)[["variance"]][idx,o])
+    ymax <- max(cts + Q*sds)
+    ymin <- if (is.null(cov)) 0 else -0.02 * ymax
+    plot(cts, ylim=c(ymin, ymax), type="n",
+         xaxt="n", xlab=xlab, ylab=ylab)
+    segments(seq_along(cts), pmax(cts - Q*sds, 0),
+             seq_along(cts), cts + Q*sds,
+             col=col, lwd=2)
+    points(cts, col=col, pch=22, bg=col.in,
+           cex=1, lwd=1.5)
+  }
   if (xaxis) axis(1, seq_along(condition), samp.nums)
+  if (!xaxis) {
+    title(xlab="samples", mgp=c(1,1,0))
+  }
   if (!is.null(cov)) {
     cuts <- cumsum(table(covariate))
     segments(c(1,cuts[-ngrp]+1),ymin,cuts,ymin,lwd=3,
              col=rep(c("black","grey60"),length=ngrp))
   }
 }
-
+  
 #' MA plot
 #'
 #' @param y a SummarizedExperiment (see \code{swish})
@@ -597,8 +663,8 @@ boxplot2 <- function(x, w=.4, ylim, col, col.in, xlab="", ylab="", main="") {
   s <- seq_len(ncol(x))
   rect(s-w,qs[,2],s+w,qs[,4], col=col.in, border=col)
   segments(s-w, qs[,3], s+w, qs[,3], col=col, lwd=3, lend=1)
-  segments(s, qs[,2], s, qs[,1], col=col, lty=2, lend=1)
-  segments(s, qs[,4], s, qs[,5], col=col, lty=2, lend=1)
+  segments(s, qs[,2], s, qs[,1], col=col, lend=1)
+  segments(s, qs[,4], s, qs[,5], col=col, lend=1)
   segments(s-w/2, qs[,1], s+w/2, qs[,1], col=col)
   segments(s-w/2, qs[,5], s+w/2, qs[,5], col=col)
 }

@@ -11,7 +11,9 @@ plotInfReps(
   cov = NULL,
   cols.drk = c("dodgerblue", "goldenrod4"),
   cols.lgt = c("lightblue1", "goldenrod1"),
-  xaxis
+  xaxis,
+  useMean = TRUE,
+  reorder = FALSE
 )
 }
 \arguments{
@@ -29,12 +31,24 @@ plotInfReps(
 
 \item{xaxis}{logical, whether to label the sample numbers.
 default is \code{TRUE} if there are less than 30 samples}
+
+\item{useMean}{logical, when inferential replicates
+are not present, use the \code{mean} assay or the
+\code{counts} assay for plotting}
+
+\item{reorder}{logical, should points within a group
+defined by condition and covariate be re-ordered by
+their count value}
 }
 \value{
 nothing, a plot is displayed
 }
 \description{
-Plot inferential replicates for a gene or transcript
+For datasets with inferential replicates, boxplots are
+drawn for the two groups and potentially grouped by
+covariates. For datasets with only mean and variance,
+points and intervals (95% intervals using Normal
+approximation) are drawn.
 }
 \examples{
 
