@@ -579,7 +579,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     sds <- sqrt(assays(y)[["variance"]][idx,o])
     ymax <- max(cts + Q*sds)
     ymin <- if (is.null(cov)) 0 else -0.02 * ymax
-    plot(cts, ylim=c(ymin, ymax), type="n",
+    plot(cts, ylim=c(ymin, ymax), type="n", main=main,
          xaxt="n", xlab=xlab, ylab=ylab)
     segments(seq_along(cts), pmax(cts - Q*sds, 0),
              seq_along(cts), cts + Q*sds,
