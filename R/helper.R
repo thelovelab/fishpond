@@ -530,6 +530,11 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   }
   if (missing(xlab)) {
     xlab <- "samples"
+    if (!is.null(metadata(y)$tximetaInfo$type)) {
+      if (metadata(y)$tximetaInfo$type == "alevin") {
+        xlab <- "cells"
+      }
+    } 
   }
   ylab <- if (infRepsScaled) "scaled counts" else "counts"
   # this is a dummy variable used when making the plot()
