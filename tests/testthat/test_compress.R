@@ -62,5 +62,35 @@ test_that("compressing uncertainty works", {
   #splitSwish(y, 4, prefix="foo/swish", snakefile="foo/Snakefile")
   #miniSwish("foo/swish1.rds", "foo/swish1.csv", x="condition")
   #y <- addStatsFromCSV(y, "foo/summary.csv")
+
+  if (FALSE) {
+
+    # test plotting of neurons data
+    dir <- system.file("extdata", package="tximportData")
+    files <- file.path(dir,"alevin/neurons_900_v014/alevin/quants_mat.gz")
+    file.exists(files)
+    coldata <- data.frame(files, names="neurons")
+    library(SummarizedExperiment)
+    library(tximeta)
+    se <- tximeta(coldata, type="alevin", dropInfReps=TRUE, skipMeta=TRUE)
+    se$condition <- factor(sample(rep(1:2,length=ncol(se))))
+    se <- labelKeep(se, minCount=10, minN=10)
+    table(mcols(se)$keep)
+    se <- se[mcols(se)$keep,]
+    plotInfReps(se, 1, x="condition")
+
+    sfFun <- function(m) {
+      DESeq2::estimateSizeFactorsForMatrix(
+        m, geoMeans=exp(rowSums(log(m) * as.numeric(m > 0))/ncol(m))
+      )
+    }
+    sf <- sfFun(as.matrix(assays(se)[["mean"]]))
+    se$sizeFactors <- pmax(sf, .25)
+
+    plotInfReps(se, 1, x="condition", applySF=TRUE)
+    plotInfReps(se, 1, x="condition", reorder=FALSE)
+    plotInfReps(se, 1, x="condition", applySF=TRUE, reorder=FALSE)
+    
+  }
   
 })

@@ -13,8 +13,11 @@ plotInfReps(
   cols.lgt = c("lightblue1", "goldenrod1"),
   xaxis,
   xlab,
+  ylim,
   useMean = TRUE,
-  reorder = FALSE
+  applySF = FALSE,
+  reorder,
+  thin
 )
 }
 \arguments{
@@ -35,13 +38,24 @@ default is \code{TRUE} if there are less than 30 samples}
 
 \item{xlab}{the x-axis label}
 
+\item{ylim}{y limits}
+
 \item{useMean}{logical, when inferential replicates
 are not present, use the \code{mean} assay or the
 \code{counts} assay for plotting}
 
+\item{applySF}{logical, when inferential replicates are
+not present, should \code{y$sizeFactors} be divided out
+from the mean and interval plots (default FALSE)}
+
 \item{reorder}{logical, should points within a group
 defined by condition and covariate be re-ordered by
-their count value}
+their count value (default is FALSE, except for alevin data)}
+
+\item{thin}{integer, should the mean and interval lines
+be drawn thin (the default switches from 0 [not thin]
+to 1 [thinner] at n=150 cells, and from 1 [thinner]
+to 2 [thinnest] at n=400 cells)}
 }
 \value{
 nothing, a plot is displayed

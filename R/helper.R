@@ -484,12 +484,20 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
 #' @param xaxis logical, whether to label the sample numbers.
 #' default is \code{TRUE} if there are less than 30 samples
 #' @param xlab the x-axis label
+#' @param ylim y limits
 #' @param useMean logical, when inferential replicates
 #' are not present, use the \code{mean} assay or the
 #' \code{counts} assay for plotting
+#' @param applySF logical, when inferential replicates are
+#' not present, should \code{y$sizeFactors} be divided out
+#' from the mean and interval plots (default FALSE)
 #' @param reorder logical, should points within a group
 #' defined by condition and covariate be re-ordered by
-#' their count value
+#' their count value (default is FALSE, except for alevin data)
+#' @param thin integer, should the mean and interval lines
+#' be drawn thin (the default switches from 0 [not thin]
+#' to 1 [thinner] at n=150 cells, and from 1 [thinner]
+#' to 2 [thinnest] at n=400 cells)
 #'
 #' @return nothing, a plot is displayed
 #' 
@@ -506,8 +514,11 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
 plotInfReps <- function(y, idx, x, cov=NULL,
                         cols.drk=c("dodgerblue","goldenrod4"),
                         cols.lgt=c("lightblue1","goldenrod1"),
-                        xaxis, xlab,
-                        useMean=TRUE, reorder=FALSE) {
+                        xaxis, xlab, ylim,
+                        useMean=TRUE,
+                        applySF=FALSE,
+                        reorder,
+                        thin) {
   
   hasInfReps <- any(grepl("infRep", assayNames(y)))
   if (!hasInfReps) {
@@ -519,6 +530,11 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   if (missing(xaxis)) {
     xaxis <- ncol(y) < 30
   }
+  if (missing(thin)) {
+    thin <- if (ncol(y) >= 400) 2 else if (ncol(y) >= 150) 1 else 0
+  } else {
+    stopifnot(thin >= 0 & thin <= 2)
+  }
   if (!is.null(cov)) {
     stopifnot(cov %in% names(colData(y)))
     covariate <- factor(colData(y)[[cov]])
@@ -528,13 +544,18 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   if (!is.null(metadata(y)$infRepsScaled)) {
     infRepsScaled <- metadata(y)$infRepsScaled
   }
+  # single cell?
+  sc <- FALSE 
+  if (!is.null(metadata(y)$tximetaInfo$type)) {
+    if (metadata(y)$tximetaInfo$type == "alevin") {
+      sc <- TRUE
+    }
+  }
   if (missing(xlab)) {
-    xlab <- "samples"
-    if (!is.null(metadata(y)$tximetaInfo$type)) {
-      if (metadata(y)$tximetaInfo$type == "alevin") {
-        xlab <- "cells"
-      }
-    } 
+    xlab <- if (sc) "cells" else "samples"
+  }
+  if (missing(reorder)) {
+    reorder <- sc
   }
   ylab <- if (infRepsScaled) "scaled counts" else "counts"
   # this is a dummy variable used when making the plot()
@@ -554,6 +575,9 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     } else {
       which.assay <- if (useMean) "mean" else "counts"
       value <- assays(y)[[which.assay]][idx,]
+      if (applySF & !is.null(y$sizeFactors)) {
+        value <- value/y$sizeFactors
+      }
     }
     if (is.null(cov)) {
       o <- order(condition, value)
@@ -578,27 +602,50 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     col <- rep(rep(cols.drk, ngrp), vec.tab)
     col.in <- rep(rep(cols.lgt, ngrp), vec.tab)
   }
+  ### boxplot ###
   if (hasInfReps) {
     infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
     cts <- unlist(infReps)[,o]
     ymax <- max(cts)
     ymin <- if (is.null(cov)) 0 else -0.02 * ymax
-    boxplot2(cts, col=col, col.in=col.in, ylim=c(ymin,ymax),
+    if (missing(ylim)) {
+      ylim <- c(ymin,ymax)
+    } else {
+      stopifnot(length(ylim) == 2)
+    }
+    boxplot2(cts, col=col, col.in=col.in, ylim=ylim,
              xlab=xlabel, ylab=ylab, main=main)
+    ### point and line plot ###
   } else {
     which.assay <- if (useMean) "mean" else "counts"
     cts <- assays(y)[[which.assay]][idx,o]
-    Q <- qnorm(.975)
     sds <- sqrt(assays(y)[["variance"]][idx,o])
+    Q <- qnorm(.975)
+    if (applySF & !is.null(y$sizeFactors)) {
+      cts <- cts / y$sizeFactors[o]
+      sds <- sds / y$sizeFactors[o]
+      ylab <- "scaled counts"
+    }
     ymax <- max(cts + Q*sds)
     ymin <- if (is.null(cov)) 0 else -0.02 * ymax
-    plot(cts, ylim=c(ymin, ymax), type="n", main=main,
-         xaxt="n", xlab=xlabel, ylab=ylab)
+    if (missing(ylim)) {
+      ylim <- c(ymin, ymax)
+    } else {
+      stopifnot(length(ylim) == 2)
+    }
+    plot(cts, type="n", main=main,
+         xaxt="n", ylim=ylim,
+         xlab=xlabel, ylab=ylab)
+    seg.lwd <- if (thin == 0) 2 else if (thin == 1) 1 else 3
+    seg.col <- if (thin < 2) col else col.in
     segments(seq_along(cts), pmax(cts - Q*sds, 0),
              seq_along(cts), cts + Q*sds,
-             col=col, lwd=2)
-    points(cts, col=col, pch=22, bg=col.in,
-           cex=1, lwd=1.5)
+             col=seg.col, lwd=seg.lwd)
+    pts.pch <- if (thin == 0) 22 else 15
+    pts.lwd <- if (thin == 0) 1. else 1
+    pts.cex <- if (thin == 0) 1 else 0.5
+    points(cts, col=col, pch=pts.pch, bg=col.in,
+           cex=pts.cex, lwd=pts.lwd)
   }
   if (xaxis) axis(1, seq_along(condition), samp.nums)
   if (!xaxis) {
