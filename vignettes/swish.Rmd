@@ -734,10 +734,10 @@ distributed job, and with `lengthCorrect=FALSE` by default).
 ```{r, eval=FALSE}
 # after filtering genes and cells...
 
-# compute and store size factors calculated over all genes
+# compute and store sizeFactors calculated over all genes
 cts <- as.matrix(assays(y)[["counts"]])
 sf <- sfFun(cts)
-colData(y)$sizeFactors <- sf
+colData(y)$sizeFactor <- sf
 
 # split swish objects into 8 RDS files:
 splitSwish(y, nsplits=8, prefix="swish", snakefile="Snakefile")

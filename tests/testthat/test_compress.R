@@ -51,7 +51,7 @@ test_that("compressing uncertainty works", {
     )
   }
   sf <- sfFun(assays(y)[["counts"]])
-  colData(y)$sizeFactors <- sf
+  colData(y)$sizeFactor <- sf
 
   y <- labelKeep(y)
   y <- y[mcols(y)$keep,]
@@ -85,7 +85,7 @@ test_that("compressing uncertainty works", {
       )
     }
     sf <- sfFun(as.matrix(assays(se)[["mean"]]))
-    se$sizeFactors <- pmax(sf, .25)
+    se$sizeFactor <- pmax(sf, .25)
 
     plotInfReps(se, 1, x="condition", applySF=TRUE)
     plotInfReps(se, 1, x="condition", reorder=FALSE)
