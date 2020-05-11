@@ -368,9 +368,9 @@ miniSwish <- function(infile, outfile, numReps=20,
   stopifnot(!is.null(rownames(y)))
   stopifnot(all(mcols(y)$keep))
   y <- makeInfReps(y, numReps=numReps)
-  if (is.null(colData(y)$sizeFactors))
+  if (is.null(colData(y)$sizeFactor))
     stop("miniSwish requires pre-estimated sizeFactors stored in colData(...)")
-  y <- scaleInfReps(y, lengthCorrect=lengthCorrect, sfFun=colData(y)$sizeFactors)
+  y <- scaleInfReps(y, lengthCorrect=lengthCorrect, sfFun=colData(y)$sizeFactor)
   out <- swish(y=y, returnNulls=TRUE, ...)
   mat <- cbind(out$stat, out$log2FC, out$nulls)
   rownames(mat) <- rownames(y)
@@ -489,7 +489,7 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
 #' are not present, use the \code{mean} assay or the
 #' \code{counts} assay for plotting
 #' @param applySF logical, when inferential replicates are
-#' not present, should \code{y$sizeFactors} be divided out
+#' not present, should \code{y$sizeFactor} be divided out
 #' from the mean and interval plots (default FALSE)
 #' @param reorder logical, should points within a group
 #' defined by condition and covariate be re-ordered by
@@ -575,8 +575,8 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     } else {
       which.assay <- if (useMean) "mean" else "counts"
       value <- assays(y)[[which.assay]][idx,]
-      if (applySF & !is.null(y$sizeFactors)) {
-        value <- value/y$sizeFactors
+      if (applySF & !is.null(y$sizeFactor)) {
+        value <- value/y$sizeFactor
       }
     }
     if (is.null(cov)) {
@@ -621,9 +621,9 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     cts <- assays(y)[[which.assay]][idx,o]
     sds <- sqrt(assays(y)[["variance"]][idx,o])
     Q <- qnorm(.975)
-    if (applySF & !is.null(y$sizeFactors)) {
-      cts <- cts / y$sizeFactors[o]
-      sds <- sds / y$sizeFactors[o]
+    if (applySF & !is.null(y$sizeFactor)) {
+      cts <- cts / y$sizeFactor[o]
+      sds <- sds / y$sizeFactor[o]
       ylab <- "scaled counts"
     }
     ymax <- max(cts + Q*sds)
