@@ -73,23 +73,33 @@ test_that("compressing uncertainty works", {
     library(SummarizedExperiment)
     library(tximeta)
     se <- tximeta(coldata, type="alevin", dropInfReps=TRUE, skipMeta=TRUE)
-    se$condition <- factor(sample(rep(1:2,length=ncol(se))))
-    se <- labelKeep(se, minCount=10, minN=10)
-    table(mcols(se)$keep)
-    se <- se[mcols(se)$keep,]
-    plotInfReps(se, 1, x="condition")
 
+    # convert to SCE
+    library(SingleCellExperiment)
+    sce <- as(se, "SingleCellExperiment")
+    
+    sce$condition <- factor(sample(rep(1:2,length=ncol(sce))))
+    sce <- labelKeep(sce, minCount=10, minN=10)
+    table(mcols(sce)$keep)
+    sce <- sce[mcols(sce)$keep,]
+    plotInfReps(sce, 1, x="condition")
+
+    # DESeq2 "poscounts" normalization
     sfFun <- function(m) {
-      DESeq2::estimateSizeFactorsForMatrix(
-        m, geoMeans=exp(rowSums(log(m) * as.numeric(m > 0))/ncol(m))
-      )
+      geoMeanNZ <- function(x) {
+        if (all(x == 0)) { 0 } else { exp( sum(log(x[x > 0])) / length(x) ) }
+      }
+      geoMeans <- apply(m, 1, geoMeanNZ)
+      DESeq2::estimateSizeFactorsForMatrix(m, geoMeans=geoMeans)
     }
-    sf <- sfFun(as.matrix(assays(se)[["mean"]]))
-    se$sizeFactor <- pmax(sf, .25)
+    sf <- sfFun(as.matrix(assays(sce)[["mean"]]))
 
-    plotInfReps(se, 1, x="condition", applySF=TRUE)
-    plotInfReps(se, 1, x="condition", reorder=FALSE)
-    plotInfReps(se, 1, x="condition", applySF=TRUE, reorder=FALSE)
+    # set size factors using SingleCellExperiment setter
+    sizeFactors(sce) <- pmax(sf, .25)
+
+    plotInfReps(sce, 1, x="condition", applySF=TRUE)
+    plotInfReps(sce, 1, x="condition", reorder=FALSE)
+    plotInfReps(sce, 1, x="condition", applySF=TRUE, reorder=FALSE)
     
   }
   
