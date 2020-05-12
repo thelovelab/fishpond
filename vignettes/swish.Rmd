@@ -696,16 +696,7 @@ y <- swish(y, x="condition")
 **Size factor function:** Note that `scaleInfReps` has an argument
 `sfFun` which allows the user to provide their own size factor
 calculation function. One could use `computeSumFactors` in the *scran*
-package for example. The code chunk below provides the `"poscounts"`
-size factor estimation function that was used in the *Swish* paper.
-
-```{r eval=FALSE}
-sfFun <- function(m) {
-  DESeq2::estimateSizeFactorsForMatrix(
-    m, geoMeans=exp(rowSums(log(m) * as.numeric(m > 0))/ncol(m))
-  )
-}
-```
+package for example. 
 
 **(Faster) Without inferential replicates:** If one has avoided
 storing the inferential replicates, or avoided loading them into R,
