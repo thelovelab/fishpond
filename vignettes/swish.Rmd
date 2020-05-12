@@ -631,7 +631,7 @@ plotInfReps(y2, idx[1], x="ifng", cov="salmonella")
 plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 ```
 
-# Running swish with output from *alevin*
+# Swish on *alevin* scRNA-seq counts
 
 The *alevin* [@alevin] and *tximport* / *tximeta* maintainers have
 created an efficient format for storing and importing the sparse 
