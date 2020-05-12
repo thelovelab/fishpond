@@ -312,6 +312,7 @@ splitSwish <- function(y, nsplits, prefix="swish",
   stopifnot(nsplits < nrow(y))
   stopifnot(!is.null(rownames(y)))
   stopifnot(all(mcols(y)$keep))
+  stopifnot(basename(prefix) == "swish")
   if (!is.null(snakefile)) {
     stopifnot(is(snakefile, "character"))
     if (file.exists(snakefile) & !overwrite)
