@@ -146,7 +146,7 @@ NULL
 #' plotInfReps(y, 3, "condition")
 #' plotInfReps(y, 5, "condition")
 #'
-#' @importFrom graphics plot points segments rect abline title axis
+#' @importFrom graphics plot points segments rect abline title axis legend
 #' @importFrom stats median quantile qnorm rpois runif rnbinom var
 #' @importFrom utils head tail capture.output read.table write.table
 #' @importFrom methods is
