@@ -770,7 +770,7 @@ specifying a batch variable with the argument `cov` instead of `pair`.
 The two interaction tests can be run by specifying `interaction=TRUE`
 and providing `x`, `cov`, and optionally `pair`.
 
-## Structure of `tximeta` output / `swish` input
+## Structure of tximeta output
 
 While `tximeta` is the safest way to provide the correct input to
 `swish`, all that `swish` requires for running is a
