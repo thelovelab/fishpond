@@ -108,7 +108,11 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   xlabel <- if (xaxis) xlab else ""
   if (missing(main)) {
     if (missing(mainCol)) {
-      main <- rownames(y)[idx]
+      if (is.character(idx)) {
+        main <- idx
+      } else {
+        main <- rownames(y)[idx]
+      }
     } else {
       stopifnot(mainCol %in% names(mcols(y)))
       main <- mcols(y)[idx,mainCol]
