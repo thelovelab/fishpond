@@ -9,12 +9,14 @@ plotInfReps(
   idx,
   x,
   cov = NULL,
-  cols.drk = c("dodgerblue", "goldenrod4", "green4", "red3", "purple4", "royalblue4"),
-  cols.lgt = c("lightblue1", "goldenrod1", "lightgreen", "salmon1", "orchid1",
+  colsDrk = c("dodgerblue", "goldenrod4", "green4", "red3", "purple4", "royalblue4"),
+  colsLgt = c("lightblue1", "goldenrod1", "lightgreen", "salmon1", "orchid1",
     "royalblue1"),
   xaxis,
   xlab,
   ylim,
+  main,
+  mainCol,
   legend = FALSE,
   useMean = TRUE,
   applySF = FALSE,
@@ -31,9 +33,9 @@ plotInfReps(
 
 \item{cov}{the name of the covariate for adjustment}
 
-\item{cols.drk}{dark colors for the lines of the boxes}
+\item{colsDrk}{dark colors for the lines of the boxes}
 
-\item{cols.lgt}{light colors for the inside of the boxes}
+\item{colsLgt}{light colors for the inside of the boxes}
 
 \item{xaxis}{logical, whether to label the sample numbers.
 default is \code{TRUE} if there are less than 30 samples}
@@ -41,6 +43,11 @@ default is \code{TRUE} if there are less than 30 samples}
 \item{xlab}{the x-axis label}
 
 \item{ylim}{y limits}
+
+\item{main}{title}
+
+\item{mainCol}{name of metadata column to use for title
+(instead of rowname)}
 
 \item{legend}{logical, show simple legend (default FALSE)}
 

@@ -82,7 +82,9 @@ test_that("compressing uncertainty works", {
     sce <- labelKeep(sce, minCount=10, minN=10)
     table(mcols(sce)$keep)
     sce <- sce[mcols(sce)$keep,]
+    mcols(sce)$name <- rep(LETTERS, length=nrow(sce))
     plotInfReps(sce, 1, x="condition")
+    plotInfReps(sce, 1, x="condition", mainCol="name")
 
     # DESeq2 "poscounts" normalization
     sfFun <- function(m) {
