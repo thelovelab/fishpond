@@ -631,7 +631,7 @@ plotInfReps(y2, idx[1], x="ifng", cov="salmonella")
 plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 ```
 
-# Swish on *alevin* scRNA-seq counts
+# alevin scRNA-seq
 
 The *alevin* [@alevin] and *tximport* / *tximeta* maintainers have
 created an efficient format for storing and importing the sparse 
@@ -676,7 +676,7 @@ y <- labelKeep(y, minCount=3, minN=10)
 y <- y[mcols(y)$keep,] # subset genes
 ```
 
-**Filter cells:** One should also subset to the groups of cells of
+**Subset cells:** One should also subset to the groups of cells of
 interest for differential testing, in order to take up the least
 amount of memory when the sparse matrices are converted to dense
 matrices.
