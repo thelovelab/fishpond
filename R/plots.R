@@ -10,12 +10,15 @@
 #' @param idx the name or row number of the gene or transcript
 #' @param x the name of the condition variable
 #' @param cov the name of the covariate for adjustment
-#' @param cols.drk dark colors for the lines of the boxes
-#' @param cols.lgt light colors for the inside of the boxes
+#' @param colsDrk dark colors for the lines of the boxes
+#' @param colsLgt light colors for the inside of the boxes
 #' @param xaxis logical, whether to label the sample numbers.
 #' default is \code{TRUE} if there are less than 30 samples
 #' @param xlab the x-axis label
 #' @param ylim y limits
+#' @param main title
+#' @param mainCol name of metadata column to use for title
+#' (instead of rowname)
 #' @param useMean logical, when inferential replicates
 #' are not present, use the \code{mean} assay or the
 #' \code{counts} assay for plotting
@@ -44,11 +47,12 @@
 #' 
 #' @export
 plotInfReps <- function(y, idx, x, cov=NULL,
-                        cols.drk=c("dodgerblue","goldenrod4","green4",
+                        colsDrk=c("dodgerblue","goldenrod4","green4",
                                    "red3","purple4","royalblue4"),
-                        cols.lgt=c("lightblue1","goldenrod1","lightgreen",
+                        colsLgt=c("lightblue1","goldenrod1","lightgreen",
                                    "salmon1","orchid1","royalblue1"),
                         xaxis, xlab, ylim,
+                        main, mainCol,
                         legend=FALSE,
                         useMean=TRUE,
                         applySF=FALSE,
@@ -63,10 +67,10 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
   ncond <- nlevels(condition)
-  stopifnot(length(cols.drk) == length(cols.lgt))
-  stopifnot(ncond <= length(cols.drk))
-  cols.drk <- cols.drk[seq_len(ncond)]
-  cols.lgt <- cols.lgt[seq_len(ncond)]
+  stopifnot(length(colsDrk) == length(colsLgt))
+  stopifnot(ncond <= length(colsDrk))
+  colsDrk <- colsDrk[seq_len(ncond)]
+  colsLgt <- colsLgt[seq_len(ncond)]
   if (missing(xaxis)) {
     xaxis <- ncol(y) < 30
   }
@@ -102,12 +106,14 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   # if we don't put x-axis ticks, then we will move
   # the label up higher using title()
   xlabel <- if (xaxis) xlab else ""
-  main <- if (is.null(rownames(y))) {
-            ""
-          } else {
-            if (is.character(idx)) idx else rownames(y)[idx]
-          }
-
+  if (missing(main)) {
+    if (missing(mainCol)) {
+      main <- rownames(y)[idx]
+    } else {
+      stopifnot(mainCol %in% names(mcols(y)))
+      main <- mcols(y)[idx,mainCol]
+    }
+  }
   if (reorder) {
     if (hasInfReps) {
       infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
@@ -134,13 +140,13 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   
   if (is.null(cov)) {
     samp.nums <- unlist(lapply(table(condition), seq_len))
-    col <- rep(cols.drk, table(condition))
-    col.in <- rep(cols.lgt, table(condition))
+    col <- rep(colsDrk, table(condition))
+    col.in <- rep(colsLgt, table(condition))
   } else {
     vec.tab <- as.vector(table(condition, covariate))
     samp.nums <- unlist(lapply(vec.tab, seq_len))
-    col <- rep(rep(cols.drk, ngrp), vec.tab)
-    col.in <- rep(rep(cols.lgt, ngrp), vec.tab)
+    col <- rep(rep(colsDrk, ngrp), vec.tab)
+    col.in <- rep(rep(colsLgt, ngrp), vec.tab)
   }
   ### boxplot ###
   if (hasInfReps) {
@@ -198,7 +204,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   }
   if (legend) {
     legend("topleft", legend=levels(condition),
-           col=cols.drk, pt.bg=cols.lgt, pch=22,
+           col=colsDrk, pt.bg=colsLgt, pch=22,
            cex=.8, bg="white", box.col=NA, inset=.01)
   }
 }
