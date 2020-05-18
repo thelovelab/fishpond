@@ -238,7 +238,12 @@ makeIsoProp <- function(counts, gene) {
 #' variance (one transcript or gene at a time),
 #' and do not capture the covariance of counts across
 #' transcripts or genes, unlike imported inferential
-#' replicate data.
+#' replicate data. Therefore, \code{makeInfReps} should
+#' not be used with \code{summarizeToGene} to create
+#' gene-level inferential replicates if inferential
+#' replicates were originally created on the transcript
+#' level. Instead, import the original inferential
+#' replicates.
 #'
 #' @param y a SummarizedExperiment
 #' @param numReps how many inferential replicates
