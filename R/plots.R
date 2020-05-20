@@ -125,6 +125,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
       infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
       value <- colMeans(unlist(infReps))
     } else {
+      if (useMean) stopifnot("mean" %in% assayNames(y))
       which.assay <- if (useMean) "mean" else "counts"
       value <- assays(y)[[which.assay]][idx,]
       if (applySF & !is.null(y$sizeFactor)) {
