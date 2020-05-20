@@ -66,6 +66,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   }
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
+  stopifnot(is(condition, "factor"))
   ncond <- nlevels(condition)
   stopifnot(length(colsDrk) == length(colsLgt))
   stopifnot(ncond <= length(colsDrk))
@@ -82,6 +83,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   if (!is.null(cov)) {
     stopifnot(cov %in% names(colData(y)))
     covariate <- factor(colData(y)[[cov]])
+    stopifnot(is(covariate, "factor"))
     ngrp <- nlevels(covariate)
   }
   infRepsScaled <- FALSE
