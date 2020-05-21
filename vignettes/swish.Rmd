@@ -638,8 +638,8 @@ plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 
 The *alevin* [@alevin] and *tximport* / *tximeta* maintainers have
 created an efficient format for storing and importing the sparse 
-scRNA-seq estimated gene counts, and optionally inferential mean and
-variance, and optionally the inferential replicate counts. `tximeta`
+scRNA-seq estimated gene counts, inferential mean and
+variance data, and optionally the inferential replicate counts. `tximeta`
 will automatically import these matrices if *alevin* was run using
 `--numCellBootstraps` (in order to generate inferential variance) and
 additionally `--dumpFeatures` (in order to dump the inferential
