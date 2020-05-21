@@ -667,7 +667,7 @@ running *alevin*, or subsequently use `dropInfReps=TRUE` to not load
 the inferential replicates into R. 
 
 **Plotting:** To demonstrate how the inferential mean and variance
-look across real scRNA-seq data, we load the neurons (900) dataset and
+look across real scRNA-seq data, we load the neurons dataset and
 plot the inferential replicate data across cells. First we read in the
 counts, in this case using `dropInfReps=TRUE` because the directory
 includes the actual inferential replicates, not only the mean and
