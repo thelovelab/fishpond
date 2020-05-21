@@ -654,7 +654,8 @@ efficient, for example, the estimated counts for the 900 mouse neuron
 dataset from 10x Genomics takes up 4.2 Mb, the mean/variance matrices
 take up 8.6 Mb each, and the inferential replicates takes up 72 Mb (20
 bootstrap inferential replicates). Hence avoiding writing and
-importing the inferential replicates is desirable.
+importing the inferential replicates themselves, and only using the
+mean and variance, is desirable.
 
 The `swish` and *alevin* authors have developed a workflow that uses
 inferential mean and variance to generate pseudo-inferential
