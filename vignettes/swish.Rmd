@@ -684,14 +684,18 @@ neurons <- tximeta(files, type="alevin",
                    alevinArgs=list(filterBarcodes=TRUE))
 ```
 
-We can easily make a single cell experiment, and plot counts across
-cluster (here a randomly assigned cluster label):
+We can easily make a *SingleCellExperiment* object [@Amezquita2020],
+and plot counts across cluster (here a randomly assigned cluster
+label). For more details on working with *SingleCellExperiments*, 
+consult the following online book: 
+[Orchestrating Single-Cell Analysis with Bioconductor](https://osca.bioconductor.org/)
+[@Amezquita2020].
 
 ```{r}
 library(SingleCellExperiment)
 sce <- as(neurons, "SingleCellExperiment")
 sce$cluster <- factor(paste0("cl",sample(1:6,ncol(sce),TRUE)))
-par(mfrow=c(2,1), mar=c(2,3,2,1))
+par(mfrow=c(2,1), mar=c(2,4,2,1))
 plotInfReps(sce, "ENSMUSG00000072235.6", x="cluster",
             legend=TRUE)
 plotInfReps(sce, "ENSMUSG00000072235.6", x="cluster",
@@ -707,11 +711,11 @@ Size factor scaling will use the values in `sizeFactors(sce)` or
 equivalently `mcols(sce)$sizeFactor`.
 
 Note that the figures scale to some degree by the number of cells; for
-example with $n \in [1,150)$ or $[150,400)$, varying visual elements
+example with $n \in [1,150)$ or $[150,400)$, more visual elements
 per cell will be included: 
 
 ```{r echo=FALSE}
-par(mfrow=c(2,1), mar=c(2,3,2,1))
+par(mfrow=c(2,1), mar=c(2,4,2,1))
 plotInfReps(sce[,1:50], "ENSMUSG00000072235.6", x="cluster")
 plotInfReps(sce[,1:150], "ENSMUSG00000072235.6", x="cluster")
 ```
