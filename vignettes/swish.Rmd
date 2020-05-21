@@ -673,7 +673,7 @@ counts, in this case using `dropInfReps=TRUE` because the directory
 includes the actual inferential replicates, not only the mean and
 variance.  We set `skipMeta=TRUE`, although in general you would want
 `tximeta` to add the gene range information and other metadata if
-working with human, mouse or fruit fly.
+working with human, mouse, or fruit fly.
 
 ```{r}
 dir <- system.file("extdata", package="tximportData")
