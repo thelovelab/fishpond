@@ -23,9 +23,10 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
 
 # The Swish method
 
-The `swish` method for differential expression analysis of RNA-seq
-data using inferential replicate counts is described in the following
-reference: @swish - [doi: 10.1093/nar/gkz622](https://doi.org/10.1093/nar/gkz622).
+The `swish` method for differential expression analysis of bulk or
+single-cell RNA-seq data using inferential replicate counts is
+described in the following reference: 
+@swish [doi: 10.1093/nar/gkz622](https://doi.org/10.1093/nar/gkz622).
 
 We note that `swish` extends and builds on another method, *SAMseq*
 [@samseq], implemented in the *samr* package,
@@ -45,18 +46,20 @@ from the feedback of Hirak Sarkar and Scott Van Buren.
 # Quick start
 
 The following lines of code will perform a basic transcript-level
-`swish` two group analysis. For more details, read on.
+`swish` two group analysis of bulk RNA-seq. For more details, read
+on. There is a special section below for two-group analysis
+of [scRNA-seq](#alevin_scrna-seq).
 
 ```{r eval=FALSE}
 # 'coldata.csv': sample information table
 coldata <- read.csv("coldata.csv")
 library(tximeta)
-y <- tximeta(coldata)
+y <- tximeta(coldata) # reads in counts
 library(swish)
-y <- scaleInfReps(y)
-y <- labelKeep(y)
+y <- scaleInfReps(y) # scales counts
+y <- labelKeep(y) # labels genes to keep
 set.seed(1)
-y <- swish(y, x="condition")
+y <- swish(y, x="condition") # simplest Swish case
 ```
 
 The results can be found in `mcols(y)`. For example, one can calculate
@@ -635,34 +638,93 @@ plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 
 The *alevin* [@alevin] and *tximport* / *tximeta* maintainers have
 created an efficient format for storing and importing the sparse 
-scRNA-seq estimated gene counts, and optionally inferential mean and
-variance, and the inferential replicate counts. `tximeta` will
-automatically  import these matrices if *alevin* was run using
+scRNA-seq estimated gene counts, inferential mean and
+variance data, and optionally the inferential replicate counts. `tximeta`
+will automatically import these matrices if *alevin* was run using
 `--numCellBootstraps` (in order to generate inferential variance) and
 additionally `--dumpFeatures` (in order to dump the inferential
-replicates themselves, see below on thoughts on optionally avoiding
-this step though).
+replicates themselves, see below on thoughts on avoiding this step
+though). 
 
-The storage format for counts, and for inferential
+The storage format for counts, mean, variance, and inferential
 replicates, involves writing one cell at a time, storing the locations
 of the non-zero counts, and then the non-zero counts. The matrices are
 loaded into R sparely using the *Matrix* package. The storage format is
 efficient, for example, the estimated counts for the 900 mouse neuron
 dataset from 10x Genomics takes up 4.2 Mb, the mean/variance matrices
 take up 8.6 Mb each, and the inferential replicates takes up 72 Mb (20
-bootstrap inferential replicates).
+bootstrap inferential replicates). Hence avoiding writing and
+importing the inferential replicates themselves, and only using the
+mean and variance, is desirable.
 
 The `swish` and *alevin* authors have developed a workflow that uses
-pseudo-inferential replicates in place of the actual inferential
-replicates, which are generated using the inferential mean and
-variance matrices. Storing and importing only the inferential mean and
-variance is much more efficient (dramatically faster load time and
-less space on disk and in memory). The faster workflow would then skip
-`--dumpFeatures` above, or use `dropInfReps=TRUE` to not load the
-inferential replicates into R. We describe both workflows below.
+inferential mean and variance to generate pseudo-inferential
+replicates in place of the actual inferential replicates. Storing and
+importing only the inferential mean and variance is much more
+efficient (dramatically faster load time and less space on disk and in
+memory). The faster workflow would then skip `--dumpFeatures` when
+running *alevin*, or subsequently use `dropInfReps=TRUE` to not load
+the inferential replicates into R. 
 
-`swish` can be run on *alevin* counts imported with `tximeta`, but
-there are a few extra steps suggested:
+**Plotting:** To demonstrate how the inferential mean and variance
+look across real scRNA-seq data, we load the neurons dataset and
+plot the inferential replicate data across cells. First we read in the
+counts, in this case using `dropInfReps=TRUE` because the directory
+includes the actual inferential replicates, not only the mean and
+variance.  We set `skipMeta=TRUE`, although in general you would want
+`tximeta` to add the gene range information and other metadata if
+working with human, mouse, or fruit fly.
+
+```{r}
+dir <- system.file("extdata", package="tximportData")
+files <- file.path(dir,"alevin/neurons_900_v014/alevin/quants_mat.gz")
+neurons <- tximeta(files, type="alevin",
+                   skipMeta=TRUE, # just for vignette
+                   dropInfReps=TRUE,
+                   alevinArgs=list(filterBarcodes=TRUE))
+```
+
+We can easily make a *SingleCellExperiment* object [@Amezquita2020],
+and plot counts across cluster (here a randomly assigned cluster
+label). For more details on working with *SingleCellExperiments*, 
+consult the following online book: 
+[Orchestrating Single-Cell Analysis with Bioconductor](https://osca.bioconductor.org/)
+[@Amezquita2020].
+
+```{r}
+library(SingleCellExperiment)
+sce <- as(neurons, "SingleCellExperiment")
+sce$cluster <- factor(paste0("cl",sample(1:6,ncol(sce),TRUE)))
+par(mfrow=c(2,1), mar=c(2,4,2,1))
+plotInfReps(sce, "ENSMUSG00000072235.6", x="cluster",
+            legend=TRUE)
+plotInfReps(sce, "ENSMUSG00000072235.6", x="cluster",
+            reorder=FALSE)
+```
+
+`plotInfReps` has a number of convenience arguments, including the
+ability to add a `legend`, to `reorder` the cells by expression value
+within cluster, to apply size factors to the counts (`applySF`), and
+whether to use a column of `mcols(sce)` to set the main title
+(`mainCol`). See `?plotInfReps` for more description of arguments.
+Size factor scaling will use the values in `sizeFactors(sce)` or
+equivalently `mcols(sce)$sizeFactor`.
+
+Note that the figures scale to some degree by the number of cells; for
+example with $n \in [1,150)$ or $[150,400)$, more visual elements
+per cell will be included: 
+
+```{r echo=FALSE}
+par(mfrow=c(2,1), mar=c(2,4,2,1))
+plotInfReps(sce[,1:50], "ENSMUSG00000072235.6", x="cluster")
+plotInfReps(sce[,1:150], "ENSMUSG00000072235.6", x="cluster")
+```
+
+**Advice on Swish testing:** `swish` can be run on *alevin* counts
+imported with `tximeta`, but there are a few extra steps
+suggested. The following does not use evaluated code chunks, but
+provides suggestions for how to tailor `swish` to single-cell
+datasets. 
 
 **Filter genes:** we recommend to filter
 genes as the first step, to reduce the size of the data before losing
@@ -679,13 +741,15 @@ y <- y[mcols(y)$keep,] # subset genes
 **Subset cells:** One should also subset to the groups of cells of
 interest for differential testing, in order to take up the least
 amount of memory when the sparse matrices are converted to dense
-matrices.
+matrices. Note that `swish` only allows for differential testing of
+two groups (although it allows for blocking factors and interaction
+tests).
 
 **(Slower) With inferential replicates:** After one has filtered both
 genes and cells down to the set that are of interest for differential
 testing, one can run the following commands, to make the sparse
 matrices into dense ones, scale the cells, and perform *Swish*
-differential expression.
+differential expression, however read on for faster suggestions.
 
 ```{r eval=FALSE}
 assays(y) <- lapply(assays(y), as.matrix) # make dense matrices
@@ -695,14 +759,16 @@ y <- swish(y, x="condition")
 
 **Size factor function:** Note that `scaleInfReps` has an argument
 `sfFun` which allows the user to provide their own size factor
-calculation function. One could use `computeSumFactors` in the *scran*
-package for example. 
+calculation function. We have found that `computeSumFactors`
+[@Lun2016] in the *scran* package [@scran] works well for computing
+`sizeFactors(y)`.
 
-**(Faster) Without inferential replicates:** If one has avoided
-storing the inferential replicates, or avoided loading them into R,
-then we first need to generate pseudo-inferential replicates from
-inferential mean and variance matrices before running `scaleInfReps`
-from the code chunk above.
+**(Faster) Without inferential replicates:** The following workflow
+can be used in the case that `assayNames(y)` only contains counts,
+mean, and variance, which is much faster by avoiding writing/importing
+inferential replicates. We first generate pseudo-inferential
+replicates from inferential mean and variance matrices before running
+`scaleInfReps` from the code chunk above.
 
 The following function can be used just before `scaleInfReps`:
 
