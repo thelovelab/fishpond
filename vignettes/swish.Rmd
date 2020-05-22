@@ -686,8 +686,8 @@ neurons <- tximeta(files, type="alevin",
 
 We can easily make a *SingleCellExperiment* object [@Amezquita2020],
 and plot counts across cluster (here a randomly assigned cluster
-label). For more details on working with *SingleCellExperiments*, 
-consult the following online book: 
+label). For more details on working with *SingleCellExperiment*
+objects, consult the following online book: 
 [Orchestrating Single-Cell Analysis with Bioconductor](https://osca.bioconductor.org/)
 [@Amezquita2020].
 
@@ -759,9 +759,11 @@ y <- swish(y, x="condition")
 
 **Size factor function:** Note that `scaleInfReps` has an argument
 `sfFun` which allows the user to provide their own size factor
-calculation function. We have found that `computeSumFactors`
+calculation function. We have found that `calculateSumFactors`
 [@Lun2016] in the *scran* package [@scran] works well for computing
-`sizeFactors(y)`.
+size factors. `sfFun` should be specified as a function that returns a
+vector of size factors, or a numeric vector of the size factors
+themselves. 
 
 **(Faster) Without inferential replicates:** The following workflow
 can be used in the case that `assayNames(y)` only contains counts,
@@ -789,12 +791,13 @@ and without ever running `scaleInfReps` (it is run within the
 distributed job, and with `lengthCorrect=FALSE` by default).
 
 ```{r, eval=FALSE}
-# after filtering genes and cells...
+library(SingleCellExperiment)
+y <- as(y, "SingleCellExperiment")
+# then, after filtering genes and cells...
 
 # compute and store sizeFactors calculated over all genes
-cts <- as.matrix(assays(y)[["counts"]])
-sf <- sfFun(cts)
-colData(y)$sizeFactor <- sf
+library(scran)
+y <- computeSumFactors(y)
 
 # split swish objects into 8 RDS files:
 splitSwish(y, nsplits=8, prefix="swish", snakefile="Snakefile")
