@@ -8,7 +8,10 @@
 #' 
 #' @param y a SummarizedExperiment (see \code{swish})
 #' @param idx the name or row number of the gene or transcript
-#' @param x the name of the condition variable
+#' @param x the name of the condition variable for splitting
+#' and coloring the samples or cells. Also can be a numeric,
+#' e.g. pseudotime, in which case, \code{cov} can be used
+#' to designate groups for coloring
 #' @param cov the name of the covariate for adjustment
 #' @param colsDrk dark colors for the lines of the boxes
 #' @param colsLgt light colors for the inside of the boxes
@@ -66,14 +69,28 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   }
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
-  stopifnot(is(condition, "factor"))
-  ncond <- nlevels(condition)
+  # whether x is a factor variable or numeric (e.g. pseudotime)
+  xfac <- is(condition, "factor")
+  if (!xfac) stopifnot(is(condition, "numeric"))
   stopifnot(length(colsDrk) == length(colsLgt))
-  stopifnot(ncond <= length(colsDrk))
-  colsDrk <- colsDrk[seq_len(ncond)]
-  colsLgt <- colsLgt[seq_len(ncond)]
+  if (xfac) {
+    ncond <- nlevels(condition)
+    stopifnot(ncond <= length(colsDrk))
+    colsDrk <- colsDrk[seq_len(ncond)]
+    colsLgt <- colsLgt[seq_len(ncond)]
+  } else {
+    if (hasInfReps) {
+      message("boxplot of inf. reps over numeric 'x' not supported yet")
+      hasInfReps <- FALSE
+      stopifnot("variance" %in% assayNames(y))
+    }
+  }
   if (missing(xaxis)) {
-    xaxis <- ncol(y) < 30
+    if (xfac) {
+      xaxis <- ncol(y) < 30
+    } else {
+      xaxis <- TRUE
+    }
   }
   if (missing(thin)) {
     thin <- if (ncol(y) >= 400) 2 else if (ncol(y) >= 150) 1 else 0
@@ -98,10 +115,20 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     }
   }
   if (missing(xlab)) {
-    xlab <- if (sc) "cells" else "samples"
+    if (xfac) {
+      xlab <- if (sc) "cells" else "samples"
+    } else {
+      xlab <- x
+    }
   }
   if (missing(reorder)) {
-    reorder <- sc
+    if (xfac) {
+      reorder <- sc
+    } else {
+      reorder <- FALSE
+    }
+  } else {
+    if (!xfac & reorder) stop("reorder not used when 'x' is numeric")
   }
   ylab <- if (infRepsScaled) "scaled counts" else "counts"
   # this is a dummy variable used when making the plot()
@@ -136,24 +163,31 @@ plotInfReps <- function(y, idx, x, cov=NULL,
       o <- order(condition, value)
     } else {
       o <- order(covariate, condition, value)
-    }    
+    }
+    # not reordering:
   } else {
-    if (is.null(cov)) {
-      o <- order(condition)
+    if (xfac) {
+      if (is.null(cov)) {
+        o <- order(condition)
+      } else {
+        o <- order(covariate, condition)
+      }
+      # numeric 'x', don't reorder
     } else {
-      o <- order(covariate, condition)
+      o <- seq_along(condition)
     }
   }
-  
-  if (is.null(cov)) {
-    samp.nums <- unlist(lapply(table(condition), seq_len))
-    col <- rep(colsDrk, table(condition))
-    col.in <- rep(colsLgt, table(condition))
-  } else {
-    vec.tab <- as.vector(table(condition, covariate))
-    samp.nums <- unlist(lapply(vec.tab, seq_len))
-    col <- rep(rep(colsDrk, ngrp), vec.tab)
-    col.in <- rep(rep(colsLgt, ngrp), vec.tab)
+  if (xfac) {
+    if (is.null(cov)) {
+      samp.nums <- unlist(lapply(table(condition), seq_len))
+      col <- rep(colsDrk, table(condition))
+      col.in <- rep(colsLgt, table(condition))
+    } else {
+      vec.tab <- as.vector(table(condition, covariate))
+      samp.nums <- unlist(lapply(vec.tab, seq_len))
+      col <- rep(rep(colsDrk, ngrp), vec.tab)
+      col.in <- rep(rep(colsLgt, ngrp), vec.tab)
+    }
   }
   ### boxplot ###
   if (hasInfReps) {
@@ -168,7 +202,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     }
     boxplot2(cts, col=col, col.in=col.in, ylim=ylim,
              xlab=xlabel, ylab=ylab, main=main)
-    ### point and line plot ###
+    ### point and line plot by 'x' levels or numeric 'x' ###
   } else {
     which.assay <- if (useMean) "mean" else "counts"
     cts <- assays(y)[[which.assay]][idx,o]
@@ -186,21 +220,44 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     } else {
       stopifnot(length(ylim) == 2)
     }
-    plot(cts, type="n", main=main,
-         xaxt="n", ylim=ylim,
-         xlab=xlabel, ylab=ylab)
+    if (xfac) {
+      plot(cts, type="n", main=main,
+           xaxt="n", ylim=ylim,
+           xlab=xlabel, ylab=ylab)
+    } else {
+      plot(condition, cts, type="n", main=main,
+           xaxt="n", ylim=ylim,
+           xlab=xlabel, ylab=ylab)
+    }
     seg.lwd <- if (thin == 0) 2 else if (thin == 1) 1 else 3
-    seg.col <- if (thin < 2) col else col.in
-    segments(seq_along(cts), pmax(cts - Q*sds, 0),
-             seq_along(cts), cts + Q*sds,
-             col=seg.col, lwd=seg.lwd)
+    if (xfac) {
+      seg.col <- if (thin < 2) col else col.in
+      segments(seq_along(cts), pmax(cts - Q*sds, 0),
+               seq_along(cts), cts + Q*sds,
+               col=seg.col, lwd=seg.lwd)
+    } else {
+      segments(condition, pmax(cts - Q*sds, 0),
+               condition, cts + Q*sds,
+               lwd=seg.lwd)
+    }
     pts.pch <- if (thin == 0) 22 else 15
     pts.lwd <- if (thin == 0) 1. else 1
     pts.cex <- if (thin == 0) 1 else 0.5
-    points(cts, col=col, pch=pts.pch, bg=col.in,
-           cex=pts.cex, lwd=pts.lwd)
+    if (xfac) {
+      points(cts, col=col, pch=pts.pch, bg=col.in,
+             cex=pts.cex, lwd=pts.lwd)
+    } else {
+      points(condition, cts, pch=pts.pch,
+             cex=pts.cex, lwd=pts.lwd)
+    }
   }
-  if (xaxis) axis(1, seq_along(condition), samp.nums)
+  if (xaxis) {
+    if (xfac) {
+      axis(1, seq_along(condition), samp.nums)
+    } else {
+      axis(1)
+    }
+  }
   if (!xaxis) {
     title(xlab=xlab, mgp=c(1,1,0))
   }

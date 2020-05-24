@@ -29,7 +29,10 @@ plotInfReps(
 
 \item{idx}{the name or row number of the gene or transcript}
 
-\item{x}{the name of the condition variable}
+\item{x}{the name of the condition variable for splitting
+and coloring the samples or cells. Also can be a numeric,
+e.g. pseudotime, in which case, \code{cov} can be used
+to designate groups for coloring}
 
 \item{cov}{the name of the covariate for adjustment}
 
