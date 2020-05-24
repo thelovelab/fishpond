@@ -31,9 +31,9 @@ test_that("compressing uncertainty works", {
   
   y2 <- y
   y2 <- makeInfReps(y2, numReps=50)
-  y2 <- scaleInfReps(y2)
+  y2 <- scaleInfReps(y2, quiet=TRUE)
   y2 <- labelKeep(y2)
-  y2 <- swish(y2, x="condition")
+  y2 <- swish(y2, x="condition", quiet=TRUE)
   #hist(mcols(y2)$stat, breaks=40, col="grey")
   #cols = rep(c("blue","purple","red"),each=2)
   ## for (i in 1:6) {
@@ -80,13 +80,17 @@ test_that("compressing uncertainty works", {
     sce <- as(se, "SingleCellExperiment")
     
     sce$condition <- factor(sample(rep(1:2,length=ncol(sce))))
-    sce$pseudotime <- runif(ncol(sce))
+    time <- rnorm(ncol(sce))
+    time[sce$condition == 1] <- sort(time[sce$condition == 1])
+    time[sce$condition == 2] <- sort(time[sce$condition == 2], decreasing=TRUE)
+    sce$pseudotime <- time
     sce <- labelKeep(sce, minCount=10, minN=10)
     table(mcols(sce)$keep)
     sce <- sce[mcols(sce)$keep,]
     mcols(sce)$name <- rep(LETTERS, length=nrow(sce))
     plotInfReps(sce, 1, x="condition")
     plotInfReps(sce, 1, x="pseudotime")
+    plotInfReps(sce, 1, x="pseudotime", cov="condition")
     plotInfReps(sce, 1, x="condition", mainCol="name")
 
     # DESeq2 "poscounts" normalization

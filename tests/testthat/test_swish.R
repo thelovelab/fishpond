@@ -33,7 +33,7 @@ test_that("basic variable errors thrown", {
   expect_error(swish(y, "condition"), "no inferential")
 
   # too many permutations requested
-  y <- makeSimSwishData(m=100,n=4)
+  y <- makeSimSwishData(m=100, n=4)
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
   # there are 4! = 24 permutations
@@ -46,7 +46,7 @@ test_that("basic swish analyses", {
   set.seed(1)
   
   # two group
-  y <- makeSimSwishData()
+  y <- makeSimSwishData(m=200)
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
   y <- swish(y, x="condition", quiet=TRUE)
@@ -72,7 +72,7 @@ test_that("basic swish analyses", {
   y <- swish(y, x="condition", qvaluePkg="samr", quiet=TRUE)
 
   # two group with batch covariate
-  y <- makeSimSwishData(n=20)
+  y <- makeSimSwishData(m=200, n=20)
   y$batch <- factor(rep(c(1,2,1,2),each=5))
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
@@ -84,7 +84,7 @@ test_that("basic swish analyses", {
   y <- swish(y, x="condition", cov="batch", fast=0, quiet=TRUE)
   
   # two group, matched samples
-  y <- makeSimSwishData()
+  y <- makeSimSwishData(m=200)
   y$pair <- rep(1:5,2)
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
@@ -92,7 +92,7 @@ test_that("basic swish analyses", {
 
   # alternative scaling
 
-  y <- makeSimSwishData()
+  y <- makeSimSwishData(m=200)
   y <- scaleInfReps(y, lengthCorrect=FALSE, quiet=TRUE)
   y <- makeSimSwishData()
   y <- scaleInfReps(y, sfFun=function(x) colSums(x)/mean(colSums(x)), quiet=TRUE)
@@ -101,7 +101,7 @@ test_that("basic swish analyses", {
 
 test_that("infRV calculation and plotting", {
 
-  y <- makeSimSwishData()
+  y <- makeSimSwishData(m=200)
   y <- computeInfRV(y)
   #mcols(y)$meanCts <- rowMeans(assays(y)[["counts"]])
   #with(mcols(y), plot(meanCts, meanInfRV))
@@ -135,8 +135,8 @@ test_that("alevin to fishpond", {
 
 test_that("basic deswish analyses", {
 
-  y <- makeSimSwishData()
-  y <- labelKeep(y)
+  # y <- makeSimSwishData()
+  # y <- labelKeep(y)
   # y <- deswish(y, ~condition, "condition_2_vs_1")
   
 })

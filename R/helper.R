@@ -500,22 +500,6 @@ computeInfRV <- function(y, pc=5, shift=.01) {
   y
 }
 
-boxplot2 <- function(x, w=.4, ylim, col, col.in, xlab="", ylab="", main="") {
-  qs <- matrixStats::rowQuantiles(t(x), probs=0:4/4)
-  if (missing(ylim)) {
-    ylim <- c(min(x),max(x))
-  }
-  plot(qs[,3], type="n", xlim=c(0.5,ncol(x)+.5), xaxt="n",
-       xlab=xlab, ylab=ylab, main=main, ylim=ylim)
-  s <- seq_len(ncol(x))
-  rect(s-w,qs[,2],s+w,qs[,4], col=col.in, border=col)
-  segments(s-w, qs[,3], s+w, qs[,3], col=col, lwd=3, lend=1)
-  segments(s, qs[,2], s, qs[,1], col=col, lend=1)
-  segments(s, qs[,4], s, qs[,5], col=col, lend=1)
-  segments(s-w/2, qs[,1], s+w/2, qs[,1], col=col)
-  segments(s-w/2, qs[,5], s+w/2, qs[,5], col=col)
-}
-
 postprocess <- function(y, df) {
   for (stat in names(df)) {
     mcols(y)[[stat]] <- numeric(nrow(y))

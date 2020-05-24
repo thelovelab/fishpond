@@ -177,16 +177,26 @@ plotInfReps <- function(y, idx, x, cov=NULL,
       o <- seq_along(condition)
     }
   }
+  # col - dark color for boxplot border, points
+  # col.hglt - highlight color for inside boxplot, lines when n >= 400
   if (xfac) {
     if (is.null(cov)) {
       samp.nums <- unlist(lapply(table(condition), seq_len))
       col <- rep(colsDrk, table(condition))
-      col.in <- rep(colsLgt, table(condition))
+      col.hglt <- rep(colsLgt, table(condition))
     } else {
       vec.tab <- as.vector(table(condition, covariate))
       samp.nums <- unlist(lapply(vec.tab, seq_len))
       col <- rep(rep(colsDrk, ngrp), vec.tab)
-      col.in <- rep(rep(colsLgt, ngrp), vec.tab)
+      col.hglt <- rep(rep(colsLgt, ngrp), vec.tab)
+    }
+  } else {
+    if (is.null(cov)) {
+      col <- colsDrk[1]
+      col.hglt <- colsLgt[1]
+    } else {
+      col <- colsDrk[covariate]
+      col.hglt <- colsLgt[covariate]
     }
   }
   ### boxplot ###
@@ -200,7 +210,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     } else {
       stopifnot(length(ylim) == 2)
     }
-    boxplot2(cts, col=col, col.in=col.in, ylim=ylim,
+    boxplot2(cts, col=col, col.hglt=col.hglt, ylim=ylim,
              xlab=xlabel, ylab=ylab, main=main)
     ### point and line plot by 'x' levels or numeric 'x' ###
   } else {
@@ -214,7 +224,10 @@ plotInfReps <- function(y, idx, x, cov=NULL,
       ylab <- "scaled counts"
     }
     ymax <- max(cts + Q*sds)
-    ymin <- if (is.null(cov)) 0 else -0.02 * ymax
+    ymin <- 0
+    if (xfac & !is.null(cov)) {
+      ymin <- -0.02 * ymax
+    }
     if (missing(ylim)) {
       ylim <- c(ymin, ymax)
     } else {
@@ -230,24 +243,26 @@ plotInfReps <- function(y, idx, x, cov=NULL,
            xlab=xlabel, ylab=ylab)
     }
     seg.lwd <- if (thin == 0) 2 else if (thin == 1) 1 else 3
+    seg.col <- if (thin < 2) col else col.hglt
     if (xfac) {
-      seg.col <- if (thin < 2) col else col.in
       segments(seq_along(cts), pmax(cts - Q*sds, 0),
                seq_along(cts), cts + Q*sds,
                col=seg.col, lwd=seg.lwd)
     } else {
       segments(condition, pmax(cts - Q*sds, 0),
                condition, cts + Q*sds,
-               lwd=seg.lwd)
+               col=seg.col, lwd=seg.lwd)
     }
     pts.pch <- if (thin == 0) 22 else 15
     pts.lwd <- if (thin == 0) 1. else 1
     pts.cex <- if (thin == 0) 1 else 0.5
     if (xfac) {
-      points(cts, col=col, pch=pts.pch, bg=col.in,
+      points(cts,
+             col=col, pch=pts.pch, bg=col.hglt,
              cex=pts.cex, lwd=pts.lwd)
     } else {
-      points(condition, cts, pch=pts.pch,
+      points(condition, cts,
+             col=col, pch=pts.pch, bg=col.hglt,
              cex=pts.cex, lwd=pts.lwd)
     }
   }
@@ -261,18 +276,35 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   if (!xaxis) {
     title(xlab=xlab, mgp=c(1,1,0))
   }
-  if (!is.null(cov)) {
+  if (xfac & !is.null(cov)) {
     cuts <- cumsum(table(covariate))
     segments(c(1,cuts[-ngrp]+1),ymin,cuts,ymin,lwd=3,
              col=rep(c("black","grey60"),length=ngrp))
   }
-  if (legend) {
-    legend("topleft", legend=levels(condition),
+  if (legend & (xfac | !is.null(cov))) {
+    group <- if (xfac) condition else covariate
+    legend("topleft", legend=levels(group),
            col=colsDrk, pt.bg=colsLgt, pch=22,
            cex=.8, bg="white", box.col=NA, inset=.01)
   }
 }
-  
+
+boxplot2 <- function(x, w=.4, ylim, col, col.hglt, xlab="", ylab="", main="") {
+  qs <- matrixStats::rowQuantiles(t(x), probs=0:4/4)
+  if (missing(ylim)) {
+    ylim <- c(min(x),max(x))
+  }
+  plot(qs[,3], type="n", xlim=c(0.5,ncol(x)+.5), xaxt="n",
+       xlab=xlab, ylab=ylab, main=main, ylim=ylim)
+  s <- seq_len(ncol(x))
+  rect(s-w,qs[,2],s+w,qs[,4], col=col.hglt, border=col)
+  segments(s-w, qs[,3], s+w, qs[,3], col=col, lwd=3, lend=1)
+  segments(s, qs[,2], s, qs[,1], col=col, lend=1)
+  segments(s, qs[,4], s, qs[,5], col=col, lend=1)
+  segments(s-w/2, qs[,1], s+w/2, qs[,1], col=col)
+  segments(s-w/2, qs[,5], s+w/2, qs[,5], col=col)
+}
+
 #' MA plot
 #'
 #' @param y a SummarizedExperiment (see \code{swish})
