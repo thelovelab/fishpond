@@ -45,6 +45,7 @@ test_that("compressing uncertainty works", {
   #plotInfReps(y2, 3, x="condition")
   #plotInfReps(y2, 5, x="condition")
 
+  # poscounts not recommended actually... use scran::calculateSumFactors()
   sfFun <- function(m) {
     DESeq2::estimateSizeFactorsForMatrix(
       m, geoMeans=exp(rowSums(log(m) * as.numeric(m > 0))/ncol(m))
@@ -79,11 +80,13 @@ test_that("compressing uncertainty works", {
     sce <- as(se, "SingleCellExperiment")
     
     sce$condition <- factor(sample(rep(1:2,length=ncol(sce))))
+    sce$pseudotime <- runif(ncol(sce))
     sce <- labelKeep(sce, minCount=10, minN=10)
     table(mcols(sce)$keep)
     sce <- sce[mcols(sce)$keep,]
     mcols(sce)$name <- rep(LETTERS, length=nrow(sce))
     plotInfReps(sce, 1, x="condition")
+    plotInfReps(sce, 1, x="pseudotime")
     plotInfReps(sce, 1, x="condition", mainCol="name")
 
     # DESeq2 "poscounts" normalization
