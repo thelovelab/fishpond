@@ -324,14 +324,17 @@ We can plot the scaled counts for the inferential replicates, and also
 group the samples by a covariate, in this case the cell line. The
 analysis was paired, so the statistic assessed if the change within
 pairs was consistent. Here we plot the 100th top up-regulated
-transcript: 
+transcript. `plotInfReps` also has functionality for plotting
+uncertainty in single cell data, as will be covered in a later
+section. 
 
 ```{r}
 plotInfReps(y, idx=hi[100], x="condition", cov="line")
 ```
 
-We can make an MA plot, where the transcripts in our FDR set are
-colored:
+We can make an 
+[MA plot](https://en.wikipedia.org/wiki/MA_plot), 
+where the transcripts in our FDR set are colored:
 
 ```{r}
 plotMASwish(y, alpha=.05)
@@ -702,13 +705,21 @@ plotInfReps(sce, "ENSMUSG00000072235.6", x="cluster",
             reorder=FALSE)
 ```
 
-`plotInfReps` has a number of convenience arguments, including the
-ability to add a `legend`, to `reorder` the cells by expression value
-within cluster, to apply size factors to the counts (`applySF`), and
-whether to use a column of `mcols(sce)` to set the main title
-(`mainCol`). See `?plotInfReps` for more description of arguments.
-Size factor scaling will use the values in `sizeFactors(sce)` or
-equivalently `mcols(sce)$sizeFactor`.
+`plotInfReps` has a number of options and convenience arguments. One
+can:
+
+* add a `legend`,
+* `reorder` the cells by expression value within cluster,
+* apply size factors to the counts (`applySF`) (size factor scaling
+will use the values in `sizeFactors(sce)` or equivalently
+`mcols(sce)$sizeFactor`),
+* use a column of `mcols(sce)` to set the `main` title,
+  e.g. `mainCol="SYMBOL"`,
+* specify `x` as a numeric covariate (e.g. pseudotime), and use `cov`
+  to distinguish groups (e.g. lineage). Points will then be colored by
+  `cov` instead of by discrete `x`.
+
+See `?plotInfReps` for more description of arguments.
 
 Note that the figures scale to some degree by the number of cells; for
 example with $n \in [1,150)$ or $[150,400)$, more visual elements
