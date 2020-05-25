@@ -9,15 +9,18 @@ plotInfReps(
   idx,
   x,
   cov = NULL,
-  colsDrk = c("dodgerblue", "goldenrod4", "royalblue4", "darkgreen", "purple4", "red3"),
-  colsLgt = c("lightblue1", "goldenrod1", "royalblue1", "limegreen", "orchid1",
-    "salmon1"),
+  colsDrk = c("dodgerblue", "goldenrod4", "royalblue4", "red3", "purple4", "darkgreen"),
+  colsLgt = c("lightblue1", "goldenrod1", "royalblue1", "salmon1", "orchid1",
+    "limegreen"),
   xaxis,
   xlab,
   ylim,
   main,
   mainCol,
   legend = FALSE,
+  legendPos = "topleft",
+  legendTitle = FALSE,
+  legendCex = 1,
   useMean = TRUE,
   applySF = FALSE,
   reorder,
@@ -53,6 +56,13 @@ default is \code{TRUE} if there are less than 30 samples}
 (instead of rowname)}
 
 \item{legend}{logical, show simple legend (default FALSE)}
+
+\item{legendPos}{character, position of the legend (default "topleft")}
+
+\item{legendTitle}{logical, whether to add the name of the
+grouping variable as a title on the legend (default FALSE)}
+
+\item{legendCex}{numeric, size of the legend (default 1)}
 
 \item{useMean}{logical, when inferential replicates
 are not present, use the \code{mean} assay or the
