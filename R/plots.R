@@ -22,6 +22,11 @@
 #' @param main title
 #' @param mainCol name of metadata column to use for title
 #' (instead of rowname)
+#' @param legend logical, show simple legend (default FALSE)
+#' @param legendPos character, position of the legend (default "topleft")
+#' @param legendTitle logical, whether to add the name of the
+#' grouping variable as a title on the legend (default FALSE)
+#' @param legendCex numeric, size of the legend (default 1)
 #' @param useMean logical, when inferential replicates
 #' are not present, use the \code{mean} assay or the
 #' \code{counts} assay for plotting
@@ -35,7 +40,6 @@
 #' be drawn thin (the default switches from 0 [not thin]
 #' to 1 [thinner] at n=150 cells, and from 1 [thinner]
 #' to 2 [thinnest] at n=400 cells)
-#' @param legend logical, show simple legend (default FALSE)
 #'
 #' @return nothing, a plot is displayed
 #' 
@@ -57,15 +61,24 @@ plotInfReps <- function(y, idx, x, cov=NULL,
                         xaxis, xlab, ylim,
                         main, mainCol,
                         legend=FALSE,
+                        legendPos="topleft",
+                        legendTitle=FALSE,
+                        legendCex=1,
                         useMean=TRUE,
                         applySF=FALSE,
                         reorder,
                         thin) {
   
   hasInfReps <- any(grepl("infRep", assayNames(y)))
+  # logical switch for if variance assay is present
+  # if not, just show the count or mean
+  showVar <- TRUE
   if (!hasInfReps) {
-    if (!("variance" %in% assayNames(y)))
-      stop("if inferential replicates not present, requires 'variance' assay")
+    showVar <- "variance" %in% assayNames(y)
+    if (useMean & !("mean" %in% assayNames(y))) {
+      message("using 'counts' assay, as 'mean' is missing, see argument 'useMean'")
+      useMean <- FALSE
+    }
   }
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
@@ -152,7 +165,6 @@ plotInfReps <- function(y, idx, x, cov=NULL,
       infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
       value <- colMeans(unlist(infReps))
     } else {
-      if (useMean) stopifnot("mean" %in% assayNames(y))
       which.assay <- if (useMean) "mean" else "counts"
       value <- assays(y)[[which.assay]][idx,]
       if (applySF & !is.null(y$sizeFactor)) {
@@ -216,14 +228,18 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   } else {
     which.assay <- if (useMean) "mean" else "counts"
     cts <- assays(y)[[which.assay]][idx,o]
-    sds <- sqrt(assays(y)[["variance"]][idx,o])
-    Q <- qnorm(.975)
+    if (showVar) {
+      sds <- sqrt(assays(y)[["variance"]][idx,o])
+      Q <- qnorm(.975)
+    }
     if (applySF & !is.null(y$sizeFactor)) {
       cts <- cts / y$sizeFactor[o]
-      sds <- sds / y$sizeFactor[o]
+      if (showVar) {
+        sds <- sds / y$sizeFactor[o]
+      }
       ylab <- "scaled counts"
     }
-    ymax <- max(cts + Q*sds)
+    ymax <- if (showVar) max(cts + Q*sds) else max(cts)
     ymin <- 0
     if (xfac & !is.null(cov)) {
       ymin <- -0.02 * ymax
@@ -244,14 +260,16 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     }
     seg.lwd <- if (thin == 0) 2 else if (thin == 1) 1 else 3
     seg.col <- if (thin < 2) col else col.hglt
-    if (xfac) {
-      segments(seq_along(cts), pmax(cts - Q*sds, 0),
-               seq_along(cts), cts + Q*sds,
-               col=seg.col, lwd=seg.lwd)
-    } else {
-      segments(condition, pmax(cts - Q*sds, 0),
-               condition, cts + Q*sds,
-               col=seg.col, lwd=seg.lwd)
+    if (showVar) {
+      if (xfac) {
+        segments(seq_along(cts), pmax(cts - Q*sds, 0),
+                 seq_along(cts), cts + Q*sds,
+                 col=seg.col, lwd=seg.lwd)
+      } else {
+        segments(condition, pmax(cts - Q*sds, 0),
+                 condition, cts + Q*sds,
+                 col=seg.col, lwd=seg.lwd)
+      }
     }
     pts.pch <- if (thin == 0) 22 else 15
     pts.lwd <- if (thin == 0) 1. else 1
@@ -283,9 +301,11 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   }
   if (legend & (xfac | !is.null(cov))) {
     group <- if (xfac) condition else covariate
-    legend("topleft", legend=levels(group),
+    group.name <- if (xfac) x else cov
+    ltitle <- if (legendTitle) group.name else NULL
+    legend(legendPos, legend=levels(group), title=ltitle,
            col=colsDrk, pt.bg=colsLgt, pch=22,
-           cex=.8, bg="white", box.col=NA, inset=.01)
+           cex=legendCex, bg="white", box.col=NA, inset=.01)
   }
 }
 
