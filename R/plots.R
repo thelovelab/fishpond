@@ -50,10 +50,10 @@
 #' 
 #' @export
 plotInfReps <- function(y, idx, x, cov=NULL,
-                        colsDrk=c("dodgerblue","goldenrod4","green4",
-                                   "red3","purple4","royalblue4"),
-                        colsLgt=c("lightblue1","goldenrod1","lightgreen",
-                                   "salmon1","orchid1","royalblue1"),
+                        colsDrk=c("dodgerblue","goldenrod4","royalblue4",
+                                  "darkgreen","purple4","red3"),
+                        colsLgt=c("lightblue1","goldenrod1","royalblue1",
+                                  "limegreen","orchid1","salmon1"),
                         xaxis, xlab, ylim,
                         main, mainCol,
                         legend=FALSE,
