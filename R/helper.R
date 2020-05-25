@@ -431,6 +431,8 @@ addStatsFromCSV <- function(y=NULL, infile, estPi0=FALSE) {
 #' @param n number of samples
 #' @param numReps how many inferential replicates to generate
 #' @param null logical, whether to make an all null dataset
+#' @param meanVariance logical, whether to output only mean and
+#' variance of inferential replicates
 #'
 #' @return a SummarizedExperiment
 #'
@@ -441,7 +443,7 @@ addStatsFromCSV <- function(y=NULL, infile, estPi0=FALSE) {
 #' assayNames(y)
 #' 
 #' @export
-makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
+makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE, meanVariance=FALSE) {
   stopifnot(m>8)
   stopifnot(n %% 2 == 0)
   cts <- matrix(rpois(m*n, lambda=80), ncol=n)
@@ -464,8 +466,16 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE) {
     m
   })
   names(infReps) <- paste0("infRep", seq_len(numReps))
-  assays <- list(counts=cts, abundance=abundance, length=length)
-  assays <- c(assays, infReps)
+  if (meanVariance) {
+    infRepsCube <- abind::abind(infReps, along=3)
+    mu <- apply(infRepsCube, 1:2, mean)
+    variance <- apply(infRepsCube, 1:2, var)
+    assays <- list(counts=cts, abundance=abundance, length=length,
+                   mean=mu, variance=variance)
+  } else {
+    assays <- list(counts=cts, abundance=abundance, length=length)
+    assays <- c(assays, infReps)
+  }
   se <- SummarizedExperiment(assays=assays)
   rownames(se) <- paste0("gene-",seq_len(nrow(se)))
   metadata(se) <- list(countsFromAbundance="no")

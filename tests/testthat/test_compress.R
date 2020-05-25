@@ -12,18 +12,9 @@ test_that("compressing uncertainty works", {
   plotInfReps(y, 5, x="condition", cov="batch", reorder=TRUE)
   dev.off()
 
-  a <- assays(y)
-  infRepIdx <- grep("infRep",names(a))
-  infReps <- a[infRepIdx]
-  infRepsCube <- abind::abind(as.list(infReps), along=3)
-  a[["mean"]] <- apply(infRepsCube, 1:2, mean)
-  a[["variance"]] <- apply(infRepsCube, 1:2, var)
-  assays(y) <- a
-
-  # remove inf reps
-  infRepIdx <- grep("infRep",assayNames(y))
-  assays(y) <- assays(y)[-infRepIdx]
-
+  set.seed(1)
+  y <- makeSimSwishData(m=200, n=100, meanVariance=TRUE)
+  y$batch <- factor(rep(3:1,c(30,40,30)))
   plotInfReps(y, idx=5, x="condition", reorder=TRUE)
   dev.off()
   plotInfReps(y, idx=5, x="condition", cov="batch", reorder=TRUE)

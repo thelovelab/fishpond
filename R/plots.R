@@ -51,9 +51,9 @@
 #' @export
 plotInfReps <- function(y, idx, x, cov=NULL,
                         colsDrk=c("dodgerblue","goldenrod4","royalblue4",
-                                  "darkgreen","purple4","red3"),
+                                  "red3","purple4","darkgreen"),
                         colsLgt=c("lightblue1","goldenrod1","royalblue1",
-                                  "limegreen","orchid1","salmon1"),
+                                  "salmon1","orchid1","limegreen"),
                         xaxis, xlab, ylim,
                         main, mainCol,
                         legend=FALSE,
