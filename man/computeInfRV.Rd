@@ -4,7 +4,7 @@
 \alias{computeInfRV}
 \title{Compute inferential relative variance (InfRV)}
 \usage{
-computeInfRV(y, pc = 5, shift = 0.01)
+computeInfRV(y, pc = 5, shift = 0.01, meanVariance)
 }
 \arguments{
 \item{y}{a SummarizedExperiment}
@@ -12,6 +12,11 @@ computeInfRV(y, pc = 5, shift = 0.01)
 \item{pc}{a pseudocount parameter for the denominator}
 
 \item{shift}{a final shift parameter}
+
+\item{meanVariance}{logical, use pre-computed inferential mean
+and variance assays instead of \code{counts} and
+computed variance from \code{infReps}. If missing,
+will use pre-computed mean and variance when present.}
 }
 \value{
 a SummarizedExperiment with \code{meanInfRV} in the metadata columns
