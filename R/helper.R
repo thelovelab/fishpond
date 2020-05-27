@@ -495,15 +495,28 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE, meanVariance=
 #' @param y a SummarizedExperiment
 #' @param pc a pseudocount parameter for the denominator
 #' @param shift a final shift parameter
+#' @param meanVariance logical, use pre-computed inferential mean
+#' and variance assays instead of \code{counts} and
+#' computed variance from \code{infReps}. If missing,
+#' will use pre-computed mean and variance when present.
 #'
 #' @return a SummarizedExperiment with \code{meanInfRV} in the metadata columns
 #'
 #' @export
-computeInfRV <- function(y, pc=5, shift=.01) {
-  infReps <- assays(y)[grep("infRep",assayNames(y))]
-  infReps <- abind::abind(as.list(infReps), along=3)
-  infVar <- apply(infReps, 1:2, var)
-  mu <- assays(y)[["counts"]]
+computeInfRV <- function(y, pc=5, shift=.01, meanVariance) {
+  if (missing(meanVariance)) {
+    meanVariance <- all(c("mean","variance") %in% assayNames(y))
+  }
+  if (meanVariance) {
+    stopifnot(all(c("mean","variance") %in% assayNames(y)))
+    infVar <- assays(y)[["variance"]]
+    mu <- assays(y)[["mean"]]
+  } else {
+    infReps <- assays(y)[grep("infRep",assayNames(y))]
+    infReps <- abind::abind(as.list(infReps), along=3)
+    infVar <- apply(infReps, 1:2, var)
+    mu <- assays(y)[["counts"]]
+  }
   # the InfRV computation:
   InfRV <- pmax(infVar - mu, 0)/(mu + pc) + shift
   mcols(y)$meanInfRV <- rowMeans(InfRV)
