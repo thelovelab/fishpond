@@ -247,6 +247,9 @@ makeIsoProp <- function(counts, gene) {
 #'
 #' @param y a SummarizedExperiment
 #' @param numReps how many inferential replicates
+#' @param minDisp the minimal dispersion value,
+#' set after method of moments estimation from
+#' inferential mean and variance
 #'
 #' @return a SummarizedExperiment
 #'
@@ -259,7 +262,7 @@ makeIsoProp <- function(counts, gene) {
 #' se <- makeInfReps(se, numReps=50)
 #' 
 #' @export
-makeInfReps <- function(y, numReps) {
+makeInfReps <- function(y, numReps, minDisp=1e-3) {
   stopifnot(is(y, "SummarizedExperiment"))
   stopifnot("mean" %in% assayNames(y))
   stopifnot("variance" %in% assayNames(y))
@@ -271,8 +274,7 @@ makeInfReps <- function(y, numReps) {
   # drop sparsity here
   m <- as.matrix(assays(y)[["mean"]])
   v <- as.matrix(assays(y)[["variance"]])
-  eps <- 1e-6
-  disp <- ifelse(m > 0, pmax(eps, (v - m)/m^2), eps)
+  disp <- ifelse(m > 0, pmax(minDisp, (v - m)/m^2), minDisp)
   infReps <- list()
   for (k in seq_len(numReps)) {
     infReps[[k]] <- matrix(rnbinom(n=nrow(y)*ncol(y), mu=m, size=1/disp),
