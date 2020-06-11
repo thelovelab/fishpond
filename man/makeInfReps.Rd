@@ -4,12 +4,16 @@
 \alias{makeInfReps}
 \title{Make pseudo-inferential replicates from mean and variance}
 \usage{
-makeInfReps(y, numReps)
+makeInfReps(y, numReps, minDisp = 0.001)
 }
 \arguments{
 \item{y}{a SummarizedExperiment}
 
 \item{numReps}{how many inferential replicates}
+
+\item{minDisp}{the minimal dispersion value,
+set after method of moments estimation from
+inferential mean and variance}
 }
 \value{
 a SummarizedExperiment
