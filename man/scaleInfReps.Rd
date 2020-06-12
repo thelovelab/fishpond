@@ -42,7 +42,9 @@ at \code{minCount}}
 \value{
 a SummarizedExperiment with the inferential replicates
 as scaledTPM with library size already corrected (no need for further
-normalization)
+normalization). A column \code{log10mean} is also added which is the
+log10 of the mean of scaled counts across all samples and all inferential
+replicates.
 }
 \description{
 A helper function to scale the inferential replicates
