@@ -781,7 +781,8 @@ can be used in the case that `assayNames(y)` only contains counts,
 mean, and variance, which is much faster by avoiding writing/importing
 inferential replicates. We first generate pseudo-inferential
 replicates from inferential mean and variance matrices before running
-`scaleInfReps` from the code chunk above.
+`scaleInfReps` from the code chunk above. The generation of
+pseudo-inferential replicates is described in @compression.
 
 The following function can be used just before `scaleInfReps`:
 
@@ -792,11 +793,11 @@ y <- makeInfReps(y, 20)
 There is alternatively a scheme for splitting the operation of
 generating (dense) inferential replicate matrices across multiple
 jobs, and running `swish` across batches of genes at a time. 
-This procedure is described and benchmarked in @compression.
-This helps to reduce the total memory used, in the case that the counts,
-mean, and variance matrices are too large to be made dense
-altogether. This scheme involves 1) splitting the object into smaller
-pieces, written out to `.rds` files, 2) running `swish` as a
+This job-splitting procedure is also described and benchmarked in
+@compression.  This helps to reduce the total memory used, in the case
+that the counts, mean, and variance matrices are too large to be made
+dense altogether. This scheme involves 1) splitting the object into
+smaller pieces, written out to `.rds` files, 2) running `swish` as a
 distributed job, 3) reading the `.csv` output back into R. The
 following code chunk would start with a 'y' with sparse matrix assays,
 and without ever running `scaleInfReps` (it is run within the
