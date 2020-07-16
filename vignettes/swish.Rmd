@@ -791,8 +791,9 @@ y <- makeInfReps(y, 20)
 
 There is alternatively a scheme for splitting the operation of
 generating (dense) inferential replicate matrices across multiple
-jobs, and running `swish` across batches of genes at a time. This
-helps to reduce the total memory used, in the case that the counts,
+jobs, and running `swish` across batches of genes at a time. 
+This procedure is described and benchmarked in @compression.
+This helps to reduce the total memory used, in the case that the counts,
 mean, and variance matrices are too large to be made dense
 altogether. This scheme involves 1) splitting the object into smaller
 pieces, written out to `.rds` files, 2) running `swish` as a

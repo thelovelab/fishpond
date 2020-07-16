@@ -255,6 +255,14 @@ makeIsoProp <- function(counts, gene) {
 #'
 #' @return a SummarizedExperiment
 #'
+#' @references
+#'
+#' Van Buren, S., Sarkar, H., Srivastava, A., Rashid, N.U.,
+#' Patro, R., Love, M.I. (2020)
+#' Compression of quantification uncertainty for scRNA-seq counts.
+#' bioRxiv.
+#' \url{https://doi.org/10.1101/2020.07.06.189639}
+#' 
 #' @examples
 #'
 #' library(SummarizedExperiment)
@@ -311,6 +319,23 @@ makeInfReps <- function(y, numReps, minDisp=1e-3) {
 #' @param overwrite logical, whether the \code{snakefile} and
 #' RDS files (\code{swish1.rds}, ...) should overwrite existing files
 #'
+#' @references
+#'
+#' Compression and splitting across jobs:
+#' 
+#' Van Buren, S., Sarkar, H., Srivastava, A., Rashid, N.U.,
+#' Patro, R., Love, M.I. (2020)
+#' Compression of quantification uncertainty for scRNA-seq counts.
+#' bioRxiv.
+#' \url{https://doi.org/10.1101/2020.07.06.189639}
+#'
+#' Snakemake:
+#' 
+#' Koster, J., Rahmann, S. (2012)
+#' Snakemake - a scalable bioinformatics workflow engine.
+#' Bioinformatics.
+#' \url{https://doi.org/10.1093/bioinformatics/bts480}
+#' 
 #' @return nothing, files are written out
 #'
 #' @export

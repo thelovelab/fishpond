@@ -36,3 +36,19 @@ See the alevin section of the vignette for an example. See
 the Snakemake documention for details on how to run and customize
 a \code{Snakefile}: \url{https://snakemake.readthedocs.io}
 }
+\references{
+Compression and splitting across jobs:
+
+Van Buren, S., Sarkar, H., Srivastava, A., Rashid, N.U.,
+Patro, R., Love, M.I. (2020)
+Compression of quantification uncertainty for scRNA-seq counts.
+bioRxiv.
+\url{https://doi.org/10.1101/2020.07.06.189639}
+
+Snakemake:
+
+Koster, J., Rahmann, S. (2012)
+Snakemake - a scalable bioinformatics workflow engine.
+Bioinformatics.
+\url{https://doi.org/10.1093/bioinformatics/bts480}
+}
