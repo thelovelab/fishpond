@@ -46,3 +46,10 @@ se <- SummarizedExperiment(list(mean=mean, variance=variance))
 se <- makeInfReps(se, numReps=50)
 
 }
+\references{
+Van Buren, S., Sarkar, H., Srivastava, A., Rashid, N.U.,
+Patro, R., Love, M.I. (2020)
+Compression of quantification uncertainty for scRNA-seq counts.
+bioRxiv.
+\url{https://doi.org/10.1101/2020.07.06.189639}
+}
