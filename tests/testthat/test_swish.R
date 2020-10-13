@@ -38,6 +38,19 @@ test_that("basic variable errors thrown", {
   y <- labelKeep(y)
   # there are 4! = 24 permutations
   expect_message(swish(y, x="condition", nperms=25, quiet=TRUE), "less permutations")
+
+  # too few samples
+  y <- makeSimSwishData(m=100, n=2)
+  y <- scaleInfReps(y, quiet=TRUE)
+  y2 <- labelKeep(y)
+  expect_error(swish(y2, x="condition"), "All rows")
+  y <- labelKeep(y, minN=2)
+  expect_error(swish(y, x="condition"), "too few samples")
+  y <- makeSimSwishData(m=100, n=6)
+  y$batch <- factor(c(1:3,1:3))
+  y <- scaleInfReps(y, quiet=TRUE)
+  y <- labelKeep(y)
+  expect_error(swish(y, x="condition", cov="batch"), "too few samples")
   
 })
 
