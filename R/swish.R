@@ -186,6 +186,10 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- labelKeep(y)
   }
+
+  if (all(!mcols(y)$keep)) {
+    stop("All rows have mcols(y)$keep == FALSE, no features to test")
+  }
   
   if (!qvaluePkg %in% c("qvalue","samr")) {
     stop("'qvaluePkg' should be 'qvalue' or 'samr'")
@@ -305,6 +309,9 @@ swishTwoGroup <- function(infRepsArray, condition,
 
 getSamStat <- function(infRepsArray, condition, ranks=NULL, returnRanks=FALSE) {
   dims <- dim(infRepsArray)
+  if (dims[2] == 2) stop("too few samples to compute the rank sum statistic")
+  cond2 <- condition == levels(condition)[2]
+  if (sum(cond2) < 2) stop("too few samples to compute the rank sum statistic")
   # calculate ranks if they are not provided...
   # for fast=1, we instead use the pre-calculated ranks to save time
   if (is.null(ranks)) {
@@ -315,7 +322,6 @@ getSamStat <- function(infRepsArray, condition, ranks=NULL, returnRanks=FALSE) {
                                           0.1 * runif(dims[1]*dims[2]))
     }
   }
-  cond2 <- condition == levels(condition)[2]
   rankSums <- vapply(seq_len(dims[3]), function(i)
     rowSums(ranks[,cond2,i]), numeric(dims[1]))
   # Wilcoxon, centered on 0:
