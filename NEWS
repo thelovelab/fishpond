@@ -1,3 +1,30 @@
+Changes in version 1.6.0
+* Added makeInfReps() to create pseudo-inferential replicates
+  via negative binomial simulation from mean and variance
+  matrices. Note: the mean and the variance provide the
+  _inferential_ distribution per element of the count matrix.
+  See preprint for details, doi: 10.1101/2020.07.06.189639.
+* Added splitSwish() and addStatsFromCSV(), which can be used
+  to distribute running of Swish across a number of jobs
+  managed by `Snakemake`. See vignette for description of
+  a suggested workflow. For a large single-cell dataset
+  with mean and variance summaries of inferential uncertainty,
+  splitSwish() avoids generating the inferential replicate
+  counts until the data has been split into smaller pieces and
+  sent to different jobs, then only the necessary summary
+  statistics are gathered and q-values computed by
+  addStatsFromCSV().
+* plotInfReps() gains many new features to facilitate plotting of
+  inferential count distributions for single cells, as quantified
+  with alevin and imported with tximport. E.g. allow for numeric
+  `x` argument plus grouping with `cov` for showing
+  counts over pseudotime across groups of cells. Also added
+  `applySF` argument which can be used to divide out a
+  size factor, and the `reorder` argument which will re-order
+  the samples/cells within groups by the count. plotInfReps()
+  will draw boxplots with progressively thinner visual features
+  as the number of cells grows to make the plots still legible.
+
 Changes in version 1.5.2
 * First version of makeInfReps(), to create pseudo-infReps
   via negative binomial simulation from set of mean and
