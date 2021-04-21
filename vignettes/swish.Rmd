@@ -272,6 +272,20 @@ We can see how many transcripts are in a 5% FDR set:
 table(mcols(y)$qvalue < .05)
 ```
 
+A number of features may have the same `pvalue` and `qvalue` due to
+the procedure for assessing significance. We can additionally rank
+features by their effect size, to break ties in the `qvalue`:
+
+```{r}
+most.sig <- with(mcols(y),
+                 order(qvalue, -abs(log2FC)))
+mcols(y)[head(most.sig),c("log2FC","qvalue")]
+```
+
+The top 6 genes by `qvalue` and effect size in this case all have
+positive LFC, although we have ranked by the largest in absolute
+value, so large negative values will also appear in this list.
+
 ## Plotting results
 
 We can check the distribution of p-values. This looks as expected for
