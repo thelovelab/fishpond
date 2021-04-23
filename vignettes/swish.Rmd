@@ -219,7 +219,7 @@ y <- se
 y <- y[seqnames(y) == "chr1",]
 ```
 
-Two demonstrate a two group comparison, we subset to the "naive" and
+To demonstrate a two group comparison, we subset to the "naive" and
 "IFNg" groups. 
 
 ```{r}
