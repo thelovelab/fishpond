@@ -253,6 +253,9 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   log2FC <- out$log2FC
   nulls <- out$nulls
 
+  # this can happen, e.g. if paired data is input where all counts are identical
+  if (all(stat == 0)) stop("all statistics equal to zero, check input")
+  
   # for miniSwish, we just return these pieces
   if (returnNulls) return(out)
 
