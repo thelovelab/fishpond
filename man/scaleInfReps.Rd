@@ -11,6 +11,7 @@ scaleInfReps(
   sfFun = NULL,
   minCount = 10,
   minN = 3,
+  saveMeanScaled = FALSE,
   quiet = FALSE
 )
 }
@@ -36,6 +37,9 @@ Alternatively, one can provide a numeric vector of size factors}
 
 \item{minN}{for internal filtering, the minimum sample size
 at \code{minCount}}
+
+\item{saveMeanScaled}{store the mean of scaled inferential
+replicates as an assay 'meanScaled'}
 
 \item{quiet}{display no messages}
 }
