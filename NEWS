@@ -1,3 +1,11 @@
+Changes in version 1.8.0
+* Added note in vignette about how to deal with estimated
+  batch factors, e.g. from RUVSeq or SVA. Two strategies are
+  outlined: either discretizing the estimate batch factors
+  and performing stratified analysis, or regressing out the
+  batch-associated variation using limma's removeBatchEffect.
+  Demonstation code is included.
+
 Changes in version 1.6.0
 * Added makeInfReps() to create pseudo-inferential replicates
   via negative binomial simulation from mean and variance

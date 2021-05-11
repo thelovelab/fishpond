@@ -320,18 +320,18 @@ Here we print a small table with just the calculated statistics for
 the large positive log fold change transcripts (up-regulation):
 
 ```{r}
-top.up <- mcols(y)[head(hi),]
-names(top.up)
+top_up <- mcols(y)[head(hi),]
+names(top_up)
 cols <- c("log10mean","log2FC","pvalue","qvalue")
-print(as.data.frame(top.up)[,cols], digits=3)
+print(as.data.frame(top_up)[,cols], digits=3)
 ```
 
 Likewise for the largest negative log fold change transcripts
 (down-regulation): 
 
 ```{r}
-top.down <- mcols(y)[head(lo),]
-print(as.data.frame(top.down)[,cols], digits=3)
+top_down <- mcols(y)[head(lo),]
+print(as.data.frame(top_down)[,cols], digits=3)
 ```
 
 We can plot the scaled counts for the inferential replicates, and also
@@ -434,10 +434,10 @@ ghi <- order(-mcols(gy)$log2FC * sig)
 ```
 
 ```{r}
-gtop.up <- mcols(gy)[head(ghi),]
-print(as.data.frame(gtop.up)[,cols], digits=3)
-gtop.down <- mcols(gy)[head(glo),]
-print(as.data.frame(gtop.down)[,cols], digits=3)
+gtop_up <- mcols(gy)[head(ghi),]
+print(as.data.frame(gtop_up)[,cols], digits=3)
+gtop_down <- mcols(gy)[head(glo),]
+print(as.data.frame(gtop_down)[,cols], digits=3)
 ```
 
 We can plot a particular one of these genes:
@@ -865,6 +865,98 @@ can be run by either not specifying any additional covariates, or by
 specifying a batch variable with the argument `cov` instead of `pair`.
 The two interaction tests can be run by specifying `interaction=TRUE`
 and providing `x`, `cov`, and optionally `pair`.
+
+## Accounting for estimated / continuous batch effects
+
+We have two recommended approaches for using `swish` in combination
+with estimated batch effects, e.g. factors of unwanted variation
+estimated by *RUVSeq* or surrogate variables estimated by *SVA*
+(without loss of generality, we will call these batch factors).
+First, examine a plot of the estimated batch factors, e.g. a stripplot
+(1 factor) or scatterplot of pairs (2 or more factors). 
+
+1. If the samples seem to fall into discrete clusters, one can run
+   `kmeans` to assign a discrete estimated batch to each cluster. If
+   the number of samples per condition group per batch is 2 or more,
+   then one can use the `cluster` output of the `kmeans` function as
+   input to the `cov` argument of `swish`. This will then perform a
+   stratified Mann-Whitney Wilcoxon test.
+2. If the samples do not fall into discrete clusters, one can use the
+   same approach that we use to correct the samples for sequencing
+   depth variation: direct scaling of the estimated counts across the
+   inferential replicates. Why this works: usually we do not scale
+   counts in statistical inference pipelines because we lose the
+   information about precision of counts across the dynamic
+   range. However, because we keep the set of inferential replicate
+   matrices, and these contain both sampling and additional
+   inferential variance, we are able to track how scaling the counts
+   affects the variance, and this informs the test statistic.
+   
+For the second approach, one can directly scale the inferential counts
+using *limma* and `removeBatchEffect`.
+
+Here a demonstration using simulated data:
+
+```{r}
+set.seed(1)
+y <- makeSimSwishData()
+```
+
+First we perform standard scaling for sequencing depth and labeling of
+feautures with too few counts. We save the mean of scaled inferential
+replicates using `saveMeanScaled=TRUE` as we will use this to estimate
+the batch factors.
+
+```{r}
+y <- scaleInfReps(y, saveMeanScaled=TRUE)
+tail(assayNames(y),4) # 'meanScaled' assay
+y <- labelKeep(y)
+y <- y[mcols(y)$keep,]
+```
+
+Next estimate the batch factors on the mean of scaled inferential
+count matrices.
+
+```{r}
+norm_cts_for_batch <- assay(y, "meanScaled")
+# use batch factor estimation method of your choosing
+# ...
+```
+
+Suppose we estimate two batch factors, `w1` and `w2`, now we remove
+the variation from each inferential replicate associated with these,
+using limma's `removeBatchEffect`.
+
+```{r}
+w1 <- runif(ncol(y)) # here simulated w1, use real instead
+w2 <- runif(ncol(y)) # here simulated w2, use real instead
+W <- data.frame(w1, w2)
+infRepIdx <- grep("infRep",assayNames(y),value=TRUE)
+nreps <- length(infRepIdx)
+```
+
+The following loads *limma* and removes batch associated variation on
+the log2 scale (a pseudocount is added to avoid `-Inf` values).
+
+```{r}
+suppressPackageStartupMessages(library(limma))
+mm <- model.matrix(~condition, colData(y))
+pc <- .1
+for (k in seq_len(nreps)) {
+  logInfRep <- log(assay(y, infRepIdx[k]) + pc)
+  logInfRep <- limma::removeBatchEffect(
+                        logInfRep,
+                        covariates=W,
+                        design=mm)
+  assay(y, infRepIdx[k]) <- exp(logInfRep)
+}
+```
+
+Now we run `swish` as usual:
+
+```{r}
+y <- swish(y, x="condition")
+```
 
 ## Structure of tximeta output
 

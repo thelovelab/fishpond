@@ -25,6 +25,8 @@
 #' @param minCount for internal filtering, the minimum count 
 #' @param minN for internal filtering, the minimum sample size
 #' at \code{minCount}
+#' @param saveMeanScaled store the mean of scaled inferential
+#' replicates as an assay 'meanScaled'
 #' @param quiet display no messages
 #'
 #' @return a SummarizedExperiment with the inferential replicates
@@ -42,7 +44,9 @@
 #' @export
 scaleInfReps <- function(y, lengthCorrect=TRUE,
                          meanDepth=NULL, sfFun=NULL,
-                         minCount=10, minN=3, quiet=FALSE) {
+                         minCount=10, minN=3,
+                         saveMeanScaled=FALSE,
+                         quiet=FALSE) {
   if (!interactive()) {
     quiet <- TRUE
   }
@@ -103,6 +107,11 @@ scaleInfReps <- function(y, lengthCorrect=TRUE,
   assays(y)[grep("infRep",assayNames(y))] <- infReps
   mcols(y)$log10mean <- log10(rowMeans(means) + 1)
   metadata(y)$infRepsScaled <- TRUE
+  if (saveMeanScaled) {
+    infRepsArray <- abind::abind(as.list(infReps), along=3)
+    meanScaled <- apply(infRepsArray, 1:2, mean)
+    assays(y)[["meanScaled"]] <- meanScaled
+  }
   y
 }
 
@@ -507,8 +516,10 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE, meanVariance=
   }
   se <- SummarizedExperiment(assays=assays)
   rownames(se) <- paste0("gene-",seq_len(nrow(se)))
+  colnames(se) <- paste0("s",seq_len(n))
   metadata(se) <- list(countsFromAbundance="no")
-  colData(se) <- DataFrame(condition=gl(2,n/2))
+  colData(se) <- DataFrame(condition=gl(2,n/2),
+                           row.names=colnames(se))
   se
 }
 

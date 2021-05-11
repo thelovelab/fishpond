@@ -1,7 +1,7 @@
 Package: fishpond
 Title: Fishpond: differential transcript and gene expression
     with inferential replicates
-Version: 1.7.3
+Version: 1.7.4
 Authors@R: c(
     person("Anzi", "Zhu", role = c("aut","ctb")),
     person("Michael", "Love", email="michaelisaiahlove@gmail.com", role = c("aut","cre")),
@@ -22,7 +22,7 @@ Imports:
     graphics, stats, utils, methods, abind, gtools, qvalue, S4Vectors,
     SummarizedExperiment, matrixStats, svMisc, Rcpp, Matrix
 Suggests: testthat, knitr, rmarkdown, macrophage, tximeta, org.Hs.eg.db,
-    samr, DESeq2, apeglm, tximportData, SingleCellExperiment
+    samr, DESeq2, apeglm, tximportData, SingleCellExperiment, limma
 LinkingTo: Rcpp
 SystemRequirements: C++11
 License: GPL-2
@@ -35,4 +35,4 @@ biocViews: Sequencing, RNASeq, GeneExpression,
     AlternativeSplicing, SingleCell
 VignetteBuilder: knitr
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
