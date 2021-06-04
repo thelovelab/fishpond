@@ -563,6 +563,92 @@ computeInfRV <- function(y, pc=5, shift=.01, meanVariance) {
   y
 }
 
+#' Import allelic counts as a SummarizedExperiment
+#'
+#' Read in Salmon quantification of allelic counts from a
+#' diploid transcriptome. Assumes that diploid transcripts
+#' are marked by an underscore and a consistent symbol, e.g.
+#' \code{ENST123_M} and \code{ENST123_P}, and that there are
+#' exactly two alleles for each reference transcript.
+#'
+#' Requires the tximeta package.
+#' \code{skipMeta=TRUE} is used, as it is assumed
+#' the diploid transcriptome does not match any reference
+#' transcript collection.
+#'
+#' @param coldata a data.frame as used in \code{tximeta}
+#' @param a1 the symbol for the effect /alternative allele
+#' @param a2 the symbol for the reference allele
+#' @param format either \code{"wide"} or \code{"assays"} for whether
+#' to combine the allelic counts as columns (wide) or put the allelic
+#' counts in different assay slots (assays). For wide output, the
+#' reference allele (a2) comes first, then the alternative allele (a1),
+#' and all assays are preserved, just widened. For assays output,
+#' only the allelic counts are passed along to the output object, relabeled
+#' as "a1" and "a2" assays
+#' @param ... any arguments to pass to tximeta,
+#' e.g. \code{txOut=FALSE} and \code{tx2gene} for transcript grouping
+#'
+#' @return a SummarizedExperiment, with allele counts (and other data)
+#' combined into a wide matrix (a2 + a1), or as assays (a1, then a2).
+#' 
+#' @export
+importAllelicCounts <- function(coldata, a1, a2,
+                              format=c("wide","assays"), ...) {
+  format <- match.arg(format)
+  if (!requireNamespace("tximeta", quietly=TRUE)) {
+    stop("this function requires installing the Bioconductor package 'tximeta'")
+  }
+  se <- tximeta::tximeta(coldata, skipMeta=TRUE, ...)
+
+  # remove any characters after "|"
+  rownames(se) <- sub("\\|.*", "", rownames(se))
+
+  ntxp <- nrow(se)/2
+  n <- ncol(se)
+
+  # gather transcript names for a1 and a2 alleles
+  txp_nms_a1 <- grep(paste0("_",a1,"$"), rownames(se), value=TRUE)
+  stopifnot(length(txp_nms_a1) == ntxp)
+  txp_nms_a2 <- sub(paste0("_",a1),paste0("_",a2),txp_nms_a1)
+  stopifnot(all(txp_nms_a2 %in% rownames(se)))
+  stopifnot(length(txp_nms_a1) == length(txp_nms_a2))
+  txp_nms <- sub(paste0("_",a1),"",txp_nms_a1)
+  
+  if (format == "wide") {
+    coldata_wide <- data.frame(
+      allele=factor(rep(c("a2","a1"), each=n), levels=c("a2","a1"))
+    )
+    # add any other covariate data
+    for (v in setdiff(names(coldata), c("files","names"))) {
+      coldata_wide[[v]] <- coldata[[v]]
+    }
+    rownames(coldata_wide) <- paste0(colnames(se), "-", coldata_wide$allele)
+
+    assays_wide <- lapply(assays(se), function(a) {
+      a_wide <- cbind(a[txp_nms_a2,], a[txp_nms_a1,])
+      rownames(a_wide) <- txp_nms
+      colnames(a_wide) <- rownames(coldata_wide)
+      a_wide
+    })
+    # make a new SE
+    wide <- SummarizedExperiment(assays=assays_wide,
+                                 colData=coldata_wide)
+    metadata(wide) <- metadata(se)
+    return(wide)
+  } else if (format == "assays") {
+    se_sub <- se[txp_nms_a1,]
+    rownames(se_sub) <- txp_nms
+    # discard other assays other than counts
+    assays(se_sub) <- assays(se_sub)["counts"]
+    assayNames(se_sub) <- "a1"
+    tmp_mtx <- assay(se, "counts")[txp_nms_a2,]
+    rownames(tmp_mtx) <- txp_nms
+    assay(se_sub, "a2") <- tmp_mtx
+    return(se_sub)
+  }
+}
+
 postprocess <- function(y, df) {
   for (stat in names(df)) {
     mcols(y)[[stat]] <- numeric(nrow(y))

@@ -16,5 +16,21 @@ test_that("swish for ASE works", {
     z <- mcols(y)$stat
     hist(z[abs(z)<20], breaks=100, xlim=c(-30,30))
   }
-  
+
+  # test reading in wide format for ASE
+  if (FALSE) {
+    # this needs to be added as test data somewhere...
+    dir <- "../../../ase_quants"
+    names <- list.files(dir)
+    files <- file.path(dir, names, "quant.sf")
+    coldata <- data.frame(files, names, condition=factor(c("A","A","B","B")))
+    suppressPackageStartupMessages(library(SummarizedExperiment))
+    library(tximeta)
+    wide <- importAllelicCounts(coldata, a1="P", a2="M", format="wide")
+    colData(wide)
+    se <- importAllelicCounts(coldata, a1="P", a2="M", format="assays")
+    colData(se)
+    assayNames(se)
+  }
+    
 })
