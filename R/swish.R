@@ -162,8 +162,9 @@ NULL
 #' @importFrom stats median quantile qnorm rpois runif rnbinom var
 #' @importFrom utils head tail capture.output read.table write.table
 #' @importFrom methods is
-#' @importFrom SummarizedExperiment SummarizedExperiment assayNames
-#' assays assays<- colData colData<- mcols mcols<-
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' assayNames assayNames<- assay assay<- assays assays<-
+#' colData colData<- mcols mcols<-
 #' @importFrom S4Vectors DataFrame metadata metadata<-
 #' @importFrom gtools permutations
 #' @importFrom Matrix rowSums
