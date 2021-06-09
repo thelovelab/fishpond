@@ -15,11 +15,10 @@ importAllelicCounts(coldata, a1, a2, format = c("wide", "assays"), ...)
 
 \item{format}{either \code{"wide"} or \code{"assays"} for whether
 to combine the allelic counts as columns (wide) or put the allelic
-counts in different assay slots (assays). For wide output, the
+count information in different assay slots (assays). For wide output, the
 reference allele (a2) comes first, then the alternative allele (a1),
-and all assays are preserved, just widened. For assays output,
-only the allelic counts are passed along to the output object, relabeled
-as "a1" and "a2" assays}
+For assays output, all of the original matrices are renamed with a prefix,
+either \code{a1-} or \code{a2-}.}
 
 \item{...}{any arguments to pass to tximeta,
 e.g. \code{txOut=FALSE} and \code{tx2gene} for transcript grouping}
@@ -27,17 +26,24 @@ e.g. \code{txOut=FALSE} and \code{tx2gene} for transcript grouping}
 \value{
 a SummarizedExperiment, with allele counts (and other data)
 combined into a wide matrix (a2 + a1), or as assays (a1, then a2).
+The original strings associated with a1 and a2 are stored in the
+metadata of the object, in the \code{alleles} list element.
 }
 \description{
 Read in Salmon quantification of allelic counts from a
 diploid transcriptome. Assumes that diploid transcripts
 are marked by an underscore and a consistent symbol, e.g.
 \code{ENST123_M} and \code{ENST123_P}, and that there are
-exactly two alleles for each reference transcript.
+exactly two alleles for each reference transcript. The output
+object has half the number of transcripts, with the two alleles
+either stored in a \code{"wide"} object, or as re-named
+\code{"assays"}.
 }
 \details{
 Requires the tximeta package.
 \code{skipMeta=TRUE} is used, as it is assumed
 the diploid transcriptome does not match any reference
-transcript collection.
+transcript collection. This may change in future iterations
+of the function, depending on developments in upstream
+software.
 }
