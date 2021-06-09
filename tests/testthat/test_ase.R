@@ -26,11 +26,14 @@ test_that("swish for ASE works", {
     coldata <- data.frame(files, names, condition=factor(c("A","A","B","B")))
     suppressPackageStartupMessages(library(SummarizedExperiment))
     library(tximeta)
-    wide <- importAllelicCounts(coldata, a1="P", a2="M", format="wide")
-    colData(wide)
+    se <- importAllelicCounts(coldata, a1="P", a2="M", format="wide")
+    colData(se)
+    assayNames(se)
+    metadata(se)$alleles
     se <- importAllelicCounts(coldata, a1="P", a2="M", format="assays")
     colData(se)
     assayNames(se)
+    metadata(se)$alleles
   }
     
 })
