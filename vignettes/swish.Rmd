@@ -496,6 +496,7 @@ isoform proportions change across condition.
 ```{r}
 # run on the transcript-level dataset
 iso <- isoformProportions(y)
+# `nperms=64` here is atypical, usually not specified, see note above
 iso <- swish(iso, x="condition", pair="line", nperms=64)
 ```
 
