@@ -1,3 +1,6 @@
+Changes in version 1.9.6
+* Specifying ties.method in matrixStats::rowRanks.
+
 Changes in version 1.9.1
 * Added importAllelicCounts() with options for importing
   Salmon quantification on diploid transcriptomes.

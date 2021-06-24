@@ -323,7 +323,8 @@ getSamStat <- function(infRepsArray, condition, ranks=NULL, returnRanks=FALSE) {
     for (k in seq_len(dims[3])) {
       # modified from samr:::resample
       ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] +
-                                          0.1 * runif(dims[1]*dims[2]))
+                                          0.1 * runif(dims[1]*dims[2]),
+                                          ties.method = "average")
     }
   }
   rankSums <- vapply(seq_len(dims[3]), function(i)
