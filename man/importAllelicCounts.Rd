@@ -34,10 +34,11 @@ Read in Salmon quantification of allelic counts from a
 diploid transcriptome. Assumes that diploid transcripts
 are marked by an underscore and a consistent symbol, e.g.
 \code{ENST123_M} and \code{ENST123_P}, and that there are
-exactly two alleles for each reference transcript. The output
-object has half the number of transcripts, with the two alleles
-either stored in a \code{"wide"} object, or as re-named
-\code{"assays"}.
+exactly two alleles for each reference transcript, that is,
+the \code{--keep-duplicates} option was used in Salmon indexing.
+The output object has half the number of transcripts,
+with the two alleles either stored in a \code{"wide"} object,
+or as re-named \code{"assays"}.
 }
 \details{
 Requires the tximeta package.
