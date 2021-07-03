@@ -1,0 +1,9 @@
+{
+  "alt_resolved_cell_numbers": [],
+  "cmd": [""],
+  "dump_eq": [false],
+  "num_genes": [6],
+  "num_quantified_cells": [3],
+  "resolution_strategy": ["CellRangerLike"],
+  "usa_mode": [true]
+}
