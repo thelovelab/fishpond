@@ -46,9 +46,9 @@
 loadFry <- function(fry.dir, which_counts = c('S', 'A'), verbose = FALSE) {
   
     # read in metadata
-    qfile <- file.path(frydir, "quant.json")
+    qfile <- file.path(fry.dir, "quant.json")
     if (!file.exists(qfile)) {
-      qfile <- file.path(frydir, "meta_info.json")
+      qfile <- file.path(fry.dir, "meta_info.json")
     }
 
 
