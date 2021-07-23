@@ -44,13 +44,12 @@
 #'
 
 loadFry <- function(fry.dir, which_counts = c('S', 'A'), verbose = FALSE) {
-  
+    # in alevin-fry 0.4.1, meta_info.json is changed to quant.json, so check both
     # read in metadata
     qfile <- file.path(fry.dir, "quant.json")
     if (!file.exists(qfile)) {
       qfile <- file.path(fry.dir, "meta_info.json")
     }
-
 
     # read in metadata
     meta_info <- fromJSON(file.path(fry.dir, "meta_info.json"))
