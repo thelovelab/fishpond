@@ -52,7 +52,7 @@ loadFry <- function(fry.dir, which_counts = c('S', 'A'), verbose = FALSE) {
     }
 
     # read in metadata
-    meta_info <- fromJSON(file = qfile)
+    meta_info <- fromJSON(qfile)
     ng <- meta_info$num_genes
     usa_mode <- meta_info$usa_mode
     
