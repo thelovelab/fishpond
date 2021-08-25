@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // getSparseMatrix
 SEXP getSparseMatrix(size_t numOfGenes, size_t numOfOriginalCells, std::string countMatFilename, bool tierImport);
 RcppExport SEXP _fishpond_getSparseMatrix(SEXP numOfGenesSEXP, SEXP numOfOriginalCellsSEXP, SEXP countMatFilenameSEXP, SEXP tierImportSEXP) {

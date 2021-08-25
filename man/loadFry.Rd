@@ -4,21 +4,28 @@
 \alias{loadFry}
 \title{Load in data from alevin-fry USA mode}
 \usage{
-loadFry(fry.dir, which_counts = c("S", "A"), verbose = FALSE)
+loadFry(fry.dir, which_counts = c("S", "A"), velocity = FALSE, verbose = FALSE)
 }
 \arguments{
-\item{fry.dir}{A path to the output directory returned by alevin-fry quant command. This directory 
-should contain a metainfo.json, and an `alevin` folder which contains quants_mat.mtx, 
+\item{fry.dir}{A path to the output directory returned by alevin-fry quant command. This directory
+should contain a metainfo.json, and an `alevin` folder which contains quants_mat.mtx,
 quants_mat_cols.txt and  quants_mat_rows.txt.}
 
 \item{which_counts}{A vector specifying which kinds of counts will be considered to build the final count matrix.
 For single-cell RNA-seq, `c('S', 'A')` is recommended (the default value); for single nucleus RNA-seq, `c('U', 'S', 'A')`
-is recommanded.}
+is recommended.}
+
+\item{velocity}{A boolean (default: `FALSE`) specifying whether you want to return a `SingleCellExperiment with
+that includes the values from the `"U"`-nspliced counts stored in an additional `"unspliced"` matrix in the assay
+slot. When `TRUE`, the kinds specification provided in the `which_counts` parameter determines the types of counts
+used for the normal, gene-level, qauntitation returned in the default `"counts"` assay.}
 
 \item{verbose}{A boolean specifying if showing messages when running the function}
 }
 \value{
 A `SingleCellExperiment` object contains a gene by cell count matrix. The row names are feature names, and the column names are cell barcodes.
+When `velocity = TRUE`, a second assay matrix named `"unspliced"` will be included. This allows the returned object to house both quantitation matrices
+required for velocity analysis using tools like scvelo/velociraptor.
 }
 \description{
 Enables easy loading of sparse data matrices provided by alevin-fry USA mode.
@@ -26,17 +33,17 @@ Alevin-fry - https://www.biorxiv.org/content/10.1101/2021.06.29.450377v1
 }
 \details{
 This function consumes the result folder returned by running alevin-fry quant in unspliced, spliced, ambiguous (USA) quantification mode, and returns a `SingleCellExperiement` object
-that contains a final count for each gene within each cell. In USA mode, alevin-fry quant returns a count matrix contains three types of count for each feature (gene) 
+that contains a final count for each gene within each cell. In USA mode, alevin-fry quant returns a count matrix contains three types of count for each feature (gene)
 within each sample (cell or nucleus), which represent the spliced mRNA count of the gene, the unspliced mRNA count of the gene, and the count of mRNA whose splicing status is ambiguous.
-In this function, these three counts of a gene within a cell will either be summed or discarded to get the final count of the gene by specifying `which_counts`. The returned object will 
+In this function, these three counts of a gene within a cell will either be summed or discarded to get the final count of the gene by specifying `which_counts`. The returned object will
 contains a gene by cell count matrix, with rownames as the barcode of samples and colnames as the feature names.
 }
 \examples{
 \dontrun{
-# For output from alevin-fry USA mode 
+# For output from alevin-fry USA mode
 fry.dir <- system.file("inst", "extdata", "alevin", "test_loadFry", package="fishpond")
 is.element('meta_info.json', list.files('fry.dir')) # Should reture TRUE
-list.files(file.path(fry.dir, 'alevin')) 
+list.files(file.path(fry.dir, 'alevin'))
 # Should show quants_mat.mtx, quants_mat_cols.txt and quants_mat_rows.txt
 
 sce <- loadFry(fry.dir = fry.dir, which_counts = c('S', 'A'))
