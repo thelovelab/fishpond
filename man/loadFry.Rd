@@ -48,6 +48,5 @@ list.files(file.path(fry.dir, 'alevin'))
 
 sce <- loadFry(fry.dir = fry.dir, which_counts = c('S', 'A'))
 }
-
 }
 \concept{preprocessing}

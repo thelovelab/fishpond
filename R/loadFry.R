@@ -143,7 +143,7 @@ loadFry <- function(fry.dir, which_counts = c('S', 'A'), velocity = FALSE,
 
     alist <- list(counts = t(o))
     if (velocity) {
-      alist[["unspliced"]] <- t(af_raw[, rd[[u]], drop = FALSE])
+      alist[["unspliced"]] <- t(af_raw[, rd[["U"]], drop = FALSE])
     }
 
     # create SingleCellExperiment object

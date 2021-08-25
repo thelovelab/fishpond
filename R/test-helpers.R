@@ -3,8 +3,8 @@
 
 # Example alevin-fry quant dataset ---------------------------------------------
 #
-# These methods provide an orthologous way to create and read in test alevin
-# outputs than what is implemented in loadFry() that we can use for testing.
+# These methods provide an orthologous way to create and read in test examples
+# from alevin outputs than what is implemented in loadFry().
 #
 # The functions provide a mechanism that enables you to define the sample output
 # in a plain text matrix format (data.frame) named `example-dat.csv` and
@@ -14,8 +14,15 @@
 # an example data file that created a sample `salmon alevin-fry quant` directory
 # we can use to test `loadFry` against.
 #
-# The CSV file was created by hand, then we called
-# `writeExampleFryDat("fry-usa-basic")` to make the test data asset.
+# Once we created the extdata/alevin/example-quants/fry-usa-basic directory
+# and put the the example-dat.csv file in it, we then run the following command
+# create all of the *.mtx and other files to make this look like an alevin
+# output directoy.
+#
+# ```{r}
+# devtools::load_all(".")
+# writeExampleFryDat("fry-usa-basic")
+# ```
 
 #' Loads an example data matrix from a csv data from a top-level example
 #' fry output directory.
@@ -80,6 +87,7 @@ writeExampleFryDat <- function(x = "fry-usa-basic", ...) {
   }
 
   m <- Matrix::Matrix(x$matrix, sparse = TRUE)
+  m <- as(m, "dgCMatrix")
   Matrix::writeMM(m, file.path(out.dir, "quants_mat.mtx"))
 
   write.table(

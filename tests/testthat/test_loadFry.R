@@ -1,94 +1,56 @@
 context("loadFry")
-library(Matrix)
-library(SingleCellExperiment)
+
+# Notes on how to generate test data sets for use here can be round in the
+# R/test-helpers.R file
 
 test_that("Reading in Alevin-fry USA count matrix works", {
-  dir <- system.file("extdata", "alevin", "test_loadFry", package="fishpond")
-  fry.dir <- file.path(dir)
-  file.exists(fry.dir)
-  expect_equal(file.exists(fry.dir), TRUE)
+  dat <- fishpond:::readExampleFryData("fry-usa-basic")
+  expect_true(dir.exists(dat$parent_dir))
 
-  # reading in quants with no velocity data
-  sce <- loadFry(fry.dir)
-  expect_equal(nrow(sce), 2)
-  expect_equal(ncol(sce), 3)
-  expect_equal(assayNames(sce), c("counts"))
+  # read default quantification (S + A)
+  sce <- loadFry(dat$parent_dir, which_counts = c('S', 'A'))
+  expect_equal(nrow(sce), length(dat$genes))
+  expect_equal(ncol(sce), length(dat$barcodes))
+  expect_equal(SummarizedExperiment::assayNames(sce), "counts")
 
-  cts <- counts(sce)
+  # For some reason this is loading the matrix as a dgTMatrix
+  cts <- SummarizedExperiment::assay(sce, "counts")
+  expect_s4_class(cts, "sparseMatrix")
+  cts <- as(cts, "dgCMatrix")
 
-  # load the matrix manually so we don't hard code expected values
-  quants <- .loadFry(fry.dir, ncol(sce))
-  m <- t(mraw[, idx$S, drop = FALSE]  + mraw[, idx$A, drop = FALSE])
-  ng <- nrow(sce)
-  idx <- list(
-    S = seq(1, ng),
-    U = seq(ng + 1, 2 * ng),
-    A = seq(2 * ng + 1, 3 * ng))
-  mraw <- Matrix::readMM(file.path(fry.dir, "alevin", "quants_mat.mtx"))
+  # Add the spliced and ambiguous reads manualy and convert into a matrix
+  M <- local({
+    m <- dat$matrix[, dat$usa$S, drop = FALSE] + dat$matrix[, dat$usa$A, drop = FALSE]
+    dimnames(m) <- list(dat$barcodes, dat$genes)
+    Matrix::Matrix(t(m), sparse = TRUE)
+  })
 
-  dimnames(m) <- list(
-    readLines(file.path(fry.dir, "alevin", "quants_mat_cols.txt")),
-    readLines(file.path(fry.dir, "alevin", "quants_mat_rows.txt")))
-
-  expect_equal(cts, m)
+  expect_equal(cts, M)
 })
 
 test_that("Main gene-level quantiation is same when velocity = TRUE or FALSE", {
-  fdir <- system.file("extdata", "alevin", "test_loadFry", package = "fishpond")
+  dat <- fishpond:::readExampleFryData("fry-usa-basic")
 
   # read in counts using default S,A counting
-  sce <- loadFry(fdir, which_counts = c("S", "A"))
+  sce <- loadFry(dat$parent_dir, which_counts = c("S", "A"))
 
   # return counts and unspliced estimates
-  scev <- loadFry(fdir, which_counts = c("S", "A"), velocity = TRUE)
-  expect_equal(assayNames(scev), c("counts", "unspliced"))
+  scev <- loadFry(dat$parent_dir, which_counts = c("S", "A"), velocity = TRUE)
+  expect_equal(SummarizedExperiment::assayNames(scev), c("counts", "unspliced"))
 
-  expect_equal(assay(scev, "counts"), assay(sce, "counts"))
   # gene-level quantitation should be the same w/ and w/o velocity
+  expect_equal(assay(scev, "counts"), assay(sce, "counts"))
+
+  # ensure spliced counts are same as manually assembled ones
+  unspliced <- assay(scev, "unspliced")
+  expect_s4_class(unspliced, "sparseMatrix")
+  unspliced <- as(unspliced, "dgCMatrix")
+
+  U <- local({
+    u <- dat$matrix[, dat$usa$U, drop = FALSE]
+    dimnames(u) <- list(dat$barcodes, dat$genes)
+    Matrix::Matrix(t(u), sparse = TRUE)
+  })
+
+  expect_equal(unspliced, U)
 })
-
-# Test data creation receipt ---------------------------------------------------
-# Create a test data set that implicitly does not get converted to a logical
-# (dgcTMatrix) because it's all 0s and 1s. This will allow us to properly
-# test the `velocity=TRUE` parameter.
-if (FALSE) {
-  # Assume the current work dir is root of Rpkg
-  stopifnot(
-    basename(getwd()) == "fishpond",
-    dir.exists(file.path(getwd(), "inst/extdata/alevin")))
-
-  library(Matrix)
-  library(jsonlite)
-  # create mtx
-  m <- Matrix(nrow = 3, ncol = 6, data = 2, sparse = TRUE)
-  m <- as(m, "dgCMatrix") # by default, Matrix() returns dgCMatrix
-  m[1,1] <- 0
-  m[2,3] <- 0
-  m[2,5] <- 0
-  m[3,6] <- 0
-  m
-
-  fry.dir = file.path("inst/extdata/alevin/test_loadFry")
-  dir.create(file.path(fry.dir, "alevin"), recursive = TRUE, showWarnings = FALSE)
-  writeMM(m,file.path(fry.dir, "alevin", "quants_mat.mtx"))
-  m = readMM(file.path(fry.dir, "alevin", "quants_mat.mtx"))
-
-  # create feature names
-  write.table(c("gene1", "gene2"), file =file.path(fry.dir, "alevin", "quants_mat_cols.txt"),quote = FALSE,col.names = FALSE, row.names = FALSE, sep = "\t")
-
-  # create cellbarcodes
-  write.table(c("bc1", "bc2", "bc3"), file =file.path(fry.dir, "alevin", "quants_mat_rows.txt"),quote = FALSE,col.names = FALSE, row.names = FALSE, sep = "\t")
-
-  # create metadata
-  meta_info = list()
-  meta_info[["alt_resolved_cell_numbers"]] = list()
-  meta_info[["cmd"]] = ""
-  meta_info[["dump_eq"]] = FALSE
-  meta_info[["num_genes"]] = 6
-  meta_info[["num_quantified_cells"]] = 3
-  meta_info[["resolution_strategy"]] = "CellRangerLike"
-  meta_info[["usa_mode"]] = TRUE
-
-  write(toJSON(meta_info, pretty=TRUE), file=file.path(fry.dir, "meta_info.json"))
-}
-
