@@ -13,10 +13,8 @@ test_that("Reading in Alevin-fry USA count matrix works", {
   expect_equal(ncol(sce), length(dat$barcodes))
   expect_equal(SummarizedExperiment::assayNames(sce), "counts")
 
-  # For some reason this is loading the matrix as a dgTMatrix
   cts <- SummarizedExperiment::assay(sce, "counts")
-  expect_s4_class(cts, "sparseMatrix")
-  cts <- as(cts, "dgCMatrix")
+  expect_s4_class(cts, "dgCMatrix")
 
   # Add the spliced and ambiguous reads manualy and convert into a matrix
   M <- local({
@@ -43,8 +41,7 @@ test_that("Main gene-level quantiation is same when velocity = TRUE or FALSE", {
 
   # ensure spliced counts are same as manually assembled ones
   unspliced <- assay(scev, "unspliced")
-  expect_s4_class(unspliced, "sparseMatrix")
-  unspliced <- as(unspliced, "dgCMatrix")
+  expect_s4_class(unspliced, "dgCMatrix")
 
   U <- local({
     u <- dat$matrix[, dat$usa$U, drop = FALSE]

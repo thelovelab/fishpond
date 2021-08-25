@@ -123,7 +123,10 @@ loadFry <- function(fry.dir, which_counts = c('S', 'A'), velocity = FALSE,
     }
 
     # read in count matrix, gene names, and barcodes
-    af_raw <-  readMM(file = file.path(fry.dir, "alevin", "quants_mat.mtx"))
+    af_raw <- readMM(file = file.path(fry.dir, "alevin", "quants_mat.mtx"))
+    # DropletUtils::read10x2Counts explicitly converts readMM results to a
+    # dgCMatrix, so maybe we should too?
+    af_raw <- as(af_raw, "dgCMatrix")
     afg <-  read.table(file.path(fry.dir, "alevin", "quants_mat_cols.txt"),
                        strip.white = TRUE, header = FALSE, nrows = ng,
                        col.names = c("gene_ids"), row.names = 1)
