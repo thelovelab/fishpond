@@ -39,14 +39,16 @@ In this function, these three counts of a gene within a cell will either be summ
 contains a gene by cell count matrix, with rownames as the barcode of samples and colnames as the feature names.
 }
 \examples{
-\dontrun{
-# For output from alevin-fry USA mode
-fry.dir <- system.file("inst", "extdata", "alevin", "test_loadFry", package="fishpond")
-is.element('meta_info.json', list.files('fry.dir')) # Should reture TRUE
-list.files(file.path(fry.dir, 'alevin'))
-# Should show quants_mat.mtx, quants_mat_cols.txt and quants_mat_rows.txt
+# Get path for minimal example avelin-fry output dir
+testdat <- fishpond:::readExampleFryData("fry-usa-basic")
 
-sce <- loadFry(fry.dir = fry.dir, which_counts = c('S', 'A'))
-}
+# Load avelein-fry gene quantification by summing spliced and ambiguous events
+sce <- loadFry(testdat$parent_dir, which_counts = c('S', 'A'))
+SummarizedExperiment::assayNames(sce)
+
+# Load the same data and include an "unspliced" assay matrix to pass down
+# to velociraptor, perhaps
+scev <- loadFry(testdat$parent_dir, which_counts = c('S', 'A'), velocity = TRUE)
+SummarizedExperiment::assayNames(scev)
 }
 \concept{preprocessing}
