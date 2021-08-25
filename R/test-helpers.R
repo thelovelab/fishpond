@@ -66,6 +66,7 @@ readExampleFryData <- function(example_name = "fry-usa-basic", usa = TRUE, ...) 
 #' Serializes example fry output data from an `example-fry-dat.csv` as if
 #' it were produced from an alevin-fry quant run
 #'
+#' @noRd
 #' @param x the name of the top level directory in
 #' `extdata/alevin/example-fry-USA-quants` or a list result from calling
 #' `readExampleFryData`
