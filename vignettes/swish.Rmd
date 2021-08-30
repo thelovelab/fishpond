@@ -62,6 +62,11 @@ set.seed(1)
 y <- swish(y, x="condition") # simplest Swish case
 ```
 
+**Note:** Inferential replicates, either from Gibbs sampling or
+bootstrapping of reads, are required for the *swish* method. You can
+set `--numGibbsSamples 20` when running Salmon to generate Gibbs
+samples.
+
 The results can be found in `mcols(y)`. For example, one can calculate
 the number of genes passing a 5% FDR threshold:
 
@@ -120,8 +125,7 @@ package vignette.
 
 Importantly, `--numGibbsSamples 20` was used to generate 20
 inferential replicates with *Salmon*'s Gibbs sampling procedure.
-Inferential replicates, either from Gibbs sampling or bootstrapping of
-reads, are required for the *swish* method shown below. We also
+We also 
 recommend to use `--gcBias` when running *Salmon* to protect against
 common sample-specific biases present in RNA-seq data.
 
@@ -1030,6 +1034,18 @@ hist(log10(mcols(y3)$meanInfRV),
      col="grey50", border="white", breaks=20,
      xlab="mean InfRV", main="Txp-level inferential uncertainty")
 ```
+
+## Salmon in alignment mode, how to use tximeta
+
+If you ran Salmon in alignment mode, then a Salmon index was not
+used. Without a Salmon index, there is not a checksum that tximeta
+uses to identify the transcriptome. You can specify `skipMeta=TRUE` to
+avoid tximeta attempting to match on the transcriptome in this case. 
+
+If you want to combine transcripts to gene level (or some other level
+of aggregation), you can set `txOut=FALSE, tx2gene=tx2gene` when
+calling `tximeta` and it will pass these arguments to tximport when
+importing the counts and inferential replicates.
 
 ## Permutation schemes for interactions
 
