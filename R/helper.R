@@ -669,6 +669,7 @@ postprocess <- function(y, df) {
 
 infRepError <- function(infRepIdx) {
   if (length(infRepIdx) == 0) {
-    stop("there are no inferential replicates in the assays of 'y'")
+    stop("there are no inferential replicates in the assays of 'y';
+see Quick Start in the swish vignette for details")
   }
 }
