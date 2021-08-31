@@ -91,6 +91,10 @@ NULL
 #' pairs if this is specified. Cannot be used with \code{cov}.
 #' @param interaction logical, whether to perform a test of an interaction
 #' between \code{x} and \code{cov}. See Details.
+#' @param cor character, whether to compute correlation of \code{x}
+#' with the counts or the log fold changes (if \code{pair} is provided).
+#' Spearman or Pearson correlations are both offered.
+#' Default is \code{"none"}, i.e. two-group comparisons using rank sum test
 #' @param nperms the number of permutations. if set above the possible
 #' number of permutations, the function will print a message that the
 #' value is set to the maximum number of permutations possible
@@ -159,7 +163,7 @@ NULL
 #' plotInfReps(y, 5, "condition")
 #'
 #' @importFrom graphics plot points segments rect abline title axis legend
-#' @importFrom stats median quantile qnorm rpois runif rnbinom var
+#' @importFrom stats median quantile qnorm rpois runif rnbinom var cor
 #' @importFrom utils head tail capture.output read.table write.table
 #' @importFrom methods is
 #' @importFrom SummarizedExperiment SummarizedExperiment
@@ -171,7 +175,9 @@ NULL
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
-                  interaction=FALSE, nperms=100, 
+                  interaction=FALSE,
+                  cor=c("none","spearman","pearson"),
+                  nperms=100, 
                   estPi0=FALSE, qvaluePkg="qvalue",
                   pc=5, nRandomPairs=30, fast=1,
                   returnNulls=FALSE,
@@ -179,15 +185,23 @@ swish <- function(y, x, cov=NULL, pair=NULL,
 
   stopifnot(is(y, "SummarizedExperiment"))
   stopifnot(fast %in% 0:1)
+
+  # define if we are doing correlations
+  cor <- match.arg(cor)
+  correlation <- cor != "none"
+
   # 'cov' or 'pair' or neither, but not both
   if (!interaction) stopifnot(is.null(cov) | is.null(pair))
   # interactions require a two level covariate
   if (interaction) stopifnot(!is.null(cov))
+  # correlation only for numeric 'x' unpaired or paired analysis
+  if (correlation) stopifnot(!interaction)
+  if (correlation) stopifnot(is.null(cov))
   if (!interactive()) { quiet <- TRUE }
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- labelKeep(y)
   }
-
+  
   if (all(!mcols(y)$keep)) {
     stop("All rows have mcols(y)$keep == FALSE, no features to test")
   }
@@ -205,11 +219,13 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   infRepsArray <- getInfReps(ys)
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
-  stopifnot(is.factor(condition))
-  stopifnot(nlevels(condition) == 2)
-  stopifnot(!anyNA(condition))
+  if (!correlation) {
+    stopifnot(is.factor(condition))
+    stopifnot(nlevels(condition) == 2)
+    stopifnot(!anyNA(condition))
+  }
 
-  if (!interaction & is.null(cov) & is.null(pair)) {
+  if (!interaction & is.null(cov) & is.null(pair) & !correlation) {
     # basic two group
     out <- swishTwoGroup(infRepsArray, condition,
                          nperms, pc, fast, quiet)
@@ -221,7 +237,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     out <- swishStrat(infRepsArray, condition, covariate,
                       nperms, pc, fast, quiet)
     
-  } else if (!interaction & !is.null(pair)) {
+  } else if (!interaction & !is.null(pair) & !correlation) {
     # two group with matched samples
     stopifnot(pair %in% names(colData(y)))
     pair <- colData(y)[[pair]] # sample pairing
@@ -240,6 +256,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     
   } else if (interaction & is.null(pair)) {
     # two group 'x', two group 'cov', samples not matched
+
     stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]]
     out <- swishInterx(infRepsArray, condition,
@@ -247,6 +264,10 @@ swish <- function(y, x, cov=NULL, pair=NULL,
                        pc, nRandomPairs,
                        quiet)
     
+  } else if (correlation & is.null(pair)) {
+    stopifnot(is.numeric(condition))
+    out <- swishCor(infRepsArray, condition,
+                    nperms, pc, quiet)
   }
 
   # gather results from functions above
@@ -327,8 +348,8 @@ getSamStat <- function(infRepsArray, condition, ranks=NULL, returnRanks=FALSE) {
                                           ties.method = "average")
     }
   }
-  rankSums <- vapply(seq_len(dims[3]), function(i)
-    rowSums(ranks[,cond2,i]), numeric(dims[1]))
+  rankSums <- vapply(seq_len(dims[3]), function(k)
+    rowSums(ranks[,cond2,k]), numeric(dims[1]))
   # Wilcoxon, centered on 0:
   W <- rankSums - sum(cond2) * (dims[2] + 1)/2
   if (returnRanks) {

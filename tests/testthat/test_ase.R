@@ -6,6 +6,7 @@ test_that("swish for ASE works", {
 
   set.seed(1)
 
+  # looking at how the null distribution varies by sample size
   par(mfrow=c(3,1))
   for (np in c(8,10,12)) {
     y <- makeSimSwishData(n=np*2)

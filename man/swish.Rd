@@ -10,6 +10,7 @@ swish(
   cov = NULL,
   pair = NULL,
   interaction = FALSE,
+  cor = c("none", "spearman", "pearson"),
   nperms = 100,
   estPi0 = FALSE,
   qvaluePkg = "qvalue",
@@ -40,6 +41,11 @@ pairs if this is specified. Cannot be used with \code{cov}.}
 
 \item{interaction}{logical, whether to perform a test of an interaction
 between \code{x} and \code{cov}. See Details.}
+
+\item{cor}{character, whether to compute correlation of \code{x}
+with the counts or the log fold changes (if \code{pair} is provided).
+Spearman or Pearson correlations are both offered.
+Default is \code{"none"}, i.e. two-group comparisons using rank sum test}
 
 \item{nperms}{the number of permutations. if set above the possible
 number of permutations, the function will print a message that the
