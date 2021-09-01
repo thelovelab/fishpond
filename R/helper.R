@@ -538,27 +538,36 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE, meanVariance=
 #' @param meanVariance logical, use pre-computed inferential mean
 #' and variance assays instead of \code{counts} and
 #' computed variance from \code{infReps}. If missing,
-#' will use pre-computed mean and variance when present.
+#' will use pre-computed mean and variance when present
+#' @param useCounts logical, whether to use the MLE
+#' count matrix for the mean instead of mean of inferential replicates.
+#' this argument is for backwards compatability, as previous
+#' versions used counts. Default is FALSE
 #'
 #' @return a SummarizedExperiment with \code{meanInfRV} in the metadata columns
 #'
 #' @export
-computeInfRV <- function(y, pc=5, shift=.01, meanVariance) {
+computeInfRV <- function(y, pc=5, shift=.01, meanVariance, useCounts=FALSE) {
   if (missing(meanVariance)) {
     meanVariance <- all(c("mean","variance") %in% assayNames(y))
   }
   if (meanVariance) {
     stopifnot(all(c("mean","variance") %in% assayNames(y)))
     infVar <- assays(y)[["variance"]]
-    mu <- assays(y)[["mean"]]
+    infMean <- assays(y)[["mean"]]
   } else {
     infReps <- assays(y)[grep("infRep",assayNames(y))]
     infReps <- abind::abind(as.list(infReps), along=3)
+    infMean <- apply(infReps, 1:2, mean)
     infVar <- apply(infReps, 1:2, var)
-    mu <- assays(y)[["counts"]]
+    assays(y)[["mean"]] <- infMean
+    assays(y)[["variance"]] <- infVar
+  }
+  if (useCounts) {
+    infMean <- assays(y)[["counts"]]
   }
   # the InfRV computation:
-  InfRV <- pmax(infVar - mu, 0)/(mu + pc) + shift
+  InfRV <- pmax(infVar - infMean, 0)/(infMean + pc) + shift
   mcols(y)$meanInfRV <- rowMeans(InfRV)
   y
 }

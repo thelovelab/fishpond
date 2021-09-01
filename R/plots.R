@@ -4,7 +4,10 @@
 #' drawn for the two groups and potentially grouped by
 #' covariates. For datasets with only mean and variance,
 #' points and intervals (95% intervals using Normal
-#' approximation) are drawn.
+#' approximation) are drawn. Additionally, for numeric
+#' \code{x} values, points and intervals will be drawn
+#' and \code{\link{computeInfRV}} should be run first
+#' in order to add the mean and variance statistics.
 #' 
 #' @param y a SummarizedExperiment (see \code{swish})
 #' @param idx the name or row number of the gene or transcript
@@ -91,11 +94,12 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     stopifnot(ncond <= length(colsDrk))
     colsDrk <- colsDrk[seq_len(ncond)]
     colsLgt <- colsLgt[seq_len(ncond)]
+    # for numeric 'x' we will not make boxplots...
   } else {
     if (hasInfReps) {
-      message("boxplot of inf. reps over numeric 'x' not supported yet")
       hasInfReps <- FALSE
-      stopifnot("variance" %in% assayNames(y))
+      if (!"variance" %in% assayNames(y)) 
+        stop("'variance' assay is missing, use computeInfRV() first")
     }
   }
   if (missing(xaxis)) {
@@ -285,7 +289,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     }
   }
   if (xaxis) {
-    if (xfac) {
+    if (xfac && !all(samp.nums == 1)) {
       axis(1, seq_along(condition), samp.nums)
     } else {
       axis(1)
@@ -294,6 +298,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
   if (!xaxis) {
     title(xlab=xlab, mgp=c(1,1,0))
   }
+  # make alternating black/grey lines on bottom denoting pairs/batches
   if (xfac & !is.null(cov)) {
     cuts <- cumsum(table(covariate))
     segments(c(1,cuts[-ngrp]+1),ymin,cuts,ymin,lwd=3,

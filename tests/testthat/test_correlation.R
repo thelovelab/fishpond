@@ -17,6 +17,7 @@ test_that("swish can detect correlations with log counts", {
   }
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
+  y <- computeInfRV(y)
 
   y <- swish(y, x="condition", cor="spearman", nperms=30)
   #hist(mcols(y)$pvalue)
@@ -24,6 +25,7 @@ test_that("swish can detect correlations with log counts", {
   mcols(y)[1:2,]
   mcols(y)[1,"log2FC"]
   coef(lm(log2(lambda1) ~ y$condition))[[2]]
+  plotInfReps(y, idx=1, x="condition")
 
   y <- swish(y, x="condition", cor="pearson", nperms=30)
   #hist(mcols(y)$pvalue)
@@ -51,10 +53,14 @@ test_that("swish can detect correlations with log counts", {
 
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
+  y <- computeInfRV(y)
 
   y <- swish(y, x="condition", pair="pair")
   #hist(mcols(y)$pvalue)
   #plot(-log10(mcols(y)$pvalue[1:30]))
   mcols(y)[1:2,]
+
+  plotInfReps(y, 1, x="condition", cov="pair")
+  plotInfReps(y, 1, x="cov", cov="condition")
     
 })

@@ -89,7 +89,10 @@ For datasets with inferential replicates, boxplots are
 drawn for the two groups and potentially grouped by
 covariates. For datasets with only mean and variance,
 points and intervals (95% intervals using Normal
-approximation) are drawn.
+approximation) are drawn. Additionally, for numeric
+\code{x} values, points and intervals will be drawn
+and \code{\link{computeInfRV}} should be run first
+in order to add the mean and variance statistics.
 }
 \examples{
 

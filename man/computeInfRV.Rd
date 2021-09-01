@@ -4,7 +4,7 @@
 \alias{computeInfRV}
 \title{Compute inferential relative variance (InfRV)}
 \usage{
-computeInfRV(y, pc = 5, shift = 0.01, meanVariance)
+computeInfRV(y, pc = 5, shift = 0.01, meanVariance, useCounts = FALSE)
 }
 \arguments{
 \item{y}{a SummarizedExperiment}
@@ -16,7 +16,12 @@ computeInfRV(y, pc = 5, shift = 0.01, meanVariance)
 \item{meanVariance}{logical, use pre-computed inferential mean
 and variance assays instead of \code{counts} and
 computed variance from \code{infReps}. If missing,
-will use pre-computed mean and variance when present.}
+will use pre-computed mean and variance when present}
+
+\item{useCounts}{logical, whether to use the MLE
+count matrix for the mean instead of mean of inferential replicates.
+this argument is for backwards compatability, as previous
+versions used counts. Default is FALSE}
 }
 \value{
 a SummarizedExperiment with \code{meanInfRV} in the metadata columns
