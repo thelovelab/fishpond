@@ -23,17 +23,18 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
 
 # The Swish method
 
-The `swish` method for differential expression analysis of bulk or
+The *Swish* method for differential expression analysis of bulk or
 single-cell RNA-seq data using inferential replicate counts is
 described in the following reference: 
 @swish [doi: 10.1093/nar/gkz622](https://doi.org/10.1093/nar/gkz622).
 
-We note that `swish` extends and builds on another method, *SAMseq*
+We note that *Swish* extends and builds on another method, *SAMseq*
 [@samseq], implemented in the *samr* package,
 by taking into account inferential uncertainty, and allowing to
-control for batch effects and matched samples. Additionally, `swish`
+control for batch effects and matched samples. Additionally, *Swish*
 has methods for testing changes in effect size across secondary
-covariates, which we refer to as "interactions".
+covariates, which we refer to as "interactions". *Swish* also
+implements correlation tests as in the original *SAMseq* package.
 `swish` calls functions from the *qvalue* [@qvalue] or *samr* package
 for calculation of local FDR and q-value. This vignette gives an
 example of differential analysis of matched samples, and an
@@ -655,6 +656,21 @@ idx <- with(mcols(y2), which(qvalue < .05 & log2FC > 5))
 plotInfReps(y2, idx[1], x="ifng", cov="salmonella")
 plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 ```
+
+# Correlation with continuous variables
+
+*Swish* now has methods to compute correlations
+(`"spearman"` or `"pearson"`) of a continuous variable `x` with the
+log counts, and then assess the significance of those correlations
+using inferential replicates and permutation tests.
+Additionally, one can compute correlations of a covariate `cov` with
+log fold changes across a pairing variable (where `x` labels the
+condition for the log fold change and `pair` labels the pairs).
+The Spearman-based test statistic follows the procedure from the
+original method *SAMseq* that *Swish* is based upon [@samseq],
+e.g. the methods used in that package with a quantitative response
+type. See `?swish` and the `cor` argument for more details on the
+use of correlations within *Swish*.
 
 # alevin scRNA-seq
 

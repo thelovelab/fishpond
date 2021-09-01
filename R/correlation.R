@@ -1,7 +1,7 @@
-swishCor <- function(infRepsArray, condition,
+swishCor <- function(infRepsArray, condition, cor,
                      nperms=100, pc=5, quiet=FALSE) {
   dims <- dim(infRepsArray)
-  out <- getCorStat(infRepsArray, condition)
+  out <- getCorStat(infRepsArray, condition, cor, pc)
   stat <- out$stat
   ranks <- out$ranks
   # log2FC for a numeric x is calculated differently
@@ -14,26 +14,33 @@ swishCor <- function(infRepsArray, condition,
     if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getCorStat(infRepsArray,
                             condition[perms$perms[p,]],
+                            cor, pc,
                             ranks=ranks)
   }
   if (!quiet) message("")
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
-getCorStat <- function(infRepsArray, condition, ranks=NULL) {
+getCorStat <- function(infRepsArray, condition, cor, pc, ranks=NULL) {
   dims <- dim(infRepsArray)
-  rcondition <- rank(condition)
   if (dims[2] == 2) stop("too few samples to compute the correlation statistic")
-  # calculate ranks if they are not provided...
   ranksMissing <- is.null(ranks)
-  if (ranksMissing) {
-    ranks <- array(dim=dims)
-    for (k in seq_len(dims[3])) {
-      # modified from samr:::resample
-      ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] +
-                                          0.1 * runif(dims[1]*dims[2]),
-                                          ties.method = "average")
+  if (cor == "spearman") {
+    rcondition <- rank(condition)  
+    # calculate ranks if they are not provided...
+    if (ranksMissing) {
+      ranks <- array(dim=dims)
+      for (k in seq_len(dims[3])) {
+        # modified from samr:::resample
+        ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] +
+                                            0.1 * runif(dims[1]*dims[2]),
+                                            ties.method = "average")
+      }
     }
+  } else {
+    # we just pass along original data and covariate for cor="pearson"
+    rcondition <- condition
+    ranks <- log2(infRepsArray + pc)
   }
   corrs <- rowMeans(sapply(seq_len(dims[3]), function(k) cor(t(ranks[,,k]), rcondition)))
   if (ranksMissing) {

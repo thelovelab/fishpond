@@ -43,9 +43,16 @@ pairs if this is specified. Cannot be used with \code{cov}.}
 between \code{x} and \code{cov}. See Details.}
 
 \item{cor}{character, whether to compute correlation of \code{x}
-with the counts or the log fold changes (if \code{pair} is provided).
-Spearman or Pearson correlations are both offered.
-Default is \code{"none"}, i.e. two-group comparisons using rank sum test}
+with the log counts, and signifance testing on the correlation
+as a test statistic.
+Either \code{"spearman"} or \code{"pearson"} correlations can be computed.
+For Spearman the correlation is computed over ranks of \code{x} and
+ranks of inferential replicates. For Pearson, the correlation is
+computed for \code{x} and log2 of the inferential replicates plus \code{pc}.
+Default is \code{"none"}, e.g. two-group comparison using the rank sum test
+or other alternatives listed above.
+Additionally, correlation can be computed between a continuous variable
+\code{cov} and log fold changes across \code{x} based on \code{pair}}
 
 \item{nperms}{the number of permutations. if set above the possible
 number of permutations, the function will print a message that the

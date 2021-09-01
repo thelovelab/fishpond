@@ -92,9 +92,16 @@ NULL
 #' @param interaction logical, whether to perform a test of an interaction
 #' between \code{x} and \code{cov}. See Details.
 #' @param cor character, whether to compute correlation of \code{x}
-#' with the counts or the log fold changes (if \code{pair} is provided).
-#' Spearman or Pearson correlations are both offered.
-#' Default is \code{"none"}, i.e. two-group comparisons using rank sum test
+#' with the log counts, and signifance testing on the correlation
+#' as a test statistic.
+#' Either \code{"spearman"} or \code{"pearson"} correlations can be computed.
+#' For Spearman the correlation is computed over ranks of \code{x} and
+#' ranks of inferential replicates. For Pearson, the correlation is
+#' computed for \code{x} and log2 of the inferential replicates plus \code{pc}.
+#' Default is \code{"none"}, e.g. two-group comparison using the rank sum test
+#' or other alternatives listed above.
+#' Additionally, correlation can be computed between a continuous variable
+#' \code{cov} and log fold changes across \code{x} based on \code{pair}
 #' @param nperms the number of permutations. if set above the possible
 #' number of permutations, the function will print a message that the
 #' value is set to the maximum number of permutations possible
@@ -267,7 +274,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   } else if (correlation & is.null(pair)) {
     stopifnot(is.numeric(condition))
     out <- swishCor(infRepsArray, condition,
-                    nperms, pc, quiet)
+                    cor, nperms, pc, quiet)
   }
 
   # gather results from functions above
