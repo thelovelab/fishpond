@@ -8,7 +8,7 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
     stop("'pair' should have a single sample for both levels of 'condition'")
   stopifnot(nlevels(covariate) == 2)
   if (!all(table(pair, covariate) %in% c(0,2)))
-    stop("'pair' should be nested within 'covariate'")
+    stop("'pair' should be nested within 'cov'")
   dims <- dim(infRepsArray)
 
   out <- getInterxPairStat(infRepsArray, condition, covariate, pair, pc)
@@ -36,7 +36,7 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
   perms <- getPerms(group, nperms)
   nperms <- permsNote(perms, nperms)
   nulls <- matrix(nrow=dims[1], ncol=nperms)
-  if (!quiet) message("Generating test statistics over permutations")
+  if (!quiet) message("generating test statistics over permutations")
   for (p in seq_len(nperms)) {
     if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getSamStat(lfcArray,
@@ -95,7 +95,7 @@ swishInterx <- function(infRepsArray, condition, covariate,
   perms <- getPerms(group, nperms)
   nperms <- permsNote(perms, nperms)
   nulls <- matrix(nrow=dims[1], ncol=nperms)
-  if (!quiet) message("Generating test statistics over permutations")
+  if (!quiet) message("generating test statistics over permutations")
   for (p in seq_len(nperms)) {
     if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     if (allEqual) {

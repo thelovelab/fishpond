@@ -1,10 +1,6 @@
 swishPair <- function(infRepsArray, condition, pair,
-                        nperms=100, pc=5, quiet=FALSE) {
-  stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair))
-  stopifnot(!anyNA(pair))
-  pair <- as.integer(factor(pair))
-  if (!all(table(pair, condition) == 1))
-    stop("'pair' should have a single sample for both levels of condition")
+                      nperms=100, pc=5, quiet=FALSE) {
+  checkPair(pair, condition)
   stat <- getSignedRank(infRepsArray, condition, pair)
   log2FC <- getLog2FCPair(infRepsArray, condition, pair, pc)
   cond.sign <- ifelse(condition == levels(condition)[1], 1, -1)
@@ -13,7 +9,7 @@ swishPair <- function(infRepsArray, condition, pair,
   # now just work with the permutations matrix
   perms <- perms$perms
   nulls <- matrix(nrow=nrow(infRepsArray), ncol=nperms)
-  if (!quiet) message("Generating test statistics over permutations")
+  if (!quiet) message("generating test statistics over permutations")
   for (p in seq_len(nperms)) {
     if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getSignedRank(infRepsArray, condition[perms[p,]],
@@ -109,4 +105,12 @@ getPairPerms <- function(spair, nperms) {
                   nperms.act = nperms)
   }
   perms
+}
+
+checkPair <- function(pair, condition) {
+  stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair))
+  stopifnot(!anyNA(pair))
+  pair <- as.integer(factor(pair))
+  if (!all(table(pair, condition) == 1))
+    stop("'pair' should have a single sample for both levels of condition")
 }

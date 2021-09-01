@@ -52,7 +52,7 @@ computed for \code{x} and log2 of the inferential replicates plus \code{pc}.
 Default is \code{"none"}, e.g. two-group comparison using the rank sum test
 or other alternatives listed above.
 Additionally, correlation can be computed between a continuous variable
-\code{cov} and log fold changes across \code{x} based on \code{pair}}
+\code{cov} and log fold changes across \code{x} matched by \code{pair}}
 
 \item{nperms}{the number of permutations. if set above the possible
 number of permutations, the function will print a message that the

@@ -1,3 +1,17 @@
+Changes in version 1.99.15
+* Adding correlation tests: Spearman or Pearson
+  correlations of a numeric covariate with the
+  log counts, or with the log fold changes across
+  pairs. The Spearman correlation test with counts
+  was already implemented in the original SAMseq
+  method as response type = "Quantitative".
+  For new functionality see 'cor' argument in the
+  ?swish man page.
+* Adding importAllelicCounts() to facilitate importing
+  Salmon quantification data against a diploid
+  transcriptome. Can import either as a 'wide'
+  format or as 'assays'. Leverages tximeta().
+
 Changes in version 1.9.6
 * Specifying ties.method in matrixStats::rowRanks.
 

@@ -101,7 +101,7 @@ NULL
 #' Default is \code{"none"}, e.g. two-group comparison using the rank sum test
 #' or other alternatives listed above.
 #' Additionally, correlation can be computed between a continuous variable
-#' \code{cov} and log fold changes across \code{x} based on \code{pair}
+#' \code{cov} and log fold changes across \code{x} matched by \code{pair}
 #' @param nperms the number of permutations. if set above the possible
 #' number of permutations, the function will print a message that the
 #' value is set to the maximum number of permutations possible
@@ -193,24 +193,30 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   stopifnot(is(y, "SummarizedExperiment"))
   stopifnot(fast %in% 0:1)
 
-  # define if we are doing correlations
+  # define some logicals
   cor <- match.arg(cor)
   correlation <- cor != "none"
-
-  # 'cov' or 'pair' or neither, but not both
-  if (!interaction) stopifnot(is.null(cov) | is.null(pair))
+  paired <- !is.null(pair)
+  cov_given <- !is.null(cov)
+  
+  # 'cov' or 'pair' or neither, but not both,
+  # except for interaction and correlation tests
+  if (!interaction & !correlation) stopifnot(!cov_given | !paired)
   # interactions require a two level covariate
-  if (interaction) stopifnot(!is.null(cov))
+  if (interaction) stopifnot(cov_given)
   # correlation only for numeric 'x' unpaired or paired analysis
   if (correlation) stopifnot(!interaction)
-  if (correlation) stopifnot(is.null(cov))
+  # correlation and covariate only in the case of a paired analysis,
+  # and vice-versa
+  if (correlation & !paired) stopifnot(!cov_given)
+  if (correlation & paired) stopifnot(cov_given)
   if (!interactive()) { quiet <- TRUE }
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- labelKeep(y)
   }
   
   if (all(!mcols(y)$keep)) {
-    stop("All rows have mcols(y)$keep == FALSE, no features to test")
+    stop("all rows have mcols(y)$keep == FALSE, no features to test")
   }
   
   if (!qvaluePkg %in% c("qvalue","samr")) {
@@ -226,32 +232,33 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   infRepsArray <- getInfReps(ys)
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
-  if (!correlation) {
+  # these checks for every case except unpaired correlation
+  if (!correlation | paired) {
     stopifnot(is.factor(condition))
     stopifnot(nlevels(condition) == 2)
     stopifnot(!anyNA(condition))
   }
 
-  if (!interaction & is.null(cov) & is.null(pair) & !correlation) {
+  if (!interaction & !cov_given & !paired & !correlation) {
     # basic two group
     out <- swishTwoGroup(infRepsArray, condition,
                          nperms, pc, fast, quiet)
     
-  } else if (!interaction & !is.null(cov)) {
+  } else if (!interaction & cov_given & !correlation) {
     # two group with covariate stratification
     stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]] # covariate, e.g. batch effects
     out <- swishStrat(infRepsArray, condition, covariate,
                       nperms, pc, fast, quiet)
     
-  } else if (!interaction & !is.null(pair) & !correlation) {
+  } else if (!interaction & paired & !correlation) {
     # two group with matched samples
     stopifnot(pair %in% names(colData(y)))
     pair <- colData(y)[[pair]] # sample pairing
     out <- swishPair(infRepsArray, condition, pair,
                      nperms, pc, quiet)
     
-  } else if (interaction & !is.null(pair)) {
+  } else if (interaction & paired) {
     # two group 'x', two group 'cov', with matched samples
     stopifnot(cov %in% names(colData(y)))
     stopifnot(pair %in% names(colData(y)))
@@ -261,9 +268,8 @@ swish <- function(y, x, cov=NULL, pair=NULL,
                            covariate, pair, nperms,
                            pc, fast, quiet)
     
-  } else if (interaction & is.null(pair)) {
+  } else if (interaction & !paired) {
     # two group 'x', two group 'cov', samples not matched
-
     stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]]
     out <- swishInterx(infRepsArray, condition,
@@ -271,10 +277,23 @@ swish <- function(y, x, cov=NULL, pair=NULL,
                        pc, nRandomPairs,
                        quiet)
     
-  } else if (correlation & is.null(pair)) {
+  } else if (correlation & !paired) {
+    # correlation of 'x' with log counts
     stopifnot(is.numeric(condition))
     out <- swishCor(infRepsArray, condition,
                     cor, nperms, pc, quiet)
+    
+  } else if (correlation & paired) {
+    # correlation of 'cov' with log fold change of matched samples
+    stopifnot(cov %in% names(colData(y)))
+    stopifnot(pair %in% names(colData(y)))
+    covariate <- colData(y)[[cov]]
+    pair <- colData(y)[[pair]]
+    stopifnot(is.numeric(covariate))
+    out <- swishCorPair(infRepsArray, condition,
+                        pair, covariate,
+                        cor, nperms, pc, quiet)
+    
   }
 
   # gather results from functions above
@@ -327,7 +346,7 @@ swishTwoGroup <- function(infRepsArray, condition,
   log2FC <- getLog2FC(infRepsArray, condition, pc)
   perms <- getPerms(condition, nperms)
   nperms <- permsNote(perms, nperms)
-  if (!quiet) message("Generating test statistics over permutations")
+  if (!quiet) message("generating test statistics over permutations")
   nulls <- matrix(nrow=dims[1], ncol=nperms)
   for (p in seq_len(nperms)) {
     if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)

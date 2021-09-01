@@ -371,7 +371,7 @@ splitSwish <- function(y, nsplits, prefix="swish",
                   format="d", flag="0")
   files <- paste0(prefix, nums, ".rds")
   if (any(file.exists(files)) & !overwrite)
-    stop("Swish RDS files exist at specified locations, see 'overwrite'")
+    stop("swish RDS files exist at specified locations, see 'overwrite'")
   idx <- sort(rep(seq_len(nsplits), length.out=nrow(y)))
   for (i in seq_len(nsplits)) {
     saveRDS(y[idx == i,], file=files[i])

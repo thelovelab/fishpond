@@ -43,7 +43,7 @@ test_that("basic variable errors thrown", {
   y <- makeSimSwishData(m=100, n=2)
   y <- scaleInfReps(y, quiet=TRUE)
   y2 <- labelKeep(y)
-  expect_error(swish(y2, x="condition"), "All rows")
+  expect_error(swish(y2, x="condition"), "all rows")
   y <- labelKeep(y, minN=2)
   expect_error(swish(y, x="condition"), "too few samples")
   y <- makeSimSwishData(m=100, n=6)
