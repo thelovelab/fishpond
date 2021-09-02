@@ -9,7 +9,7 @@ importAllelicCounts(coldata, a1, a2, format = c("wide", "assays"), ...)
 \arguments{
 \item{coldata}{a data.frame as used in \code{tximeta}}
 
-\item{a1}{the symbol for the effect /alternative allele}
+\item{a1}{the symbol for the effect/alternative allele}
 
 \item{a2}{the symbol for the reference allele}
 

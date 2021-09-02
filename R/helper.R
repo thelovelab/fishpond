@@ -592,7 +592,7 @@ computeInfRV <- function(y, pc=5, shift=.01, meanVariance, useCounts=FALSE) {
 #' software.
 #'
 #' @param coldata a data.frame as used in \code{tximeta}
-#' @param a1 the symbol for the effect /alternative allele
+#' @param a1 the symbol for the effect/alternative allele
 #' @param a2 the symbol for the reference allele
 #' @param format either \code{"wide"} or \code{"assays"} for whether
 #' to combine the allelic counts as columns (wide) or put the allelic
