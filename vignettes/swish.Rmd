@@ -185,7 +185,7 @@ suppressPackageStartupMessages(library(SummarizedExperiment))
 library(tximeta)
 makeLinkedTxome(
   indexDir=file.path(dir, "gencode.v29_salmon_0.12.0"),
-  source="Gencode",
+  source="myGENCODE",
   organism="Homo sapiens",
   release="29",
   genome="GRCh38",

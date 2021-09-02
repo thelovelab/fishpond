@@ -1,6 +1,6 @@
 swishPair <- function(infRepsArray, condition, pair,
                       nperms=100, pc=5, quiet=FALSE) {
-  checkPair(pair, condition)
+  pair <- checkPair(pair, condition)
   stat <- getSignedRank(infRepsArray, condition, pair)
   log2FC <- getLog2FCPair(infRepsArray, condition, pair, pc)
   cond.sign <- ifelse(condition == levels(condition)[1], 1, -1)
@@ -113,4 +113,5 @@ checkPair <- function(pair, condition) {
   pair <- as.integer(factor(pair))
   if (!all(table(pair, condition) == 1))
     stop("'pair' should have a single sample for both levels of condition")
+  pair
 }
