@@ -93,15 +93,19 @@ test_that("swish can detect correlations with log counts", {
   y <- labelKeep(y)
   y <- computeInfRV(y)
 
+  sin_transform <- function(t) {
+    sin(2 * pi * (cov - min(t))/diff(range(t)))
+  }
+  
+  y$sin_cov <- sin_transform(y$cov)
+  
   y <- swish(y, x="condition", pair="pair",
-             cov="cov", cor="pearson", nperms=30)
+             cov="sin_cov", cor="pearson", nperms=30)
   #hist(mcols(y)$pvalue)
   #plot(-log10(mcols(y)$pvalue[1:30]))
   mcols(y)[1:4,]
   
   #plotInfReps(y, 1, x="cov", cov="condition",
   #            legend=TRUE, legendPos="top")  
-
-
   
 })
