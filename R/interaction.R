@@ -30,7 +30,7 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
 
   # the reported log2FC is the difference in the mean LFC between the two groups
   # the median here is taken over inferential replicates
-  log2FC <- matrixStats::rowMedians(lfcMat)
+  log2FC <- rowMedians(lfcMat)
 
   # the permutation framework is to permute which pairs are in which group
   perms <- getPerms(group, nperms)
@@ -139,7 +139,7 @@ getDeltaLFC <- function(infRepsArray, condition, covariate, pc) {
   lfc1 <- getLog2FC(infRepsArray[,grp1,], condition[grp1], pc=pc, array=TRUE)
   lfc2 <- getLog2FC(infRepsArray[,grp2,], condition[grp2], pc=pc, array=TRUE)
   # the difference in LFC between the two groups, median over inf reps
-  matrixStats::rowMedians(lfc2 - lfc1)
+  rowMedians(lfc2 - lfc1)
 }
 
 getPseudoPair <- function(condition, covariate) {

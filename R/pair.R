@@ -28,8 +28,8 @@ getSignedRank <- function(infRepsArray, condition, pair) {
   for (k in seq_len(dims[3])) {
     diff <- infRepsArray[,grp2,k] - infRepsArray[,grp1,k]
     sgn.ranks[,,k] <- sign(diff) *
-      matrixStats::rowRanks(abs(diff) + 0.1 * runif(dims[1]*dims[2]/2),
-                            ties.method = "average")
+      rowRanks(abs(diff) + 0.1 * runif(dims[1]*dims[2]/2),
+               ties.method = "average")
   }
   # sums of signed rank, expectation is 0
   W <- apply(sgn.ranks, c(1,3), sum)
@@ -53,7 +53,7 @@ getLog2FCPair <- function(infRepsArray, condition, pair, pc=5, array=FALSE) {
   # mean over samples
   lfcMat <- apply(lfcArray, c(1,3), mean)
   # median over inferential replicates
-  matrixStats::rowMedians(lfcMat)
+  rowMedians(lfcMat)
 }
 
 # spair = signed pair

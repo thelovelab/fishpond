@@ -40,7 +40,7 @@ swishCorPair <- function(infRepsArray, condition,
   ranks <- out$ranks
   # ...and for computing the mean LFC over samples
   lfcMat <- apply(lfcArray, c(1,3), mean)
-  log2FC <- matrixStats::rowMedians(lfcMat)
+  log2FC <- rowMedians(lfcMat)
   perms <- getPerms(covariate1, nperms)
   nperms <- permsNote(perms, nperms)
   # now just work with the permutations matrix
@@ -61,29 +61,28 @@ getCorStat <- function(infRepsArray, condition, cor, pc, ranks=NULL, noise=TRUE)
   dims <- dim(infRepsArray)
   if (dims[2] == 2) stop("too few samples to compute the correlation statistic")
   ranksMissing <- is.null(ranks)
+  # Spearman correlation
   if (cor == "spearman") {
     rcondition <- rank(condition)  
     # calculate ranks if they are not provided...
     if (ranksMissing) {
       ranks <- array(dim=dims)
       for (k in seq_len(dims[3])) {
-        # modified from samr:::resample
         if (noise) {
-          ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] +
-                                              0.1 * runif(dims[1]*dims[2]),
-                                              ties.method = "average")
-        } else {
-          ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k],
-                                              ties.method = "average")
+          infRepsArray[,,k] <- infRepsArray[,,k] + 0.1 * runif(dims[1]*dims[2])
         }
+        ranks[,,k] <- rowRanks(infRepsArray[,,k], ties.method = "average")
       }
     }
-  } else {
+    # Pearson correlation
+  } else if (cor == "pearson") {
     # we just pass along original data and covariate for cor="pearson"
     rcondition <- condition
     ranks <- log2(infRepsArray + pc)
   }
+
   corrs <- rowMeans(sapply(seq_len(dims[3]), function(k) cor(t(ranks[,,k]), rcondition)))
+  
   if (ranksMissing) {
     return(list(stat=corrs, ranks=ranks))
   } else {
@@ -104,5 +103,5 @@ getLog2FCNumX <- function(infRepsArray, condition, pc=5) {
     coefs[,k] <- t(xtxi %*% t(condition) %*% t(logCounts))
   }
   # median over inferential replicates
-  matrixStats::rowMedians(coefs)
+  rowMedians(coefs)
 }

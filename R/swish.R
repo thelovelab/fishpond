@@ -179,12 +179,13 @@ NULL
 #' @importFrom S4Vectors DataFrame metadata metadata<-
 #' @importFrom gtools permutations
 #' @importFrom Matrix rowSums
+#' @importFrom matrixStats rowRanks rowMedians rowVars rowQuantiles
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
                   interaction=FALSE,
                   cor=c("none","spearman","pearson"),
-                  nperms=100, 
+                  nperms=100,
                   estPi0=FALSE, qvaluePkg="qvalue",
                   pc=5, nRandomPairs=30, fast=1,
                   returnNulls=FALSE,
@@ -369,9 +370,8 @@ getSamStat <- function(infRepsArray, condition, ranks=NULL, returnRanks=FALSE) {
     ranks <- array(dim=dims)
     for (k in seq_len(dims[3])) {
       # modified from samr:::resample
-      ranks[,,k] <- matrixStats::rowRanks(infRepsArray[,,k] +
-                                          0.1 * runif(dims[1]*dims[2]),
-                                          ties.method = "average")
+      ranks[,,k] <- rowRanks(infRepsArray[,,k] + 0.1 * runif(dims[1]*dims[2]),
+                             ties.method = "average")
     }
   }
   rankSums <- vapply(seq_len(dims[3]), function(k)
@@ -398,7 +398,7 @@ getLog2FC <- function(infRepsArray, condition, pc=5, array=FALSE) {
     return(diffs)
   }
   # median over inferential replicates
-  matrixStats::rowMedians(diffs)
+  rowMedians(diffs)
 }
 
 estimatePi0 <- function(stat, nulls.vec) {

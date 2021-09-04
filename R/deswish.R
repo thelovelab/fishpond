@@ -69,7 +69,7 @@ deswish <- function(y, x, coef) {
   }
   message("")
 
-  infVarLFC <- matrixStats::rowVars(lfcs)
+  infVarLFC <- rowVars(lfcs)
   log2FC <- rowMeans(lfcs)
   # suppose a hierarchical dist'n of LFC:
   # add the posterior variance from modeling biological replicates

@@ -315,7 +315,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
 }
 
 boxplot2 <- function(x, w=.4, ylim, col, col.hglt, xlab="", ylab="", main="") {
-  qs <- matrixStats::rowQuantiles(t(x), probs=0:4/4)
+  qs <- rowQuantiles(t(x), probs=0:4/4)
   if (missing(ylim)) {
     ylim <- c(min(x),max(x))
   }
