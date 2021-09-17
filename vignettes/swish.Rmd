@@ -193,6 +193,9 @@ makeLinkedTxome(
   gtf=file.path(dir, "gencode.v29.annotation.gtf.gz"), # local version
   write=FALSE
 )
+# 'myGENCODE' is used to avoid tximeta() attempting to
+# pull down the TxDb from AnnotationHub, alterantively
+# once can specify useHub=FALSE.
 ```
 
 We load in the quantification data with `tximeta`:
@@ -213,6 +216,12 @@ summarized to the gene levels:
 
 ```{r}
 head(rownames(se))
+```
+
+```{r include=FALSE}
+# hidden chunk to trick tximeta into knowing this is GENCODE,
+# this is only needed because above we labelled the txome myGENCODE
+metadata(se)$txomeInfo$source <- "GENCODE"
 ```
 
 We will rename our *SummarizedExperiment* `y` for the statistical
