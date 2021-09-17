@@ -576,13 +576,20 @@ computeInfRV <- function(y, pc=5, shift=.01, meanVariance, useCounts=FALSE) {
 #'
 #' Read in Salmon quantification of allelic counts from a
 #' diploid transcriptome. Assumes that diploid transcripts
-#' are marked by an underscore and a consistent symbol, e.g.
-#' \code{ENST123_M} and \code{ENST123_P}, and that there are
-#' exactly two alleles for each reference transcript, that is,
-#' the \code{--keep-duplicates} option was used in Salmon indexing.
+#' are marked with the following suffix: an underscore and
+#' a consistent symbol for each of the two alleles,
+#' e.g. \code{ENST123_M} and \code{ENST123_P},
+#' or \code{ENST123_alt} (a1) and \code{ENST123_ref} (a2).
+#' There must be exactly two alleles for each reference transcript, 
+#' and the \code{--keep-duplicates} option should be used in
+#' Salmon indexing to avoid removing transcripts with identical sequence.
 #' The output object has half the number of transcripts,
 #' with the two alleles either stored in a \code{"wide"} object,
-#' or as re-named \code{"assays"}.
+#' or as re-named \code{"assays"}. Note carefully that the symbol
+#' provided to \code{a1} is used as the alternative allele,
+#' and \code{a2} is used as the reference allele
+#' (and therefore \code{"a2"} is the reference level of the
+#' \code{allele} factor that is returned in the colData).
 #'
 #' Requires the tximeta package.
 #' \code{skipMeta=TRUE} is used, as it is assumed
@@ -598,24 +605,63 @@ computeInfRV <- function(y, pc=5, shift=.01, meanVariance, useCounts=FALSE) {
 #' to combine the allelic counts as columns (wide) or put the allelic
 #' count information in different assay slots (assays). For wide output, the
 #' reference allele (a2) comes first, then the alternative allele (a1),
+#' e.g. \code{[a2 | a1]}.
 #' For assays output, all of the original matrices are renamed with a prefix,
 #' either \code{a1-} or \code{a2-}.
-#' @param ... any arguments to pass to tximeta,
-#' e.g. \code{txOut=FALSE} and \code{tx2gene} for transcript grouping
+#' @param tx2gene optional, a data.frame with first column indicating
+#' transcripts, second column indicating genes (or any other transcript
+#' grouping). Either this should include the \code{a1} and \code{a2}
+#' suffix for the transcripts and genes, or those will be added internally,
+#' if it is detected that the first transcript does not have these suffices.
+#' For example if \code{_alt} or \code{_ref}, or \code{_M} or \code{_P}
+#' (as indicated by the \code{a1} and \code{a2} arguments) are not present
+#' in the table, the table rows will be duplicated with those suffices
+#' added on behalf of the user.
+#' If not provided, the output object will be transcript-level.
+#' @param ... any arguments to pass to tximeta
 #'
 #' @return a SummarizedExperiment, with allele counts (and other data)
-#' combined into a wide matrix (a2 + a1), or as assays (a1, then a2).
+#' combined into a wide matrix \code{[a2 | a1]}, or as assays (a1, then a2).
 #' The original strings associated with a1 and a2 are stored in the
 #' metadata of the object, in the \code{alleles} list element.
+#' Note the reference level of \code{se$allele} will be \code{"a2"}, and
+#' so comparisons by default will be a1/a2 (alt/ref).
 #' 
 #' @export
 importAllelicCounts <- function(coldata, a1, a2,
-                              format=c("wide","assays"), ...) {
+                              format=c("wide","assays"),
+                              tx2gene=NULL, ...) {
   format <- match.arg(format)
   if (!requireNamespace("tximeta", quietly=TRUE)) {
     stop("this function requires installing the Bioconductor package 'tximeta'")
   }
-  se <- tximeta::tximeta(coldata, skipMeta=TRUE, ...)
+
+  a1match <- paste0("_",a1,"$")
+  a2match <- paste0("_",a2,"$")
+
+  txOut <- is.null(tx2gene) # output transcripts if no tx2gene provided  
+  if (!txOut) {
+    stopifnot(ncol(tx2gene) == 2)
+    # see if tx2gene already has tagged the txps and genes
+    if (grepl(a1match, tx2gene[1,1]) | grepl(a2match, tx2gene[1,1])) {
+      # ensure same number of a1 and a2 alleles in txps and genes
+      sum1txp <- sum(grepl(a1match, tx2gene[,1]))
+      sum2txp <- sum(grepl(a2match, tx2gene[,1]))
+      sum1gene <- sum(grepl(a1match, tx2gene[,2]))
+      sum2gene <- sum(grepl(a2match, tx2gene[,2]))
+      stopifnot(sum1txp > 0 & sum2txp > 0 & sum1gene > 0 & sum2gene > 0)
+      stopifnot(sum1txp == sum2txp)
+      stopifnot(sum1gene == sum2gene)
+    } else {
+      a2a1_vec <- rep(c(a2, a1), each=nrow(tx2gene))
+      tx2gene <- data.frame(
+        tx=paste0(rep(tx2gene[,1], 2), "_", a2a1_vec),
+        gene=paste0(rep(tx2gene[,2], 2), "_", a2a1_vec)
+      )
+    }
+  }
+  
+  se <- tximeta::tximeta(coldata, skipMeta=TRUE, tx2gene=tx2gene, txOut=txOut, ...)
 
   # remove any characters after "|"
   rownames(se) <- sub("\\|.*", "", rownames(se))
@@ -624,7 +670,7 @@ importAllelicCounts <- function(coldata, a1, a2,
   n <- ncol(se)
 
   # gather transcript names for a1 and a2 alleles
-  txp_nms_a1 <- grep(paste0("_",a1,"$"), rownames(se), value=TRUE)
+  txp_nms_a1 <- grep(a1match, rownames(se), value=TRUE)
   stopifnot(length(txp_nms_a1) == ntxp)
   txp_nms_a2 <- sub(paste0("_",a1),paste0("_",a2),txp_nms_a1)
   stopifnot(all(txp_nms_a2 %in% rownames(se)))
