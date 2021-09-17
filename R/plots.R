@@ -31,8 +31,14 @@
 #' grouping variable as a title on the legend (default FALSE)
 #' @param legendCex numeric, size of the legend (default 1)
 #' @param useMean logical, when inferential replicates
-#' are not present, use the \code{mean} assay or the
+#' are not present or when \code{x} is continuous,
+#' whether to use the \code{mean} assay or the
 #' \code{counts} assay for plotting
+#' @param q numeric, the quantile to use when plotting
+#' the intervals when inferential replicates are not
+#' present or when \code{x} is continuous. Default
+#' is \code{qnorm(.975) ~= 1.96} corresponding to 95%
+#' intervals
 #' @param applySF logical, when inferential replicates are
 #' not present, should \code{y$sizeFactor} be divided out
 #' from the mean and interval plots (default FALSE)
@@ -68,6 +74,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
                         legendTitle=FALSE,
                         legendCex=1,
                         useMean=TRUE,
+                        q=qnorm(.975),
                         applySF=FALSE,
                         reorder,
                         thin) {
@@ -234,7 +241,6 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     cts <- assays(y)[[which.assay]][idx,o]
     if (showVar) {
       sds <- sqrt(assays(y)[["variance"]][idx,o])
-      Q <- qnorm(.975)
     }
     if (applySF & !is.null(y$sizeFactor)) {
       cts <- cts / y$sizeFactor[o]
@@ -243,7 +249,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
       }
       ylab <- "scaled counts"
     }
-    ymax <- if (showVar) max(cts + Q*sds) else max(cts)
+    ymax <- if (showVar) max(cts + q*sds) else max(cts)
     ymin <- 0
     if (xfac & !is.null(cov)) {
       ymin <- -0.02 * ymax
@@ -266,12 +272,12 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     seg.col <- if (thin < 2) col else col.hglt
     if (showVar) {
       if (xfac) {
-        segments(seq_along(cts), pmax(cts - Q*sds, 0),
-                 seq_along(cts), cts + Q*sds,
+        segments(seq_along(cts), pmax(cts - q*sds, 0),
+                 seq_along(cts), cts + q*sds,
                  col=seg.col, lwd=seg.lwd)
       } else {
-        segments(condition, pmax(cts - Q*sds, 0),
-                 condition, cts + Q*sds,
+        segments(condition, pmax(cts - q*sds, 0),
+                 condition, cts + q*sds,
                  col=seg.col, lwd=seg.lwd)
       }
     }
@@ -308,9 +314,12 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     group <- if (xfac) condition else covariate
     group.name <- if (xfac) x else cov
     ltitle <- if (legendTitle) group.name else NULL
-    legend(legendPos, legend=levels(group), title=ltitle,
-           col=colsDrk, pt.bg=colsLgt, pch=22,
-           cex=legendCex, bg="white", box.col=NA, inset=.01)
+    # here we reverse the R default order,
+    # so the reference level will be on the bottom, not top
+    legend(legendPos, legend=rev(levels(group)), title=ltitle,
+           col=rev(head(colsDrk, nlevels(group))),
+           pt.bg=rev(head(colsLgt, nlevels(group))),
+           pch=22, cex=legendCex, bg="white", box.col=NA, inset=.01)
   }
 }
 

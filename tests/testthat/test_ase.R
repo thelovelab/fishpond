@@ -10,7 +10,7 @@ test_that("swish for ASE works", {
   par(mfrow=c(3,1))
   for (np in c(8,10,12)) {
     y <- makeSimSwishData(n=np*2)
-    y <- scaleInfReps(y, quiet=TRUE)
+    # no scaling
     y <- labelKeep(y)
     y$pair <- rep(1:np,2)
     y <- swish(y, x="condition", pair="pair")

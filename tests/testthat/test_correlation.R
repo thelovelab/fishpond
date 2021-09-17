@@ -51,6 +51,7 @@ test_that("swish can detect correlations with log counts", {
     assays(y)[[a]][2,] <- rpois(n,c(lambda1,lambda2))
   }
 
+  # note: for AI analysis, do not use scaling!
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
   y <- computeInfRV(y)
@@ -89,6 +90,7 @@ test_that("swish can detect correlations with log counts", {
     assays(y)[[a]][2,] <- rpois(n,c(lambda1,lambda2))
   }
 
+  # note: for AI analysis, do not use scaling!
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
   y <- computeInfRV(y)

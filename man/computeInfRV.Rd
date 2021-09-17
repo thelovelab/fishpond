@@ -30,6 +30,8 @@ a SummarizedExperiment with \code{meanInfRV} in the metadata columns
 \code{InfRV} is used the Swish publication for visualization.
 This function provides computation of the mean InfRV, a simple
 statistic that measures inferential uncertainty.
+It also computes and adds the mean and variance of inferential
+replicates, which can be useful ahead of \code{\link{plotInfReps}}.
 Note that InfRV is not used in the \code{swish}
 statistical method at all, it is just for visualization.
 See function code for details.

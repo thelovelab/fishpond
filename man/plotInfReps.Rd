@@ -22,6 +22,7 @@ plotInfReps(
   legendTitle = FALSE,
   legendCex = 1,
   useMean = TRUE,
+  q = qnorm(0.975),
   applySF = FALSE,
   reorder,
   thin
@@ -65,8 +66,15 @@ grouping variable as a title on the legend (default FALSE)}
 \item{legendCex}{numeric, size of the legend (default 1)}
 
 \item{useMean}{logical, when inferential replicates
-are not present, use the \code{mean} assay or the
+are not present or when \code{x} is continuous,
+whether to use the \code{mean} assay or the
 \code{counts} assay for plotting}
+
+\item{q}{numeric, the quantile to use when plotting
+the intervals when inferential replicates are not
+present or when \code{x} is continuous. Default
+is \code{qnorm(.975) ~= 1.96} corresponding to 95%
+intervals}
 
 \item{applySF}{logical, when inferential replicates are
 not present, should \code{y$sizeFactor} be divided out

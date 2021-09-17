@@ -1,3 +1,14 @@
+Changes in version 1.99.18
+* Added helper functionality to importAllelicCounts,
+  so it will create an appropriate tx2gene table
+  with the necessary a1 and a2 suffices,
+  and it will automatically set txOut=FALSE.
+* Added a 'q' argument to plotInfReps to change the
+  intervals when making point and line plots.
+* Switched the legend of plotInfReps so that
+  reference levels will now be on the bottom,
+  and non-reference (e.g. treatment) on top.
+
 Changes in version 1.99.15
 * Adding correlation tests: Spearman or Pearson
   correlations of a numeric covariate with the
