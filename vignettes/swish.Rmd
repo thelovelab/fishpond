@@ -234,12 +234,23 @@ y <- y[seqnames(y) == "chr1",]
 ```
 
 To demonstrate a two group comparison, we subset to the "naive" and
-"IFNg" groups. 
+"IFNg" groups. Log fold changes will be made comparing `IFNg` to
+`naive` (the reference level).
 
 ```{r}
 y <- y[,y$condition %in% c("naive","IFNg")]
-y$condition <- factor(y$condition, c("naive","IFNg"))
+y$condition <- factor(y$condition, levels=c("naive","IFNg"))
 ```
+
+**Note on factor levels**: 
+The `swish` function compares expression level across factors such
+that log2 fold changes are reported as the non-reference level over
+the reference level.  By default, R will choose a *reference level*
+for factors based on alphabetical order, unless `levels` are
+explicitly set.  It is recommended to set the factors levels, as in
+the above code chunk, with the reference level coming first in the
+character vector, so that log2 fold changes correspond to the
+comparison of interest.
 
 # Differential transcript expression
 
@@ -317,9 +328,13 @@ q-value, so it's valuable to look at the log2 fold change as well (see
 further note below on q-value computation). The log2 fold
 change computed by `swish` is the median over inferential replicates,
 and uses a pseudo-count of 5 on the scaled counts, to stabilize
-the variance on the fold change from division by small counts. Here we
-make two vectors that give the significant genes with the lowest (most
-negative) and highest (most positive) log fold changes.
+the variance on the fold change from division by small counts. 
+See the note above for interpretation of log2 fold changes with
+respect to the levels of `x`.
+
+With the following code chunk, we construct two vectors that give the
+significant genes with the lowest (most negative) and highest (most
+positive) log2 fold changes.
 
 ```{r}
 with(mcols(y),
@@ -656,7 +671,7 @@ the treatment.
 plotMASwish(y2, alpha=.05)
 ```
 
-We can plot some of the transcripts with high log2 fold change
+We can plot some of the transcripts with high log fold change
 *difference* across IFN gamma treatment group, and which belong to the
 less than 5% nominal FDR group:
 
@@ -1024,7 +1039,7 @@ fold change, one can see clusters of genes with the same q-value
 (because they have the same or similar statistic). One consequence of
 this is that, in order to rank the genes, rather than ranking directly
 by q-value, it makes more sense to pick a q-value threshold and then
-within that set of genes, to rank by the log2 fold change, as shown
+within that set of genes, to rank by the log fold change, as shown
 above when the code chunk has `log2FC * sig`.
 
 ```{r}

@@ -27,7 +27,9 @@ matrices of median-ratio-scaled TPM as assays 'infRep1', 'infRep2', etc.}
 
 \item{x}{the name of the condition variable. A factor with two
 levels for a two group analysis (possible to adjust for covariate
-or matched samples, see next two arguments)}
+or matched samples, see next two arguments). The log fold change is
+computed as non-reference level over reference level (see vignette:
+'Note on factor levels')}
 
 \item{cov}{the name of the covariate for adjustment.
 If provided a stratified Wilcoxon in performed.
