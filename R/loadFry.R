@@ -72,8 +72,8 @@ loadFry <- function(fry.dir, which_counts = c('S', 'A'), velocity = FALSE,
     wc_opts <- c('U', 'S', 'A')
     if (usa_mode) {
       stopifnot(
-        "`which_counts` must be a character vector with length() > 1" = {
-          is.character(which_counts) && length(which_counts) > 1
+        "`which_counts` must be a character vector with length() >= 1" = {
+          is.character(which_counts) && length(which_counts) >= 1
         },
         "`which_counts` can only include elements from c('U', 'S', 'A')" = {
           all(which_counts %in% wc_opts)
