@@ -3,6 +3,7 @@
 export(addStatsFromCSV)
 export(computeInfRV)
 export(deswish)
+export(getTrace)
 export(importAllelicCounts)
 export(isoformProportions)
 export(labelKeep)
