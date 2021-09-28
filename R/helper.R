@@ -158,6 +158,9 @@ labelKeep <- function(y, minCount=10, minN=3, x) {
   }
   mcols(y)$keep <- keep
   metadata(y)$preprocessed <- TRUE
+  if (!"infRepScaled" %in% names(metadata(y))) {
+    metadata(y)$infRepsScaled <- FALSE
+  }
   y
 }
 

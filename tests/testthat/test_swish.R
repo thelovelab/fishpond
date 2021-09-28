@@ -109,6 +109,11 @@ test_that("basic swish analyses", {
   y <- scaleInfReps(y, lengthCorrect=FALSE, quiet=TRUE)
   y <- makeSimSwishData()
   y <- scaleInfReps(y, sfFun=function(x) colSums(x)/mean(colSums(x)), quiet=TRUE)
+
+  # no scaling, and even skipping labelKeep (happens inside)
+  y <- makeSimSwishData(m=200)
+  y <- swish(y, x="condition", quiet=TRUE)
+  expect_true("log10mean" %in% names(mcols(y)))
   
 })
 

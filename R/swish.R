@@ -233,6 +233,14 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   
   ys <- y[mcols(y)$keep,]
   infRepsArray <- getInfReps(ys)
+  
+  # add log10mean if scaleInfReps() wasn't run
+  if (!metadata(y)$infRepsScaled) {
+    means <- apply(infRepsArray, 1, mean)
+    mcols(y)$log10mean <- rep(NA, nrow(y))
+    mcols(y)$log10mean[mcols(y)$keep] <- log10(means + 1)
+  }
+
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
   # these checks for every case except unpaired correlation
