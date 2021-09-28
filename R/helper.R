@@ -718,6 +718,57 @@ importAllelicCounts <- function(coldata, a1, a2,
   }
 }
 
+#' Obtain a trace of inferential replicates for a sample
+#'
+#' Simple helper function to obtain a trace (e.g. MCMC trace)
+#' of the ordered inferential replicates for one samples.
+#' Supports either multiple features, \code{idx}, or multiple
+#' samples, \code{samp_idx} (not both). Returns a tidy
+#' data.frame for easy plotting.
+#'
+#' @param y a SummarizedExperiment with inferential replicates
+#' as assays \code{infRep1} etc.
+#' @param idx the names or row numbers
+#' of the gene or transcript to plot
+#' @param samp_idx the names or column numbers
+#' of the samples to plot
+#'
+#' @return a data.frame with the counts along the interential
+#' replicates, possible with additional columns specifying
+#' feature or sample
+#'
+#' @examples
+#'
+#' y <- makeSimSwishData()
+#' getTrace(y, "gene-1", "s1")
+#' 
+#' @export 
+getTrace <- function(y, idx, samp_idx) {
+  stopifnot(length(idx) == 1 | samp_idx == 1)
+  stopifnot(is(idx, "character") | is(idx, "numeric"))
+  stopifnot(is(samp_idx, "character") | is(samp_idx, "numeric"))
+  infRepIdx <- grep("infRep",assayNames(y))
+  nrep <- length(infRepIdx)
+  if (length(idx) == 1 & length(samp_idx) == 1) {
+    count <- sapply(infRepIdx, function(k) assay(y, i=k)[idx,samp_idx])
+    data.frame(infRep=seq_along(infRepIdx), count)
+  } else if (length(idx) == 1) {
+    out <- lapply(samp_idx, function(j) {
+      sapply(infRepIdx, function(k) assay(y, i=k)[idx,j])
+    })
+    data.frame(infRep=seq_along(infRepIdx), 
+               count=do.call(c, out),
+               sample=rep(samp_idx, each=nrep))
+  } else if (length(samp_idx) == 1) {
+    out <- lapply(idx, function(i) {
+      sapply(infRepIdx, function(k) assay(y, i=k)[i,samp_idx])
+    })
+    data.frame(infRep=seq_along(infRepIdx),
+               count=do.call(c, out),
+               feature=rep(idx, each=nrep))
+  }
+}
+
 postprocess <- function(y, df) {
   for (stat in names(df)) {
     mcols(y)[[stat]] <- numeric(nrow(y))

@@ -1,32 +1,51 @@
 #' Load in data from alevin-fry USA mode
 #'
 #' Enables easy loading of sparse data matrices provided by alevin-fry USA mode.
-#' Alevin-fry - https://www.biorxiv.org/content/10.1101/2021.06.29.450377v1
+#' Alevin-fry - \url{https://www.biorxiv.org/content/10.1101/2021.06.29.450377v1}
 #'
+#' @param fry.dir A path to the output directory returned by
+#' alevin-fry quant command. This directory should contain a
+#' \code{metainfo.json}, and an alevin folder which contains
+#' \code{quants_mat.mtx}, \code{quants_mat_cols.txt} and
+#' \code{quants_mat_rows.txt}
+#' @param which_counts A vector specifying which kinds of counts
+#' will be considered to build the final count matrix. There are
+#' three options: U (Unspliced), S (Spliced) and A (Ambiguous). For
+#' single-cell RNA-seq, \code{c('S', 'A')} is recommended (the default
+#' value); for single nucleus RNA-seq, \code{c('U', 'S', 'A')} is
+#' recommended.
+#' @param velocity A boolean (default: FALSE)
+#' specifying whether you want to return a SingleCellExperiment
+#' with that includes the values from the "U"-nspliced counts
+#' stored in an additional "unspliced" matrix in the assay
+#' slot. When TRUE, the kinds specification provided in the
+#' \code{which_counts} parameter determines the types of counts used for
+#' the normal, gene-level, qauntitation returned in the default
+#' "counts" assay.
+#' @param verbose A boolean specifying if showing
+#' messages when running the function
 #'
-#' @param fry.dir A path to the output directory returned by alevin-fry quant command. This directory
-#' should contain a metainfo.json, and an `alevin` folder which contains quants_mat.mtx,
-#' quants_mat_cols.txt and  quants_mat_rows.txt.
-#' @param which_counts  A vector specifying which kinds of counts will be considered to build the final count matrix.
-#  There are three options: U (Unspliced), S (Spliced) and A (Ambiguous).
-#' For single-cell RNA-seq, `c('S', 'A')` is recommended (the default value); for single nucleus RNA-seq, `c('U', 'S', 'A')`
-#' is recommended.
-#' @param velocity A boolean (default: `FALSE`) specifying whether you want to return a `SingleCellExperiment with
-#' that includes the values from the `"U"`-nspliced counts stored in an additional `"unspliced"` matrix in the assay
-#' slot. When `TRUE`, the kinds specification provided in the `which_counts` parameter determines the types of counts
-#' used for the normal, gene-level, qauntitation returned in the default `"counts"` assay.
-#' @param verbose A boolean specifying if showing messages when running the function
+#' @details This function consumes the result folder returned by running
+#' alevin-fry quant in unspliced, spliced, ambiguous (USA)
+#' quantification mode, and returns a SingleCellExperiement object
+#' that contains a final count for each gene within each cell. In
+#' USA mode, alevin-fry quant returns a count matrix contains three
+#' types of count for each feature (gene) within each sample (cell
+#' or nucleus), which represent the spliced mRNA count of the gene,
+#' the unspliced mRNA count of the gene, and the count of mRNA whose
+#' splicing status is ambiguous.  In this function, these three
+#' counts of a gene within a cell will either be summed or discarded
+#' to get the final count of the gene by specifying
+#' which_counts. The returned object will contains a gene by cell
+#' count matrix, with rownames as the barcode of samples and
+#' colnames as the feature names.
 #'
-#' @details
-#' This function consumes the result folder returned by running alevin-fry quant in unspliced, spliced, ambiguous (USA) quantification mode, and returns a `SingleCellExperiement` object
-#' that contains a final count for each gene within each cell. In USA mode, alevin-fry quant returns a count matrix contains three types of count for each feature (gene)
-#' within each sample (cell or nucleus), which represent the spliced mRNA count of the gene, the unspliced mRNA count of the gene, and the count of mRNA whose splicing status is ambiguous.
-#' In this function, these three counts of a gene within a cell will either be summed or discarded to get the final count of the gene by specifying `which_counts`. The returned object will
-#' contains a gene by cell count matrix, with rownames as the barcode of samples and colnames as the feature names.
-#'
-#' @return A `SingleCellExperiment` object contains a gene by cell count matrix. The row names are feature names, and the column names are cell barcodes.
-#' When `velocity = TRUE`, a second assay matrix named `"unspliced"` will be included. This allows the returned object to house both quantitation matrices
-#' required for velocity analysis using tools like scvelo/velociraptor.
+#' @return A SingleCellExperiment object contains a gene by cell
+#' count matrix. The row names are feature names, and the column
+#' names are cell barcodes.  When velocity = TRUE, a second assay
+#' matrix named "unspliced" will be included. This allows the
+#' returned object to house both quantitation matrices required for
+#' velocity analysis using tools like scvelo/velociraptor.
 #'
 #' @importFrom jsonlite fromJSON
 #' @importFrom Matrix readMM t
@@ -34,9 +53,11 @@
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #'
 #' @export
+#' 
 #' @concept preprocessing
 #'
 #' @examples
+#' 
 #' # Get path for minimal example avelin-fry output dir
 #' testdat <- fishpond:::readExampleFryData("fry-usa-basic")
 #'
@@ -48,8 +69,9 @@
 #' # to velociraptor, perhaps
 #' scev <- loadFry(testdat$parent_dir, which_counts = c('S', 'A'), velocity = TRUE)
 #' SummarizedExperiment::assayNames(scev)
-loadFry <- function(fry.dir, which_counts = c('S', 'A'), velocity = FALSE,
-                    verbose = FALSE) {
+#' 
+loadFry <- function(fry.dir, which_counts = c('S', 'A'),
+                    velocity = FALSE, verbose = FALSE) {
     # Check `fry.dir` is legit
     quant_file <- file.path(fry.dir, "alevin", "quants_mat.mtx")
     if (!file.exists(quant_file)) {
@@ -72,8 +94,8 @@ loadFry <- function(fry.dir, which_counts = c('S', 'A'), velocity = FALSE,
     wc_opts <- c('U', 'S', 'A')
     if (usa_mode) {
       stopifnot(
-        "`which_counts` must be a character vector with length() > 1" = {
-          is.character(which_counts) && length(which_counts) > 1
+        "`which_counts` must be a character vector with length() >= 1" = {
+          is.character(which_counts) && length(which_counts) >= 1
         },
         "`which_counts` can only include elements from c('U', 'S', 'A')" = {
           all(which_counts %in% wc_opts)
