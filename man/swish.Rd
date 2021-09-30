@@ -33,13 +33,14 @@ computed as non-reference level over reference level (see vignette:
 
 \item{cov}{the name of the covariate for adjustment.
 If provided a stratified Wilcoxon in performed.
-Cannot be used with \code{pair}}
+Cannot be used with \code{pair} (unless using \code{cor})}
 
 \item{pair}{the name of the pair variable, which should be the
 number of the pair. Can be an integer or factor.
 If specified, a signed rank test is used
 to build the statistic. All samples across \code{x} must be
-pairs if this is specified. Cannot be used with \code{cov}.}
+pairs if this is specified. Cannot be used with \code{cov}
+(unless using \code{cor})}
 
 \item{interaction}{logical, whether to perform a test of an interaction
 between \code{x} and \code{cov}. See Details.}
