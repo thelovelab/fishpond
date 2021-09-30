@@ -35,7 +35,14 @@ swishCorPair <- function(infRepsArray, condition,
   covariate1 <- covariate[o][cond1] 
   # get the LFC array, both for computing the test statistic...
   lfcArray <- getLog2FCPair(infRepsArray, condition, pair, pc, array=TRUE)
-  out <- getCorStat(lfcArray, covariate1, cor, pc, noise=FALSE)
+  allZero <- rowMeans(apply(lfcArray == 0, c(1,3), sum) == n/2)
+  if (any(allZero == 1)) {
+    stop(sum(allZero == 1)," features have all 0 LFC for all infReps, remove these first")
+  }
+  dims <- dim(lfcArray)
+  lfcArray <- lfcArray + runif(dims[1]*dims[2]*dims[3], -1e-3, 1e-3) # add small noise to avoid zero SD
+  # logArray=FALSE, bc we are passing LFC not counts, so we don't want to log transform them
+  out <- getCorStat(lfcArray, covariate1, cor, pc, noise=FALSE, logArray=FALSE)
   stat <- out$stat
   ranks <- out$ranks
   # ...and for computing the mean LFC over samples
@@ -50,14 +57,14 @@ swishCorPair <- function(infRepsArray, condition,
   for (p in seq_len(nperms)) {
     if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
     nulls[,p] <- getCorStat(lfcArray, covariate1[perms[p,]],
-                            cor, pc, ranks=ranks, noise=FALSE)
+                            cor, pc, ranks=ranks, noise=FALSE, logArray=FALSE)
   }
   if (!quiet) message("")
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
 # get correlation test statistics
-getCorStat <- function(infRepsArray, condition, cor, pc, ranks=NULL, noise=TRUE) {
+getCorStat <- function(infRepsArray, condition, cor, pc, ranks=NULL, noise=TRUE, logArray=TRUE) {
   dims <- dim(infRepsArray)
   if (dims[2] == 2) stop("too few samples to compute the correlation statistic")
   ranksMissing <- is.null(ranks)
@@ -78,7 +85,11 @@ getCorStat <- function(infRepsArray, condition, cor, pc, ranks=NULL, noise=TRUE)
   } else if (cor == "pearson") {
     # we just pass along original data and covariate for cor="pearson"
     rcondition <- condition
-    ranks <- log2(infRepsArray + pc)
+    if (logArray) {
+      ranks <- log2(infRepsArray + pc)
+    } else {
+      ranks <- infRepsArray
+    }
   }
 
   corrs <- rowMeans(sapply(seq_len(dims[3]), function(k) cor(t(ranks[,,k]), rcondition)))
