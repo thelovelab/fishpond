@@ -37,6 +37,7 @@ test_that("swish can detect correlations with log counts", {
   
   set.seed(5)
 
+  n <- 20
   y <- makeSimSwishData(m=500, n=n, null=TRUE)
   nms <- c("counts",paste0("infRep",1:20))
   lambda1 <- exp(seq(4, 5, length.out=n/2))
