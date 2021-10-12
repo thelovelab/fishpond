@@ -22,6 +22,13 @@
 #' \code{which_counts} parameter determines the types of counts used for
 #' the normal, gene-level, qauntitation returned in the default
 #' "counts" assay.
+#' @param scVel A boolean (default: FALSE)
+#' Specifies whether you want to return a SingleCellExperiment 
+#' formated for direct entry into velociraptor R package or 
+#' other scVelo downstream analysis pipeline for velocity
+#' analysis in R with Bioconductor. Adds the expected 
+#' "S"-pliced assay and removes errors for size factors being
+#' non-positive. Sets \code{velocity} to TRUE. 
 #' @param verbose A boolean specifying if showing
 #' messages when running the function
 #'
@@ -70,110 +77,132 @@
 #' scev <- loadFry(testdat$parent_dir, which_counts = c('S', 'A'), velocity = TRUE)
 #' SummarizedExperiment::assayNames(scev)
 #' 
-loadFry <- function(fry.dir, which_counts = c('S', 'A'),
-                    velocity = FALSE, verbose = FALSE) {
-    # Check `fry.dir` is legit
-    quant_file <- file.path(fry.dir, "alevin", "quants_mat.mtx")
-    if (!file.exists(quant_file)) {
-      stop("The `fry.dir` directory provided does not look like a directory generated from alevin-fry:\n",
-           sprintf("Missing quant file: %s", quant_file))
-    }
-    # in alevin-fry 0.4.1, meta_info.json is changed to quant.json, so check both
-    # read in metadata
-    qfile <- file.path(fry.dir, "quant.json")
-    if (!file.exists(qfile)) {
-      qfile <- file.path(fry.dir, "meta_info.json")
-    }
+loadFry <- function(fry.dir, which_counts = c('S', 'A'), velocity = FALSE, scVel = FALSE, verbose = FALSE) {
+  # Check `fry.dir` is legit
+  quant_file <- file.path(fry.dir, "alevin", "quants_mat.mtx")
+  if (!file.exists(quant_file)) {
+    stop("The `fry.dir` directory provided does not look like a directory generated from alevin-fry:\n",
+         sprintf("Missing quant file: %s", quant_file))
+  }
+  # in alevin-fry 0.4.1, meta_info.json is changed to quant.json, so check both
+  # read in metadata
+  qfile <- file.path(fry.dir, "quant.json")
+  if (!file.exists(qfile)) {
+    qfile <- file.path(fry.dir, "meta_info.json")
+  }
+  
+  # read in metadata
+  meta_info <-  jsonlite::fromJSON(qfile)
+  ng <- meta_info$num_genes
+  usa_mode <- meta_info$usa_mode
 
-    # read in metadata
-    meta_info <- fromJSON(qfile)
-    ng <- meta_info$num_genes
-    usa_mode <- meta_info$usa_mode
-
-    # figure out how we're going to summarize expression counts
-    wc_opts <- c('U', 'S', 'A')
-    if (usa_mode) {
-      stopifnot(
-        "`which_counts` must be a character vector with length() >= 1" = {
-          is.character(which_counts) && length(which_counts) >= 1
-        },
-        "`which_counts` can only include elements from c('U', 'S', 'A')" = {
-          all(which_counts %in% wc_opts)
-        },
-        "`velocity` must be a boolean flag" = {
-          is.logical(velocity) && length(velocity) == 1L
-        })
-      if (velocity) {
-        if ("U" %in% which_counts) {
-          if (verbose) {
-            message("'U' removed from `which_counts` when `velocity` set to `TRUE`")
-          }
-          which_counts <- setdiff(which_counts, "U")
-        }
-      }
-      if (length(which_counts) == 0) {
-        if (velocity) {
-          stop("Pleae provide at least one of c('S', 'A') in `which_counts` when `velocity = TRUE`")
-        } else {
-          stop("Pleae provide at least one of c('U', 'S', 'A') in `which_counts`")
-        }
-      }
-      if (verbose) {
-        message("processing input in USA mode, will return ", paste(which_counts, collapse = '+'))
-        if (velocity) {
-          message("unspliced counts will be included in the `'unspliced'` assay matrix")
-        }
-      }
-    } else {
-      if (velocity) {
-        if (verbose) {
-          message("`velocity` is ignored when processing data in standard mode, ",
-                  "will return spliced count")
-        }
-        velocity <- FALSE
-      } else if (verbose) {
-        message("processing input in standard mode, will return spliced count")
-      }
-    }
-
-    # if usa mode, each gene gets 3 rows, so the actual number of genes is ng/3
-    if (usa_mode) {
-      if (ng %% 3 != 0) {
-        stop("The number of quantified targets is not a multiple of 3")
-      }
-      ng <- as.integer(ng/3)
-    }
-
-    # read in count matrix, gene names, and barcodes
-    af_raw <- readMM(file = file.path(fry.dir, "alevin", "quants_mat.mtx"))
-    # DropletUtils::read10x2Counts explicitly converts readMM results to a
-    # dgCMatrix, so maybe we should too?
-    af_raw <- as(af_raw, "dgCMatrix")
-    afg <-  read.table(file.path(fry.dir, "alevin", "quants_mat_cols.txt"),
-                       strip.white = TRUE, header = FALSE, nrows = ng,
-                       col.names = c("gene_ids"), row.names = 1)
-    afc <-  read.table(file.path(fry.dir, "alevin", "quants_mat_rows.txt"),
-                       strip.white = TRUE, header = FALSE,
-                       col.names = c("barcodes"), row.names = 1)
-
-    # if in usa_mode, sum up counts in different status according to which_counts
-    if (usa_mode) {
-      rd <- list("S" = seq(1, ng), "U" =  seq(ng + 1, 2 * ng),
-                 "A" =  seq(2 * ng + 1, 3 * ng))
-      o <- af_raw[, rd[[which_counts[1]]], drop = FALSE]
-      for (wc in which_counts[-1]) {
-        o <- o + af_raw[, rd[[wc]], drop = FALSE]
-      }
-    } else {
-      o <- af_raw
-    }
-
-    alist <- list(counts = t(o))
+  if (scVel) {
+    velocity <- TRUE
+  }
+  
+  # figure out how we're going to summarize expression counts
+  wc_opts <- c('U', 'S', 'A')
+  if (usa_mode) {
+    stopifnot(
+      "`which_counts` must be a character vector with length() > 1" = {
+        is.character(which_counts) && length(which_counts) > 1
+      },
+      "`which_counts` can only include elements from c('U', 'S', 'A')" = {
+        all(which_counts %in% wc_opts)
+      },
+      "`velocity` must be a boolean flag" = {
+        is.logical(velocity) && length(velocity) == 1L
+      })
     if (velocity) {
-      alist[["unspliced"]] <- t(af_raw[, rd[["U"]], drop = FALSE])
+      if ("U" %in% which_counts) {
+        if (verbose) {
+          message("'U' removed from `which_counts` when `velocity` set to `TRUE`")
+        }
+        which_counts <- setdiff(which_counts, "U")
+      }
     }
+    if (length(which_counts) == 0) {
+      if (velocity) {
+        stop("Pleae provide at least one of c('S', 'A') in `which_counts` when `velocity = TRUE`")
+      } else {
+        stop("Pleae provide at least one of c('U', 'S', 'A') in `which_counts`")
+      }
+    }
+    if (verbose) {
+      message("processing input in USA mode, will return ", paste(which_counts, collapse = '+'))
+      if (velocity) {
+        message("unspliced counts will be included in the `'unspliced'` assay matrix")
+      }
+    }
+  } else {
+    if (velocity) {
+      if (verbose) {
+        message("`velocity` is ignored when processing data in standard mode, ",
+                "will return spliced count")
+      }
+      velocity <- FALSE
+    } else if (verbose) {
+      message("processing input in standard mode, will return spliced count")
+    }
+  }
+  
+  # if usa mode, each gene gets 3 rows, so the actual number of genes is ng/3
+  if (usa_mode) {
+    if (ng %% 3 != 0) {
+      stop("The number of quantified targets is not a multiple of 3")
+    }
+    ng <- as.integer(ng/3)
+  }
+  
+  # read in count matrix, gene names, and barcodes
+  af_raw <- readMM(file = file.path(fry.dir, "alevin", "quants_mat.mtx"))
+  # DropletUtils::read10x2Counts explicitly converts readMM results to a
+  # dgCMatrix, so maybe we should too?
+  af_raw <- as(af_raw, "dgCMatrix")
+  afg <-  read.table(file.path(fry.dir, "alevin", "quants_mat_cols.txt"),
+                     strip.white = TRUE, header = FALSE, nrows = ng,
+                     col.names = c("gene_ids"), row.names = 1)
+  afc <-  read.table(file.path(fry.dir, "alevin", "quants_mat_rows.txt"),
+                     strip.white = TRUE, header = FALSE,
+                     col.names = c("barcodes"), row.names = 1)
+  
+  # if in usa_mode, sum up counts in different status according to which_counts
+  if (usa_mode) {
+    rd <- list("S" = seq(1, ng), "U" =  seq(ng + 1, 2 * ng),
+               "A" =  seq(2 * ng + 1, 3 * ng))
+    o <- af_raw[, rd[[which_counts[1]]], drop = FALSE]
+    for (wc in which_counts[-1]) {
+      o <- o + af_raw[, rd[[wc]], drop = FALSE]
+    }
+  } else {
+    o <- af_raw
+  }
+  
+  alist <- list(counts = t(o))
+  
+  # format for scVelo (python) and velociraptor (R) expected downstream input / analysis
+  # Hopefully this gets fixed in future releases of VR , as where S+A = S , this is a redundant assay
+  if (scVel) {
+    alist[["spliced"]] <- t(af_raw[, rd[["S"]], drop = FALSE])
+  }
 
-    # create SingleCellExperiment object
-    sce <- SingleCellExperiment(alist, colData = afc, rowData = afg)
-    sce
+  if (velocity) {
+    alist[["unspliced"]] <- t(af_raw[, rd[["U"]], drop = FALSE])
+  }
+  
+  # create SingleCellExperiment object
+  sce <- SingleCellExperiment(alist, colData = afc, rowData = afg)
+  
+  # scvelo doesn't actually need this. but sce /w velociraptor /w defaults
+  # requires size factors should be positive and this was the easiest solution I could think of,
+  # with the assumption, that BioC users generally build their pipelines with other BioC
+  # packages with up or downstream analysis in mind. If this is wrong or there is an better way
+  # please feel free to change
+  if (scVel) {
+    sce <- sce[, colSums(counts(sce)) > 0]
+    sce <- sce[, colSums(assay(sce, "spliced")) > 0]
+    sce <- sce[, colSums(assay(sce, "unspliced")) > 0]
+  }
+  
+  sce
 }
