@@ -1,5 +1,5 @@
 # manually generated data matrix
-gene1_S, gene2_S, gene1_U, gene2_U, gene1_A, gene2_A,
+gene1_S, gene2_S, gene1_U, gene2_U, gene1_A, gene2_A
 bc1,2,1,0,2,0,2
 bc2,1,1,1,0,0,0
 bc3,2,2,2,2,2,2
