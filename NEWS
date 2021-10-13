@@ -8,6 +8,10 @@ Changes in version 1.99.18
 * Switched the legend of plotInfReps so that
   reference levels will now be on the bottom,
   and non-reference (e.g. treatment) on top.
+* Added loadFry() to process alevin-fry 
+  quantification result. Can process spliced, 
+  unspliced and ambiguous counts separately 
+  and flexibly.
 
 Changes in version 1.99.15
 * Adding correlation tests: Spearman or Pearson
