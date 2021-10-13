@@ -171,12 +171,10 @@ loadFry <- function(fryDir,
                     nonzero = FALSE,
                     verbose = FALSE) {
 
-  # scvelo doesn't actually need this. but sce /w velociraptor /w defaults
-  # requires size factors should be positive and this was the easiest solution I could think of,
-  # with the assumption, that BioC users generally build their pipelines with other BioC
-  # packages with up or downstream analysis in mind.
+  # velociraptor /w defaults requires size factors should be positive
   if(outputFormat == "scVelo" && nonzero == FALSE) {
-    message("velociraptor R package filters genes with zero expression by default. To mimic this behavior, please set nonzero = TRUE.")
+    message("velociraptor R package filters genes with zero expression by default.
+To mimic this behavior, please set nonzero = TRUE")
   }
   
   # load in fry result
@@ -199,7 +197,8 @@ loadFry <- function(fryDir,
     if (is.character(outputFormat)) {
       # Check whether outputFormat is a predefined format
       if (! (outputFormat %in% names(predefined.format))) {
-        stop("Provided outputFormat string is invalid. Please check the function description for the list of predifined format.")
+        stop("Provided outputFormat string is invalid. Please check the function description
+for the list of predifined format")
       }
       
       if (verbose) {
