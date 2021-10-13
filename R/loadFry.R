@@ -69,7 +69,10 @@
 #' This function processes alevin-fry's quantification result contained within the input folder.
 #' This function returns a list that consists of the gene count matrix, the gene names list, the barcode list, 
 #' and some metadata, such as the number of genes in the experiment and whether alevin-fry was executed 
-#' in USA mode.
+#' in USA mode. In the returned list, the all-in-one count matrix, \code{count_mat}, 
+#' returned from the USA mode of alevin-fry consists of the spliced count of genes defined in \code{gene.names}
+#' for all barcodes defined in \code{barcodes}, followed by the unspliced count of genes in the same order 
+#' for all cells, then followed by the ambiguous count of genes in the same order for all cells.  
 #'
 #' @return A \code{SingleCellExperiment} object that contains one or more assay slots.
 #' Each assay slot consists of a gene by cell
