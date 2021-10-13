@@ -224,7 +224,7 @@ loadFry <- function(fryDir,
       output.slots = outputFormat
       
       if (verbose) {
-        message("Using user-defined output slots.", output.slots)
+        message("Using user-defined output slots.")
       }
     }
     # If we are here, the output.slots is valid.
