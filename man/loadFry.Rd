@@ -28,8 +28,8 @@ See details for the explainations of the pre-defined formats and how to define c
 genes with non-zero expression value across all cells in the output \code{SingleCellExperiment} object.}
 }
 \value{
-A \code{SingleCellExperiment} object that contains one or more assay slots.
-Each assay slot consists of a gene by cell
+A \code{SingleCellExperiment} object that contains one or more assays.
+Each assay consists of a gene by cell
 count matrix. The row names are feature names, and the column
 names are cell barcodes.
 }
@@ -45,12 +45,12 @@ quantification mode, and returns a \code{SingleCellExperiement} object
 that contains a final count for each gene within each cell. In
 USA mode, alevin-fry quant returns a count matrix contains three
 types of count for each feature (gene) within each sample (cell
-or nucleus), which represent the spliced mRNA count of the gene (U),
-the unspliced mRNA count of the gene (S), and the count of mRNA whose
-splicing status is ambiguous (A). For each slot defined by \code{outputFormat},
+or nucleus), which represent the spliced mRNA count of the gene (S),
+the unspliced mRNA count of the gene (U), and the count of UMIs whose
+splicing status is ambiguous for the gene (A). For each assay defined by \code{outputFormat},
 these three counts of a gene within a cell will be summed 
 to get the final count of the gene according to the rule defined in the \code{outputFormat}. 
-The returned object will contains the desired slots defined by \code{outputFormat}, 
+The returned object will contains the desired assays defined by \code{outputFormat}, 
 with rownames as the barcode of samples and colnames as the feature names.
 }
 
@@ -65,14 +65,14 @@ Currently the pre-defined formats
 of the output \code{SingleCellExperiment} object are: 
 \describe{
 \item{"scRNA":}{This format is recommended for single cell experiments. 
-It returns a \code{counts} assay slot that contains the S+A count of each gene in each cell.}
+It returns a \code{counts} assay that contains the S+A count of each gene in each cell.}
 \item{"snRNA":}{This format is recommended for single nucleus experiments. 
-It returns a \code{counts} assay slot that contains the U+S+A count of each gene in each cell.}
-\item{"raw":}{This format put the three kinds of counts into three separate assay slots, 
+It returns a \code{counts} assay that contains the U+S+A count of each gene in each cell.}
+\item{"raw":}{This format put the three kinds of counts into three separate assays, 
 which are \code{unspliced}, \code{spliced} and \code{ambiguous}.}
-\item{"velocity":}{This format contains two assay slots. 
-The \code{spliced} slot contains the S+A count of each gene in each cell.
-The \code{unspliced} slot contains the U counts of each gene in each cell.}
+\item{"velocity":}{This format contains two assays. 
+The \code{spliced} assay contains the S+A count of each gene in each cell.
+The \code{unspliced} assay contains the U counts of each gene in each cell.}
 \item{"scVelo":}{This format is for direct entry into velociraptor R package or 
 other scVelo downstream analysis pipeline for velocity
 analysis in R with Bioconductor. It adds the expected 
@@ -81,9 +81,9 @@ non-positive.}
 }
 
 A custom output format can be defined using a list. Each element in the list 
-defines an assay slot in the output \code{SingleCellExperiment} object. 
+defines an assay in the output \code{SingleCellExperiment} object. 
 The name of an element in the list will be the name of the corresponding 
-assay slot in the output object. Each element in the list should be defined as 
+assay in the output object. Each element in the list should be defined as 
 a vector that takes at least one of the three kinds of count, which are U, S and A.
 See the provided toy example for defining a custom output format.
 }

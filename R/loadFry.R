@@ -24,12 +24,12 @@
 #' that contains a final count for each gene within each cell. In
 #' USA mode, alevin-fry quant returns a count matrix contains three
 #' types of count for each feature (gene) within each sample (cell
-#' or nucleus), which represent the spliced mRNA count of the gene (U),
-#' the unspliced mRNA count of the gene (S), and the count of mRNA whose
-#' splicing status is ambiguous (A). For each slot defined by \code{outputFormat},
+#' or nucleus), which represent the spliced mRNA count of the gene (S),
+#' the unspliced mRNA count of the gene (U), and the count of UMIs whose
+#' splicing status is ambiguous for the gene (A). For each assay defined by \code{outputFormat},
 #' these three counts of a gene within a cell will be summed 
 #' to get the final count of the gene according to the rule defined in the \code{outputFormat}. 
-#' The returned object will contains the desired slots defined by \code{outputFormat}, 
+#' The returned object will contains the desired assays defined by \code{outputFormat}, 
 #' with rownames as the barcode of samples and colnames as the feature names.
 #' 
 #' 
@@ -43,14 +43,14 @@
 #' of the output \code{SingleCellExperiment} object are: 
 #' \describe{
 #' \item{"scRNA":}{This format is recommended for single cell experiments. 
-#' It returns a \code{counts} assay slot that contains the S+A count of each gene in each cell.}
+#' It returns a \code{counts} assay that contains the S+A count of each gene in each cell.}
 #' \item{"snRNA":}{This format is recommended for single nucleus experiments. 
-#' It returns a \code{counts} assay slot that contains the U+S+A count of each gene in each cell.}
-#' \item{"raw":}{This format put the three kinds of counts into three separate assay slots, 
+#' It returns a \code{counts} assay that contains the U+S+A count of each gene in each cell.}
+#' \item{"raw":}{This format put the three kinds of counts into three separate assays, 
 #' which are \code{unspliced}, \code{spliced} and \code{ambiguous}.}
-#' \item{"velocity":}{This format contains two assay slots. 
-#' The \code{spliced} slot contains the S+A count of each gene in each cell.
-#' The \code{unspliced} slot contains the U counts of each gene in each cell.}
+#' \item{"velocity":}{This format contains two assays. 
+#' The \code{spliced} assay contains the S+A count of each gene in each cell.
+#' The \code{unspliced} assay contains the U counts of each gene in each cell.}
 #' \item{"scVelo":}{This format is for direct entry into velociraptor R package or 
 #' other scVelo downstream analysis pipeline for velocity
 #' analysis in R with Bioconductor. It adds the expected 
@@ -59,9 +59,9 @@
 #' }
 #' 
 #' A custom output format can be defined using a list. Each element in the list 
-#' defines an assay slot in the output \code{SingleCellExperiment} object. 
+#' defines an assay in the output \code{SingleCellExperiment} object. 
 #' The name of an element in the list will be the name of the corresponding 
-#' assay slot in the output object. Each element in the list should be defined as 
+#' assay in the output object. Each element in the list should be defined as 
 #' a vector that takes at least one of the three kinds of count, which are U, S and A.
 #' See the provided toy example for defining a custom output format.
 #' 
@@ -74,8 +74,8 @@
 #' for all barcodes defined in \code{barcodes}, followed by the unspliced count of genes in the same order 
 #' for all cells, then followed by the ambiguous count of genes in the same order for all cells.  
 #'
-#' @return A \code{SingleCellExperiment} object that contains one or more assay slots.
-#' Each assay slot consists of a gene by cell
+#' @return A \code{SingleCellExperiment} object that contains one or more assays.
+#' Each assay consists of a gene by cell
 #' count matrix. The row names are feature names, and the column
 #' names are cell barcodes.
 #'
@@ -205,49 +205,49 @@ for the list of predifined format")
         message("Using pre-defined output format: ", outputFormat)
       }
       
-      # get the slots
-      output.slots = predefined.format[[outputFormat]]
+      # get the assays
+      output.assays = predefined.format[[outputFormat]]
       
     } else if (is.list(outputFormat)) {
-      # check whether user-defined slots are all 
-      for (slot.name in names(outputFormat)) {
-        if (is.null(outputFormat[[slot.name]])) {              
-          stop(paste0("The provided slot \"", slot.name, "\" is empty. Please remove it."))
+      # check whether user-defined assays are all 
+      for (assay.name in names(outputFormat)) {
+        if (is.null(outputFormat[[assay.name]])) {              
+          stop(paste0("The provided assay '", assay.name, "' is empty. Please remove it."))
         }
-        else if (!all(outputFormat[[slot.name]] %in% valid.counts)) {
-          stop("Please use U, S and A ONLY to indicate which counts will be considered to build a slot")
+        else if (!all(outputFormat[[assay.name]] %in% valid.counts)) {
+          stop("Please use U, S and A ONLY to indicate which counts will be considered to build a assay")
         }
       }
       if (!all(unlist(outputFormat) %in% valid.counts)) {
-        stop("Please use U, S and A ONLY to indicate which counts will be considered to build a slot")
+        stop("Please use U, S and A ONLY to indicate which counts will be considered to build a assay")
       }
       
-      output.slots = outputFormat
+      output.assays = outputFormat
       
       if (verbose) {
-        message("Using user-defined output slots.")
+        message("Using user-defined output assays.")
       }
     }
-    # If we are here, the output.slots is valid.
+    # If we are here, the output.assays is valid.
 
-    alist <- vector(mode = "list", length = length(output.slots))
-    names(alist) = names(output.slots)
+    alist <- vector(mode = "list", length = length(output.assays))
+    names(alist) = names(output.assays)
     ng = meta.data$num.genes
     rd <- list("S" = seq(1, ng), "U" =  seq(ng + 1, 2 * ng),
                "A" =  seq(2 * ng + 1, 3 * ng))
-    # fill in each slot
-    for (slot.name in names(output.slots)) {
-      which.counts = output.slots[[slot.name]]
-      alist[[slot.name]] <- fry.raw$count.mat[, rd[[which.counts[1]]], drop = FALSE]
+    # fill in each assay
+    for (assay.name in names(output.assays)) {
+      which.counts = output.assays[[assay.name]]
+      alist[[assay.name]] <- fry.raw$count.mat[, rd[[which.counts[1]]], drop = FALSE]
       if (length(which.counts) > 1) {
-        # build slot
+        # build assay
         for (wc in which.counts[-1]) {
-          alist[[slot.name]] <- alist[[slot.name]] + fry.raw$count.mat[, rd[[wc]], drop = FALSE]
+          alist[[assay.name]] <- alist[[assay.name]] + fry.raw$count.mat[, rd[[wc]], drop = FALSE]
         }
       }
-      alist[[slot.name]] = t(alist[[slot.name]])
+      alist[[assay.name]] = t(alist[[assay.name]])
       if (verbose) {
-        message(paste(c(paste0("Building the \"", slot.name, "\" slot, which contains"), which.counts), collapse = " "))
+        message(paste(c(paste0("Building the '", assay.name, "' assay, which contains"), which.counts), collapse = " "))
       }
     }
   } else {

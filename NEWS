@@ -1,3 +1,35 @@
+Changes in version 2.0.0
+* New loadFry() function, written by Dongze He with
+  contributions from Steve Lianoglou and Wes Wilson.
+  loadFry() helps users to import and process
+  alevin-fry quantification results. Can process
+  spliced, unspliced and ambiguous counts separately 
+  and flexibly. Has specific output formats designed
+  for downstream use with scVelo or velocity analysis.
+  See ?loadFry for more details.
+* Adding correlation tests: Spearman or Pearson
+  correlations of a numeric covariate with the
+  log counts, or with the log fold changes across
+  pairs. The Spearman correlation test with counts
+  was already implemented in the original SAMseq
+  method as response type = "Quantitative".
+  For new functionality see 'cor' argument in the
+  ?swish man page.
+* Adding importAllelicCounts() to facilitate importing
+  Salmon quantification data against a diploid
+  transcriptome. Can import either as a 'wide'
+  format or as 'assays'. Leverages tximeta().
+  For gene-level summarization, importAllelicCounts()
+  can create an appropriate tx2gene table
+  with the necessary a1 and a2 suffices,
+  and it will automatically set txOut=FALSE, see
+  ?importAllelicCounts for more details.
+* Added a 'q' argument to plotInfReps to change the
+  intervals when making point and line plots.
+* Switched the legend of plotInfReps so that
+  reference levels will now be on the bottom,
+  and non-reference (e.g. treatment) on top.
+
 Changes in version 1.99.18
 * Added helper functionality to importAllelicCounts,
   so it will create an appropriate tx2gene table
