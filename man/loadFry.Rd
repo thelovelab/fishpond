@@ -5,7 +5,7 @@
 \alias{load_fry_raw}
 \title{Load in data from alevin-fry USA mode}
 \usage{
-load_fry_raw(fryDir, verbose)
+load_fry_raw(fryDir, verbose = FALSE)
 
 loadFry(fryDir, outputFormat = "scRNA", nonzero = FALSE, verbose = FALSE)
 }
@@ -93,7 +93,10 @@ See the provided toy example for defining a custom output format.
 This function processes alevin-fry's quantification result contained within the input folder.
 This function returns a list that consists of the gene count matrix, the gene names list, the barcode list, 
 and some metadata, such as the number of genes in the experiment and whether alevin-fry was executed 
-in USA mode.
+in USA mode. In the returned list, the all-in-one count matrix, \code{count_mat}, 
+returned from the USA mode of alevin-fry consists of the spliced count of genes defined in \code{gene.names}
+for all barcodes defined in \code{barcodes}, followed by the unspliced count of genes in the same order 
+for all cells, then followed by the ambiguous count of genes in the same order for all cells.
 }
 
 \examples{
@@ -111,7 +114,7 @@ SummarizedExperiment::assayNames(sce)
 # Load the same data but use pre-defined, velociraptor R pckage desired format
 scvelo_format = "scVelo"
 
-scev <- loadFry(fryDir = testdat$parent_dir, outputFormat = scvelo_format, nonzero = TRUE, velocity = TRUE)
+scev <- loadFry(fryDir = testdat$parent_dir, outputFormat = scvelo_format, nonzero = TRUE)
 SummarizedExperiment::assayNames(scev)
 
 }

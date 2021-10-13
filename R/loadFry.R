@@ -96,7 +96,7 @@
 #' # Load the same data but use pre-defined, velociraptor R pckage desired format
 #' scvelo_format = "scVelo"
 #' 
-#' scev <- loadFry(fryDir = testdat$parent_dir, outputFormat = scvelo_format, nonzero = TRUE, velocity = TRUE)
+#' scev <- loadFry(fryDir = testdat$parent_dir, outputFormat = scvelo_format, nonzero = TRUE)
 #' SummarizedExperiment::assayNames(scev)
 #' 
 #' @name loadFry
@@ -107,8 +107,7 @@ NULL
 #' @importFrom jsonlite fromJSON
 #' @importFrom Matrix readMM
 #' @importFrom utils read.table
-load_fry_raw <- function(fryDir, 
-                      verbose = FALSE) {
+load_fry_raw <- function(fryDir, verbose = FALSE) {
   # Check `fryDir` is legit
   quant.file <- file.path(fryDir, "alevin", "quants_mat.mtx")
   if (!file.exists(quant.file)) {
