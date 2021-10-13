@@ -85,7 +85,7 @@ defines an assay slot in the output \code{SingleCellExperiment} object.
 The name of an element in the list will be the name of the corresponding 
 assay slot in the output object. Each element in the list should be defined as 
 a vector that takes at least one of the three kinds of count, which are U, S and A.
-See the provided toy example for defining a costom output format.
+See the provided toy example for defining a custom output format.
 }
 
 \section{Details about \code{load_fry_raw}}{

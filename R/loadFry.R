@@ -105,7 +105,7 @@ NULL
 #' @importFrom Matrix readMM
 #' @importFrom utils read.table
 load_fry_raw <- function(fryDir, 
-                      verbose) {
+                      verbose = FALSE) {
   # Check `fryDir` is legit
   quant.file <- file.path(fryDir, "alevin", "quants_mat.mtx")
   if (!file.exists(quant.file)) {
@@ -125,7 +125,7 @@ load_fry_raw <- function(fryDir,
   }
   
   # read in metadata
-  meta.info <- jsonlite::fromJSON(qfile)
+  meta.info <- fromJSON(qfile)
   ng <- meta.info$num_genes
   usa.mode <- meta.info$usa_mode
   
@@ -143,7 +143,7 @@ load_fry_raw <- function(fryDir,
   }
   
   # read in count matrix, gene names, and barcodes
-  count.mat <- as(Matrix::readMM(file = quant.file), "dgCMatrix")
+  count.mat <- as(readMM(file = quant.file), "dgCMatrix")
   afg <-  read.table(file.path(fryDir, "alevin", "quants_mat_cols.txt"),
                      strip.white = TRUE, header = FALSE, nrows = ng,
                      col.names = c("gene_ids"))
@@ -162,7 +162,7 @@ load_fry_raw <- function(fryDir,
 
 #' @export
 #' @rdname loadFry
-#' @importFrom Matrix t
+#' @importFrom Matrix t colSums
 #' @importFrom SingleCellExperiment SingleCellExperiment
 loadFry <- function(fryDir, 
                     outputFormat = "scRNA", 
@@ -244,7 +244,7 @@ loadFry <- function(fryDir,
           alist[[slot.name]] <- alist[[slot.name]] + fry.raw$count.mat[, rd[[wc]], drop = FALSE]
         }
       }
-      alist[[slot.name]] = Matrix::t(alist[[slot.name]])
+      alist[[slot.name]] = t(alist[[slot.name]])
       if (verbose) {
         message(paste(c(paste0("Building the \"", slot.name, "\" slot, which contains"), which.counts), collapse = " "))
       }
@@ -263,12 +263,12 @@ loadFry <- function(fryDir,
   }
   
   # create SingleCellExperiment object
-  sce <- SingleCellExperiment::SingleCellExperiment(alist, colData = fry.raw$barcodes, rowData = fry.raw$gene.names)
+  sce <- SingleCellExperiment(alist, colData = fry.raw$barcodes, rowData = fry.raw$gene.names)
   
   # filter all zero genes
   if (nonzero) {
-    for(assay.name in assayNames(sce)) {
-      sce <- sce[, colSums(assay(sce, assay.name)) > 0]
+    for(assay.name in names(sce@assays)) {
+      sce <- sce[, colSums(sce@assays@data[[assay.name]]) > 0]
     }
   }
                                                     
