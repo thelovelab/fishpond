@@ -186,7 +186,7 @@ To mimic this behavior, please set nonzero = TRUE")
   if (meta.data$usa.mode) {
     # preparation
     predefined.format = list("scRNA" = list("counts" = c("S", "A")),
-                             "snRNA" = list("counts" = c("S", "A")),
+                             "snRNA" = list("counts" = c("U", "S", "A")),
                              "velocity" = list("spliced" = c("S", "A"), "unspliced" = c("U")),
                              "scVelo" = list("counts" = c("S", "A"), "spliced" = c("S", "A"), "unspliced" = c("U")),
                              "raw" = list("spliced" = c("S"), "unspliced" = c("U"), "ambiguous" = c("A"))
