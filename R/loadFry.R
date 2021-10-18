@@ -12,8 +12,10 @@
 #' \code{SingleCellExperiment} object \emph{or} a string that represents one of 
 #' the pre-defined output formats, which are "scRNA", "snRNA", "scVelo" and "velocity". 
 #' See details for the explainations of the pre-defined formats and how to define custom format.
-#' @param nonzero A boolean specifying if filtering
-#' genes with non-zero expression value across all cells in the output \code{SingleCellExperiment} object.
+#' @param nonzero A boolean specifying whether to filter
+#' genes with non-zero expression value across all cells
+#' in the output \code{SingleCellExperiment} object.
+#' Default is FALSE (no filtering)
 #' @param verbose A boolean specifying if showing
 #' messages when running the function
 #'
@@ -87,14 +89,14 @@
 #' testdat <- fishpond:::readExampleFryData("fry-usa-basic")
 #' 
 #' # This is exactly how the velocity format defined internally.
-#' custom_velocity_format = list("spliced" = c("S", "A"), "unspliced" = c("U"))
+#' custom_velocity_format <- list("spliced" = c("S", "A"), "unspliced" = c("U"))
 #'
 #' # Load alevin-fry gene quantification in velocity format
 #' sce <- loadFry(fryDir = testdat$parent_dir, outputFormat = custom_velocity_format, verbose = TRUE)
 #' SummarizedExperiment::assayNames(sce)
 #'
 #' # Load the same data but use pre-defined, velociraptor R pckage desired format
-#' scvelo_format = "scVelo"
+#' scvelo_format <- "scVelo"
 #' 
 #' scev <- loadFry(fryDir = testdat$parent_dir, outputFormat = scvelo_format, nonzero = TRUE)
 #' SummarizedExperiment::assayNames(scev)
@@ -172,7 +174,7 @@ loadFry <- function(fryDir,
                     verbose = FALSE) {
 
   # velociraptor /w defaults requires size factors should be positive
-  if(outputFormat == "scVelo" && nonzero == FALSE) {
+  if (is.character(outputFormat) && outputFormat == "scVelo" && nonzero == FALSE) {
     message("velociraptor R package filters genes with zero expression by default.
 To mimic this behavior, please set nonzero = TRUE")
   }
@@ -268,8 +270,8 @@ for the list of predifined format")
   
   # filter all zero genes
   if (nonzero) {
-    for(assay.name in names(sce@assays)) {
-      sce <- sce[, colSums(sce@assays@data[[assay.name]]) > 0]
+    for (assay.name in assayNames(sce)) {
+      # sce <- sce[, colSums(assay(sce, assay.name)) > 0]
     }
   }
                                                     

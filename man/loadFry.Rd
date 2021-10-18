@@ -24,8 +24,10 @@ messages when running the function}
 the pre-defined output formats, which are "scRNA", "snRNA", "scVelo" and "velocity". 
 See details for the explainations of the pre-defined formats and how to define custom format.}
 
-\item{nonzero}{A boolean specifying if filtering
-genes with non-zero expression value across all cells in the output \code{SingleCellExperiment} object.}
+\item{nonzero}{A boolean specifying whether to filter
+genes with non-zero expression value across all cells
+in the output \code{SingleCellExperiment} object.
+Default is FALSE (no filtering)}
 }
 \value{
 A \code{SingleCellExperiment} object that contains one or more assays.
@@ -105,14 +107,14 @@ for all cells, then followed by the ambiguous count of genes in the same order f
 testdat <- fishpond:::readExampleFryData("fry-usa-basic")
 
 # This is exactly how the velocity format defined internally.
-custom_velocity_format = list("spliced" = c("S", "A"), "unspliced" = c("U"))
+custom_velocity_format <- list("spliced" = c("S", "A"), "unspliced" = c("U"))
 
 # Load alevin-fry gene quantification in velocity format
 sce <- loadFry(fryDir = testdat$parent_dir, outputFormat = custom_velocity_format, verbose = TRUE)
 SummarizedExperiment::assayNames(sce)
 
 # Load the same data but use pre-defined, velociraptor R pckage desired format
-scvelo_format = "scVelo"
+scvelo_format <- "scVelo"
 
 scev <- loadFry(fryDir = testdat$parent_dir, outputFormat = scvelo_format, nonzero = TRUE)
 SummarizedExperiment::assayNames(scev)
