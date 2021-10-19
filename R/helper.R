@@ -623,6 +623,12 @@ computeInfRV <- function(y, pc=5, shift=.01, meanVariance, useCounts=FALSE) {
 #' in the table, the table rows will be duplicated with those suffices
 #' added on behalf of the user.
 #' If not provided, the output object will be transcript-level.
+#' Note: do not attempt to set the \code{txOut} argument, it will
+#' conflict with internal calls to downstream functions.
+#' Note: if the a1/a2 suffices are not at the end of the transcript name
+#' in the quantification files, e.g. \code{ENST123_M|<metadata>},
+#' then \code{ignoreAfterBar=TRUE} can be used to match regardless of
+#' the string following \code{|} in the quantification files.
 #' @param ... any arguments to pass to tximeta
 #'
 #' @return a SummarizedExperiment, with allele counts (and other data)

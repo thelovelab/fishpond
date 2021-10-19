@@ -37,7 +37,13 @@ For example if \code{_alt} or \code{_ref}, or \code{_M} or \code{_P}
 (as indicated by the \code{a1} and \code{a2} arguments) are not present
 in the table, the table rows will be duplicated with those suffices
 added on behalf of the user.
-If not provided, the output object will be transcript-level.}
+If not provided, the output object will be transcript-level.
+Note: do not attempt to set the \code{txOut} argument, it will
+conflict with internal calls to downstream functions.
+Note: if the a1/a2 suffices are not at the end of the transcript name
+in the quantification files, e.g. \code{ENST123_M|<metadata>},
+then \code{ignoreAfterBar=TRUE} can be used to match regardless of
+the string following \code{|} in the quantification files.}
 
 \item{...}{any arguments to pass to tximeta}
 }
