@@ -3,21 +3,22 @@
 #' Enables easy loading of sparse data matrices provided by alevin-fry USA mode.
 #' Alevin-fry - \url{https://www.biorxiv.org/content/10.1101/2021.06.29.450377v1}
 #'
-#' @param fryDir A path to the output directory returned by
+#' @param fryDir path to the output directory returned by
 #' alevin-fry quant command. This directory should contain a
 #' \code{metainfo.json}, and an alevin folder which contains
 #' \code{quants_mat.mtx}, \code{quants_mat_cols.txt} and
 #' \code{quants_mat_rows.txt}
-#' @param outputFormat This argument can \emph{either} be a list that defines the desired format of the output 
-#' \code{SingleCellExperiment} object \emph{or} a string that represents one of 
-#' the pre-defined output formats, which are "scRNA", "snRNA", "scVelo" and "velocity". 
-#' See details for the explainations of the pre-defined formats and how to define custom format.
-#' @param nonzero A character vector specifying in which assay the cells
-#' cells with non-zero expression value across all genes will be filtered
-#' in the output \code{SingleCellExperiment} object. 
-#' The provided assay name(s) in \code{nonzero}
-#' must match those in the provided \code{outputFormat}.
-#' Default is an empty vector (no filtering)
+#' @param outputFormat can be \emph{either} be a list that defines the
+#' desired format of the output \code{SingleCellExperiment} object
+#' \emph{or} a string that represents one of the pre-defined output
+#' formats, which are "scRNA", "snRNA", "scVelo" and "velocity".
+#' See details for the explainations of the pre-defined formats and
+#' how to define custom format.
+#' @param nonzero whether to filter cells with non-zero expression
+#' value across all genes (default \code{FALSE}).
+#' If \code{TRUE}, this will filter based on all assays.
+#' If a string vector of assay names, it will filter based
+#' on the matching assays in the vector.
 #' @param verbose A boolean specifying if showing
 #' messages when running the function
 #'
@@ -30,11 +31,13 @@
 #' types of count for each feature (gene) within each sample (cell
 #' or nucleus), which represent the spliced mRNA count of the gene (S),
 #' the unspliced mRNA count of the gene (U), and the count of UMIs whose
-#' splicing status is ambiguous for the gene (A). For each assay defined by \code{outputFormat},
-#' these three counts of a gene within a cell will be summed 
-#' to get the final count of the gene according to the rule defined in the \code{outputFormat}. 
-#' The returned object will contains the desired assays defined by \code{outputFormat}, 
-#' with rownames as the barcode of samples and colnames as the feature names.
+#' splicing status is ambiguous for the gene (A). For each assay
+#' defined by \code{outputFormat}, these three counts of a gene
+#' within a cell will be summed to get the final count of the gene
+#' according to the rule defined in the \code{outputFormat}.  The
+#' returned object will contains the desired assays defined by
+#' \code{outputFormat}, with rownames as the barcode of samples and
+#' colnames as the feature names.
 #' 
 #' 
 #' @section Details about the output format:
@@ -70,18 +73,23 @@
 #' See the provided toy example for defining a custom output format.
 #' 
 #' @section Details about \code{load_fry_raw}:
-#' This function processes alevin-fry's quantification result contained within the input folder.
-#' This function returns a list that consists of the gene count matrix, the gene names list, the barcode list, 
-#' and some metadata, such as the number of genes in the experiment and whether alevin-fry was executed 
-#' in USA mode. In the returned list, the all-in-one count matrix, \code{count_mat}, 
-#' returned from the USA mode of alevin-fry consists of the spliced count of genes defined in \code{gene.names}
-#' for all barcodes defined in \code{barcodes}, followed by the unspliced count of genes in the same order 
-#' for all cells, then followed by the ambiguous count of genes in the same order for all cells.  
+#' This function processes alevin-fry's quantification result
+#' contained within the input folder.This function returns a list
+#' that consists of the gene count matrix, the gene names list, the
+#' barcode list, and some metadata, such as the number of genes in
+#' the experiment and whether alevin-fry was executed in USA
+#' mode. In the returned list, the all-in-one count matrix,
+#' \code{count_mat}, returned from the USA mode of alevin-fry
+#' consists of the spliced count of genes defined in
+#' \code{gene.names} for all barcodes defined in \code{barcodes},
+#' followed by the unspliced count of genes in the same order for
+#' all cells, then followed by the ambiguous count of genes in the
+#' same order for all cells.
 #'
-#' @return A \code{SingleCellExperiment} object that contains one or more assays.
-#' Each assay consists of a gene by cell
-#' count matrix. The row names are feature names, and the column
-#' names are cell barcodes.
+#' @return A \code{SingleCellExperiment} object that contains one
+#' or more assays. Each assay consists of a gene by cell count matrix.
+#' The row names are feature names, and the column names are cell
+#' barcodes
 #'
 #' @concept preprocessing
 #'
@@ -91,16 +99,16 @@
 #' testdat <- fishpond:::readExampleFryData("fry-usa-basic")
 #' 
 #' # This is exactly how the velocity format defined internally.
-#' custom_velocity_format <- list("spliced" = c("S", "A"), "unspliced" = c("U"))
+#' custom_velocity_format <- list("spliced"=c("S","A"), "unspliced"=c("U"))
 #'
 #' # Load alevin-fry gene quantification in velocity format
-#' sce <- loadFry(fryDir = testdat$parent_dir, outputFormat = custom_velocity_format, verbose = TRUE)
+#' sce <- loadFry(fryDir=testdat$parent_dir, outputFormat=custom_velocity_format, verbose=TRUE)
 #' SummarizedExperiment::assayNames(sce)
 #'
 #' # Load the same data but use pre-defined, velociraptor R pckage desired format
 #' scvelo_format <- "scVelo"
 #' 
-#' scev <- loadFry(fryDir = testdat$parent_dir, outputFormat = scvelo_format, nonzero = TRUE)
+#' scev <- loadFry(fryDir=testdat$parent_dir, outputFormat=scvelo_format, nonzero=TRUE)
 #' SummarizedExperiment::assayNames(scev)
 #' 
 #' @name loadFry
@@ -120,7 +128,7 @@ load_fry_raw <- function(fryDir, verbose = FALSE) {
     )
   }
   if (verbose) {
-    message("Quant file found.")
+    message("Quant file found")
   }
   
   # Since alevin-fry 0.4.1, meta_info.json is changed to quant.json, we check both
@@ -210,7 +218,7 @@ for the list of predifined format")
       # check whether user-defined assays are all 
       for (assay.name in names(outputFormat)) {
         if (is.null(outputFormat[[assay.name]])) {              
-          stop(paste0("The provided assay '", assay.name, "' is empty. Please remove it."))
+          stop(paste0("The provided assay '", assay.name, "' is empty. Please remove it"))
         }
         else if (!all(outputFormat[[assay.name]] %in% valid.counts)) {
           stop("Please use U, S and A ONLY to indicate which counts will be considered to build a assay")
@@ -223,21 +231,36 @@ for the list of predifined format")
       output.assays = outputFormat
       
       if (verbose) {
-        message("Using user-defined output assays.")
+        message("Using user-defined output assays")
       }
     }
     # If we are here, the output.assays is valid.
     # then we check the assay names in nonzero
-    if (length(nonzero) != 0) {
-      for (idx in 1:length(nonzero)) {
-        if (nonzero[idx] %in% names(output.assays)) {
-          warning(paste0("In the provided nonzero vector, \"", nonzero[idx], "\" is not in outputFormat, ignored."))
-          nonzero = nonzero[-idx]
+    if (is.logical(nonzero)) {
+      if(nonzero) {
+        nonzero = names(output.assays)
+      } else {
+        if (is.character(outputFormat) && outputFormat == "scVelo") {
+          nonzero = c("counts")
+        } else {
+          nonzero = c() 
         }
       }
+    } else if(is.vector(nonzero)) {
+      if (length(nonzero) > 0) {
+        for (idx in 1:length(nonzero)) {
+          if (!nonzero[idx] %in% names(output.assays)) {
+            warning(paste0("In the provided nonzero vector, \"", nonzero[idx], "\" is not one of the output assays, ignored."))
+            nonzero = nonzero[-idx]
+          }
+        }
+      }
+    } else {
+      warning("In valid nonzero, ignored.")
+      nonzero = c()
     }
     
-    
+    # assembly
     alist <- vector(mode = "list", length = length(output.assays))
     names(alist) = names(output.assays)
     ng = meta.data$num.genes
@@ -260,7 +283,7 @@ for the list of predifined format")
     }
   } else {
     if(verbose) {
-      message("Not in USA mode, ignore argument outputFormat.")
+      message("Not in USA mode, ignore argument outputFormat")
     }
     
     # define output matrix
@@ -268,7 +291,7 @@ for the list of predifined format")
   }
   
   if (verbose) {
-    message("Constructing output SingleCellExperiment object.")
+    message("Constructing output SingleCellExperiment object")
   }
   
   # create SingleCellExperiment object
@@ -280,7 +303,7 @@ for the list of predifined format")
   }
   
   if (verbose) {
-    message("Done.")
+    message("Done")
   }
   
   sce
