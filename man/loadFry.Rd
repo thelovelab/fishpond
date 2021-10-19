@@ -5,9 +5,9 @@
 \alias{load_fry_raw}
 \title{Load in data from alevin-fry USA mode}
 \usage{
-load_fry_raw(fryDir, verbose = FALSE)
+load_fry_raw(fryDir, quiet = FALSE)
 
-loadFry(fryDir, outputFormat = "scRNA", nonzero = FALSE, verbose = FALSE)
+loadFry(fryDir, outputFormat = "scRNA", nonzero = FALSE, quiet = FALSE)
 }
 \arguments{
 \item{fryDir}{path to the output directory returned by
@@ -16,8 +16,8 @@ alevin-fry quant command. This directory should contain a
 \code{quants_mat.mtx}, \code{quants_mat_cols.txt} and
 \code{quants_mat_rows.txt}}
 
-\item{verbose}{boolean specifying if showing messages when
-running the function}
+\item{quiet}{boolean specifying if not showing
+messages when running the function}
 
 \item{outputFormat}{can be \emph{either} be a list that defines the
 desired format of the output \code{SingleCellExperiment} object
@@ -29,8 +29,8 @@ how to define custom format.}
 \item{nonzero}{whether to filter cells with non-zero expression
 value across all genes (default \code{FALSE}).
 If \code{TRUE}, this will filter based on all assays.
-If a character vector of assay names, it will filter based
-on the matching assays in the vector}
+If a string vector of assay names, it will filter based
+on the matching assays in the vector.}
 }
 \value{
 A \code{SingleCellExperiment} object that contains one
@@ -120,7 +120,7 @@ testdat <- fishpond:::readExampleFryData("fry-usa-basic")
 custom_velocity_format <- list("spliced"=c("S","A"), "unspliced"=c("U"))
 
 # Load alevin-fry gene quantification in velocity format
-sce <- loadFry(fryDir=testdat$parent_dir, outputFormat=custom_velocity_format, verbose=TRUE)
+sce <- loadFry(fryDir=testdat$parent_dir, outputFormat=custom_velocity_format)
 SummarizedExperiment::assayNames(sce)
 
 # Load the same data but use pre-defined, velociraptor R pckage desired format
