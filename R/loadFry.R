@@ -12,10 +12,12 @@
 #' \code{SingleCellExperiment} object \emph{or} a string that represents one of 
 #' the pre-defined output formats, which are "scRNA", "snRNA", "scVelo" and "velocity". 
 #' See details for the explainations of the pre-defined formats and how to define custom format.
-#' @param nonzero A boolean specifying whether to filter
-#' genes with non-zero expression value across all cells
-#' in the output \code{SingleCellExperiment} object.
-#' Default is FALSE (no filtering)
+#' @param nonzero A character vector specifying in which assay the cells
+#' cells with non-zero expression value across all genes will be filtered
+#' in the output \code{SingleCellExperiment} object. 
+#' The provided assay name(s) in \code{nonzero}
+#' must match those in the provided \code{outputFormat}.
+#' Default is an empty vector (no filtering)
 #' @param verbose A boolean specifying if showing
 #' messages when running the function
 #'
@@ -114,7 +116,7 @@ load_fry_raw <- function(fryDir, verbose = FALSE) {
   quant.file <- file.path(fryDir, "alevin", "quants_mat.mtx")
   if (!file.exists(quant.file)) {
     stop("The `fryDir` directory provided does not look like a directory generated from alevin-fry:\n",
-      sprintf("Missing quant file: %s", quant.file)
+         sprintf("Missing quant file: %s", quant.file)
     )
   }
   if (verbose) {
@@ -172,12 +174,6 @@ loadFry <- function(fryDir,
                     outputFormat = "scRNA", 
                     nonzero = FALSE,
                     verbose = FALSE) {
-
-  # velociraptor /w defaults requires size factors should be positive
-  if (is.character(outputFormat) && outputFormat == "scVelo" && nonzero == FALSE) {
-    message("velociraptor R package filters genes with zero expression by default.
-To mimic this behavior, please set nonzero = TRUE")
-  }
   
   # load in fry result
   fry.raw = load_fry_raw(fryDir, verbose)
@@ -231,7 +227,17 @@ for the list of predifined format")
       }
     }
     # If we are here, the output.assays is valid.
-
+    # then we check the assay names in nonzero
+    if (length(nonzero) != 0) {
+      for (idx in 1:length(nonzero)) {
+        if (nonzero[idx] %in% names(output.assays)) {
+          warning(paste0("In the provided nonzero vector, \"", nonzero[idx], "\" is not in outputFormat, ignored."))
+          nonzero = nonzero[-idx]
+        }
+      }
+    }
+    
+    
     alist <- vector(mode = "list", length = length(output.assays))
     names(alist) = names(output.assays)
     ng = meta.data$num.genes
@@ -256,7 +262,7 @@ for the list of predifined format")
     if(verbose) {
       message("Not in USA mode, ignore argument outputFormat.")
     }
-
+    
     # define output matrix
     alist = list(counts = t(fry.raw$count.mat))
   }
@@ -269,12 +275,10 @@ for the list of predifined format")
   sce <- SingleCellExperiment(alist, colData = fry.raw$barcodes, rowData = fry.raw$gene.names)
   
   # filter all zero genes
-  if (nonzero) {
-    for (assay.name in assayNames(sce)) {
-      # sce <- sce[, colSums(assay(sce, assay.name)) > 0]
-    }
+  for (assay.name in nonzero) {
+    sce <- sce[, colSums(assay(sce, assay.name)) > 0]
   }
-                                                    
+  
   if (verbose) {
     message("Done.")
   }
