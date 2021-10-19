@@ -16,8 +16,7 @@ alevin-fry quant command. This directory should contain a
 \code{quants_mat.mtx}, \code{quants_mat_cols.txt} and
 \code{quants_mat_rows.txt}}
 
-\item{quiet}{boolean specifying if not showing
-messages when running the function}
+\item{quiet}{logical whether to display no messages}
 
 \item{outputFormat}{can be \emph{either} be a list that defines the
 desired format of the output \code{SingleCellExperiment} object

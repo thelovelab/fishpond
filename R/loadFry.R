@@ -19,8 +19,7 @@
 #' If \code{TRUE}, this will filter based on all assays.
 #' If a string vector of assay names, it will filter based
 #' on the matching assays in the vector.
-#' @param quiet boolean specifying if not showing
-#' messages when running the function
+#' @param quiet logical whether to display no messages
 #'
 #' @section Details about \code{loadFry}:
 #' This function consumes the result folder returned by running
@@ -161,11 +160,11 @@ load_fry_raw <- function(fryDir, quiet = FALSE) {
   afg <-  read.table(file.path(fryDir, "alevin", "quants_mat_cols.txt"),
                      strip.white = TRUE, header = FALSE, nrows = ng,
                      col.names = c("gene_ids"))
-  rownames(afg) = afg$gene_ids
+  rownames(afg) <- afg$gene_ids
   afc <-  read.table(file.path(fryDir, "alevin", "quants_mat_rows.txt"),
                      strip.white = TRUE, header = FALSE,
                      col.names = c("barcodes"))
-  rownames(afc) = afc$barcodes
+  rownames(afc) <- afc$barcodes
   
   if (!quiet) {
     message(paste("Processing", ng, "genes", "and", nrow(count.mat), "barcodes"))
@@ -184,20 +183,20 @@ loadFry <- function(fryDir,
                     quiet = FALSE) {
   
   # load in fry result
-  fry.raw = load_fry_raw(fryDir, quiet)
-  meta.data = fry.raw$meta.data
+  fry.raw <- load_fry_raw(fryDir, quiet)
+  meta.data <- fry.raw$meta.data
   
   
   # if in usa.mode, sum up counts in different status according to which.counts
   if (meta.data$usa.mode) {
     # preparation
-    predefined.format = list("scRNA" = list("counts" = c("S", "A")),
+    predefined.format <- list("scRNA" = list("counts" = c("S", "A")),
                              "snRNA" = list("counts" = c("U", "S", "A")),
                              "velocity" = list("spliced" = c("S", "A"), "unspliced" = c("U")),
                              "scVelo" = list("counts" = c("S", "A"), "spliced" = c("S", "A"), "unspliced" = c("U")),
                              "raw" = list("spliced" = c("S"), "unspliced" = c("U"), "ambiguous" = c("A"))
     )
-    valid.counts = c("U", "S", "A")
+    valid.counts <- c("U", "S", "A")
     
     # check outputFormat
     if (is.character(outputFormat)) {
@@ -212,7 +211,7 @@ for the list of predifined format")
       }
       
       # get the assays
-      output.assays = predefined.format[[outputFormat]]
+      output.assays <- predefined.format[[outputFormat]]
       
     } else if (is.list(outputFormat)) {
       # check whether user-defined assays are all 
@@ -228,47 +227,50 @@ for the list of predifined format")
         stop("Please use U, S and A ONLY to indicate which counts will be considered to build a assay")
       }
       
-      output.assays = outputFormat
+      output.assays <- outputFormat
       
       if (!quiet) {
         message("Using user-defined output assays")
       }
     }
+    
     # If we are here, the output.assays is valid.
     # then we check the assay names in nonzero
     if (is.logical(nonzero)) {
-      if(nonzero) {
-        nonzero = names(output.assays)
+      if (nonzero) {
+        nonzero <- names(output.assays)
       } else {
         if (is.character(outputFormat) && outputFormat == "scVelo") {
-          nonzero = c("counts")
+          nonzero <- c("counts")
         } else {
-          nonzero = c() 
+          nonzero <- c() 
         }
       }
-    } else if(is.vector(nonzero)) {
+    } else if (is.character(nonzero)) {
       if (length(nonzero) > 0) {
-        for (idx in 1:length(nonzero)) {
+        for (idx in seq_along(nonzero)) {
           if (!nonzero[idx] %in% names(output.assays)) {
-            warning(paste0("In the provided nonzero vector, \"", nonzero[idx], "\" is not one of the output assays, ignored"))
-            nonzero = nonzero[-idx]
+            warning(paste0("In the provided nonzero vector, '",
+                           nonzero[idx],
+                           "' is not one of the output assays, ignored"))
+            nonzero <- nonzero[-idx]
           }
         }
       }
     } else {
-      warning("In valid nonzero, ignored")
-      nonzero = c()
+      warning("Invalid nonzero, ignored")
+      nonzero <- c()
     }
     
     # assembly
     alist <- vector(mode = "list", length = length(output.assays))
-    names(alist) = names(output.assays)
-    ng = meta.data$num.genes
+    names(alist) <- names(output.assays)
+    ng <- meta.data$num.genes
     rd <- list("S" = seq(1, ng), "U" =  seq(ng + 1, 2 * ng),
                "A" =  seq(2 * ng + 1, 3 * ng))
     # fill in each assay
     for (assay.name in names(output.assays)) {
-      which.counts = output.assays[[assay.name]]
+      which.counts <- output.assays[[assay.name]]
       alist[[assay.name]] <- fry.raw$count.mat[, rd[[which.counts[1]]], drop = FALSE]
       if (length(which.counts) > 1) {
         # build assay
@@ -276,18 +278,22 @@ for the list of predifined format")
           alist[[assay.name]] <- alist[[assay.name]] + fry.raw$count.mat[, rd[[wc]], drop = FALSE]
         }
       }
-      alist[[assay.name]] = t(alist[[assay.name]])
+      alist[[assay.name]] <- t(alist[[assay.name]])
       if (!quiet) {
-        message(paste(c(paste0("Building the '", assay.name, "' assay, which contains"), which.counts), collapse = " "))
+        message(paste(c(paste0("Building the '",
+                               assay.name,
+                               "' assay, which contains"),
+                        which.counts),
+                      collapse = " "))
       }
     }
   } else {
-    if(!quiet) {
+    if (!quiet) {
       message("Not in USA mode, ignore argument outputFormat")
     }
     
     # define output matrix
-    alist = list(counts = t(fry.raw$count.mat))
+    alist <- list(counts = t(fry.raw$count.mat))
   }
   
   if (!quiet) {
@@ -295,9 +301,11 @@ for the list of predifined format")
   }
   
   # create SingleCellExperiment object
-  sce <- SingleCellExperiment(alist, colData = fry.raw$barcodes, rowData = fry.raw$gene.names)
+  sce <- SingleCellExperiment(alist,
+                              colData = fry.raw$barcodes,
+                              rowData = fry.raw$gene.names)
   
-  # filter all zero genes
+  # filter all zero cells in zero, one or multiple assays
   for (assay.name in nonzero) {
     sce <- sce[, colSums(assay(sce, assay.name)) > 0]
   }
