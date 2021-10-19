@@ -17,10 +17,10 @@
 #' @param nonzero whether to filter cells with non-zero expression
 #' value across all genes (default \code{FALSE}).
 #' If \code{TRUE}, this will filter based on all assays.
-#' If a character vector of assay names, it will filter based
-#' on the matching assays in the vector
-#' @param verbose boolean specifying if showing messages when
-#' running the function
+#' If a string vector of assay names, it will filter based
+#' on the matching assays in the vector.
+#' @param quiet boolean specifying if not showing
+#' messages when running the function
 #'
 #' @section Details about \code{loadFry}:
 #' This function consumes the result folder returned by running
@@ -102,7 +102,7 @@
 #' custom_velocity_format <- list("spliced"=c("S","A"), "unspliced"=c("U"))
 #'
 #' # Load alevin-fry gene quantification in velocity format
-#' sce <- loadFry(fryDir=testdat$parent_dir, outputFormat=custom_velocity_format, verbose=TRUE)
+#' sce <- loadFry(fryDir=testdat$parent_dir, outputFormat=custom_velocity_format)
 #' SummarizedExperiment::assayNames(sce)
 #'
 #' # Load the same data but use pre-defined, velociraptor R pckage desired format
@@ -119,16 +119,16 @@ NULL
 #' @importFrom jsonlite fromJSON
 #' @importFrom Matrix readMM
 #' @importFrom utils read.table
-load_fry_raw <- function(fryDir, verbose = FALSE) {
+load_fry_raw <- function(fryDir, quiet = FALSE) {
   # Check `fryDir` is legit
+  if (!quiet) {
+    message("locating quant file")
+  }
   quant.file <- file.path(fryDir, "alevin", "quants_mat.mtx")
   if (!file.exists(quant.file)) {
     stop("The `fryDir` directory provided does not look like a directory generated from alevin-fry:\n",
-      sprintf("Missing quant file: %s", quant.file)
+         sprintf("Missing quant file: %s", quant.file)
     )
-  }
-  if (verbose) {
-    message("Quant file found")
   }
   
   # Since alevin-fry 0.4.1, meta_info.json is changed to quant.json, we check both
@@ -143,8 +143,8 @@ load_fry_raw <- function(fryDir, verbose = FALSE) {
   ng <- meta.info$num_genes
   usa.mode <- meta.info$usa_mode
   
-  if (verbose) {
-    message("Meta data read.")
+  if (!quiet) {
+    message("Reading meta data")
     message(paste0("USA mode: ", usa.mode))
   }
   
@@ -167,8 +167,8 @@ load_fry_raw <- function(fryDir, verbose = FALSE) {
                      col.names = c("barcodes"))
   rownames(afc) = afc$barcodes
   
-  if (verbose) {
-    message(paste("Processing", ng, "genes", "and", nrow(count.mat), "barcodes."))
+  if (!quiet) {
+    message(paste("Processing", ng, "genes", "and", nrow(count.mat), "barcodes"))
   }
   
   list(count.mat = count.mat, gene.names = afg, barcodes = afc, meta.data = list(num.genes = ng, usa.mode = usa.mode))
@@ -181,16 +181,10 @@ load_fry_raw <- function(fryDir, verbose = FALSE) {
 loadFry <- function(fryDir, 
                     outputFormat = "scRNA", 
                     nonzero = FALSE,
-                    verbose = FALSE) {
-
-  # velociraptor /w defaults requires size factors should be positive
-  if (is.character(outputFormat) && outputFormat == "scVelo" && nonzero == FALSE) {
-    message("velociraptor R package filters genes with zero expression by default.
-To mimic this behavior, please set nonzero = TRUE")
-  }
+                    quiet = FALSE) {
   
   # load in fry result
-  fry.raw = load_fry_raw(fryDir, verbose)
+  fry.raw = load_fry_raw(fryDir, quiet)
   meta.data = fry.raw$meta.data
   
   
@@ -213,7 +207,7 @@ To mimic this behavior, please set nonzero = TRUE")
 for the list of predifined format")
       }
       
-      if (verbose) {
+      if (!quiet) {
         message("Using pre-defined output format: ", outputFormat)
       }
       
@@ -236,12 +230,37 @@ for the list of predifined format")
       
       output.assays = outputFormat
       
-      if (verbose) {
+      if (!quiet) {
         message("Using user-defined output assays")
       }
     }
     # If we are here, the output.assays is valid.
-
+    # then we check the assay names in nonzero
+    if (is.logical(nonzero)) {
+      if(nonzero) {
+        nonzero = names(output.assays)
+      } else {
+        if (is.character(outputFormat) && outputFormat == "scVelo") {
+          nonzero = c("counts")
+        } else {
+          nonzero = c() 
+        }
+      }
+    } else if(is.vector(nonzero)) {
+      if (length(nonzero) > 0) {
+        for (idx in 1:length(nonzero)) {
+          if (!nonzero[idx] %in% names(output.assays)) {
+            warning(paste0("In the provided nonzero vector, \"", nonzero[idx], "\" is not one of the output assays, ignored"))
+            nonzero = nonzero[-idx]
+          }
+        }
+      }
+    } else {
+      warning("In valid nonzero, ignored")
+      nonzero = c()
+    }
+    
+    # assembly
     alist <- vector(mode = "list", length = length(output.assays))
     names(alist) = names(output.assays)
     ng = meta.data$num.genes
@@ -258,34 +277,32 @@ for the list of predifined format")
         }
       }
       alist[[assay.name]] = t(alist[[assay.name]])
-      if (verbose) {
+      if (!quiet) {
         message(paste(c(paste0("Building the '", assay.name, "' assay, which contains"), which.counts), collapse = " "))
       }
     }
   } else {
-    if(verbose) {
+    if(!quiet) {
       message("Not in USA mode, ignore argument outputFormat")
     }
-
+    
     # define output matrix
     alist = list(counts = t(fry.raw$count.mat))
   }
   
-  if (verbose) {
+  if (!quiet) {
     message("Constructing output SingleCellExperiment object")
   }
   
   # create SingleCellExperiment object
   sce <- SingleCellExperiment(alist, colData = fry.raw$barcodes, rowData = fry.raw$gene.names)
   
-  # filter all zero cells
-  if (nonzero) {
-    for (assay.name in assayNames(sce)) {
-      sce <- sce[, colSums(assay(sce, assay.name)) > 0]
-    }
+  # filter all zero genes
+  for (assay.name in nonzero) {
+    sce <- sce[, colSums(assay(sce, assay.name)) > 0]
   }
   
-  if (verbose) {
+  if (!quiet) {
     message("Done")
   }
   
