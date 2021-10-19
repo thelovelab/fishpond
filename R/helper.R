@@ -634,8 +634,8 @@ computeInfRV <- function(y, pc=5, shift=.01, meanVariance, useCounts=FALSE) {
 #' 
 #' @export
 importAllelicCounts <- function(coldata, a1, a2,
-                              format=c("wide","assays"),
-                              tx2gene=NULL, ...) {
+                                format=c("wide","assays"),
+                                tx2gene=NULL, ...) {
   format <- match.arg(format)
   if (!requireNamespace("tximeta", quietly=TRUE)) {
     stop("this function requires installing the Bioconductor package 'tximeta'")
