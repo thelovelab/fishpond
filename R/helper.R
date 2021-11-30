@@ -584,17 +584,17 @@ computeInfRV <- function(y, pc=5, shift=.01, meanVariance, useCounts=FALSE) {
 #' are marked with the following suffix: an underscore and
 #' a consistent symbol for each of the two alleles,
 #' e.g. \code{ENST123_M} and \code{ENST123_P},
-#' or \code{ENST123_alt} (a1) and \code{ENST123_ref} (a2).
-#' There must be exactly two alleles for each reference transcript, 
+#' or \code{ENST123_alt} and \code{ENST123_ref}.
+#' There must be exactly two alleles for each transcript, 
 #' and the \code{--keep-duplicates} option should be used in
 #' Salmon indexing to avoid removing transcripts with identical sequence.
 #' The output object has half the number of transcripts,
 #' with the two alleles either stored in a \code{"wide"} object,
 #' or as re-named \code{"assays"}. Note carefully that the symbol
-#' provided to \code{a1} is used as the alternative allele,
-#' and \code{a2} is used as the reference allele
-#' (and therefore \code{"a2"} is the reference level of the
-#' \code{allele} factor that is returned in the colData).
+#' provided to \code{a1} is used as the effect allele,
+#' and \code{a2} is used as the non-effect allele
+#' (see the \code{format} argument description and Value
+#' description below).
 #'
 #' Requires the tximeta package.
 #' \code{skipMeta=TRUE} is used, as it is assumed
@@ -604,13 +604,15 @@ computeInfRV <- function(y, pc=5, shift=.01, meanVariance, useCounts=FALSE) {
 #' software.
 #'
 #' @param coldata a data.frame as used in \code{tximeta}
-#' @param a1 the symbol for the effect/alternative allele
-#' @param a2 the symbol for the reference allele
+#' @param a1 the symbol for the effect allele
+#' @param a2 the symbol for the non-effect allele
 #' @param format either \code{"wide"} or \code{"assays"} for whether
 #' to combine the allelic counts as columns (wide) or put the allelic
-#' count information in different assay slots (assays). For wide output, the
-#' reference allele (a2) comes first, then the alternative allele (a1),
-#' e.g. \code{[a2 | a1]}.
+#' count information in different assay slots (assays).
+#' For wide output, the data for the non-effect allele (a2) comes first,
+#' then the effect allele (a1), e.g. \code{[a2 | a1]}. The \code{ref} level
+#' of the factor variable \code{se$allele} will be \code{"a2"}
+#' (so by default comparisons will be: a1 vs a2).
 #' For assays output, all of the original matrices are renamed with a prefix,
 #' either \code{a1-} or \code{a2-}.
 #' @param tx2gene optional, a data.frame with first column indicating
@@ -635,8 +637,8 @@ computeInfRV <- function(y, pc=5, shift=.01, meanVariance, useCounts=FALSE) {
 #' combined into a wide matrix \code{[a2 | a1]}, or as assays (a1, then a2).
 #' The original strings associated with a1 and a2 are stored in the
 #' metadata of the object, in the \code{alleles} list element.
-#' Note the reference level of \code{se$allele} will be \code{"a2"}, and
-#' so comparisons by default will be a1/a2 (alt/ref).
+#' Note the \code{ref} level of \code{se$allele} will be \code{"a2"}, 
+#' such that comparisons by default will be a1 vs a2 (effect vs non-effect).
 #' 
 #' @export
 importAllelicCounts <- function(coldata, a1, a2,
