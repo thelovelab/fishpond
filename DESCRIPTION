@@ -32,7 +32,7 @@ LinkingTo: Rcpp
 SystemRequirements: C++11
 License: GPL-2
 Encoding: UTF-8
-URL: https://mikelove.github.io/fishpond
+URL: https://github.com/mikelove/fishpond
 biocViews: Sequencing, RNASeq, GeneExpression,
     Transcription, Normalization, Regression,
     MultipleComparison, BatchEffect, Visualization,
