@@ -1,7 +1,16 @@
 ---
-title: "DTE and DGE with inferential replicates"
+title: "Swish: differential expression accounting for inferential uncertainty"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
-author: "Anqi Zhu, Avi Srivastava, Joseph Ibrahim, Rob Patro, Michael Love"
+author: 
+    - Anqi Zhu
+    - Avi Srivastava
+    - Hirak Sarkar
+    - Euphy Wu
+    - Noor Pratap Singh
+    - Scott Van Buren
+    - Joseph Ibrahim
+    - Rob Patro
+    - Michael Love
 output:
   rmarkdown::html_document:
     highlight: tango
@@ -41,9 +50,6 @@ example of differential analysis of matched samples, and an
 interaction test for matched samples, to see if a condition effect
 changes in magnitude across two groups of samples.
 
-**Acknowledgments:** We have benefited in the development of *Swish*
-from the feedback of Hirak Sarkar and Scott Van Buren.
-
 # Quick start
 
 The following lines of code will perform a basic transcript-level
@@ -64,9 +70,10 @@ y <- swish(y, x="condition") # simplest Swish case
 ```
 
 **Note:** Inferential replicates, either from Gibbs sampling or
-bootstrapping of reads, are required for the *swish* method. You can
-set `--numGibbsSamples 20` when running Salmon to generate Gibbs
-samples.
+bootstrapping of reads, are required for the *swish* method. 
+When running Salmon, you can set `--numGibbsSamples 30` to generate
+Gibbs samples, or `--numBootstraps 30` to generate bootstrap samples
+(we typically recommend 20-30 inferential replicates).
 
 The results can be found in `mcols(y)`. For example, one can calculate
 the number of genes passing a 5% FDR threshold:

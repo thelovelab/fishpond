@@ -1,15 +1,15 @@
 Package: fishpond
-Title: Fishpond: differential transcript and gene expression
-    with inferential replicates
-Version: 2.1.1
+Title: Fishpond: differential expression accounting for inferential uncertainty
+Version: 2.1.2
 Authors@R: c(
-    person("Anzi", "Zhu", role=c("aut","ctb")),
+    person("Anqi", "Zhu", role=c("aut","ctb")),
     person("Michael", "Love", email="michaelisaiahlove@gmail.com", role=c("aut","cre")),
     person("Avi", "Srivastava", role=c("aut","ctb")),
     person("Rob", "Patro", role=c("aut","ctb")),
     person("Joseph", "Ibrahim", role=c("aut","ctb")),
     person("Hirak", "Sarkar", role="ctb"),
     person("Euphy", "Wu", role="ctb"),
+    person("Noor", "Pratap Singh", role="ctb"),
     person("Scott", "Van Buren", role="ctb"),
     person("Dongze", "He", role="ctb"),
     person("Steve", "Lianoglou", role="ctb"),

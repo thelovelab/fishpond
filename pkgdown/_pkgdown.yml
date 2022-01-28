@@ -1,0 +1,31 @@
+url: https://mikelove.github.io/fishpond
+
+title: fishpond
+
+authors:
+  Anqi Zhu:
+    href: https://www.linkedin.com/in/aqzhu91
+  Michael Love:
+    href: https://mikelove.github.io
+  Avi Srivastava:
+    href: https://k3yavi.github.io
+  Rob Patro:
+    href: https://combine-lab.github.io
+  Hirak Sarkar:
+    href: https://hiraksarkar.github.io
+  Euphy Wu:
+    href: https://www.linkedin.com/in/euphy-wu-09b14383
+  Noor Pratap Singh:
+    href: https://combine-lab.github.io/members/noor-pratap-singh.html
+  Scott Van Buren:
+    href: https://www.linkedin.com/in/scottvanburen
+  Dongze He:
+    href: https://combine-lab.github.io/members/dongze-he.html
+  Steve Lianoglou:
+    href: https://www.linkedin.com/in/slianoglou
+  Wes Wilson:
+    href: https://www.med.upenn.edu/albeldalab/wes-wilson.html
+
+figures:
+  fig.width: 5.5
+  fig.retina: 1
