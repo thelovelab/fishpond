@@ -129,4 +129,7 @@ scev <- loadFry(fryDir=testdat$parent_dir, outputFormat=scvelo_format, nonzero=T
 SummarizedExperiment::assayNames(scev)
 
 }
+\author{
+Dongze He, with contributions from Steve Lianoglou, Wes Wilson
+}
 \concept{preprocessing}

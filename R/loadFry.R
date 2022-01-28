@@ -109,6 +109,8 @@
 #' 
 #' scev <- loadFry(fryDir=testdat$parent_dir, outputFormat=scvelo_format, nonzero=TRUE)
 #' SummarizedExperiment::assayNames(scev)
+#'
+#' @author Dongze He, with contributions from Steve Lianoglou, Wes Wilson
 #' 
 #' @name loadFry
 NULL

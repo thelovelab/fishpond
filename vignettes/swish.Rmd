@@ -2,15 +2,15 @@
 title: "Swish: differential expression accounting for inferential uncertainty"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 author: 
-    - Anqi Zhu
-    - Avi Srivastava
-    - Hirak Sarkar
-    - Euphy Wu
-    - Noor Pratap Singh
-    - Scott Van Buren
-    - Joseph Ibrahim
-    - Rob Patro
-    - Michael Love
+  - Anqi Zhu
+  - Avi Srivastava
+  - Hirak Sarkar
+  - Euphy Wu
+  - Noor Pratap Singh
+  - Scott Van Buren
+  - Joseph Ibrahim
+  - Rob Patro
+  - Michael Love
 output:
   rmarkdown::html_document:
     highlight: tango
