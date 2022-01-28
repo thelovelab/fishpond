@@ -3,7 +3,7 @@ pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   swish: swish.html
-last_built: 2022-01-28T20:32Z
+last_built: 2022-01-28T21:57Z
 urls:
   reference: https://mikelove.github.io/fishpond/reference
   article: https://mikelove.github.io/fishpond/articles

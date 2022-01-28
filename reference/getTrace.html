@@ -39,13 +39,7 @@ data.frame for easy plotting."><!-- mathjax --><script src="https://cdnjs.cloudf
       <a href="../articles/swish.html">Swish: differential expression accounting for inferential uncertainty</a>
     </li>
   </ul></li>
-      </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/mikelove/fishpond/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -55,7 +49,7 @@ data.frame for easy plotting."><!-- mathjax --><script src="https://cdnjs.cloudf
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Obtain a trace of inferential replicates for a sample</h1>
-    <small class="dont-index">Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/R/helper.R" class="external-link"><code>R/helper.R</code></a></small>
+    
     <div class="hidden name"><code>getTrace.Rd</code></div>
     </div>
 
@@ -96,26 +90,26 @@ feature or sample</p>
 <span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu">getTrace</span><span class="op">(</span><span class="va">y</span>, <span class="st">"gene-1"</span>, <span class="st">"s1"</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    infRep count</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1    79</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2    69</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3    74</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4    66</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       5    76</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       6    94</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7       7    71</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1    89</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2    74</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3    90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4    86</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       5    96</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       6    78</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7       7    77</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8       8    76</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9       9    70</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9       9    82</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10     10    86</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11     11    75</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12     12    70</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13     13    89</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14     14    89</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15     15    90</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16     16    85</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17     17    81</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18     18    78</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19     19    70</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20     20    68</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     11    87</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12     12    78</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13     13    85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     14    75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     15    86</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16     16    72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17     17    85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18     18    68</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19     19    76</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20     20    78</span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>
@@ -127,7 +121,7 @@ feature or sample</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by <a href="https://www.linkedin.com/in/aqzhu91" class="external-link">Anqi Zhu</a>, <a href="https://mikelove.github.io" class="external-link">Michael Love</a>, <a href="https://k3yavi.github.io" class="external-link">Avi Srivastava</a>, <a href="https://combine-lab.github.io" class="external-link">Rob Patro</a>, Joseph Ibrahim.</p>
+  <p></p><p>Developed by <a href="https://www.linkedin.com/in/aqzhu91" class="external-link">Anqi Zhu</a>, <a href="https://mikelove.github.io" class="external-link">Michael Love</a>, <a href="https://k3yavi.github.io" class="external-link">Avi Srivastava</a>, <a href="https://combine-lab.github.io" class="external-link">Rob Patro</a>, <a href="https://sph.unc.edu/adv_profile/joseph-g-ibrahim-phd" class="external-link">Joseph Ibrahim</a>.</p>
 </div>
 
 <div class="pkgdown">
