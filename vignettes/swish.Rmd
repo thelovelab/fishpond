@@ -1,16 +1,6 @@
 ---
 title: "Swish: differential expression accounting for inferential uncertainty"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
-author: 
-  - Anqi Zhu
-  - Avi Srivastava
-  - Hirak Sarkar
-  - Euphy Wu
-  - Noor Pratap Singh
-  - Scott Van Buren
-  - Joseph Ibrahim
-  - Rob Patro
-  - Michael Love
 output:
   rmarkdown::html_document:
     highlight: tango
@@ -688,7 +678,7 @@ plotInfReps(y2, idx[1], x="ifng", cov="salmonella")
 plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 ```
 
-# Correlation with continuous variables
+# Correlation test
 
 *Swish* now has methods to compute correlations
 (`"spearman"` or `"pearson"`) of a continuous variable `x` with the
@@ -904,21 +894,25 @@ batches or test for interactions.
 
 ## Analysis types supported by Swish
 
-There are currently five types of analysis supported by `swish`:
+There are currently seven types of analysis supported by `swish`:
 
 * Two group analysis
 * Two groups with two or more batches
 * Two group paired or matched samples
 * Two condition x two group paired samples, interaction test
 * Two condition x two group samples, not paired, interaction test
+* Correlation test of expression with continuous x
+* Correlation test of LFC for paired samples with continuous covariate
 
 This vignette demonstrated the third in this list, but the others
 can be run by either not specifying any additional covariates, or by
 specifying a batch variable with the argument `cov` instead of `pair`.
 The two interaction tests can be run by specifying `interaction=TRUE`
-and providing `x`, `cov`, and optionally `pair`.
+and providing `x`, `cov`, and optionally `pair`. The last two tests
+can be run using the `cor` argument 
+(see [Correlation test](#correlation-test) section in this vignette).
 
-## Accounting for estimated / continuous batch effects
+## Accounting for continuous variables
 
 We have two recommended approaches for using `swish` in combination
 with estimated batch effects, e.g. factors of unwanted variation
@@ -943,7 +937,7 @@ First, examine a plot of the estimated batch factors, e.g. a stripplot
    matrices, and these contain both sampling and additional
    inferential variance, we are able to track how scaling the counts
    affects the variance, and this informs the test statistic.
-   
+
 For the second approach, one can directly scale the inferential counts
 using *limma* and `removeBatchEffect`.
 
@@ -1009,6 +1003,10 @@ Now we run `swish` as usual:
 ```{r}
 y <- swish(y, x="condition")
 ```
+
+While we have assessed this approach with a small number of 
+estimated nuisance covariates, note that with many covariates this
+approach may lead to inflation of test statistics.
 
 ## Structure of tximeta output
 
