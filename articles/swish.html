@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.3</span>
       </span>
     </div>
 
@@ -82,17 +82,8 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Swish: differential expression accounting for inferential uncertainty</h1>
-                        <h4 data-toc-skip class="author">Anqi Zhu</h4>
-                        <h4 data-toc-skip class="author">Avi Srivastava</h4>
-                        <h4 data-toc-skip class="author">Hirak Sarkar</h4>
-                        <h4 data-toc-skip class="author">Euphy Wu</h4>
-                        <h4 data-toc-skip class="author">Noor Pratap Singh</h4>
-                        <h4 data-toc-skip class="author">Scott Van Buren</h4>
-                        <h4 data-toc-skip class="author">Joseph Ibrahim</h4>
-                        <h4 data-toc-skip class="author">Rob Patro</h4>
-                        <h4 data-toc-skip class="author">Michael Love</h4>
             
-            <h4 data-toc-skip class="date">01/28/2022</h4>
+            <h4 data-toc-skip class="date">02/05/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/vignettes/swish.Rmd" class="external-link"><code>vignettes/swish.Rmd</code></a></small>
       <div class="hidden name"><code>swish.Rmd</code></div>
@@ -530,7 +521,7 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="correlation-with-continuous-variables">Correlation with continuous variables<a class="anchor" aria-label="anchor" href="#correlation-with-continuous-variables"></a>
+<h2 id="correlation-test">Correlation test<a class="anchor" aria-label="anchor" href="#correlation-test"></a>
 </h2>
 <p><em>Swish</em> now has methods to compute correlations (<code>"spearman"</code> or <code>"pearson"</code>) of a continuous variable <code>x</code> with the log counts, and then assess the significance of those correlations using inferential replicates and permutation tests. Additionally, one can compute correlations of a covariate <code>cov</code> with log fold changes across a pairing variable (where <code>x</code> labels the condition for the log fold change and <code>pair</code> labels the pairs). The Spearman-based test statistic follows the procedure from the original method <em>SAMseq</em> that <em>Swish</em> is based upon <span class="citation">(Li and Tibshirani 2011)</span>, e.g. the methods used in that package with a quantitative response type. See <code><a href="../reference/swish.html">?swish</a></code> and the <code>cor</code> argument for more details on the use of correlations within <em>Swish</em>.</p>
 </div>
@@ -612,18 +603,20 @@
 <div class="section level3">
 <h3 id="analysis-types-supported-by-swish">Analysis types supported by Swish<a class="anchor" aria-label="anchor" href="#analysis-types-supported-by-swish"></a>
 </h3>
-<p>There are currently five types of analysis supported by <code>swish</code>:</p>
+<p>There are currently seven types of analysis supported by <code>swish</code>:</p>
 <ul>
 <li>Two group analysis</li>
 <li>Two groups with two or more batches</li>
 <li>Two group paired or matched samples</li>
 <li>Two condition x two group paired samples, interaction test</li>
 <li>Two condition x two group samples, not paired, interaction test</li>
+<li>Correlation test of expression with continuous x</li>
+<li>Correlation test of LFC for paired samples with continuous covariate</li>
 </ul>
-<p>This vignette demonstrated the third in this list, but the others can be run by either not specifying any additional covariates, or by specifying a batch variable with the argument <code>cov</code> instead of <code>pair</code>. The two interaction tests can be run by specifying <code>interaction=TRUE</code> and providing <code>x</code>, <code>cov</code>, and optionally <code>pair</code>.</p>
+<p>This vignette demonstrated the third in this list, but the others can be run by either not specifying any additional covariates, or by specifying a batch variable with the argument <code>cov</code> instead of <code>pair</code>. The two interaction tests can be run by specifying <code>interaction=TRUE</code> and providing <code>x</code>, <code>cov</code>, and optionally <code>pair</code>. The last two tests can be run using the <code>cor</code> argument (see <a href="#correlation-test">Correlation test</a> section in this vignette).</p>
 </div>
 <div class="section level3">
-<h3 id="accounting-for-estimated-continuous-batch-effects">Accounting for estimated / continuous batch effects<a class="anchor" aria-label="anchor" href="#accounting-for-estimated-continuous-batch-effects"></a>
+<h3 id="accounting-for-continuous-variables">Accounting for continuous variables<a class="anchor" aria-label="anchor" href="#accounting-for-continuous-variables"></a>
 </h3>
 <p>We have two recommended approaches for using <code>swish</code> in combination with estimated batch effects, e.g. factors of unwanted variation estimated by <em>RUVSeq</em> or surrogate variables estimated by <em>SVA</em> (without loss of generality, we will call these batch factors). First, examine a plot of the estimated batch factors, e.g. a stripplot (1 factor) or scatterplot of pairs (2 or more factors).</p>
 <ol style="list-style-type: decimal">
@@ -671,6 +664,7 @@
 <p>Now we run <code>swish</code> as usual:</p>
 <div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span><span class="op">)</span></code></pre></div>
+<p>While we have assessed this approach with a small number of estimated nuisance covariates, note that with many covariates this approach may lead to inflation of test statistics.</p>
 </div>
 <div class="section level3">
 <h3 id="structure-of-tximeta-output">Structure of tximeta output<a class="anchor" aria-label="anchor" href="#structure-of-tximeta-output"></a>
@@ -760,10 +754,10 @@
 <span class="co">## other attached packages:</span>
 <span class="co">##  [1] limma_3.50.0                SingleCellExperiment_1.16.0</span>
 <span class="co">##  [3] GenomicFeatures_1.46.4      org.Hs.eg.db_3.14.0        </span>
-<span class="co">##  [5] AnnotationDbi_1.56.2        fishpond_2.1.2             </span>
+<span class="co">##  [5] AnnotationDbi_1.56.2        fishpond_2.1.3             </span>
 <span class="co">##  [7] tximeta_1.12.4              SummarizedExperiment_1.24.0</span>
 <span class="co">##  [9] Biobase_2.54.0              GenomicRanges_1.46.1       </span>
-<span class="co">## [11] GenomeInfoDb_1.30.0         IRanges_2.28.0             </span>
+<span class="co">## [11] GenomeInfoDb_1.30.1         IRanges_2.28.0             </span>
 <span class="co">## [13] S4Vectors_0.32.3            BiocGenerics_0.40.0        </span>
 <span class="co">## [15] MatrixGenerics_1.6.0        matrixStats_0.61.0         </span>
 <span class="co">## [17] macrophage_1.10.0          </span>
@@ -802,7 +796,7 @@
 <span class="co">##  [61] AnnotationFilter_1.18.0       yaml_2.2.2                   </span>
 <span class="co">##  [63] curl_4.3.2                    memoise_2.0.1                </span>
 <span class="co">##  [65] ggplot2_3.3.5                 sass_0.4.0                   </span>
-<span class="co">##  [67] biomaRt_2.50.2                stringi_1.7.6                </span>
+<span class="co">##  [67] biomaRt_2.50.3                stringi_1.7.6                </span>
 <span class="co">##  [69] RSQLite_2.2.9                 highr_0.9                    </span>
 <span class="co">##  [71] BiocVersion_3.14.0            BiocIO_1.4.0                 </span>
 <span class="co">##  [73] desc_1.4.0                    filelock_1.0.2               </span>
@@ -813,8 +807,8 @@
 <span class="co">##  [83] GenomicAlignments_1.30.0      bit_4.0.4                    </span>
 <span class="co">##  [85] tidyselect_1.1.1              plyr_1.8.6                   </span>
 <span class="co">##  [87] magrittr_2.0.2                R6_2.5.1                     </span>
-<span class="co">##  [89] generics_0.1.1                DelayedArray_0.20.0          </span>
-<span class="co">##  [91] DBI_1.1.2                     pillar_1.6.5                 </span>
+<span class="co">##  [89] generics_0.1.2                DelayedArray_0.20.0          </span>
+<span class="co">##  [91] DBI_1.1.2                     pillar_1.7.0                 </span>
 <span class="co">##  [93] withr_2.4.3                   abind_1.4-5                  </span>
 <span class="co">##  [95] KEGGREST_1.34.0               RCurl_1.98-1.5               </span>
 <span class="co">##  [97] tibble_3.1.6                  crayon_1.4.2                 </span>
