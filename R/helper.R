@@ -474,6 +474,7 @@ addStatsFromCSV <- function(y=NULL, infile, estPi0=FALSE) {
 #' @param null logical, whether to make an all null dataset
 #' @param meanVariance logical, whether to output only mean and
 #' variance of inferential replicates
+#' @param allelic logical, whether to make an allelic sim dataset
 #'
 #' @return a SummarizedExperiment
 #'
@@ -484,8 +485,10 @@ addStatsFromCSV <- function(y=NULL, infile, estPi0=FALSE) {
 #' assayNames(y)
 #' 
 #' @export
-makeSimSwishData <- function(m=1000, n=10, numReps=20, null=FALSE, meanVariance=FALSE) {
-  stopifnot(m>8)
+makeSimSwishData <- function(m=1000, n=10, numReps=20,
+                             null=FALSE, meanVariance=FALSE,
+                             allelic=FALSE) {
+  stopifnot(m > 8)
   stopifnot(n %% 2 == 0)
   cts <- matrix(rpois(m*n, lambda=80), ncol=n)
   if (!null) {

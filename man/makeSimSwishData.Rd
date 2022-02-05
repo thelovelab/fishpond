@@ -9,7 +9,8 @@ makeSimSwishData(
   n = 10,
   numReps = 20,
   null = FALSE,
-  meanVariance = FALSE
+  meanVariance = FALSE,
+  allelic = FALSE
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ makeSimSwishData(
 
 \item{meanVariance}{logical, whether to output only mean and
 variance of inferential replicates}
+
+\item{allelic}{logical, whether to make an allelic sim dataset}
 }
 \value{
 a SummarizedExperiment
