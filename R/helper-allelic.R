@@ -146,3 +146,55 @@ importAllelicCounts <- function(coldata, a1, a2,
     return(se_a1)
   }
 }
+
+#' Make a GRanges linking transcripts to TSS within gene
+#'
+#' This helper function takes either a TxDb/EnsDb or
+#' GRanges object as input and outputs a GRanges object
+#' where transcripts are aggregated to the gene + TSS
+#' (transcription start site).
+#'
+#' @param x either TxDb/EnsDb or GRanges object. The GRanges
+#' object should have metadata columns \code{tx_id} and
+#' \code{gene_id}
+#'
+#' @return GRanges with columns \code{tx_id}, \code{tss}, and
+#' \code{group_id}
+#'
+#' @examples
+#' \dontrun{
+#' library(EnsDb.Hsapiens.v86)
+#' edb <- EnsDb.Hsapiens.v86
+#' t2t <- makeTx2Tss(edb)
+#' }
+#' 
+#' @export
+makeTx2Tss <- function(x) {
+  if (is(x, "GRanges")) {
+    txps <- x
+    if (!all(c("tx_id","gene_id") %in% names(mcols(txps)))) {
+      stop("'tx_id' and 'gene_id' must be mcols of 'x'")
+    }
+  } else if (is(x, "TxDb")) {
+    if (!requireNamespace("GenomicFeatures", quietly=TRUE)) {
+      stop("'x' as TxDb requires GenomicFeatures")
+    } 
+    txps <- GenomicFeatures::transcripts(x)
+    mcols(txps)$tx_id <- mcols(txps)$tx_name
+    tx_id_stripped <- sub("\\..*", "", mcols(txps)$tx_id)
+    mcols(txps)$gene_id <- AnnotationDbi::mapIds(x, tx_id_stripped, "GENEID", "TXNAME")
+    missing.idx <- is.na(mcols(txps)$gene_id)
+    mcols(txps)$gene_id[ missing.idx ] <- mcols(txps)$tx_id[ missing.idx ]
+  } else if (is(x, "EnsDb")) {
+    if (!requireNamespace("ensembldb", quietly=TRUE)) {
+      stop("'x' as EnsDb requires ensembldb")
+    }    
+    txps <- ensembldb::transcripts(x)
+  } else {
+    stop("'x' should be a GRanges or TxDb/EnsDb")
+  }
+  tss <- GenomicRanges::start(GenomicRanges::resize(txps, width=1))
+  mcols(txps)$tss <- tss
+  mcols(txps)$group_id <- paste0(mcols(txps)$gene_id, "-", mcols(txps)$tss)
+  txps
+}

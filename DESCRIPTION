@@ -27,7 +27,7 @@ Imports:
     SummarizedExperiment, matrixStats, svMisc, Rcpp, Matrix,
     SingleCellExperiment, jsonlite
 Suggests: testthat, knitr, rmarkdown, macrophage, tximeta, org.Hs.eg.db,
-    samr, DESeq2, apeglm, tximportData, limma
+    samr, DESeq2, apeglm, tximportData, limma, ensembldb, EnsDb.Hsapiens.v86
 LinkingTo: Rcpp
 SystemRequirements: C++11
 License: GPL-2

@@ -1,4 +1,5 @@
-Changes in version 2.1.5
+Changes in version 2.1.6
+* New makeTx2Tss() helper function for allelic analysis
 * Re-organizing package for new pkgdown homepage
 * Adding vignette shell for allelic analysis
 

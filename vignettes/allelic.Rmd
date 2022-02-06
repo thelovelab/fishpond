@@ -22,6 +22,17 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
 
 # Allelic analysis
 
+# Linking transcripts to TSS
+
+```{r}
+suppressPackageStartupMessages(library(ensembldb))
+library(EnsDb.Hsapiens.v86)
+library(fishpond)
+edb <- EnsDb.Hsapiens.v86
+t2t <- makeTx2Tss(edb)
+mcols(t2t)[,c("tx_id","group_id")]
+```
+
 # Importing allelic counts
 
 ```{r}
@@ -31,7 +42,6 @@ suppressPackageStartupMessages(library(SummarizedExperiment))
 # Testing for allelic imbalance
 
 ```{r}
-library(fishpond)
 set.seed(1)
 se <- makeSimSwishData(allelic=TRUE)
 se <- labelKeep(se)

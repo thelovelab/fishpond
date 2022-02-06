@@ -60,6 +60,7 @@ reference:
     - isoformProportions
   - title: Allelic analysis
   - contents:
+    - makeTx2Tss
     - importAllelicCounts
   - title: Alevin import
   - contents:
