@@ -31,3 +31,46 @@ authors:
 figures:
   fig.width: 5.5
   fig.retina: 1
+
+articles:
+  - title: Swish
+    navbar: ~
+    contents:
+      - swish
+      - allelic
+
+reference:
+  - title: Fishpond
+  - contents:
+    - fishpond-package
+  - title: Swish
+  - contents:
+    - scaleInfReps
+    - labelKeep
+    - swish
+  - title: Plotting functions
+  - contents:
+    - plotInfReps
+    - plotMASwish
+  - title: Helper functions
+  - contents:
+    - computeInfRV
+    - makeSimSwishData
+    - getTrace
+    - isoformProportions
+  - title: Allelic analysis
+  - contents:
+    - importAllelicCounts
+  - title: Alevin import
+  - contents:
+    - loadFry
+    - readEDS
+  - title: Compression
+  - contents:
+    - splitSwish
+    - addStatsFromCSV
+    - makeInfReps
+    - miniSwish
+  - title: Experimental
+  - contents:
+    - deswish

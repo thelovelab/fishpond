@@ -1,10 +1,12 @@
-#' Downstream methods for Salmon and Alevin expression data
+#' Fishpond: differential expression accounting for inferential uncertainty
 #'
 #' This package provides statistical methods and other tools for
 #' working with Salmon and Alevin quantification of RNA-seq data.
 #' In particular, it contains the Swish non-parametric method for
 #' detecting differential transcript expression (DTE). Swish can
-#' also be used to detect differential gene expresion (DGE).
+#' also be used to detect differential gene expresion (DGE),
+#' to perform allelic analysis, or to assess changes in isoform
+#' proportions.
 #'
 #' The main functions are:
 #' \itemize{
@@ -12,9 +14,6 @@
 #' \item \code{\link{labelKeep}} - labelling which features have sufficient counts
 #' \item \code{\link{swish}} - perform non-parametric differential analysis
 #' \item Plots, e.g., \code{\link{plotMASwish}}, \code{\link{plotInfReps}}
-#' \item \code{\link{isoformProportions}} - convert counts to isoform proportions
-#' \item \code{\link{makeInfReps}} - create pseudo-inferential replicates
-#' \item \code{\link{splitSwish}} - split Swish analysis across jobs with Snakemake
 #' }
 #' 
 #' All software-related questions should be posted to the Bioconductor Support Site:
@@ -43,16 +42,15 @@
 #' bioRxiv.
 #' \url{https://doi.org/10.1101/2020.07.06.189639}
 #' 
-#' @author Anqi Zhu, Avi Srivastava, Joseph G. Ibrahim, Rob Patro, Michael I. Love
-#' 
 #' @docType package
 #' @name fishpond-package
 #' @aliases fishpond-package
 #' @keywords package
 NULL
 
-#' swish: SAMseq With Inferential Samples Helps
+#' Swish method: differential expression accounting for inferential uncertainty
 #'
+#' The Swish method, or "SAMseq With Inferential Samples Helps".
 #' Performs non-parametric inference on rows of \code{y} for
 #' various experimental designs. See References for details.
 #'

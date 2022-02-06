@@ -2,7 +2,7 @@
 % Please edit documentation in R/swish.R
 \name{swish}
 \alias{swish}
-\title{swish: SAMseq With Inferential Samples Helps}
+\title{Swish method: differential expression accounting for inferential uncertainty}
 \usage{
 swish(
   y,
@@ -91,6 +91,7 @@ and averaged over pairs or groups (if groups, weighted by sample size),
 the local FDR and q-value, as estimated by the \code{samr} package.
 }
 \description{
+The Swish method, or "SAMseq With Inferential Samples Helps".
 Performs non-parametric inference on rows of \code{y} for
 various experimental designs. See References for details.
 }

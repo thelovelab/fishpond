@@ -3,13 +3,15 @@
 \docType{package}
 \name{fishpond-package}
 \alias{fishpond-package}
-\title{Downstream methods for Salmon and Alevin expression data}
+\title{Fishpond: differential expression accounting for inferential uncertainty}
 \description{
 This package provides statistical methods and other tools for
 working with Salmon and Alevin quantification of RNA-seq data.
 In particular, it contains the Swish non-parametric method for
 detecting differential transcript expression (DTE). Swish can
-also be used to detect differential gene expresion (DGE).
+also be used to detect differential gene expresion (DGE),
+to perform allelic analysis, or to assess changes in isoform
+proportions.
 }
 \details{
 The main functions are:
@@ -18,9 +20,6 @@ The main functions are:
 \item \code{\link{labelKeep}} - labelling which features have sufficient counts
 \item \code{\link{swish}} - perform non-parametric differential analysis
 \item Plots, e.g., \code{\link{plotMASwish}}, \code{\link{plotInfReps}}
-\item \code{\link{isoformProportions}} - convert counts to isoform proportions
-\item \code{\link{makeInfReps}} - create pseudo-inferential replicates
-\item \code{\link{splitSwish}} - split Swish analysis across jobs with Snakemake
 }
 
 All software-related questions should be posted to the Bioconductor Support Site:
@@ -47,8 +46,5 @@ Patro, R., Love, M.I. (2020)
 Compression of quantification uncertainty for scRNA-seq counts.
 bioRxiv.
 \url{https://doi.org/10.1101/2020.07.06.189639}
-}
-\author{
-Anqi Zhu, Avi Srivastava, Joseph G. Ibrahim, Rob Patro, Michael I. Love
 }
 \keyword{package}

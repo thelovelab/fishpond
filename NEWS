@@ -1,3 +1,7 @@
+Changes in version 2.1.5
+* Re-organizing package for new pkgdown homepage
+* Adding vignette shell for allelic analysis
+
 Changes in version 2.0.0
 * New loadFry() function, written by Dongze He with
   contributions from Steve Lianoglou and Wes Wilson.

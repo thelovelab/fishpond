@@ -2,7 +2,7 @@
 % Please edit documentation in R/plots.R
 \name{plotMASwish}
 \alias{plotMASwish}
-\title{MA plot}
+\title{MA plot - log fold change over average counts}
 \usage{
 plotMASwish(y, alpha = 0.05, sigcolor = "blue", ...)
 }
@@ -19,7 +19,7 @@ plotMASwish(y, alpha = 0.05, sigcolor = "blue", ...)
 nothing, a plot is displayed
 }
 \description{
-MA plot
+MA plot - log fold change over average counts
 }
 \examples{
 

@@ -489,6 +489,9 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
                              null=FALSE, meanVariance=FALSE,
                              allelic=FALSE) {
   stopifnot(m > 8)
+  if (allelic) {
+    n <- 2 * n
+  }
   stopifnot(n %% 2 == 0)
   cts <- matrix(rpois(m*n, lambda=80), ncol=n)
   if (!null) {
@@ -524,8 +527,16 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
   rownames(se) <- paste0("gene-",seq_len(nrow(se)))
   colnames(se) <- paste0("s",seq_len(n))
   metadata(se) <- list(countsFromAbundance="no")
-  colData(se) <- DataFrame(condition=gl(2,n/2),
-                           row.names=colnames(se))
+  if (allelic) {
+    als <- c("a2","a1")
+    coldata <- DataFrame(allele=factor(rep(als, each=n/2), levels=als),
+                         sample=factor(paste0("sample",rep(1:(n/2),2))),
+                         row.names=colnames(se))
+  } else {
+    coldata <- DataFrame(condition=gl(2,n/2),
+                         row.names=colnames(se))
+  }
+  colData(se) <- coldata
   se
 }
 

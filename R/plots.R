@@ -339,7 +339,7 @@ boxplot2 <- function(x, w=.4, ylim, col, col.hglt, xlab="", ylab="", main="") {
   segments(s-w/2, qs[,5], s+w/2, qs[,5], col=col)
 }
 
-#' MA plot
+#' MA plot - log fold change over average counts
 #'
 #' @param y a SummarizedExperiment (see \code{swish})
 #' @param alpha the FDR threshold for coloring points
