@@ -2,8 +2,9 @@ pandoc: 2.11.4
 pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
+  allelic: allelic.html
   swish: swish.html
-last_built: 2022-02-05T14:42Z
+last_built: 2022-02-06T12:38Z
 urls:
   reference: https://mikelove.github.io/fishpond/reference
   article: https://mikelove.github.io/fishpond/articles

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.5</span>
       </span>
     </div>
 
@@ -33,6 +33,9 @@
   </a>
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/swish.html">Swish: differential expression accounting for inferential uncertainty</a>
+    </li>
+    <li>
+      <a href="../articles/allelic.html">Allelic analysis using Salmon and Swish</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -54,81 +57,109 @@
     </div>
 
     <table class="ref-index"><colgroup><col class="alias"><col class="title"></colgroup><tbody><tr><th colspan="2">
-          <h2 id="all-functions">All functions <a href="#all-functions" class="anchor" aria-hidden="true"></a></h2>
+          <h2 id="fishpond">Fishpond <a href="#fishpond" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
-          <p><code><a href="addStatsFromCSV.html">addStatsFromCSV()</a></code> </p>
-        </td>
-        <td><p>Read statistics and nulls from CSV file</p></td>
-      </tr><tr><td>
-          <p><code><a href="computeInfRV.html">computeInfRV()</a></code> </p>
-        </td>
-        <td><p>Compute inferential relative variance (InfRV)</p></td>
-      </tr><tr><td>
-          <p><code><a href="deswish.html">deswish()</a></code> </p>
-        </td>
-        <td><p>deswish: DESeq2-apeglm With Inferential Samples Helps</p></td>
-      </tr><tr><td>
           <p><code><a href="fishpond-package.html">fishpond-package</a></code> </p>
         </td>
-        <td><p>Downstream methods for Salmon and Alevin expression data</p></td>
-      </tr><tr><td>
-          <p><code><a href="getTrace.html">getTrace()</a></code> </p>
+        <td><p>Fishpond: differential expression accounting for inferential uncertainty</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="swish">Swish <a href="#swish" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="scaleInfReps.html">scaleInfReps()</a></code> </p>
         </td>
-        <td><p>Obtain a trace of inferential replicates for a sample</p></td>
-      </tr><tr><td>
-          <p><code><a href="importAllelicCounts.html">importAllelicCounts()</a></code> </p>
-        </td>
-        <td><p>Import allelic counts as a SummarizedExperiment</p></td>
-      </tr><tr><td>
-          <p><code><a href="isoformProportions.html">isoformProportions()</a></code> </p>
-        </td>
-        <td><p>Create isoform proportions from scaled data</p></td>
+        <td><p>Scale inferential replicate counts</p></td>
       </tr><tr><td>
           <p><code><a href="labelKeep.html">labelKeep()</a></code> </p>
         </td>
         <td><p>Label rows to keep based on minimal count</p></td>
       </tr><tr><td>
-          <p><code><a href="loadFry.html">load_fry_raw()</a></code> <code><a href="loadFry.html">loadFry()</a></code> </p>
+          <p><code><a href="swish.html">swish()</a></code> </p>
         </td>
-        <td><p>Load in data from alevin-fry USA mode</p></td>
-      </tr><tr><td>
-          <p><code><a href="makeInfReps.html">makeInfReps()</a></code> </p>
-        </td>
-        <td><p>Make pseudo-inferential replicates from mean and variance</p></td>
-      </tr><tr><td>
-          <p><code><a href="makeSimSwishData.html">makeSimSwishData()</a></code> </p>
-        </td>
-        <td><p>Make simulated data for swish for examples/testing</p></td>
-      </tr><tr><td>
-          <p><code><a href="miniSwish.html">miniSwish()</a></code> </p>
-        </td>
-        <td><p>Helper function for distributing Swish on a subset of data</p></td>
-      </tr><tr><td>
+        <td><p>Swish method: differential expression accounting for inferential uncertainty</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="plotting-functions">Plotting functions <a href="#plotting-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
           <p><code><a href="plotInfReps.html">plotInfReps()</a></code> </p>
         </td>
         <td><p>Plot inferential replicates for a gene or transcript</p></td>
       </tr><tr><td>
           <p><code><a href="plotMASwish.html">plotMASwish()</a></code> </p>
         </td>
-        <td><p>MA plot</p></td>
+        <td><p>MA plot - log fold change over average counts</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="helper-functions">Helper functions <a href="#helper-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="computeInfRV.html">computeInfRV()</a></code> </p>
+        </td>
+        <td><p>Compute inferential relative variance (InfRV)</p></td>
+      </tr><tr><td>
+          <p><code><a href="makeSimSwishData.html">makeSimSwishData()</a></code> </p>
+        </td>
+        <td><p>Make simulated data for swish for examples/testing</p></td>
+      </tr><tr><td>
+          <p><code><a href="getTrace.html">getTrace()</a></code> </p>
+        </td>
+        <td><p>Obtain a trace of inferential replicates for a sample</p></td>
+      </tr><tr><td>
+          <p><code><a href="isoformProportions.html">isoformProportions()</a></code> </p>
+        </td>
+        <td><p>Create isoform proportions from scaled data</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="allelic-analysis">Allelic analysis <a href="#allelic-analysis" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="importAllelicCounts.html">importAllelicCounts()</a></code> </p>
+        </td>
+        <td><p>Import allelic counts as a SummarizedExperiment</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="alevin-import">Alevin import <a href="#alevin-import" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="loadFry.html">load_fry_raw()</a></code> <code><a href="loadFry.html">loadFry()</a></code> </p>
+        </td>
+        <td><p>Load in data from alevin-fry USA mode</p></td>
       </tr><tr><td>
           <p><code><a href="readEDS.html">readEDS()</a></code> </p>
         </td>
         <td><p>readEDS - a utility function for quickly reading in Alevin's EDS format</p></td>
-      </tr><tr><td>
-          <p><code><a href="scaleInfReps.html">scaleInfReps()</a></code> </p>
-        </td>
-        <td><p>Scale inferential replicate counts</p></td>
-      </tr><tr><td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="compression">Compression <a href="#compression" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
           <p><code><a href="splitSwish.html">splitSwish()</a></code> </p>
         </td>
         <td><p>Function for splitting SummarizedExperiment into separate RDS files</p></td>
       </tr><tr><td>
-          <p><code><a href="swish.html">swish()</a></code> </p>
+          <p><code><a href="addStatsFromCSV.html">addStatsFromCSV()</a></code> </p>
         </td>
-        <td><p>swish: SAMseq With Inferential Samples Helps</p></td>
+        <td><p>Read statistics and nulls from CSV file</p></td>
+      </tr><tr><td>
+          <p><code><a href="makeInfReps.html">makeInfReps()</a></code> </p>
+        </td>
+        <td><p>Make pseudo-inferential replicates from mean and variance</p></td>
+      </tr><tr><td>
+          <p><code><a href="miniSwish.html">miniSwish()</a></code> </p>
+        </td>
+        <td><p>Helper function for distributing Swish on a subset of data</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="experimental">Experimental <a href="#experimental" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="deswish.html">deswish()</a></code> </p>
+        </td>
+        <td><p>deswish: DESeq2-apeglm With Inferential Samples Helps</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
