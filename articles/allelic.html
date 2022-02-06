@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.6</span>
       </span>
     </div>
 
@@ -101,17 +101,41 @@
 </h2>
 </div>
 <div class="section level2">
-<h2 id="importing-allelic-counts">Importing allelic counts<a class="anchor" aria-label="anchor" href="#importing-allelic-counts"></a>
+<h2 id="linking-transcripts-to-tss">Linking transcripts to TSS<a class="anchor" aria-label="anchor" href="#linking-transcripts-to-tss"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jorainer/ensembldb" class="external-link">ensembldb</a></span><span class="op">)</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">EnsDb.Hsapiens.v86</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/fishpond" class="external-link">fishpond</a></span><span class="op">)</span>
+<span class="va">edb</span> <span class="op">&lt;-</span> <span class="va">EnsDb.Hsapiens.v86</span>
+<span class="va">t2t</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeTx2Tss.html">makeTx2Tss</a></span><span class="op">(</span><span class="va">edb</span><span class="op">)</span>
+<span class="fu">mcols</span><span class="op">(</span><span class="va">t2t</span><span class="op">)</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tx_id"</span>,<span class="st">"group_id"</span><span class="op">)</span><span class="op">]</span></code></pre></div>
+<pre><code><span class="co">## DataFrame with 216741 rows and 2 columns</span>
+<span class="co">##                           tx_id               group_id</span>
+<span class="co">##                     &lt;character&gt;            &lt;character&gt;</span>
+<span class="co">## ENST00000456328 ENST00000456328  ENSG00000223972-11869</span>
+<span class="co">## ENST00000450305 ENST00000450305  ENSG00000223972-12010</span>
+<span class="co">## ENST00000488147 ENST00000488147  ENSG00000227232-29570</span>
+<span class="co">## ENST00000619216 ENST00000619216  ENSG00000278267-17436</span>
+<span class="co">## ENST00000473358 ENST00000473358  ENSG00000243485-29554</span>
+<span class="co">## ...                         ...                    ...</span>
+<span class="co">## ENST00000420810 ENST00000420810 ENSG00000224240-2654..</span>
+<span class="co">## ENST00000456738 ENST00000456738 ENSG00000227629-2659..</span>
+<span class="co">## ENST00000435945 ENST00000435945 ENSG00000237917-2663..</span>
+<span class="co">## ENST00000435741 ENST00000435741 ENSG00000231514-2662..</span>
+<span class="co">## ENST00000431853 ENST00000431853 ENSG00000235857-5685..</span></code></pre>
+</div>
+<div class="section level2">
+<h2 id="importing-allelic-counts">Importing allelic counts<a class="anchor" aria-label="anchor" href="#importing-allelic-counts"></a>
+</h2>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="testing-for-allelic-imbalance">Testing for allelic imbalance<a class="anchor" aria-label="anchor" href="#testing-for-allelic-imbalance"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/fishpond" class="external-link">fishpond</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>allelic<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
 <span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span>
 <span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">se</span>, x<span class="op">=</span><span class="st">"allele"</span>, pair<span class="op">=</span><span class="st">"sample"</span><span class="op">)</span>
@@ -147,9 +171,9 @@
 <div class="section level2">
 <h2 id="plotting-results">Plotting results<a class="anchor" aria-label="anchor" href="#plotting-results"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">se</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"allele"</span>, cov<span class="op">=</span><span class="st">"sample"</span><span class="op">)</span></code></pre></div>
-<p><img src="allelic_files/figure-html/unnamed-chunk-3-1.png"><!-- --></p>
+<p><img src="allelic_files/figure-html/unnamed-chunk-4-1.png"><!-- --></p>
 </div>
   </div>
 
