@@ -1,9 +1,11 @@
-Changes in version 2.1.6
+# fishpond 2.1.6
+
 * New makeTx2Tss() helper function for allelic analysis
 * Re-organizing package for new pkgdown homepage
 * Adding vignette shell for allelic analysis
 
-Changes in version 2.0.0
+# fishpond 2.0.0
+
 * New loadFry() function, written by Dongze He with
   contributions from Steve Lianoglou and Wes Wilson.
   loadFry() helps users to import and process
@@ -35,7 +37,8 @@ Changes in version 2.0.0
   reference levels will now be on the bottom,
   and non-reference (e.g. treatment) on top.
 
-Changes in version 1.99.18
+# fishpond 1.99.18
+
 * Added helper functionality to importAllelicCounts,
   so it will create an appropriate tx2gene table
   with the necessary a1 and a2 suffices,
@@ -50,7 +53,8 @@ Changes in version 1.99.18
   unspliced and ambiguous counts separately 
   and flexibly.
 
-Changes in version 1.99.15
+# fishpond 1.99.15
+
 * Adding correlation tests: Spearman or Pearson
   correlations of a numeric covariate with the
   log counts, or with the log fold changes across
@@ -64,14 +68,17 @@ Changes in version 1.99.15
   transcriptome. Can import either as a 'wide'
   format or as 'assays'. Leverages tximeta().
 
-Changes in version 1.9.6
+# fishpond 1.9.6
+
 * Specifying ties.method in matrixStats::rowRanks.
 
-Changes in version 1.9.1
+# fishpond 1.9.1
+
 * Added importAllelicCounts() with options for importing
   Salmon quantification on diploid transcriptomes.
 
-Changes in version 1.8.0
+# fishpond 1.8.0
+
 * Added note in vignette about how to deal with estimated
   batch factors, e.g. from RUVSeq or SVA. Two strategies are
   outlined: either discretizing the estimate batch factors
@@ -79,7 +86,8 @@ Changes in version 1.8.0
   batch-associated variation using limma's removeBatchEffect.
   Demonstation code is included.
 
-Changes in version 1.6.0
+# fishpond 1.6.0
+
 * Added makeInfReps() to create pseudo-inferential replicates
   via negative binomial simulation from mean and variance
   matrices. Note: the mean and the variance provide the
@@ -106,12 +114,14 @@ Changes in version 1.6.0
   will draw boxplots with progressively thinner visual features
   as the number of cells grows to make the plots still legible.
 
-Changes in version 1.5.2
+# fishpond 1.5.2
+
 * First version of makeInfReps(), to create pseudo-infReps
   via negative binomial simulation from set of mean and
   variance matrices in the assays of the SummarizedExperiment.
 
-Changes in version 1.4.0
+# fishpond 1.4.0
+
 * Added isoformProportions(), which can be run after
   scaleInfReps() and optionally after filtering out
   transcripts using labelKeep(). Running swish() after
@@ -126,7 +136,8 @@ Changes in version 1.4.0
   dependence on the seed, even higher values of nperms
   (e.g. 200, 300) can be used.
 
-Changes in version 1.3.8
+# fishpond 1.3.8
+
 * Added isoformProportions(), which can be run after
   scaleInfReps() and optionally after filtering out
   transcripts using labelKeep(). Running swish() after
@@ -134,7 +145,8 @@ Changes in version 1.3.8
   usage (DTU) results, instead of differential transcript
   expression (DTE) results. Example in vignette.
 
-Changes in version 1.3.4
+# fishpond 1.3.4
+
 * Default number of permutations increased from 30 to 100.
   It was observed that there was too much fluctuation in the
   DE called set for nperms=30 across different seeds, and
@@ -143,7 +155,8 @@ Changes in version 1.3.4
   dependence on the seed, even higher values of nperms
   (e.g. 200, 300) can be used.
 
-Changes in version 1.2.0
+# fishpond 1.2.0
+
 * Switching to a faster version of Swish which only
   computes the ranks of the data once, and then re-uses
   this for the permutation distribution. This bypasses
@@ -168,11 +181,13 @@ Changes in version 1.2.0
   installation, moved to Suggests, for optional qvalue
   calculation
 
-Changes in version 0.99.30
+# fishpond 0.99.30
+
 * added two interaction tests, described in ?swish
 * incorporate qvalue package for pvalue, locfdr and qvalue
 * added plotMASwish() to facilitate plotting
 * wilcoxP is removed, and the mean is used instead
 
-Changes in version 0.99.0
+# fishpond 0.99.0
+
 * fishpond getting ready for submission to Bioc
