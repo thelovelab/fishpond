@@ -178,6 +178,7 @@ NULL
 #' assayNames assayNames<- assay assay<- assays assays<-
 #' colData colData<- mcols mcols<-
 #' @importFrom S4Vectors DataFrame metadata metadata<-
+#' @importFrom GenomicRanges start resize
 #' @importFrom gtools permutations
 #' @importFrom Matrix rowSums
 #' @importFrom matrixStats rowRanks rowMedians rowVars rowQuantiles

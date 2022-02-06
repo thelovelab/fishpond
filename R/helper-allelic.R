@@ -178,7 +178,10 @@ makeTx2Tss <- function(x) {
   } else if (is(x, "TxDb")) {
     if (!requireNamespace("GenomicFeatures", quietly=TRUE)) {
       stop("'x' as TxDb requires GenomicFeatures")
-    } 
+    }
+    if (!requireNamespace("AnnotationDbi", quietly=TRUE)) {
+      stop("'x' as TxDb requires AnnotationDbi")
+    }
     txps <- GenomicFeatures::transcripts(x)
     mcols(txps)$tx_id <- mcols(txps)$tx_name
     tx_id_stripped <- sub("\\..*", "", mcols(txps)$tx_id)
@@ -188,7 +191,7 @@ makeTx2Tss <- function(x) {
   } else if (is(x, "EnsDb")) {
     if (!requireNamespace("ensembldb", quietly=TRUE)) {
       stop("'x' as EnsDb requires ensembldb")
-    }    
+    }
     txps <- ensembldb::transcripts(x)
   } else {
     stop("'x' should be a GRanges or TxDb/EnsDb")
