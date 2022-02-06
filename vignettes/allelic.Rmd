@@ -1,0 +1,46 @@
+---
+title: "Allelic analysis using Salmon and Swish"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+output:
+  rmarkdown::html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+bibliography: library.bib
+vignette: |
+  %\VignetteIndexEntry{Allelic analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!-- run this document with rmarkdown::render("swish.Rmd") -->
+
+```{r setup, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
+                      message=FALSE, error=FALSE, warning=FALSE)
+```
+
+# Allelic analysis
+
+# Importing allelic counts
+
+```{r}
+suppressPackageStartupMessages(library(SummarizedExperiment))
+```
+
+# Testing for allelic imbalance
+
+```{r}
+library(fishpond)
+set.seed(1)
+se <- makeSimSwishData(allelic=TRUE)
+se <- labelKeep(se)
+se <- swish(se, x="allele", pair="sample")
+mcols(se)
+```
+
+# Plotting results
+
+```{r}
+plotInfReps(se, idx=1, x="allele", cov="sample")
+```
