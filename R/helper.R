@@ -180,6 +180,7 @@ labelKeep <- function(y, minCount=10, minN=3, x) {
 #' @param meanVariance logical, whether to output only mean and
 #' variance of inferential replicates
 #' @param allelic logical, whether to make an allelic sim dataset
+#' @param dynamic logical, whether to make a dynamic allelic sim dataset
 #'
 #' @return a SummarizedExperiment
 #'
@@ -192,8 +193,11 @@ labelKeep <- function(y, minCount=10, minN=3, x) {
 #' @export
 makeSimSwishData <- function(m=1000, n=10, numReps=20,
                              null=FALSE, meanVariance=FALSE,
-                             allelic=FALSE) {
+                             allelic=FALSE, dynamic=FALSE) {
   stopifnot(m > 8)
+  if (dynamic) {
+    allelic <- TRUE
+  }
   if (allelic) {
     n <- 2 * n
   }
@@ -201,7 +205,15 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
   cts <- matrix(rpois(m*n, lambda=80), ncol=n)
   if (!null) {
     grp2 <- (n/2+1):n
-    cts[1:6,grp2] <- rpois(3*n, lambda=120)
+    # standard sim
+    if (!dynamic) {
+      cts[1:6,grp2] <- rpois(3*n, lambda=120)
+    } else {
+      # dynamic AI, the LFC varies over a covariate
+      for (i in 1:6) {
+        cts[i,grp2] <- rpois(n/2, lambda=seq(53,120,length=n/2))
+      }
+    }
     cts[7:8,] <- 0
   }
   length <- matrix(1000, nrow=m, ncol=n)
@@ -209,10 +221,20 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
   infReps <- lapply(seq_len(numReps), function(i) {
     m <- matrix(rpois(m*n, lambda=80), ncol=n)
     if (!null) {
-      # these row numbers are fixed for the demo dataset
-      m[1:6,grp2] <- rpois(3*n, lambda=120)
-      m[3:4,] <- round(m[3:4,] * runif(2*n,.5,1.5))
-      m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
+      # standard sim
+      if (!dynamic) {
+        # these row numbers are fixed for the demo dataset
+        m[1:6,grp2] <- rpois(3*n, lambda=120)
+        m[3:4,] <- round(m[3:4,] * runif(2*n,.5,1.5))
+        m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
+      } else {
+        # dynamic AI, the LFC varies over a covariate
+        for (i in 1:6) {
+          m[i,grp2] <- rpois(n/2, lambda=seq(53,120,length=n/2))
+        }
+        m[3:4,] <- round(m[3:4,] * runif(2*n,.5,1.5))
+        m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
+      }
       m[7:8,] <- 0
     }
     m
@@ -237,6 +259,9 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
     coldata <- DataFrame(allele=factor(rep(als, each=n/2), levels=als),
                          sample=factor(paste0("sample",rep(1:(n/2),2))),
                          row.names=colnames(se))
+    if (dynamic) {
+      coldata$time <- rep(round(seq(0,1,length=n/2),2),2)
+    }
   } else {
     coldata <- DataFrame(condition=gl(2,n/2),
                          row.names=colnames(se))
