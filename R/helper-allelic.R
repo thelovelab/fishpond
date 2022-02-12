@@ -9,7 +9,7 @@
 #' \code{importAllelicCounts} requires the tximeta package.
 #' Further information in Details below.
 #'
-#' **Requirements** - There must be exactly two alleles for each transcript, 
+#' \strong{Requirements} - There must be exactly two alleles for each transcript, 
 #' and the \code{--keep-duplicates} option should be used in
 #' Salmon indexing to avoid removal of transcripts with identical sequence.
 #' The output object has half the number of transcripts,
@@ -20,13 +20,7 @@
 #' (see the \code{format} argument description and Value
 #' description below).
 #'
-#' \code{skipMeta=TRUE} is used, as it is assumed
-#' the diploid transcriptome does not match any reference
-#' transcript collection. This may change in future iterations
-#' of the function, depending on developments in upstream
-#' software.
-#'
-#' **tx2gene** - The two columns should include the \code{a1} and \code{a2}
+#' \strong{tx2gene} - The two columns should include the \code{a1} and \code{a2}
 #' suffix for the transcripts and genes/groups, or those will be added internally,
 #' if it is detected that the first transcript does not have these suffices.
 #' For example if \code{_alt} or \code{_ref}, or \code{_M} or \code{_P}
@@ -41,6 +35,12 @@
 #' then \code{ignoreAfterBar=TRUE} can be used to match regardless of
 #' the string following \code{|} in the quantification files.
 #'
+#' \code{skipMeta=TRUE} is used, as it is assumed
+#' the diploid transcriptome does not match any reference
+#' transcript collection. This may change in future iterations
+#' of the function, depending on developments in upstream
+#' software.
+#' 
 #' @param coldata a data.frame as used in \code{tximeta}
 #' @param a1 the symbol for the effect allele
 #' @param a2 the symbol for the non-effect allele
