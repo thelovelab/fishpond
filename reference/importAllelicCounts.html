@@ -128,7 +128,7 @@ such that comparisons by default will be a1 vs a2 (effect vs non-effect).</p>
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p>**Requirements** - There must be exactly two alleles for each transcript, 
+    <p><strong>Requirements</strong> - There must be exactly two alleles for each transcript, 
 and the <code>--keep-duplicates</code> option should be used in
 Salmon indexing to avoid removal of transcripts with identical sequence.
 The output object has half the number of transcripts,
@@ -138,12 +138,7 @@ provided to <code>a1</code> is used as the effect allele,
 and <code>a2</code> is used as the non-effect allele
 (see the <code>format</code> argument description and Value
 description below).</p>
-<p><code>skipMeta=TRUE</code> is used, as it is assumed
-the diploid transcriptome does not match any reference
-transcript collection. This may change in future iterations
-of the function, depending on developments in upstream
-software.</p>
-<p>**tx2gene** - The two columns should include the <code>a1</code> and <code>a2</code>
+<p><strong>tx2gene</strong> - The two columns should include the <code>a1</code> and <code>a2</code>
 suffix for the transcripts and genes/groups, or those will be added internally,
 if it is detected that the first transcript does not have these suffices.
 For example if <code>_alt</code> or <code>_ref</code>, or <code>_M</code> or <code>_P</code>
@@ -157,6 +152,11 @@ Note: if the a1/a2 suffices are not at the end of the transcript name
 in the quantification files, e.g. <code>ENST123_M|&lt;metadata&gt;</code>,
 then <code>ignoreAfterBar=TRUE</code> can be used to match regardless of
 the string following <code>|</code> in the quantification files.</p>
+<p><code>skipMeta=TRUE</code> is used, as it is assumed
+the diploid transcriptome does not match any reference
+transcript collection. This may change in future iterations
+of the function, depending on developments in upstream
+software.</p>
     </div>
 
   </div>
