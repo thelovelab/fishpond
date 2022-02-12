@@ -4,8 +4,9 @@ library(fishpond)
 
 test_that("compressing uncertainty works", {
 
+  m <- 100
   set.seed(1)
-  y <- makeSimSwishData(m=200, n=100)
+  y <- makeSimSwishData(m=m, n=100)
   y$batch <- factor(rep(3:1,c(30,40,30)))
   plotInfReps(y, 5, x="condition", reorder=TRUE)
   dev.off()
@@ -13,7 +14,7 @@ test_that("compressing uncertainty works", {
   dev.off()
 
   set.seed(1)
-  y <- makeSimSwishData(m=200, n=100, meanVariance=TRUE)
+  y <- makeSimSwishData(m=m, n=100, meanVariance=TRUE)
   y$batch <- factor(rep(3:1,c(30,40,30)))
   plotInfReps(y, idx=5, x="condition", reorder=TRUE)
   dev.off()

@@ -6,18 +6,6 @@ test_that("swish for ASE works", {
 
   set.seed(1)
 
-  # looking at how the null distribution varies by sample size
-  par(mfrow=c(3,1))
-  for (np in c(8,10,12)) {
-    y <- makeSimSwishData(n=np*2)
-    # no scaling
-    y <- labelKeep(y)
-    y$pair <- rep(1:np,2)
-    y <- swish(y, x="condition", pair="pair")
-    z <- mcols(y)$stat
-    hist(z[abs(z)<20], breaks=100, xlim=c(-30,30))
-  }
-
   # test reading in wide format for ASE
   if (FALSE) {
     # this needs to be added as test data somewhere...

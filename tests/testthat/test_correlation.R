@@ -7,7 +7,8 @@ test_that("swish can detect correlations with log counts", {
   set.seed(1)
 
   n <- 20
-  y <- makeSimSwishData(m=500, n=n, null=TRUE)
+  m <- 250
+  y <- makeSimSwishData(m=m, n=n, null=TRUE)
   nms <- c("counts",paste0("infRep",1:20))
   lambda1 <- exp(seq(4, 5, length.out=n))
   lambda2 <- rev(lambda1)
@@ -38,7 +39,7 @@ test_that("swish can detect correlations with log counts", {
   set.seed(5)
 
   n <- 20
-  y <- makeSimSwishData(m=500, n=n, null=TRUE)
+  y <- makeSimSwishData(m=m, n=n, null=TRUE)
   nms <- c("counts",paste0("infRep",1:20))
   lambda1 <- exp(seq(4, 5, length.out=n/2))
   lambda2 <- rev(lambda1)
@@ -77,7 +78,7 @@ test_that("swish can detect correlations with log counts", {
   set.seed(1)
 
   n <- 40
-  y <- makeSimSwishData(m=500, n=n, null=TRUE)
+  y <- makeSimSwishData(m=m, n=n, null=TRUE)
   nms <- c("counts",paste0("infRep",1:20))
   cov <- rep(1:(n/4),each=2)
   lambda1 <- (cov - 1)*(cov - 10)*(cov - 10) + 100

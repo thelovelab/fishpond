@@ -1,6 +1,10 @@
-# fishpond 2.1.6
+# fishpond 2.1.8
 
 * New makeTx2Tss() helper function for allelic analysis
+* Now importFromAllelicCounts() can take a GRanges
+  object as the `tx2gene` argument, so that ranges will
+  be distributed to the rowRanges of the output 
+  SummarizedExperiment.
 * Re-organizing package for new pkgdown homepage
 * Adding vignette shell for allelic analysis
 

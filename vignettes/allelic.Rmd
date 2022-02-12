@@ -29,8 +29,8 @@ suppressPackageStartupMessages(library(ensembldb))
 library(EnsDb.Hsapiens.v86)
 library(fishpond)
 edb <- EnsDb.Hsapiens.v86
-t2t <- makeTx2Tss(edb)
-mcols(t2t)[,c("tx_id","group_id")]
+t2g <- makeTx2Tss(edb)
+mcols(t2g)[,c("tx_id","group_id")]
 ```
 
 # Importing allelic counts
