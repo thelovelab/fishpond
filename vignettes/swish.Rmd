@@ -8,7 +8,7 @@ output:
     toc_float: true
 bibliography: library.bib
 vignette: |
-  %\VignetteIndexEntry{Swish: differential expression accounting for inferential uncertainty}
+  %\VignetteIndexEntry{1. Swish: DE analysis accounting for inferential uncertainty}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
