@@ -1,6 +1,6 @@
 Package: fishpond
 Title: Fishpond: differential expression accounting for inferential uncertainty
-Version: 2.1.9
+Version: 2.1.10
 Authors@R: c(
     person("Anqi", "Zhu", role=c("aut","ctb")),
     person("Michael", "Love", email="michaelisaiahlove@gmail.com", role=c("aut","cre")),
