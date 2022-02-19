@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.10</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Swish: differential expression accounting for inferential uncertainty</h1>
             
-            <h4 data-toc-skip class="date">02/17/2022</h4>
+            <h4 data-toc-skip class="date">02/19/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/vignettes/swish.Rmd" class="external-link"><code>vignettes/swish.Rmd</code></a></small>
       <div class="hidden name"><code>swish.Rmd</code></div>
@@ -113,10 +113,10 @@
 <code class="sourceCode R"><span class="co"># 'coldata.csv': sample information table</span>
 <span class="va">coldata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"coldata.csv"</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/tximeta" class="external-link">tximeta</a></span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tximeta/man/tximeta.html" class="external-link">tximeta</a></span><span class="op">(</span><span class="va">coldata</span><span class="op">)</span> <span class="co"># reads in counts</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">swish</span><span class="op">)</span>
+<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tximeta/man/tximeta.html" class="external-link">tximeta</a></span><span class="op">(</span><span class="va">coldata</span><span class="op">)</span> <span class="co"># reads in counts and inf reps</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/fishpond" class="external-link">fishpond</a></span><span class="op">)</span>
 <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># scales counts</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># labels genes to keep</span>
+<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># labels features to keep</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span><span class="op">)</span> <span class="co"># simplest Swish case</span></code></pre></div>
 <p><strong>Note:</strong> Inferential replicates, either from Gibbs sampling or bootstrapping of reads, are required for the <em>swish</em> method. When running Salmon, you can set <code>--numGibbsSamples 30</code> to generate Gibbs samples, or <code>--numBootstraps 30</code> to generate bootstrap samples (we typically recommend 20-30 inferential replicates).</p>
@@ -758,9 +758,9 @@
 <span class="co">## [8] base     </span>
 <span class="co">## </span>
 <span class="co">## other attached packages:</span>
-<span class="co">##  [1] limma_3.50.0                SingleCellExperiment_1.16.0</span>
+<span class="co">##  [1] limma_3.50.1                SingleCellExperiment_1.16.0</span>
 <span class="co">##  [3] GenomicFeatures_1.46.4      org.Hs.eg.db_3.14.0        </span>
-<span class="co">##  [5] AnnotationDbi_1.56.2        fishpond_2.1.9             </span>
+<span class="co">##  [5] AnnotationDbi_1.56.2        fishpond_2.1.10            </span>
 <span class="co">##  [7] tximeta_1.12.4              SummarizedExperiment_1.24.0</span>
 <span class="co">##  [9] Biobase_2.54.0              GenomicRanges_1.46.1       </span>
 <span class="co">## [11] GenomeInfoDb_1.30.1         IRanges_2.28.0             </span>
