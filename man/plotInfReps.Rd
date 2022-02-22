@@ -25,7 +25,8 @@ plotInfReps(
   q = qnorm(0.975),
   applySF = FALSE,
   reorder,
-  thin
+  thin,
+  shiftX
 )
 }
 \arguments{
@@ -88,6 +89,12 @@ their count value (default is FALSE, except for alevin data)}
 be drawn thin (the default switches from 0 [not thin]
 to 1 [thinner] at n=150 cells, and from 1 [thinner]
 to 2 [thinnest] at n=400 cells)}
+
+\item{shiftX}{when \code{x} is continuous and \code{cov}
+is provided, the amount to shift the values on the x-axis
+to improve visibility of the point and line ranges
+(will be subtracted from the first level of \code{cov}
+and added to the second level of \code{cov})}
 }
 \value{
 nothing, a plot is displayed

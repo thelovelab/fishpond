@@ -18,12 +18,9 @@ test_that("compressing uncertainty works", {
   y$batch <- factor(rep(3:1,c(30,40,30)))
   plotInfReps(y, idx=5, x="condition", reorder=TRUE)
   dev.off()
+  plotInfReps(y, idx=5, x="condition", reorder=TRUE, useMean=FALSE)
+  dev.off()  
   plotInfReps(y, idx=5, x="condition", cov="batch", reorder=TRUE)
-  dev.off()
-
-  y0 <- y
-  assays(y0) <- assays(y0)[1:3]
-  plotInfReps(y0, idx=5, x="condition", useMean=FALSE)
   dev.off()
   
   y2 <- y

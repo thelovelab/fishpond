@@ -1,4 +1,4 @@
-# fishpond 2.1.8
+# fishpond 2.1.11
 
 * New makeTx2Tss() helper function for allelic analysis
 * Now importFromAllelicCounts() can take a GRanges
@@ -7,6 +7,8 @@
   SummarizedExperiment.
 * Re-organizing package for new pkgdown homepage
 * Adding vignette shell for allelic analysis
+* Adding `shiftX` argument to plotInfReps() for numeric
+  x variable, to help with overplotting.
 
 # fishpond 2.0.0
 

@@ -70,9 +70,11 @@ test_that("swish can detect correlations with log counts", {
   #plot(-log10(mcols(y)$pvalue[1:30]))
   mcols(y)[1:4,]
   
-  #plotInfReps(y, 1, x="cov", cov="condition",
-  #            legend=TRUE, legendPos="top")
-
+  plotInfReps(y, 1, x="cov", cov="condition",
+              shiftX=.0005,
+              legend=TRUE, legendPos="top")
+  dev.off()
+  
   ### up-down-up pattern ###
 
   set.seed(1)
@@ -109,7 +111,9 @@ test_that("swish can detect correlations with log counts", {
   #plot(-log10(mcols(y)$pvalue[1:30]))
   mcols(y)[1:4,]
   
-  #plotInfReps(y, 1, x="cov", cov="condition",
-  #            legend=TRUE, legendPos="top")  
+  plotInfReps(y, 1, x="cov", cov="condition",
+              shiftX=.05,
+              legend=TRUE, legendPos="bottom")
+  dev.off()
   
 })

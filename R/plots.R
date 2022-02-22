@@ -49,6 +49,11 @@
 #' be drawn thin (the default switches from 0 [not thin]
 #' to 1 [thinner] at n=150 cells, and from 1 [thinner]
 #' to 2 [thinnest] at n=400 cells)
+#' @param shiftX when \code{x} is continuous and \code{cov}
+#' is provided, the amount to shift the values on the x-axis
+#' to improve visibility of the point and line ranges
+#' (will be subtracted from the first level of \code{cov}
+#' and added to the second level of \code{cov})
 #'
 #' @return nothing, a plot is displayed
 #' 
@@ -77,37 +82,36 @@ plotInfReps <- function(y, idx, x, cov=NULL,
                         q=qnorm(.975),
                         applySF=FALSE,
                         reorder,
-                        thin) {
-  
-  hasInfReps <- any(grepl("infRep", assayNames(y)))
-  # logical switch for if variance assay is present
-  # if not, just show the count or mean
-  showVar <- TRUE
-  if (!hasInfReps) {
-    showVar <- "variance" %in% assayNames(y)
-    if (useMean & !("mean" %in% assayNames(y))) {
-      message("using 'counts' assay, as 'mean' is missing, see argument 'useMean'")
-      useMean <- FALSE
-    }
-  }
+                        thin,
+                        shiftX) {
+
+  # define key variables
   stopifnot(x %in% names(colData(y)))
   condition <- colData(y)[[x]]
   # whether x is a factor variable or numeric (e.g. pseudotime)
   xfac <- is(condition, "factor")
   if (!xfac) stopifnot(is(condition, "numeric"))
+
+  # boxplot depends on whether there are inf reps (and other factors)
+  hasInfReps <- any(grepl("infRep", assayNames(y)))
+  # boxplot if inf reps are present and x factorial
+  drawBoxplot <- hasInfReps & xfac
   stopifnot(length(colsDrk) == length(colsLgt))
   if (xfac) {
+    # define colors for boxplot
     ncond <- nlevels(condition)
     stopifnot(ncond <= length(colsDrk))
     colsDrk <- colsDrk[seq_len(ncond)]
     colsLgt <- colsLgt[seq_len(ncond)]
-    # for numeric 'x' we will not make boxplots...
-  } else {
-    if (hasInfReps) {
-      hasInfReps <- FALSE
-      if (!"variance" %in% assayNames(y)) 
-        stop("'variance' assay is missing, use computeInfRV() first")
+  }
+  if (!drawBoxplot) {
+    if (useMean & !("mean" %in% assayNames(y))) {
+      message("using 'counts' assay, as 'mean' is missing, see argument 'useMean'")
+      useMean <- FALSE
     }
+    # make sure variance assay is present
+    if (!"variance" %in% assayNames(y)) 
+      stop("'variance' assay is missing, use computeInfRV() first")
   }
   if (missing(xaxis)) {
     if (xfac) {
@@ -172,7 +176,7 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     }
   }
   if (reorder) {
-    if (hasInfReps) {
+    if (drawBoxplot) {
       infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
       value <- colMeans(unlist(infReps))
     } else {
@@ -222,8 +226,10 @@ plotInfReps <- function(y, idx, x, cov=NULL,
       col.hglt <- colsLgt[covariate]
     }
   }
-  ### boxplot ###
-  if (hasInfReps) {
+  #############
+  ## boxplot ##
+  #############
+  if (drawBoxplot) {
     infReps <- assays(y[idx,])[grep("infRep",assayNames(y))]
     cts <- unlist(infReps)[,o]
     ymax <- max(cts)
@@ -235,21 +241,26 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     }
     boxplot2(cts, col=col, col.hglt=col.hglt, ylim=ylim,
              xlab=xlabel, ylab=ylab, main=main)
-    ### point and line plot by 'x' levels or numeric 'x' ###
+    ################################################
+    ## point and line plot by factor or numeric x ##
+    ################################################
   } else {
     which.assay <- if (useMean) "mean" else "counts"
     cts <- assays(y)[[which.assay]][idx,o]
-    if (showVar) {
-      sds <- sqrt(assays(y)[["variance"]][idx,o])
-    }
+    sds <- sqrt(assays(y)[["variance"]][idx,o])
     if (applySF & !is.null(y$sizeFactor)) {
       cts <- cts / y$sizeFactor[o]
-      if (showVar) {
-        sds <- sds / y$sizeFactor[o]
-      }
+      sds <- sds / y$sizeFactor[o]
       ylab <- "scaled counts"
     }
-    ymax <- if (showVar) max(cts + q*sds) else max(cts)
+    # shifting x values
+    if (!missing(shiftX)) {
+      stopifnot(!is.null(cov))
+      covLvl1 <- covariate == levels(covariate)[1]
+      condition[covLvl1] <- condition[covLvl1] - shiftX
+      condition[!covLvl1] <- condition[!covLvl1] + shiftX
+    }
+    ymax <- max(cts + q*sds)
     ymin <- 0
     if (xfac & !is.null(cov)) {
       ymin <- -0.02 * ymax
@@ -270,16 +281,14 @@ plotInfReps <- function(y, idx, x, cov=NULL,
     }
     seg.lwd <- if (thin == 0) 2 else if (thin == 1) 1 else 3
     seg.col <- if (thin < 2) col else col.hglt
-    if (showVar) {
-      if (xfac) {
-        segments(seq_along(cts), pmax(cts - q*sds, 0),
-                 seq_along(cts), cts + q*sds,
-                 col=seg.col, lwd=seg.lwd)
-      } else {
-        segments(condition, pmax(cts - q*sds, 0),
-                 condition, cts + q*sds,
-                 col=seg.col, lwd=seg.lwd)
-      }
+    if (xfac) {
+      segments(seq_along(cts), pmax(cts - q*sds, 0),
+               seq_along(cts), cts + q*sds,
+               col=seg.col, lwd=seg.lwd)
+    } else {
+      segments(condition, pmax(cts - q*sds, 0),
+               condition, cts + q*sds,
+               col=seg.col, lwd=seg.lwd)
     }
     pts.pch <- if (thin == 0) 22 else 15
     pts.lwd <- if (thin == 0) 1. else 1
