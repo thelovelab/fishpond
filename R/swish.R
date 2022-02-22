@@ -176,7 +176,8 @@ NULL
 #' @importFrom methods is as
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' assayNames assayNames<- assay assay<- assays assays<-
-#' colData colData<- mcols mcols<-
+#' colData colData<- mcols mcols<- rowRanges rowRanges<-
+#' @importFrom IRanges CharacterList
 #' @importFrom S4Vectors DataFrame metadata metadata<-
 #' @importFrom GenomicRanges start resize
 #' @importFrom gtools permutations

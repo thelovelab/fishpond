@@ -10,6 +10,18 @@ Also the package contains utilities for working with *Salmon*,
 *alevin*, and *alevin-fry* quantification data, including
 `loadFry()`.
 
+## Quick start
+
+The following paradigm is used for running a Swish analysis:
+
+```
+y <- tximeta(coldata) # reads in counts and inf reps
+y <- scaleInfReps(y) # scales counts
+y <- labelKeep(y) # labels features to keep
+set.seed(1)
+y <- swish(y, x="condition") # simplest Swish case
+```
+
 ## How does Swish work
 
 Swish accounts for inferential uncertainty in expression estimates

@@ -8,7 +8,7 @@ output:
     toc_float: true
 bibliography: library.bib
 vignette: |
-  %\VignetteIndexEntry{Swish: differential expression accounting for inferential uncertainty}
+  %\VignetteIndexEntry{1. Swish: DE analysis accounting for inferential uncertainty}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -51,10 +51,10 @@ of [scRNA-seq](#alevin_scrna-seq).
 # 'coldata.csv': sample information table
 coldata <- read.csv("coldata.csv")
 library(tximeta)
-y <- tximeta(coldata) # reads in counts
-library(swish)
+y <- tximeta(coldata) # reads in counts and inf reps
+library(fishpond)
 y <- scaleInfReps(y) # scales counts
-y <- labelKeep(y) # labels genes to keep
+y <- labelKeep(y) # labels features to keep
 set.seed(1)
 y <- swish(y, x="condition") # simplest Swish case
 ```
