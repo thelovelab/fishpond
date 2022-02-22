@@ -24,7 +24,7 @@ in order to add the mean and variance statistics."><!-- mathjax --><script src="
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.11</span>
       </span>
     </div>
 
@@ -101,7 +101,8 @@ in order to add the mean and variance statistics.</p>
   q <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">0.975</span><span class="op">)</span>,
   applySF <span class="op">=</span> <span class="cn">FALSE</span>,
   <span class="va">reorder</span>,
-  <span class="va">thin</span>
+  <span class="va">thin</span>,
+  <span class="va">shiftX</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -167,6 +168,12 @@ their count value (default is FALSE, except for alevin data)</p></dd>
 be drawn thin (the default switches from 0 [not thin]
 to 1 [thinner] at n=150 cells, and from 1 [thinner]
 to 2 [thinnest] at n=400 cells)</p></dd>
+<dt>shiftX</dt>
+<dd><p>when <code>x</code> is continuous and <code>cov</code>
+is provided, the amount to shift the values on the x-axis
+to improve visibility of the point and line ranges
+(will be subtracted from the first level of <code>cov</code>
+and added to the second level of <code>cov</code>)</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
