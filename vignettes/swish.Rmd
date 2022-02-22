@@ -244,7 +244,7 @@ The `swish` function compares expression level across factors such
 that log2 fold changes are reported as the non-reference level over
 the reference level.  By default, R will choose a *reference level*
 for factors based on alphabetical order, unless `levels` are
-explicitly set.  It is recommended to set the factors levels, as in
+explicitly set. It is recommended to set the factors levels, as in
 the above code chunk, with the reference level coming first in the
 character vector, so that log2 fold changes correspond to the
 comparison of interest.
@@ -260,22 +260,22 @@ of pseudo-random number generation in breaking ties and in calculating
 permutations, to obtain identical results, one needs to set a random
 seed before running `swish()`, as we do below.
 
-The default number of permutations in `swish` is
-`nperms=100`. However, for paired datasets as this one, you may have
-fewer maximum permutations. In this case, there are 64 possible ways
-to switch the condition labels for six pairs of samples. We can set
-the `nperms` manually (or if we had just used the default value,
-`swish` would set `nperms` to the maximum value possible and notify
-the user that it had done so).
-
 ```{r results="hide", message=FALSE}
 library(fishpond)
 y <- scaleInfReps(y)
 y <- labelKeep(y)
 y <- y[mcols(y)$keep,]
 set.seed(1)
-y <- swish(y, x="condition", pair="line", nperms=64)
+y <- swish(y, x="condition", pair="line")
 ```
+
+The default number of permutations for computing p-values is
+`nperms=100`. However, for paired datasets as this one, you may have
+fewer maximum permutations. In this case, there are 64 possible ways
+to switch the condition labels for six pairs of samples. We can set
+the `nperms` manually to 64, or if we had just used the default value,
+`swish` would set `nperms` to the maximum value possible and notify
+the user that it had done so.
 
 A note about `labelKeep`: by default we keep features with `minN=3`
 samples with a minimal count of 10. For scRNA-seq data with
@@ -431,7 +431,7 @@ gy <- scaleInfReps(gy)
 gy <- labelKeep(gy)
 gy <- gy[mcols(gy)$keep,]
 set.seed(1)
-gy <- swish(gy, x="condition", pair="line", nperms=64)
+gy <- swish(gy, x="condition", pair="line")
 ```
 
 As before, the number of genes in a 1% FDR set:
@@ -522,8 +522,7 @@ isoform proportions change across condition.
 ```{r}
 # run on the transcript-level dataset
 iso <- isoformProportions(y)
-# `nperms=64` here is atypical, usually not specified, see note above
-iso <- swish(iso, x="condition", pair="line", nperms=64)
+iso <- swish(iso, x="condition", pair="line")
 ```
 
 ```{r eval=FALSE, echo=FALSE}
