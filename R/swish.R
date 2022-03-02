@@ -179,7 +179,7 @@ NULL
 #' colData colData<- mcols mcols<- rowRanges rowRanges<-
 #' @importFrom IRanges CharacterList
 #' @importFrom S4Vectors DataFrame metadata metadata<-
-#' @importFrom GenomicRanges start resize
+#' @importFrom GenomicRanges start end start<- end<- resize
 #' @importFrom gtools permutations
 #' @importFrom Matrix rowSums
 #' @importFrom matrixStats rowRanks rowMedians rowVars rowQuantiles

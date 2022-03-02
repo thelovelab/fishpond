@@ -9,37 +9,42 @@
 #' \code{importAllelicCounts} requires the tximeta package.
 #' Further information in Details below.
 #'
-#' \strong{Requirements} - There must be exactly two alleles for each transcript, 
-#' and the \code{--keep-duplicates} option should be used in
-#' Salmon indexing to avoid removal of transcripts with identical sequence.
-#' The output object has half the number of transcripts,
-#' with the two alleles either stored in a \code{"wide"} object,
-#' or as re-named \code{"assays"}. Note carefully that the symbol
-#' provided to \code{a1} is used as the effect allele,
-#' and \code{a2} is used as the non-effect allele
-#' (see the \code{format} argument description and Value
-#' description below).
+#' \strong{Requirements} - There must be exactly two alleles for each
+#' transcript, and the \code{--keep-duplicates} option should be used
+#' in Salmon indexing to avoid removal of transcripts with identical
+#' sequence. The output object has half the number of transcripts,
+#' with the two alleles either stored in a \code{"wide"} object, or as
+#' re-named \code{"assays"}. Note carefully that the symbol provided
+#' to \code{a1} is used as the effect allele, and \code{a2} is used as
+#' the non-effect allele (see the \code{format} argument description
+#' and Value description below).
 #'
-#' \strong{tx2gene} - The two columns should include the \code{a1} and \code{a2}
-#' suffix for the transcripts and genes/groups, or those will be added internally,
-#' if it is detected that the first transcript does not have these suffices.
-#' For example if \code{_alt} or \code{_ref}, or \code{_M} or \code{_P}
-#' (as indicated by the \code{a1} and \code{a2} arguments) are not present
-#' in the table, the table rows will be duplicated with those suffices
-#' added on behalf of the user.
-#' If \code{tx2gene} is not provided, the output object will be transcript-level.
-#' Note: do not attempt to set the \code{txOut} argument, it will
-#' conflict with internal calls to downstream functions.
-#' Note: if the a1/a2 suffices are not at the end of the transcript name
-#' in the quantification files, e.g. \code{ENST123_M|<metadata>},
-#' then \code{ignoreAfterBar=TRUE} can be used to match regardless of
-#' the string following \code{|} in the quantification files.
+#' \strong{tx2gene} - The two columns should include the \code{a1} and
+#' \code{a2} suffix for the transcripts and genes/groups, or those
+#' will be added internally, if it is detected that the first
+#' transcript does not have these suffices. For example if
+#' \code{_alt} or \code{_ref}, or \code{_M} or \code{_P} (as indicated
+#' by the \code{a1} and \code{a2} arguments) are not present in the
+#' table, the table rows will be duplicated with those suffices added
+#' on behalf of the user. If \code{tx2gene} is not provided, the
+#' output object will be transcript-level. Do not attempt to set the
+#' \code{txOut} argument, it will conflict with internal calls to
+#' downstream functions. If the a1/a2 suffices are not at the end of
+#' the transcript name in the quantification files,
+#' e.g. \code{ENST123_M|<metadata>}, then \code{ignoreAfterBar=TRUE}
+#' can be used to match regardless of the string following \code{|} in
+#' the quantification files.
 #'
-#' \code{skipMeta=TRUE} is used, as it is assumed
-#' the diploid transcriptome does not match any reference
-#' transcript collection. This may change in future iterations
-#' of the function, depending on developments in upstream
-#' software.
+#' \code{skipMeta=TRUE} is used, as it is assumed the diploid
+#' transcriptome does not match any reference transcript
+#' collection. This may change in future iterations of the function,
+#' depending on developments in upstream annotations and software.
+#'
+#' If \code{tx2gene} is a GRanges object, the rowRanges of the output
+#' will be the reduced ranges of the grouped input ranges, with
+#' \code{tx_id} collapsed into a CharacterList. Other metadata columns
+#' are not manipulated, just the metadata for the first range is
+#' returned.
 #' 
 #' @param coldata a data.frame as used in \code{tximeta}
 #' @param a1 the symbol for the effect allele
@@ -55,17 +60,19 @@
 #' either \code{a1-} or \code{a2-}.
 #' @param tx2gene optional, a data.frame with first column indicating
 #' transcripts, second column indicating genes (or any other transcript
-#' grouping). Alternatively, this can be a GRanges object with columns
-#' \code{tx_id}, and \code{group_id} (see \code{makeTx2Tss}). For
-#' more information on this argument see Details.
+#' grouping). Alternatively, this can be a GRanges object with
+#' required columns \code{tx_id}, and \code{group_id}
+#' (see \code{makeTx2Tss}). For more information on this argument,
+#' see Details.
 #' @param ... any arguments to pass to tximeta
 #' 
 #' @return a SummarizedExperiment, with allele counts (and other data)
 #' combined into a wide matrix \code{[a2 | a1]}, or as assays (a1, then a2).
 #' The original strings associated with a1 and a2 are stored in the
 #' metadata of the object, in the \code{alleles} list element.
-#' Note the \code{ref} level of \code{se$allele} will be \code{"a2"}, 
-#' such that comparisons by default will be a1 vs a2 (effect vs non-effect).
+#' Note the reference level of \code{se$allele} will be \code{"a2"}, 
+#' such that comparisons by default will be a1 vs a2
+#' (effect vs non-effect). 
 #' 
 #' @export
 importAllelicCounts <- function(coldata, a1, a2,
@@ -170,9 +177,12 @@ importAllelicCounts <- function(coldata, a1, a2,
     }
     stopifnot(all(rownames(out) %in% mcols(txps)$group_id))
     tx_list <- CharacterList(split(mcols(txps)$tx_id, mcols(txps)$group_id))
-    # TODO reduce with plyranges
+    tx_starts <- sapply(split(start(txps), mcols(txps)$group_id), min)
+    tx_ends <- sapply(split(end(txps), mcols(txps)$group_id), max)
     txps <- txps[!duplicated(mcols(txps)$group_id)]
     names(txps) <- mcols(txps)$group_id
+    start(txps) <- tx_starts[names(txps)]
+    end(txps) <- tx_ends[names(txps)]
     txps <- txps[rownames(out)]
     mcols(txps)$tx_id <- tx_list[rownames(out)]
      SummarizedExperiment::rowRanges(out) <- txps
