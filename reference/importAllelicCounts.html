@@ -24,7 +24,7 @@ Further information in Details below."><!-- mathjax --><script src="https://cdnj
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.13</span>
       </span>
     </div>
 
@@ -111,9 +111,10 @@ either <code>a1-</code> or <code>a2-</code>.</p></dd>
 <dt>tx2gene</dt>
 <dd><p>optional, a data.frame with first column indicating
 transcripts, second column indicating genes (or any other transcript
-grouping). Alternatively, this can be a GRanges object with columns
-<code>tx_id</code>, and <code>group_id</code> (see <code>makeTx2Tss</code>). For
-more information on this argument see Details.</p></dd>
+grouping). Alternatively, this can be a GRanges object with
+required columns <code>tx_id</code>, and <code>group_id</code>
+(see <code>makeTx2Tss</code>). For more information on this argument,
+see Details.</p></dd>
 <dt>...</dt>
 <dd><p>any arguments to pass to tximeta</p></dd>
 </dl></div>
@@ -123,40 +124,45 @@ more information on this argument see Details.</p></dd>
 combined into a wide matrix <code>[a2 | a1]</code>, or as assays (a1, then a2).
 The original strings associated with a1 and a2 are stored in the
 metadata of the object, in the <code>alleles</code> list element.
-Note the <code>ref</code> level of <code>se$allele</code> will be <code>"a2"</code>, 
-such that comparisons by default will be a1 vs a2 (effect vs non-effect).</p>
+Note the reference level of <code>se$allele</code> will be <code>"a2"</code>, 
+such that comparisons by default will be a1 vs a2
+(effect vs non-effect).</p>
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p><strong>Requirements</strong> - There must be exactly two alleles for each transcript, 
-and the <code>--keep-duplicates</code> option should be used in
-Salmon indexing to avoid removal of transcripts with identical sequence.
-The output object has half the number of transcripts,
-with the two alleles either stored in a <code>"wide"</code> object,
-or as re-named <code>"assays"</code>. Note carefully that the symbol
-provided to <code>a1</code> is used as the effect allele,
-and <code>a2</code> is used as the non-effect allele
-(see the <code>format</code> argument description and Value
-description below).</p>
-<p><strong>tx2gene</strong> - The two columns should include the <code>a1</code> and <code>a2</code>
-suffix for the transcripts and genes/groups, or those will be added internally,
-if it is detected that the first transcript does not have these suffices.
-For example if <code>_alt</code> or <code>_ref</code>, or <code>_M</code> or <code>_P</code>
-(as indicated by the <code>a1</code> and <code>a2</code> arguments) are not present
-in the table, the table rows will be duplicated with those suffices
-added on behalf of the user.
-If <code>tx2gene</code> is not provided, the output object will be transcript-level.
-Note: do not attempt to set the <code>txOut</code> argument, it will
-conflict with internal calls to downstream functions.
-Note: if the a1/a2 suffices are not at the end of the transcript name
-in the quantification files, e.g. <code>ENST123_M|&lt;metadata&gt;</code>,
-then <code>ignoreAfterBar=TRUE</code> can be used to match regardless of
-the string following <code>|</code> in the quantification files.</p>
-<p><code>skipMeta=TRUE</code> is used, as it is assumed
-the diploid transcriptome does not match any reference
-transcript collection. This may change in future iterations
-of the function, depending on developments in upstream
-software.</p>
+    <p><strong>Requirements</strong> - There must be exactly two alleles for each
+transcript, and the <code>--keep-duplicates</code> option should be used
+in Salmon indexing to avoid removal of transcripts with identical
+sequence. The output object has half the number of transcripts,
+with the two alleles either stored in a <code>"wide"</code> object, or as
+re-named <code>"assays"</code>. Note carefully that the symbol provided
+to <code>a1</code> is used as the effect allele, and <code>a2</code> is used as
+the non-effect allele (see the <code>format</code> argument description
+and Value description below).</p>
+<p><strong>tx2gene</strong> - The two columns should include the <code>a1</code> and
+<code>a2</code> suffix for the transcripts and genes/groups, or those
+will be added internally, if it is detected that the first
+transcript does not have these suffices. For example if
+<code>_alt</code> or <code>_ref</code>, or <code>_M</code> or <code>_P</code> (as indicated
+by the <code>a1</code> and <code>a2</code> arguments) are not present in the
+table, the table rows will be duplicated with those suffices added
+on behalf of the user. If <code>tx2gene</code> is not provided, the
+output object will be transcript-level. Do not attempt to set the
+<code>txOut</code> argument, it will conflict with internal calls to
+downstream functions. If the a1/a2 suffices are not at the end of
+the transcript name in the quantification files,
+e.g. <code>ENST123_M|&lt;metadata&gt;</code>, then <code>ignoreAfterBar=TRUE</code>
+can be used to match regardless of the string following <code>|</code> in
+the quantification files.</p>
+<p><code>skipMeta=TRUE</code> is used, as it is assumed the diploid
+transcriptome does not match any reference transcript
+collection. This may change in future iterations of the function,
+depending on developments in upstream annotations and software.</p>
+<p>If <code>tx2gene</code> is a GRanges object, the rowRanges of the output
+will be the reduced ranges of the grouped input ranges, with
+<code>tx_id</code> collapsed into a CharacterList. Other metadata columns
+are not manipulated, just the metadata for the first range is
+returned.</p>
     </div>
 
   </div>
