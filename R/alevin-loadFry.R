@@ -192,16 +192,17 @@ loadFry <- function(fryDir,
   # if in usa.mode, sum up counts in different status according to which.counts
   if (meta.data$usa.mode) {
     # preparation
-    predefined.format <- list("scRNA" = list("counts" = c("S", "A")),
-                             "snRNA" = list("counts" = c("U", "S", "A")),
+    predefined.format <- list("scrna" = list("counts" = c("S", "A")),
+                             "snrna" = list("counts" = c("U", "S", "A")),
                              "velocity" = list("spliced" = c("S", "A"), "unspliced" = c("U")),
-                             "scVelo" = list("counts" = c("S", "A"), "spliced" = c("S", "A"), "unspliced" = c("U")),
+                             "scvelo" = list("counts" = c("S", "A"), "spliced" = c("S", "A"), "unspliced" = c("U")),
                              "raw" = list("spliced" = c("S"), "unspliced" = c("U"), "ambiguous" = c("A"))
     )
     valid.counts <- c("U", "S", "A")
     
     # check outputFormat
     if (is.character(outputFormat)) {
+      outputFormat = tolower(outputFormat)
       # Check whether outputFormat is a predefined format
       if (! (outputFormat %in% names(predefined.format))) {
         stop("Provided outputFormat string is invalid. Please check the function description
@@ -242,7 +243,7 @@ for the list of predifined format")
       if (nonzero) {
         nonzero <- names(output.assays)
       } else {
-        if (is.character(outputFormat) && outputFormat == "scVelo") {
+        if (is.character(outputFormat) && outputFormat == "scvelo") {
           nonzero <- c("counts")
         } else {
           nonzero <- c() 
