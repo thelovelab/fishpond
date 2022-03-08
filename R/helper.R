@@ -347,7 +347,7 @@ computeInfRV <- function(y, pc=5, shift=.01, meanVariance, useCounts=FALSE) {
 #' 
 #' @export 
 getTrace <- function(y, idx, samp_idx) {
-  stopifnot(length(idx) == 1 | samp_idx == 1)
+  stopifnot(length(idx) == 1 | length(samp_idx) == 1)
   stopifnot(is(idx, "character") | is(idx, "numeric"))
   stopifnot(is(samp_idx, "character") | is(samp_idx, "numeric"))
   infRepIdx <- grep("infRep",assayNames(y))
