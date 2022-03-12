@@ -13,7 +13,8 @@ Authors@R: c(
     person("Scott", "Van Buren", role="ctb"),
     person("Dongze", "He", role="ctb"),
     person("Steve", "Lianoglou", role="ctb"),
-    person("Wes", "Wilson", role="ctb")
+    person("Wes", "Wilson", role="ctb"),
+    person("Jeroen", "Gilis", role="ctb"),
     )
 Maintainer: Michael Love <michaelisaiahlove@gmail.com>
 Description: Fishpond contains methods for differential transcript
@@ -28,7 +29,7 @@ Imports:
     Rcpp, Matrix, SingleCellExperiment, jsonlite
 Suggests: testthat, knitr, rmarkdown, macrophage, tximeta, org.Hs.eg.db,
     samr, DESeq2, apeglm, tximportData, limma, ensembldb, EnsDb.Hsapiens.v86,
-    GenomicFeatures, AnnotationDbi
+    GenomicFeatures, AnnotationDbi, data.table
 LinkingTo: Rcpp
 SystemRequirements: C++11
 License: GPL-2
