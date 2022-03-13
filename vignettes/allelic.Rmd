@@ -84,7 +84,7 @@ y <- swish(y, x="allele", pair="sample")
 
 # Plotting results
 
-```{r}
+```{r fig.dim=c(7,7)}
 par(mfrow=c(2,1))
 plotInfReps(y, idx=1, x="allele", cov="sample")
 plotInfReps(y, idx=3, x="allele", cov="sample")
