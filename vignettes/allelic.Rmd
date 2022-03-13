@@ -90,12 +90,12 @@ plotInfReps(y, idx=1, x="allele", cov="sample")
 plotInfReps(y, idx=3, x="allele", cov="sample")
 ```
 
-```{r}
+```{r fig.dim=c(7,7)}
 gene <- rowRanges(y)$gene_id[1]
 plotAllelicGene(y, gene, edb)
 ```
 
-```{r}
+```{r fig.dim=c(7,7)}
 plotAllelicGene(y, gene, edb,
                 transcriptAnnotation="transcript")
 ```
