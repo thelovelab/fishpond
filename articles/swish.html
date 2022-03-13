@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.19</span>
       </span>
     </div>
 
@@ -208,10 +208,10 @@
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] "ENST00000456328.2" "ENST00000450305.2" "ENST00000488147.1"</span>
 <span class="co">## [4] "ENST00000619216.1" "ENST00000473358.1" "ENST00000469289.1"</span></code></pre>
-<p>We will rename our <em>SummarizedExperiment</em> <code>y</code> for the statistical analysis. For speed of the vignette, we subset to the transcripts on chromosome 1.</p>
+<p>We will rename our <em>SummarizedExperiment</em> <code>y</code> for the statistical analysis. For speed of the vignette, we subset to the transcripts on chromosome 4.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">se</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr1"</span>,<span class="op">]</span></code></pre></div>
+<span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr4"</span>,<span class="op">]</span></code></pre></div>
 <p>To demonstrate a two group comparison, we subset to the “naive” and “IFNg” groups. Log fold changes will be made comparing <code>IFNg</code> to <code>naive</code> (the reference level).</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span>,<span class="va">y</span><span class="op">$</span><span class="va">condition</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span><span class="op">]</span>
@@ -241,21 +241,21 @@
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.05</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## </span>
 <span class="co">## FALSE  TRUE </span>
-<span class="co">##  5081  1329</span></code></pre>
+<span class="co">##  1845   404</span></code></pre>
 <p>A number of features may have the same <code>pvalue</code> and <code>qvalue</code> due to the procedure for assessing significance. We can additionally rank features by their effect size, to break ties in the <code>qvalue</code>:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">most.sig</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span>,
                  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">qvalue</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">log2FC</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">most.sig</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2FC"</span>,<span class="st">"qvalue"</span><span class="op">)</span><span class="op">]</span></code></pre></div>
 <pre><code><span class="co">## DataFrame with 6 rows and 2 columns</span>
-<span class="co">##                      log2FC      qvalue</span>
-<span class="co">##                   &lt;numeric&gt;   &lt;numeric&gt;</span>
-<span class="co">## ENST00000370459.7  10.26592 2.40755e-05</span>
-<span class="co">## ENST00000355754.6   9.79927 2.40755e-05</span>
-<span class="co">## ENST00000481145.1   8.78193 2.40755e-05</span>
-<span class="co">## ENST00000443807.1   8.36831 2.40755e-05</span>
-<span class="co">## ENST00000370473.4   8.11405 2.40755e-05</span>
-<span class="co">## ENST00000368042.7   7.97654 2.40755e-05</span></code></pre>
+<span class="co">##                      log2FC     qvalue</span>
+<span class="co">##                   &lt;numeric&gt;  &lt;numeric&gt;</span>
+<span class="co">## ENST00000264888.5  10.69374 7.2338e-05</span>
+<span class="co">## ENST00000306602.2   9.34219 7.2338e-05</span>
+<span class="co">## ENST00000306621.7   9.00874 7.2338e-05</span>
+<span class="co">## ENST00000435136.6   8.11050 7.2338e-05</span>
+<span class="co">## ENST00000307128.5  -6.96429 7.2338e-05</span>
+<span class="co">## ENST00000382114.8  -5.92382 7.2338e-05</span></code></pre>
 <p>The top 6 genes by <code>qvalue</code> and effect size in this case all have positive LFC, although we have ranked by the largest in absolute value, so large negative values will also appear in this list.</p>
 </div>
 <div class="section level3">
@@ -272,9 +272,9 @@
      <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span>sig<span class="op">=</span><span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.05</span>, sign.lfc<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">log2FC</span><span class="op">)</span><span class="op">)</span>
      <span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##        sign.lfc</span>
-<span class="co">## sig       -1    0    1</span>
-<span class="co">##   FALSE 2827    2 2252</span>
-<span class="co">##   TRUE   616    0  713</span></code></pre>
+<span class="co">## sig      -1   1</span>
+<span class="co">##   FALSE 998 847</span>
+<span class="co">##   TRUE  184 220</span></code></pre>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sig</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.05</span>
 <span class="va">lo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">log2FC</span> <span class="op">*</span> <span class="va">sig</span><span class="op">)</span>
@@ -289,23 +289,23 @@
 <code class="sourceCode R"><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log10mean"</span>,<span class="st">"log2FC"</span>,<span class="st">"pvalue"</span>,<span class="st">"qvalue"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">top_up</span><span class="op">)</span><span class="op">[</span>,<span class="va">cols</span><span class="op">]</span>, digits<span class="op">=</span><span class="fl">3</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##                   log10mean log2FC   pvalue   qvalue</span>
-<span class="co">## ENST00000370459.7      3.85  10.27 2.44e-06 2.41e-05</span>
-<span class="co">## ENST00000355754.6      4.46   9.80 2.44e-06 2.41e-05</span>
-<span class="co">## ENST00000481145.1      3.41   8.78 2.44e-06 2.41e-05</span>
-<span class="co">## ENST00000443807.1      3.35   8.37 2.44e-06 2.41e-05</span>
-<span class="co">## ENST00000370473.4      4.87   8.11 2.44e-06 2.41e-05</span>
-<span class="co">## ENST00000368042.7      3.44   7.98 2.44e-06 2.41e-05</span></code></pre>
+<span class="co">## ENST00000264888.5      5.34  10.69 6.95e-06 7.23e-05</span>
+<span class="co">## ENST00000306602.2      5.08   9.34 6.95e-06 7.23e-05</span>
+<span class="co">## ENST00000306621.7      4.26   9.01 6.95e-06 7.23e-05</span>
+<span class="co">## ENST00000435136.6      2.96   8.11 6.95e-06 7.23e-05</span>
+<span class="co">## ENST00000502843.5      2.88   5.55 6.95e-06 7.23e-05</span>
+<span class="co">## ENST00000500655.2      3.18   5.19 6.95e-06 7.23e-05</span></code></pre>
 <p>Likewise for the largest negative log fold change transcripts (down-regulation):</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">top_down</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">lo</span><span class="op">)</span>,<span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">top_down</span><span class="op">)</span><span class="op">[</span>,<span class="va">cols</span><span class="op">]</span>, digits<span class="op">=</span><span class="fl">3</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##                   log10mean log2FC   pvalue   qvalue</span>
-<span class="co">## ENST00000649724.1      2.83  -6.26 9.85e-03 4.87e-02</span>
-<span class="co">## ENST00000305352.6      2.90  -5.54 2.44e-06 2.41e-05</span>
-<span class="co">## ENST00000348581.9      2.19  -4.33 2.44e-06 2.41e-05</span>
-<span class="co">## ENST00000451341.1      1.73  -4.11 2.44e-06 2.41e-05</span>
-<span class="co">## ENST00000393688.7      2.18  -3.86 7.64e-03 4.23e-02</span>
-<span class="co">## ENST00000610222.2      2.07  -3.45 4.49e-03 3.32e-02</span></code></pre>
+<span class="co">## ENST00000307128.5      3.10  -6.96 6.95e-06 7.23e-05</span>
+<span class="co">## ENST00000382114.8      2.97  -5.92 6.95e-06 7.23e-05</span>
+<span class="co">## ENST00000381753.8      2.08  -3.49 4.04e-03 3.34e-02</span>
+<span class="co">## ENST00000237612.7      2.79  -3.35 6.95e-06 7.23e-05</span>
+<span class="co">## ENST00000407365.5      1.67  -3.00 5.70e-03 3.86e-02</span>
+<span class="co">## ENST00000395002.6      2.67  -2.70 6.95e-06 7.23e-05</span></code></pre>
 <p>We can plot the scaled counts for the inferential replicates, and also group the samples by a covariate, in this case the cell line. The analysis was paired, so the statistic assessed if the change within pairs was consistent. Here we plot the 100th top up-regulated transcript. <code>plotInfReps</code> also has functionality for plotting uncertainty in single cell data, as will be covered in a later section.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="va">hi</span><span class="op">[</span><span class="fl">100</span><span class="op">]</span>, x<span class="op">=</span><span class="st">"condition"</span>, cov<span class="op">=</span><span class="st">"line"</span><span class="op">)</span></code></pre></div>
@@ -335,11 +335,11 @@
 <div class="section level3">
 <h3 id="running-swish-at-the-gene-level">Running Swish at the gene level<a class="anchor" aria-label="anchor" href="#running-swish-at-the-gene-level"></a>
 </h3>
-<p>We can also run swish at the gene level. First we summarize all of the data to the gene level, using the <code>summarizeToGene</code> function from <em>tximeta</em>. Again, we rename the object for statistical analysis, and then we subset to the genes on chromosome 1 for the demonstration.</p>
+<p>We can also run swish at the gene level. First we summarize all of the data to the gene level, using the <code>summarizeToGene</code> function from <em>tximeta</em>. Again, we rename the object for statistical analysis, and then we subset to the genes on chromosome 4 for the demonstration.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gse</span> <span class="op">&lt;-</span> <span class="fu">summarizeToGene</span><span class="op">(</span><span class="va">se</span><span class="op">)</span>
 <span class="va">gy</span> <span class="op">&lt;-</span> <span class="va">gse</span>
-<span class="va">gy</span> <span class="op">&lt;-</span> <span class="va">gy</span><span class="op">[</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr1"</span>,<span class="op">]</span></code></pre></div>
+<span class="va">gy</span> <span class="op">&lt;-</span> <span class="va">gy</span><span class="op">[</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr4"</span>,<span class="op">]</span></code></pre></div>
 <p>Two demonstrate a two group comparison, we subset to the “naive” and “IFNg” groups, as before.</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gy</span> <span class="op">&lt;-</span> <span class="va">gy</span><span class="op">[</span>,<span class="va">gy</span><span class="op">$</span><span class="va">condition</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span><span class="op">]</span>
@@ -356,7 +356,7 @@
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.05</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## </span>
 <span class="co">## FALSE  TRUE </span>
-<span class="co">##  1057   734</span></code></pre>
+<span class="co">##   403   226</span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="plotting-gene-results">Plotting gene results<a class="anchor" aria-label="anchor" href="#plotting-gene-results"></a>
@@ -372,8 +372,8 @@
      <span class="op">)</span>     </code></pre></div>
 <pre><code><span class="co">##        sign.lfc</span>
 <span class="co">## sig      -1   1</span>
-<span class="co">##   FALSE 604 453</span>
-<span class="co">##   TRUE  369 365</span></code></pre>
+<span class="co">##   FALSE 251 152</span>
+<span class="co">##   TRUE  110 116</span></code></pre>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sig</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.05</span>
 <span class="va">glo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">$</span><span class="va">log2FC</span> <span class="op">*</span> <span class="va">sig</span><span class="op">)</span>
@@ -382,22 +382,22 @@
 <code class="sourceCode R"><span class="va">gtop_up</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ghi</span><span class="op">)</span>,<span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">gtop_up</span><span class="op">)</span><span class="op">[</span>,<span class="va">cols</span><span class="op">]</span>, digits<span class="op">=</span><span class="fl">3</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##                    log10mean log2FC   pvalue   qvalue</span>
-<span class="co">## ENSG00000154451.14      4.15  10.24 8.72e-06 3.16e-05</span>
-<span class="co">## ENSG00000162654.8       4.54  10.04 8.72e-06 3.16e-05</span>
-<span class="co">## ENSG00000117228.9       4.90   8.13 8.72e-06 3.16e-05</span>
-<span class="co">## ENSG00000163568.14      2.81   6.89 8.72e-06 3.16e-05</span>
-<span class="co">## ENSG00000162645.12      4.35   6.61 8.72e-06 3.16e-05</span>
-<span class="co">## ENSG00000026751.16      4.36   6.34 8.72e-06 3.16e-05</span></code></pre>
+<span class="co">## ENSG00000138755.5       5.36  10.73 2.48e-05 9.89e-05</span>
+<span class="co">## ENSG00000169245.5       5.10   9.37 2.48e-05 9.89e-05</span>
+<span class="co">## ENSG00000169248.12      4.28   8.95 2.48e-05 9.89e-05</span>
+<span class="co">## ENSG00000004468.12      3.61   5.55 2.48e-05 9.89e-05</span>
+<span class="co">## ENSG00000145365.10      3.87   5.16 2.48e-05 9.89e-05</span>
+<span class="co">## ENSG00000171509.15      2.42   4.68 2.48e-05 9.89e-05</span></code></pre>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gtop_down</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">glo</span><span class="op">)</span>,<span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">gtop_down</span><span class="op">)</span><span class="op">[</span>,<span class="va">cols</span><span class="op">]</span>, digits<span class="op">=</span><span class="fl">3</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##                    log10mean log2FC   pvalue   qvalue</span>
-<span class="co">## ENSG00000170989.9       2.93  -5.26 8.72e-06 3.16e-05</span>
-<span class="co">## ENSG00000224968.1       1.75  -4.16 8.72e-06 3.16e-05</span>
-<span class="co">## ENSG00000007968.6       2.73  -3.35 8.72e-06 3.16e-05</span>
-<span class="co">## ENSG00000183856.10      3.41  -3.06 8.72e-06 3.16e-05</span>
-<span class="co">## ENSG00000085999.11      2.47  -2.92 1.02e-02 3.42e-02</span>
-<span class="co">## ENSG00000229162.1       1.65  -2.86 8.72e-06 3.16e-05</span></code></pre>
+<span class="co">## ENSG00000172399.5       3.12  -6.96 2.48e-05 9.89e-05</span>
+<span class="co">## ENSG00000153012.11      3.00  -5.87 2.48e-05 9.89e-05</span>
+<span class="co">## ENSG00000118777.11      2.80  -3.19 2.48e-05 9.89e-05</span>
+<span class="co">## ENSG00000151725.11      2.83  -2.48 2.48e-05 9.89e-05</span>
+<span class="co">## ENSG00000248187.1       2.27  -2.41 2.48e-05 9.89e-05</span>
+<span class="co">## ENSG00000145390.11      3.59  -2.36 2.48e-05 9.89e-05</span></code></pre>
 <p>We can plot a particular one of these genes:</p>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">gy</span>, idx<span class="op">=</span><span class="va">ghi</span><span class="op">[</span><span class="fl">100</span><span class="op">]</span>, x<span class="op">=</span><span class="st">"condition"</span>, cov<span class="op">=</span><span class="st">"line"</span><span class="op">)</span></code></pre></div>
@@ -555,7 +555,7 @@
 <span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">sce</span>, <span class="st">"ENSMUSG00000072235.6"</span>, x<span class="op">=</span><span class="st">"cluster"</span>,
             reorder<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p><img src="swish_files/figure-html/unnamed-chunk-48-1.png"><!-- --></p>
-<p><code>plotInfReps</code> has a number of options and convenience arguments. One can:</p>
+<p><code>plotInfReps</code> has a number of options and convenience arguments for visualizing single cell data. One can:</p>
 <ul>
 <li>add a <code>legend</code>,</li>
 <li>
@@ -684,7 +684,7 @@
 <div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">gres</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">[</span><span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">$</span><span class="va">keep</span>,<span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">gres</span><span class="op">$</span><span class="va">qvalue</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> <span class="co"># min nominal FDR is not 0</span></code></pre></div>
-<pre><code><span class="co">## [1] 3.156566e-05</span></code></pre>
+<pre><code><span class="co">## [1] 9.889241e-05</span></code></pre>
 <div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">gres</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">stat</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">qvalue</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="swish_files/figure-html/unnamed-chunk-60-1.png"><!-- --></p>
@@ -704,7 +704,7 @@
 <p>In the Swish paper, we describe a statistic, InfRV, which is useful for categorizing groups of features by their inferential uncertainty. Note that InfRV is not used in the <code>swish</code> method, but only for visualization in the paper. Here we show how to compute and plot the InfRV:</p>
 <div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">y3</span> <span class="op">&lt;-</span> <span class="va">se</span>
-<span class="va">y3</span> <span class="op">&lt;-</span> <span class="va">y3</span><span class="op">[</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">y3</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr1"</span>,<span class="op">]</span>
+<span class="va">y3</span> <span class="op">&lt;-</span> <span class="va">y3</span><span class="op">[</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">y3</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr4"</span>,<span class="op">]</span>
 <span class="va">y3</span> <span class="op">&lt;-</span> <span class="va">y3</span><span class="op">[</span>,<span class="va">y3</span><span class="op">$</span><span class="va">condition</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span><span class="op">]</span>
 <span class="va">y3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y3</span><span class="op">)</span>
 <span class="va">y3</span> <span class="op">&lt;-</span> <span class="va">y3</span><span class="op">[</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y3</span><span class="op">)</span><span class="op">$</span><span class="va">keep</span>,<span class="op">]</span>
@@ -759,7 +759,7 @@
 <span class="co">## other attached packages:</span>
 <span class="co">##  [1] limma_3.50.1                SingleCellExperiment_1.16.0</span>
 <span class="co">##  [3] GenomicFeatures_1.46.5      org.Hs.eg.db_3.14.0        </span>
-<span class="co">##  [5] AnnotationDbi_1.56.2        fishpond_2.1.18            </span>
+<span class="co">##  [5] AnnotationDbi_1.56.2        fishpond_2.1.19            </span>
 <span class="co">##  [7] tximeta_1.12.4              SummarizedExperiment_1.24.0</span>
 <span class="co">##  [9] Biobase_2.54.0              GenomicRanges_1.46.1       </span>
 <span class="co">## [11] GenomeInfoDb_1.30.1         IRanges_2.28.0             </span>
