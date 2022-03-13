@@ -28,7 +28,7 @@ Imports:
     Rcpp, Matrix, SingleCellExperiment, jsonlite
 Suggests: testthat, knitr, rmarkdown, macrophage, tximeta, org.Hs.eg.db,
     samr, DESeq2, apeglm, tximportData, limma, ensembldb, EnsDb.Hsapiens.v86,
-    GenomicFeatures, AnnotationDbi
+    GenomicFeatures, AnnotationDbi, Gviz, GenomeInfoDb
 LinkingTo: Rcpp
 SystemRequirements: C++11
 License: GPL-2

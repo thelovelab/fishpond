@@ -244,3 +244,167 @@ makeTx2Tss <- function(x) {
   mcols(txps)$group_id <- paste0(mcols(txps)$gene_id, "-", mcols(txps)$tss)
   txps
 }
+
+#' Plot allelic counts in a gene context using Gviz
+#'
+#' Plot allelic data (allelic proportions, isoform propostions)
+#' in a gene context leveraging the Gviz package. See the allelic
+#' vignette for example usage.
+#' 
+#' @param y a SummarizedExperiment (see \code{swish})
+#' @param idx the name of the gene of interest
+#' @param db either a TxDb or EnsDb object
+#' @param region the region to be displayed in the Gviz plot.
+#' if not specified, will be set according to the gene plus 20%
+#' of the total gene extent on either side
+#' @param transcriptAnnotation argument passed to Gviz::GeneRegionTrack
+#' (\code{"symbol"}, \code{"gene"}, \code{"transcript"}, etc.)
+#' @param statCol the color of the lollipops for q-value and log2FC
+#' @param allelicCol the colors of the lines for allelic proportion
+#' @param isoformCol the colors of the lines for isoform proportion
+#' @param bgCol background color of the axis labels
+#'
+#' @return nothing, a plot is displayed
+#'
+#' @export
+plotAllelicGene <- function(y, idx, db, region=NULL,
+                            transcriptAnnotation="symbol",
+                            statCol="black",
+                            allelicCol=c("dodgerblue","goldenrod1"),
+                            isoformCol="firebrick",
+                            bgCol="grey60") {
+  if (!requireNamespace("Gviz", quietly=TRUE)) {
+    stop("plotAllelicGene() requires 'Gviz' Bioconductor package")
+  }
+  if (!requireNamespace("GenomeInfoDb", quietly=TRUE)) {
+    stop("plotAllelicGene() requires 'GenomeInfoDb' Bioconductor package")
+  }
+  stopifnot(is.character(idx))
+  stopifnot(is(db, "TxDb") | is(db, "EnsDb"))
+  stopifnot(length(allelicCol) == 2)
+  gr <- rowRanges(y)
+  # standard chr's and UCSC for compatibility w Gviz
+  gr <- GenomeInfoDb::keepStandardChromosomes(
+                        gr, pruning.mode="coarse")
+  GenomeInfoDb::seqlevelsStyle(gr) <- "UCSC"
+  stopifnot(idx %in% gr$gene_id)
+  # pull out the ranges for the gene of interest
+  gr <- gr[gr$gene_id == idx]
+  if (!"qvalue" %in% names(mcols(gr))) {
+    stop("expecting qvalue and log2FC, first run swish()")
+  }
+  regionProvided <- TRUE
+  if (is.null(region)) {
+    regionProvided <- FALSE
+    # the region to be displayed
+    region <- range(gr)
+    total_width <- width(region)
+  }  
+  # plot data at the TSS
+  gr <- flank(gr, width=1)
+  # TODO: filter features by minimum mean count?
+  strand(gr) <- "*"
+  # so data plots work
+  gr <- sort(gr)
+  gr$minusLogQ <- -log10(gr$qvalue)
+  # define upper bounds for the q-value and LFC
+  qUpper <- 1.2 * max(gr$minusLogQ)
+  lfcUpper <- 1.2 * max(abs(gr$log2FC))
+  chr <- as.character(seqnames(region))
+  # allelic data
+  gr_allelic <- gr
+  mcols(gr_allelic) <- NULL
+  stopifnot("counts" %in% assayNames(y))
+  allelic_counts <- assay(y[names(gr),], "counts")
+  stopifnot(rownames(allelic_counts) == names(gr_allelic))
+  n <- ncol(allelic_counts)/2
+  total_counts <- allelic_counts[,1:n] + allelic_counts[,(n+1):(2*n)]
+  allelic_prop <- allelic_counts / cbind(total_counts, total_counts)
+  mcols(gr_allelic) <- allelic_prop
+  # isoform data
+  gr_isoform <- gr
+  mcols(gr_isoform) <- NULL
+  stopifnot("abundance" %in% assayNames(y))
+  allelic_tpm <- assay(y[names(gr),], "abundance")
+  total_tpm <- allelic_tpm[,1:n] + allelic_tpm[,(n+1):(2*n)]
+  gene_tpm <- colSums(total_tpm)
+  isoform_prop <- t(t(total_tpm) / gene_tpm)
+  isoUpper <- 1.1 * max(isoform_prop)
+  mcols(gr_isoform) <- isoform_prop
+  # ideogram track
+  ideo_track <- Gviz::IdeogramTrack(genome=GenomeInfoDb::genome(gr)[1],
+                                    chromosome=chr)
+  # genome track
+  genome_track <- Gviz::GenomeAxisTrack()
+  # for ensembldb EnsDb
+  if (is(db, "EnsDb")) {
+    if (!requireNamespace("ensembldb", quietly=TRUE)) {
+      stop("db=EnsDb requires 'ensembldb' Bioconductor package")
+    }
+    edb_ucsc <- db
+    GenomeInfoDb::seqlevelsStyle(edb_ucsc) <- "UCSC"
+    # warning is also showing up on ensembldb vignette
+    suppressWarnings({
+      gene_region <- ensembldb::getGeneRegionTrackForGviz(
+        edb_ucsc, chromosome=chr,
+        start=start(region)+10,
+        end=end(region)-10)
+    })
+  } else {
+    # do something else
+    # TODO testing of non-EnsDb
+  }
+  gene_track <- Gviz::GeneRegionTrack(
+    gene_region,
+    name="gene model",
+    transcriptAnnotation=transcriptAnnotation,
+    background.title = bgCol)
+  gridCol="grey60"
+  qvalue_track <- Gviz::DataTrack(
+    grSelect(gr, "minusLogQ"),
+    type=c("p","h","g"), name="-log10 qvalue",
+    cex=1.5, lwd=2, ylim=c(0,qUpper), baseline=0,
+    col=statCol, col.baseline=gridCol,
+    background.title=bgCol)
+  lfc_track <- Gviz::DataTrack(
+    grSelect(gr, "log2FC"),
+    type=c("p","h","g"), name="log2FC",
+    cex=1.5, lwd=2, baseline=0, ylim=c(-lfcUpper,lfcUpper),
+    col=statCol, col.baseline=gridCol,
+    background.title=bgCol)
+  allele_track <-  Gviz::DataTrack(
+    gr_allelic,
+    type=c("a","p","g","confint"), name="allelic prop.",
+    groups=y$allele, baseline=0.5, lwd=2,
+    col=allelicCol,
+    col.baseline=gridCol,
+    background.title=bgCol)
+  isoform_track <- Gviz::DataTrack(
+    gr_isoform,
+    type=c("a","p","g","confint"), name="isoform prop.",
+    lwd=2, col=isoformCol,
+    ylim=c(0, isoUpper),
+    col.baseline=gridCol,
+    background.title=bgCol)
+  if (!regionProvided) {
+    eps <- round(.2 * total_width)
+    gvizFrom <- start(region) - eps
+    gvizTo <- end(region) + eps
+  } else {
+    gvizFrom <- start(region)
+    gvizTo <- end(region)
+  }
+  Gviz::plotTracks(list(
+    ideo_track, genome_track, gene_track,
+    qvalue_track, lfc_track,
+    allele_track, isoform_track),
+    from=gvizFrom,
+    to=gvizTo)
+}
+
+grSelect <- function(gr, col) {
+  out <- gr
+  mcols(out) <- NULL
+  mcols(out)[col] <- mcols(gr)[col]
+  out
+}

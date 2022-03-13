@@ -179,10 +179,12 @@ NULL
 #' colData colData<- mcols mcols<- rowRanges rowRanges<-
 #' @importFrom IRanges CharacterList
 #' @importFrom S4Vectors DataFrame metadata metadata<-
-#' @importFrom GenomicRanges start end start<- end<- resize
+#' @importFrom GenomicRanges start end strand width
+#' start<- end<- strand<- resize flank sort seqnames
 #' @importFrom gtools permutations
 #' @importFrom Matrix rowSums
 #' @importFrom matrixStats rowRanks rowMedians rowVars rowQuantiles
+#' @importFrom svMisc progress
 #' 
 #' @export
 swish <- function(y, x, cov=NULL, pair=NULL,
@@ -228,7 +230,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   }
   if (qvaluePkg == "samr") {
     if (!requireNamespace("samr", quietly=TRUE)) {
-      stop("first install the 'samr' package")
+      stop("first install the 'samr' CRAN package")
     }
   }
   
@@ -419,7 +421,6 @@ estimatePi0 <- function(stat, nulls.vec) {
 }
 
 makeLocFDR <- function(stat, nulls, pi0) {
-  samr.obj <- makeSamrObj(stat, nulls, pi0)
   locfdr.obj <- samr:::localfdr(samr.obj, min.foldchange=0)
   locfdr.up <- samr:::predictlocalfdr(locfdr.obj$smooth.object,
                  samr.obj$tt[samr.obj$tt >= 0])
