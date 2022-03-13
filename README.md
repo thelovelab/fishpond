@@ -2,7 +2,7 @@
 
 [![R build status](https://github.com/mikelove/fishpond/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/mikelove/fishpond/actions/workflows/check-bioc.yml)
 
-## Fishpond: differential expression accounting for inferential uncertainty
+## Fishpond: downstream methods and tools for expression data
 
 Fishpond contains a method, `swish()`, for differential transcript and
 gene expression analysis of RNA-seq data using inferential replicates.

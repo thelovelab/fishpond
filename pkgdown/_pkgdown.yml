@@ -27,6 +27,8 @@ authors:
     href: https://www.linkedin.com/in/slianoglou
   Wes Wilson:
     href: https://www.med.upenn.edu/albeldalab/wes-wilson.html
+  Jeroen Gilis:
+    href: https://be.linkedin.com/in/jeroen-gilis-4044b5151
 
 figures:
   fig.width: 5.5
@@ -62,10 +64,12 @@ reference:
   - contents:
     - makeTx2Tss
     - importAllelicCounts
+    - plotAllelicGene    
   - title: Alevin import
   - contents:
     - loadFry
     - readEDS
+    - alevinEC
   - title: Compression
   - contents:
     - splitSwish
