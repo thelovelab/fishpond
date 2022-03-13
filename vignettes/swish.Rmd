@@ -223,11 +223,11 @@ metadata(se)$txomeInfo$source <- "GENCODE"
 
 We will rename our *SummarizedExperiment* `y` for the statistical
 analysis. For speed of the vignette, we subset to the transcripts on
-chromosome 1.
+chromosome 4.
 
 ```{r}
 y <- se
-y <- y[seqnames(y) == "chr1",]
+y <- y[seqnames(y) == "chr4",]
 ```
 
 To demonstrate a two group comparison, we subset to the "naive" and
@@ -407,12 +407,12 @@ with(
 We can also run swish at the gene level. First we summarize all of the
 data to the gene level, using the `summarizeToGene` function from
 *tximeta*. Again, we rename the object for statistical analysis, and
-then we subset to the genes on chromosome 1 for the demonstration.
+then we subset to the genes on chromosome 4 for the demonstration.
 
 ```{r}
 gse <- summarizeToGene(se)
 gy <- gse
-gy <- gy[seqnames(gy) == "chr1",]
+gy <- gy[seqnames(gy) == "chr4",]
 ```
 
 Two demonstrate a two group comparison, we subset to the "naive" and
@@ -760,8 +760,8 @@ plotInfReps(sce, "ENSMUSG00000072235.6", x="cluster",
             reorder=FALSE)
 ```
 
-`plotInfReps` has a number of options and convenience arguments. One
-can:
+`plotInfReps` has a number of options and convenience arguments for
+visualizing single cell data. One can:
 
 * add a `legend`,
 * `reorder` the cells by expression value within cluster,
@@ -1067,7 +1067,7 @@ InfRV:
 
 ```{r}
 y3 <- se
-y3 <- y3[seqnames(y3) == "chr1",]
+y3 <- y3[seqnames(y3) == "chr4",]
 y3 <- y3[,y3$condition %in% c("naive","IFNg")]
 y3 <- labelKeep(y3)
 y3 <- y3[mcols(y3)$keep,]

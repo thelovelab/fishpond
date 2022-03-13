@@ -1,6 +1,6 @@
 Package: fishpond
 Title: Fishpond: downstream methods and tools for expression data
-Version: 2.1.18
+Version: 2.1.19
 Authors@R: c(
     person("Anqi", "Zhu", role=c("aut","ctb")),
     person("Michael", "Love", email="michaelisaiahlove@gmail.com", role=c("aut","cre")),

@@ -204,6 +204,7 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
   stopifnot(n %% 2 == 0)
   cts <- matrix(rpois(m*n, lambda=80), ncol=n)
   if (!null) {
+    grp1 <- 1:(n/2)
     grp2 <- (n/2+1):n
     # standard sim
     if (!dynamic) {
@@ -218,6 +219,16 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
   }
   length <- matrix(1000, nrow=m, ncol=n)
   abundance <- t(t(cts)/colSums(cts))*1e6
+  if (allelic) {
+    # change LFC for feature 2
+    revIdx <- c(grp2,grp1)
+    cts[2,] <- cts[2,revIdx]
+    # make feature 3 null
+    cts[3,] <- rpois(n, lambda=80)    
+    # make interesting abundance dynamics
+    abundance[2,] <- 0.5 * abundance[2,]
+    abundance[3,] <- 0.1 * abundance[3,]
+  }
   infReps <- lapply(seq_len(numReps), function(i) {
     m <- matrix(rpois(m*n, lambda=80), ncol=n)
     if (!null) {
@@ -236,6 +247,12 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
         m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
       }
       m[7:8,] <- 0
+    }
+    if (allelic) {
+      # change LFC for feature 2
+      m[2,] <- m[2,revIdx]
+      # make feature 3 null
+      m[3,] <- rpois(n, lambda=80)    
     }
     m
   })

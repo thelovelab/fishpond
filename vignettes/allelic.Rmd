@@ -39,27 +39,19 @@ mcols(t2g)[,c("tx_id","group_id")]
 suppressPackageStartupMessages(library(SummarizedExperiment))
 ```
 
-# Testing for allelic imbalance
+# Testing for allelic imbalance across samples
 
 ```{r}
 set.seed(1)
 y <- makeSimSwishData(allelic=TRUE)
 ```
 
-```{r echo=FALSE}
-# hidden chunk to move around the simulation data
-# make feature 2 (leftmost) low exprs, null case
-y[c(2,11),] <- y[c(11,2),]
-assay(y, "abundance")[2,] <- 0.1 * assay(y, "abundance")[2,]
-# make feature 3 (middle) medium expr, non-null, swap LFC
-assay(y, "abundance")[3,] <- 0.5 * assay(y, "abundance")[3,]
-idx <- c(11:20,1:10)
-assay(y, "counts")[3,] <- assay(y, "counts")[3,idx]
-for (k in 1:20) {
-  a <- paste0("infRep",k)
-  assay(y, a)[3,] <- assay(y, a)[3,idx]
-}
-```
+A hidden code chunk is used to add ranges from the *EnsDb* to the
+simulated data set. For a real dataset, the ranges would be added
+either by `importAllelicCounts` (if using `tx2gene`) or could be added
+manually for transcript- or gene-level analysis, using the
+`rowRanges<-` setter function. The ranges are only needed for the
+`plotAllelicGene` plotting function below.
 
 ```{r echo=FALSE}
 # hidden chunk to add ranges to the `se`
@@ -74,6 +66,8 @@ tss$ntss <- as.numeric(tab[tss$gene_id])
 tss <- tss[tss$ntss > 1 & tss$ntss < 5 & seqnames(tss) == "1"]
 tss <- tss[order(tss$gene_id),]
 tss <- tss[43:1042]
+# swap 2nd and 3rd isoform of first gene
+tss[2:3] <- tss[3:2] 
 rowRanges(y) <- tss
 ```
 
@@ -87,7 +81,7 @@ y <- swish(y, x="allele", pair="sample")
 ```{r fig.dim=c(7,7)}
 par(mfrow=c(2,1))
 plotInfReps(y, idx=1, x="allele", cov="sample")
-plotInfReps(y, idx=3, x="allele", cov="sample")
+plotInfReps(y, idx=2, x="allele", cov="sample")
 ```
 
 ```{r fig.dim=c(7,7)}
@@ -98,4 +92,34 @@ plotAllelicGene(y, gene, edb)
 ```{r fig.dim=c(7,7)}
 plotAllelicGene(y, gene, edb,
                 transcriptAnnotation="transcript")
+```
+
+# Testing for dynamic allelic imbalance
+
+```{r}
+set.seed(1)
+y <- makeSimSwishData(dynamic=TRUE)
+y <- labelKeep(y)
+y <- swish(y, x="allele", pair="sample", cov="time", cor="pearson")
+```
+
+```{r}
+mcols(y)[1:2,c("stat","qvalue")]
+```
+
+```{r fig.dim=c(7,7)}
+y <- computeInfRV(y)
+par(mfrow=c(2,1))
+plotInfReps(y, idx=1, x="time", cov="allele", shiftX=.01)
+plotInfReps(y, idx=2, x="time", cov="allele", shiftX=.01)
+```
+
+```{r fig.dim=c(7,7)}
+plotInfReps(y, idx=1, x="time", cov="allele", shiftX=.01)
+dat <- data.frame(
+  time = y$time[1:10],
+  a2 = assay(y, "mean")[1,y$allele=="a2"],
+  a1 = assay(y, "mean")[1,y$allele=="a1"])
+lines(lowess(dat[,c(1,2)]), col="dodgerblue")
+lines(lowess(dat[,c(1,3)]), col="goldenrod4")
 ```
