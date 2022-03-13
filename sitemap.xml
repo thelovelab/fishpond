@@ -28,6 +28,9 @@
     <loc>https://mikelove.github.io/fishpond/reference/addStatsFromCSV.html</loc>
   </url>
   <url>
+    <loc>https://mikelove.github.io/fishpond/reference/alevinEC.html</loc>
+  </url>
+  <url>
     <loc>https://mikelove.github.io/fishpond/reference/computeInfRV.html</loc>
   </url>
   <url>
@@ -65,6 +68,9 @@
   </url>
   <url>
     <loc>https://mikelove.github.io/fishpond/reference/miniSwish.html</loc>
+  </url>
+  <url>
+    <loc>https://mikelove.github.io/fishpond/reference/plotAllelicGene.html</loc>
   </url>
   <url>
     <loc>https://mikelove.github.io/fishpond/reference/plotInfReps.html</loc>

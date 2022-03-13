@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.18</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Allelic expression analysis with Salmon and Swish</h1>
             
-            <h4 data-toc-skip class="date">03/08/2022</h4>
+            <h4 data-toc-skip class="date">03/13/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/vignettes/allelic.Rmd" class="external-link"><code>vignettes/allelic.Rmd</code></a></small>
       <div class="hidden name"><code>allelic.Rmd</code></div>
@@ -139,44 +139,27 @@
 </h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>allelic<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
-<span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span>
-<span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">se</span>, x<span class="op">=</span><span class="st">"allele"</span>, pair<span class="op">=</span><span class="st">"sample"</span><span class="op">)</span>
-<span class="fu">mcols</span><span class="op">(</span><span class="va">se</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## DataFrame with 1000 rows and 7 columns</span>
-<span class="co">##                keep log10mean      stat      log2FC      pvalue    locfdr</span>
-<span class="co">##           &lt;logical&gt; &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;   &lt;numeric&gt; &lt;numeric&gt;</span>
-<span class="co">## gene-1         TRUE   2.00348     54.90    0.531087 1.00200e-05 0.0130068</span>
-<span class="co">## gene-2         TRUE   2.00220     55.00    0.545229 1.00200e-05 0.0130068</span>
-<span class="co">## gene-3         TRUE   1.99912     40.90    0.632622 6.01202e-05 0.0705987</span>
-<span class="co">## gene-4         TRUE   2.00869     41.35    0.541153 6.01202e-05 0.0705987</span>
-<span class="co">## gene-5         TRUE   1.93861      9.90   -0.194192 2.48196e-02 1.0000000</span>
-<span class="co">## ...             ...       ...       ...         ...         ...       ...</span>
-<span class="co">## gene-996       TRUE   1.90777      8.50  0.03644522   0.0526854         1</span>
-<span class="co">## gene-997       TRUE   1.90718     -7.80 -0.02979966   0.0743186         1</span>
-<span class="co">## gene-998       TRUE   1.91425      2.30 -0.00258498   0.5967134         1</span>
-<span class="co">## gene-999       TRUE   1.90590     -6.10 -0.03306601   0.1608918         1</span>
-<span class="co">## gene-1000      TRUE   1.91085      0.55  0.01009438   0.8967535         1</span>
-<span class="co">##              qvalue</span>
-<span class="co">##           &lt;numeric&gt;</span>
-<span class="co">## gene-1     0.005000</span>
-<span class="co">## gene-2     0.005000</span>
-<span class="co">## gene-3     0.015000</span>
-<span class="co">## gene-4     0.015000</span>
-<span class="co">## gene-5     0.859677</span>
-<span class="co">## ...             ...</span>
-<span class="co">## gene-996   0.859677</span>
-<span class="co">## gene-997   0.859677</span>
-<span class="co">## gene-998   0.981687</span>
-<span class="co">## gene-999   0.889681</span>
-<span class="co">## gene-1000  0.981687</span></code></pre>
+<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>allelic<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>
+<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"allele"</span>, pair<span class="op">=</span><span class="st">"sample"</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="plotting-results">Plotting results<a class="anchor" aria-label="anchor" href="#plotting-results"></a>
 </h2>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">se</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"allele"</span>, cov<span class="op">=</span><span class="st">"sample"</span><span class="op">)</span></code></pre></div>
-<p><img src="allelic_files/figure-html/unnamed-chunk-4-1.png"><!-- --></p>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"allele"</span>, cov<span class="op">=</span><span class="st">"sample"</span><span class="op">)</span>
+<span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">3</span>, x<span class="op">=</span><span class="st">"allele"</span>, cov<span class="op">=</span><span class="st">"sample"</span><span class="op">)</span></code></pre></div>
+<p><img src="allelic_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">rowRanges</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
+<span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gene</span>, <span class="va">edb</span><span class="op">)</span></code></pre></div>
+<p><img src="allelic_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gene</span>, <span class="va">edb</span>,
+                transcriptAnnotation<span class="op">=</span><span class="st">"transcript"</span><span class="op">)</span></code></pre></div>
+<p><img src="allelic_files/figure-html/unnamed-chunk-9-1.png"><!-- --></p>
 </div>
   </div>
 
