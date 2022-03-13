@@ -43,14 +43,59 @@ suppressPackageStartupMessages(library(SummarizedExperiment))
 
 ```{r}
 set.seed(1)
-se <- makeSimSwishData(allelic=TRUE)
-se <- labelKeep(se)
-se <- swish(se, x="allele", pair="sample")
-mcols(se)
+y <- makeSimSwishData(allelic=TRUE)
+```
+
+```{r echo=FALSE}
+# hidden chunk to move around the simulation data
+# make feature 2 (leftmost) low exprs, null case
+y[c(2,11),] <- y[c(11,2),]
+assay(y, "abundance")[2,] <- 0.1 * assay(y, "abundance")[2,]
+# make feature 3 (middle) medium expr, non-null, swap LFC
+assay(y, "abundance")[3,] <- 0.5 * assay(y, "abundance")[3,]
+idx <- c(11:20,1:10)
+assay(y, "counts")[3,] <- assay(y, "counts")[3,idx]
+for (k in 1:20) {
+  a <- paste0("infRep",k)
+  assay(y, a)[3,] <- assay(y, a)[3,idx]
+}
+```
+
+```{r echo=FALSE}
+# hidden chunk to add ranges to the `se`
+tss <- t2g[!duplicated(t2g$group_id)]
+names(tss) <- tss$group_id
+mcols(tss) <- mcols(tss)[,c("tx_id","gene_id","tss","group_id")]
+# slow...
+#tx_id <- CharacterList(split(t2g$tx_id,t2g$group_id))
+#tss$tx_id <- tx_id[names(tss)]
+tab <- table(tss$gene_id)
+tss$ntss <- as.numeric(tab[tss$gene_id])
+tss <- tss[tss$ntss > 1 & tss$ntss < 5 & seqnames(tss) == "1"]
+tss <- tss[order(tss$gene_id),]
+tss <- tss[43:1042]
+rowRanges(y) <- tss
+```
+
+```{r}
+y <- labelKeep(y)
+y <- swish(y, x="allele", pair="sample")
 ```
 
 # Plotting results
 
 ```{r}
-plotInfReps(se, idx=1, x="allele", cov="sample")
+par(mfrow=c(2,1))
+plotInfReps(y, idx=1, x="allele", cov="sample")
+plotInfReps(y, idx=3, x="allele", cov="sample")
+```
+
+```{r}
+gene <- rowRanges(y)$gene_id[1]
+plotAllelicGene(y, gene, edb)
+```
+
+```{r}
+plotAllelicGene(y, gene, edb,
+                transcriptAnnotation="transcript")
 ```

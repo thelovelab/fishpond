@@ -256,8 +256,12 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
   metadata(se) <- list(countsFromAbundance="no")
   if (allelic) {
     als <- c("a2","a1")
-    coldata <- DataFrame(allele=factor(rep(als, each=n/2), levels=als),
-                         sample=factor(paste0("sample",rep(1:(n/2),2))),
+    allele <- factor(rep(als, each=n/2), levels=als)
+    sample <- factor(paste0("sample",rep(1:(n/2),2)))
+    samp <- factor(paste0("s",rep(1:(n/2),2)))
+    colnames(se) <- paste0(samp,"-",allele)
+    coldata <- DataFrame(allele=allele,
+                         sample=sample,
                          row.names=colnames(se))
     if (dynamic) {
       coldata$time <- rep(round(seq(0,1,length=n/2),2),2)
