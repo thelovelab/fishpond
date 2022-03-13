@@ -6,7 +6,7 @@
 \usage{
 plotAllelicGene(
   y,
-  idx,
+  gene,
   db,
   region = NULL,
   transcriptAnnotation = "symbol",
@@ -19,7 +19,7 @@ plotAllelicGene(
 \arguments{
 \item{y}{a SummarizedExperiment (see \code{swish})}
 
-\item{idx}{the name of the gene of interest}
+\item{gene}{the name of the gene of interest}
 
 \item{db}{either a TxDb or EnsDb object}
 

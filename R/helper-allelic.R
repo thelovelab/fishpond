@@ -252,7 +252,7 @@ makeTx2Tss <- function(x) {
 #' vignette for example usage.
 #' 
 #' @param y a SummarizedExperiment (see \code{swish})
-#' @param idx the name of the gene of interest
+#' @param gene the name of the gene of interest
 #' @param db either a TxDb or EnsDb object
 #' @param region the region to be displayed in the Gviz plot.
 #' if not specified, will be set according to the gene plus 20%
@@ -267,7 +267,7 @@ makeTx2Tss <- function(x) {
 #' @return nothing, a plot is displayed
 #'
 #' @export
-plotAllelicGene <- function(y, idx, db, region=NULL,
+plotAllelicGene <- function(y, gene, db, region=NULL,
                             transcriptAnnotation="symbol",
                             statCol="black",
                             allelicCol=c("dodgerblue","goldenrod1"),
@@ -279,7 +279,7 @@ plotAllelicGene <- function(y, idx, db, region=NULL,
   if (!requireNamespace("GenomeInfoDb", quietly=TRUE)) {
     stop("plotAllelicGene() requires 'GenomeInfoDb' Bioconductor package")
   }
-  stopifnot(is.character(idx))
+  stopifnot(is.character(gene))
   stopifnot(is(db, "TxDb") | is(db, "EnsDb"))
   stopifnot(length(allelicCol) == 2)
   gr <- rowRanges(y)
@@ -287,9 +287,9 @@ plotAllelicGene <- function(y, idx, db, region=NULL,
   gr <- GenomeInfoDb::keepStandardChromosomes(
                         gr, pruning.mode="coarse")
   GenomeInfoDb::seqlevelsStyle(gr) <- "UCSC"
-  stopifnot(idx %in% gr$gene_id)
+  stopifnot(gene %in% gr$gene_id)
   # pull out the ranges for the gene of interest
-  gr <- gr[gr$gene_id == idx]
+  gr <- gr[gr$gene_id == gene]
   if (!"qvalue" %in% names(mcols(gr))) {
     stop("expecting qvalue and log2FC, first run swish()")
   }
@@ -407,4 +407,23 @@ grSelect <- function(gr, col) {
   mcols(out) <- NULL
   mcols(out)[col] <- mcols(gr)[col]
   out
+}
+
+#' Plot allelic ratio heatmap 
+#'
+#' Plot allelic ratio heatmap over features and samples
+#' using the pheatmap package.
+#' 
+#' @param y a SummarizedExperiment (see \code{swish})
+#' @param idx a numeric or logical vector of which features
+#' to plot
+#'
+#' @return nothing, a plot is displayed
+#'
+#' @export
+plotAllelicHeatmap <- function(y, idx) {
+  if (!requireNamespace("GenomeInfoDb", quietly=TRUE)) {
+    stop("plotAllelicHeatmap() requires 'pheatmap' CRAN package")
+  }
+  pheatmap::pheatmap(assay(y)[idx,])
 }

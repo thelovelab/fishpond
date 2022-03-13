@@ -64,7 +64,8 @@ reference:
   - contents:
     - makeTx2Tss
     - importAllelicCounts
-    - plotAllelicGene    
+    - plotAllelicGene
+    - plotAllelicHeatmap
   - title: Alevin import
   - contents:
     - loadFry
