@@ -307,6 +307,9 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   # plot data at the TSS
   gr <- flank(gr, width=1)
   # TODO: filter features by minimum mean count?
+
+  
+  
   strand(gr) <- "*"
   # so data plots work
   gr <- sort(gr)

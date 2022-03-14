@@ -75,7 +75,7 @@ rowRanges(y) <- tss
 We can already plot a heatmap of allelic ratios, before performing
 statistical testing.
 
-```{r fig.dim=c(7,5)}
+```{r fig.dim=c(7,3.5)}
 y <- computeInfRV(y)
 gene <- rowRanges(y)$gene_id[1]
 idx <- mcols(y)$gene_id == gene
