@@ -412,18 +412,53 @@ grSelect <- function(gr, col) {
 #' Plot allelic ratio heatmap 
 #'
 #' Plot allelic ratio heatmap over features and samples
-#' using the pheatmap package.
+#' using the pheatmap package. The a1/(a2 + a1) ratio
+#' is displayed.
 #' 
 #' @param y a SummarizedExperiment (see \code{swish})
 #' @param idx a numeric or logical vector of which features
 #' to plot
+#' @param breaks breaks passed along to pheatmap
+#' @param cluster_cols logical, passed to pheatmap
+#' @param main title of the plot
+#' @param stripAfterChar for the column names, if specified
+#' will strip allelic identifiers after this character,
+#' default is hyphen. set to NULL to avoid this action
+#' @param ... other arguments passed to pheatmap
 #'
 #' @return nothing, a plot is displayed
 #'
 #' @export
-plotAllelicHeatmap <- function(y, idx) {
+plotAllelicHeatmap <- function(y, idx,
+                               breaks=NULL,
+                               cluster_cols=FALSE,
+                               main="Allelic ratio",
+                               stripAfterChar="-",
+                               ...) {
   if (!requireNamespace("GenomeInfoDb", quietly=TRUE)) {
     stop("plotAllelicHeatmap() requires 'pheatmap' CRAN package")
   }
-  pheatmap::pheatmap(assay(y)[idx,])
+  if ("mean" %in% assayNames(y)) {
+    cts <- assay(y, "mean")[idx,]
+    message("using posterior mean for calculating ratio")
+  } else {
+    cts <- assay(y, "counts")[idx,]
+    message("using counts, for posterior mean, run computeInfRV")
+  }
+  stopifnot("allele" %in% names(colData(y)))
+  cts_a2 <- cts[,y$allele == "a2"]
+  cts_a1 <- cts[,y$allele == "a1"]
+  tot <- cts_a2 + cts_a1
+  ratio <- cts_a1 / tot
+  if (!is.null(breaks)) {
+    delta <- max(abs(ratio - 0.5))
+    breaks <- seq(from=0.5 - delta, 0.5 + delta, length.out=101)
+  }
+  if (!is.null(stripAfterChar)) {
+    colnames(ratio) <- sub(paste0(stripAfterChar,".*"),
+                           "",colnames(ratio))
+  }
+  pheatmap::pheatmap(ratio, breaks=breaks,
+                     cluster_cols=cluster_cols,
+                     main=main, ...)
 }

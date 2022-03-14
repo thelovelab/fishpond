@@ -56,7 +56,8 @@ manually for transcript- or gene-level analysis, using the
 ```{r echo=FALSE}
 # hidden chunk to add ranges to the `se`
 tss <- t2g[!duplicated(t2g$group_id)]
-names(tss) <- tss$group_id
+tss$symbol <- mapIds(edb, tss$gene_id, "SYMBOL", "GENEID")
+names(tss) <- paste0(tss$symbol, "-", tss$tss)
 mcols(tss) <- mcols(tss)[,c("tx_id","gene_id","tss","group_id")]
 # slow...
 #tx_id <- CharacterList(split(t2g$tx_id,t2g$group_id))
@@ -75,6 +76,7 @@ We can already plot a heatmap of allelic ratios, before performing
 statistical testing.
 
 ```{r fig.dim=c(7,5)}
+y <- computeInfRV(y)
 gene <- rowRanges(y)$gene_id[1]
 idx <- mcols(y)$gene_id == gene
 plotAllelicHeatmap(y, idx=idx)
@@ -87,17 +89,25 @@ y <- swish(y, x="allele", pair="sample")
 
 # Plotting results
 
+We can return to the heatmap, and now add q-values, etc.
+
+```{r fig.dim=c(8,4)}
+dat <- data.frame(minusLogQ=-log10(mcols(y)$qvalue[idx]),
+                  row.names=rownames(y)[idx])
+plotAllelicHeatmap(y, idx=idx, annotation_row=dat)
+```
+
 ```{r fig.dim=c(7,7)}
 par(mfrow=c(2,1))
 plotInfReps(y, idx=1, x="allele", cov="sample")
 plotInfReps(y, idx=2, x="allele", cov="sample")
 ```
 
-```{r fig.dim=c(7,7)}
+```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb)
 ```
 
-```{r fig.dim=c(7,7)}
+```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb,
                 transcriptAnnotation="transcript")
 ```
@@ -109,10 +119,6 @@ set.seed(1)
 y <- makeSimSwishData(dynamic=TRUE)
 ```
 
-```{r fig.dim=c(7,5)}
-plotAllelicHeatmap(y, idx=1:3)
-```
-
 ```{r}
 y <- labelKeep(y)
 y <- swish(y, x="allele", pair="sample", cov="time", cor="pearson")
@@ -122,8 +128,11 @@ y <- swish(y, x="allele", pair="sample", cov="time", cor="pearson")
 mcols(y)[1:2,c("stat","qvalue")]
 ```
 
-```{r fig.dim=c(7,7)}
+```{r}
 y <- computeInfRV(y)
+```
+
+```{r fig.dim=c(7,7)}
 par(mfrow=c(2,1))
 plotInfReps(y, idx=1, x="time", cov="allele", shiftX=.01)
 plotInfReps(y, idx=2, x="time", cov="allele", shiftX=.01)
@@ -137,4 +146,15 @@ dat <- data.frame(
   a1 = assay(y, "mean")[1,y$allele=="a1"])
 lines(lowess(dat[,c(1,2)]), col="dodgerblue")
 lines(lowess(dat[,c(1,3)]), col="goldenrod4")
+```
+
+```{r fig.dim=c(8,4)}
+idx <- c(1:4)
+row_dat <- data.frame(minusLogQ=-log10(mcols(y)$qvalue[idx]),
+                      row.names=rownames(y)[idx])
+col_dat <- data.frame(time=y$time[1:10],
+                      row.names=paste0("s",1:10))
+plotAllelicHeatmap(y, idx=idx,
+                   annotation_row=row_dat,
+                   annotation_col=col_dat)
 ```

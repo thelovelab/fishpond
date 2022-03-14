@@ -4,18 +4,39 @@
 \alias{plotAllelicHeatmap}
 \title{Plot allelic ratio heatmap}
 \usage{
-plotAllelicHeatmap(y, idx)
+plotAllelicHeatmap(
+  y,
+  idx,
+  breaks = NULL,
+  cluster_cols = FALSE,
+  main = "Allelic ratio",
+  stripAfterChar = "-",
+  ...
+)
 }
 \arguments{
 \item{y}{a SummarizedExperiment (see \code{swish})}
 
 \item{idx}{a numeric or logical vector of which features
 to plot}
+
+\item{breaks}{breaks passed along to pheatmap}
+
+\item{cluster_cols}{logical, passed to pheatmap}
+
+\item{main}{title of the plot}
+
+\item{stripAfterChar}{for the column names, if specified
+will strip allelic identifiers after this character,
+default is hyphen. set to NULL to avoid this action}
+
+\item{...}{other arguments passed to pheatmap}
 }
 \value{
 nothing, a plot is displayed
 }
 \description{
 Plot allelic ratio heatmap over features and samples
-using the pheatmap package.
+using the pheatmap package. The a1/(a2 + a1) ratio
+is displayed.
 }
