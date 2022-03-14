@@ -267,7 +267,7 @@ makeTx2Tss <- function(x) {
 #' @return nothing, a plot is displayed
 #'
 #' @export
-plotAllelicGene <- function(y, gene, db, region=NULL,
+plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
                             transcriptAnnotation="symbol",
                             statCol="black",
                             allelicCol=c("dodgerblue","goldenrod1"),
@@ -332,8 +332,10 @@ plotAllelicGene <- function(y, gene, db, region=NULL,
   isoUpper <- 1.1 * max(isoform_prop)
   mcols(gr_isoform) <- isoform_prop
   # ideogram track
-  ideo_track <- Gviz::IdeogramTrack(genome=GenomeInfoDb::genome(gr)[1],
-                                    chromosome=chr)
+  if (is.null(genome)) {
+    genome <- GenomeInfoDb::genome(gr)[1]
+  }
+  ideo_track <- Gviz::IdeogramTrack(genome=genome, chromosome=chr)
   # genome track
   genome_track <- Gviz::GenomeAxisTrack()
   # for ensembldb EnsDb
@@ -341,24 +343,31 @@ plotAllelicGene <- function(y, gene, db, region=NULL,
     if (!requireNamespace("ensembldb", quietly=TRUE)) {
       stop("db=EnsDb requires 'ensembldb' Bioconductor package")
     }
-    edb_ucsc <- db
-    GenomeInfoDb::seqlevelsStyle(edb_ucsc) <- "UCSC"
-    # warning is also showing up on ensembldb vignette
+    GenomeInfoDb::seqlevelsStyle(db) <- "UCSC"
+    # warning is also showing up on ensembldb vignette...
     suppressWarnings({
       gene_region <- ensembldb::getGeneRegionTrackForGviz(
-        edb_ucsc, chromosome=chr,
+        db,
+        chromosome=chr,
         start=start(region)+10,
         end=end(region)-10)
     })
+    gene_track <- Gviz::GeneRegionTrack(
+      range=gene_region,
+      name="gene model",
+      transcriptAnnotation=transcriptAnnotation,
+      background.title = bgCol)
   } else {
-    # do something else
-    # TODO testing of non-EnsDb
+    message("using TxDb, assuming UCSC seqlevelsStyle")
+    gene_track <- Gviz::GeneRegionTrack(
+      range=db,
+      chromosome=chr,
+      start=start(region)+10,
+      end=end(region)-10,
+      name="gene model",
+      transcriptAnnotation=transcriptAnnotation,
+      background.title = bgCol)
   }
-  gene_track <- Gviz::GeneRegionTrack(
-    gene_region,
-    name="gene model",
-    transcriptAnnotation=transcriptAnnotation,
-    background.title = bgCol)
   gridCol="grey60"
   qvalue_track <- Gviz::DataTrack(
     grSelect(gr, "minusLogQ"),
