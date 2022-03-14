@@ -9,11 +9,13 @@ plotAllelicGene(
   gene,
   db,
   region = NULL,
+  genome = NULL,
   transcriptAnnotation = "symbol",
   statCol = "black",
   allelicCol = c("dodgerblue", "goldenrod1"),
   isoformCol = "firebrick",
-  bgCol = "grey60"
+  bgCol = "grey60",
+  ideogram = TRUE
 )
 }
 \arguments{
@@ -23,9 +25,12 @@ plotAllelicGene(
 
 \item{db}{either a TxDb or EnsDb object}
 
-\item{region}{the region to be displayed in the Gviz plot.
+\item{region}{GRanges, the region to be displayed in the Gviz plot.
 if not specified, will be set according to the gene plus 20%
 of the total gene extent on either side}
+
+\item{genome}{UCSC genome code (e.g. \code{"hg38"},
+if not provided it will use the genome() of the rowRanges of \code{y}}
 
 \item{transcriptAnnotation}{argument passed to Gviz::GeneRegionTrack
 (\code{"symbol"}, \code{"gene"}, \code{"transcript"}, etc.)}
@@ -37,6 +42,8 @@ of the total gene extent on either side}
 \item{isoformCol}{the colors of the lines for isoform proportion}
 
 \item{bgCol}{background color of the axis labels}
+
+\item{ideogram}{logical, whether to include ideogram}
 }
 \value{
 nothing, a plot is displayed

@@ -254,15 +254,18 @@ makeTx2Tss <- function(x) {
 #' @param y a SummarizedExperiment (see \code{swish})
 #' @param gene the name of the gene of interest
 #' @param db either a TxDb or EnsDb object
-#' @param region the region to be displayed in the Gviz plot.
+#' @param region GRanges, the region to be displayed in the Gviz plot.
 #' if not specified, will be set according to the gene plus 20%
 #' of the total gene extent on either side
+#' @param genome UCSC genome code (e.g. \code{"hg38"},
+#' if not provided it will use the genome() of the rowRanges of \code{y}
 #' @param transcriptAnnotation argument passed to Gviz::GeneRegionTrack
 #' (\code{"symbol"}, \code{"gene"}, \code{"transcript"}, etc.)
 #' @param statCol the color of the lollipops for q-value and log2FC
 #' @param allelicCol the colors of the lines for allelic proportion
 #' @param isoformCol the colors of the lines for isoform proportion
 #' @param bgCol background color of the axis labels
+#' @param ideogram logical, whether to include ideogram
 #'
 #' @return nothing, a plot is displayed
 #'
@@ -272,7 +275,8 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
                             statCol="black",
                             allelicCol=c("dodgerblue","goldenrod1"),
                             isoformCol="firebrick",
-                            bgCol="grey60") {
+                            bgCol="grey60",
+                            ideogram=TRUE) {
   if (!requireNamespace("Gviz", quietly=TRUE)) {
     stop("plotAllelicGene() requires 'Gviz' Bioconductor package")
   }
@@ -332,10 +336,14 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   isoUpper <- 1.1 * max(isoform_prop)
   mcols(gr_isoform) <- isoform_prop
   # ideogram track
-  if (is.null(genome)) {
-    genome <- GenomeInfoDb::genome(gr)[1]
+  if (ideogram) {
+    if (is.null(genome)) {
+      genome <- GenomeInfoDb::genome(gr)[1]
+    }
+    ideo_track <- Gviz::IdeogramTrack(genome=genome, chromosome=chr)
+  } else {
+    ideo_track <- NULL
   }
-  ideo_track <- Gviz::IdeogramTrack(genome=genome, chromosome=chr)
   # genome track
   genome_track <- Gviz::GenomeAxisTrack()
   # for ensembldb EnsDb
