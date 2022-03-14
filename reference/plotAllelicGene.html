@@ -19,7 +19,7 @@ vignette for example usage."><!-- mathjax --><script src="https://cdnjs.cloudfla
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.20</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.21</span>
       </span>
     </div>
 
@@ -75,11 +75,13 @@ vignette for example usage.</p>
   <span class="va">gene</span>,
   <span class="va">db</span>,
   region <span class="op">=</span> <span class="cn">NULL</span>,
+  genome <span class="op">=</span> <span class="cn">NULL</span>,
   transcriptAnnotation <span class="op">=</span> <span class="st">"symbol"</span>,
   statCol <span class="op">=</span> <span class="st">"black"</span>,
   allelicCol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dodgerblue"</span>, <span class="st">"goldenrod1"</span><span class="op">)</span>,
   isoformCol <span class="op">=</span> <span class="st">"firebrick"</span>,
-  bgCol <span class="op">=</span> <span class="st">"grey60"</span>
+  bgCol <span class="op">=</span> <span class="st">"grey60"</span>,
+  ideogram <span class="op">=</span> <span class="cn">TRUE</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -92,9 +94,12 @@ vignette for example usage.</p>
 <dt>db</dt>
 <dd><p>either a TxDb or EnsDb object</p></dd>
 <dt>region</dt>
-<dd><p>the region to be displayed in the Gviz plot.
+<dd><p>GRanges, the region to be displayed in the Gviz plot.
 if not specified, will be set according to the gene plus 20<!-- % -->
 of the total gene extent on either side</p></dd>
+<dt>genome</dt>
+<dd><p>UCSC genome code (e.g. <code>"hg38"</code>,
+if not provided it will use the genome() of the rowRanges of <code>y</code></p></dd>
 <dt>transcriptAnnotation</dt>
 <dd><p>argument passed to Gviz::GeneRegionTrack
 (<code>"symbol"</code>, <code>"gene"</code>, <code>"transcript"</code>, etc.)</p></dd>
@@ -106,6 +111,8 @@ of the total gene extent on either side</p></dd>
 <dd><p>the colors of the lines for isoform proportion</p></dd>
 <dt>bgCol</dt>
 <dd><p>background color of the axis labels</p></dd>
+<dt>ideogram</dt>
+<dd><p>logical, whether to include ideogram</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
