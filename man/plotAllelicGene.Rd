@@ -10,6 +10,8 @@ plotAllelicGene(
   db,
   region = NULL,
   genome = NULL,
+  tpmFilter = NULL,
+  countFilter = NULL,
   transcriptAnnotation = "symbol",
   statCol = "black",
   allelicCol = c("dodgerblue", "goldenrod1"),
@@ -31,6 +33,10 @@ of the total gene extent on either side}
 
 \item{genome}{UCSC genome code (e.g. \code{"hg38"},
 if not provided it will use the genome() of the rowRanges of \code{y}}
+
+\item{tpmFilter}{TPM value (mean over samples) to filter out features}
+
+\item{countFilter}{count value (mean over samples) to filter out features}
 
 \item{transcriptAnnotation}{argument passed to Gviz::GeneRegionTrack
 (\code{"symbol"}, \code{"gene"}, \code{"transcript"}, etc.)}

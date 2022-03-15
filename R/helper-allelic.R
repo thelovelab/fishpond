@@ -259,6 +259,8 @@ makeTx2Tss <- function(x) {
 #' of the total gene extent on either side
 #' @param genome UCSC genome code (e.g. \code{"hg38"},
 #' if not provided it will use the genome() of the rowRanges of \code{y}
+#' @param tpmFilter TPM value (mean over samples) to filter out features
+#' @param countFilter count value (mean over samples) to filter out features
 #' @param transcriptAnnotation argument passed to Gviz::GeneRegionTrack
 #' (\code{"symbol"}, \code{"gene"}, \code{"transcript"}, etc.)
 #' @param statCol the color of the lollipops for q-value and log2FC
@@ -271,6 +273,8 @@ makeTx2Tss <- function(x) {
 #'
 #' @export
 plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
+                            tpmFilter=NULL,
+                            countFilter=NULL,
                             transcriptAnnotation="symbol",
                             statCol="black",
                             allelicCol=c("dodgerblue","goldenrod1"),
@@ -294,6 +298,15 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   stopifnot(gene %in% gr$gene_id)
   # pull out the ranges for the gene of interest
   gr <- gr[gr$gene_id == gene]
+  if (!is.null(tpmFilter) | !is.null(countFilter)) {
+    if (!is.null(tpmFilter)) {
+      keep <- rowMeans(assay(y[names(gr),], "abundance")) > tpmFilter
+    } else {
+      keep <- rowMeans(assay(y[names(gr),], "counts")) > countFilter
+    }
+    stopifnot(sum(keep) > 0)
+    gr <- gr[keep,]
+  }
   if (!"qvalue" %in% names(mcols(gr))) {
     stop("expecting qvalue and log2FC, first run swish()")
   }

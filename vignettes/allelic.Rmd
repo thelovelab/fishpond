@@ -76,7 +76,7 @@ We can already plot a heatmap of allelic ratios, before performing
 statistical testing.
 
 ```{r fig.dim=c(7,3.5)}
-y <- computeInfRV(y)
+y <- computeInfRV(y) # for posterior mean, variance
 gene <- rowRanges(y)$gene_id[1]
 idx <- mcols(y)$gene_id == gene
 plotAllelicHeatmap(y, idx=idx)
@@ -98,9 +98,9 @@ plotAllelicHeatmap(y, idx=idx, annotation_row=dat)
 ```
 
 ```{r fig.dim=c(7,7)}
-par(mfrow=c(2,1))
-plotInfReps(y, idx=1, x="allele", cov="sample")
-plotInfReps(y, idx=2, x="allele", cov="sample")
+par(mfrow=c(2,1), mar=c(1,4.1,2,2))
+plotInfReps(y, idx=1, x="allele", cov="sample", xaxis=FALSE, xlab="")
+plotInfReps(y, idx=2, x="allele", cov="sample", xaxis=FALSE, xlab="")
 ```
 
 ```{r fig.dim=c(8,7)}
@@ -129,13 +129,14 @@ mcols(y)[1:2,c("stat","qvalue")]
 ```
 
 ```{r}
-y <- computeInfRV(y)
+y <- computeInfRV(y) # for posterior mean, variance
 ```
 
 ```{r fig.dim=c(7,7)}
-par(mfrow=c(2,1))
-plotInfReps(y, idx=1, x="time", cov="allele", shiftX=.01)
-plotInfReps(y, idx=2, x="time", cov="allele", shiftX=.01)
+par(mfrow=c(2,1), mar=c(2.5,4,2,2))
+plotInfReps(y, idx=1, x="time", cov="allele", shiftX=.01, xaxis=FALSE, xlab="", main="")
+par(mar=c(4.5,4,0,2))
+plotInfReps(y, idx=2, x="time", cov="allele", shiftX=.01, main="")
 ```
 
 ```{r fig.dim=c(7,7)}
