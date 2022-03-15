@@ -249,18 +249,24 @@ makeTx2Tss <- function(x) {
 #'
 #' Plot allelic data (allelic proportions, isoform propostions)
 #' in a gene context leveraging the Gviz package. See the allelic
-#' vignette for example usage.
+#' vignette for example usage. TPM and count filters are used by
+#' default to clean up the plot of features with minimal signal;
+#' note that the isoform proportion displayed at the bottom of the
+#' plot is among the features that pass the filtering steps.
 #' 
 #' @param y a SummarizedExperiment (see \code{swish})
-#' @param gene the name of the gene of interest
+#' @param gene the name of the gene of interest, requires
+#' a column \code{gene_id} in the metadata columns of the
+#' rowRanges of y
 #' @param db either a TxDb or EnsDb object
 #' @param region GRanges, the region to be displayed in the Gviz plot.
 #' if not specified, will be set according to the gene plus 20%
 #' of the total gene extent on either side
 #' @param genome UCSC genome code (e.g. \code{"hg38"},
 #' if not provided it will use the genome() of the rowRanges of \code{y}
-#' @param tpmFilter TPM value (mean over samples) to filter out features
-#' @param countFilter count value (mean over samples) to filter out features
+#' @param tpmFilter minimum TPM value (mean over samples) to keep a feature
+#' @param countFilter minimum count value (mean over samples) to keep a feature
+#' @param pc pseudocount to avoid dividing by zero in allelic proportion
 #' @param transcriptAnnotation argument passed to Gviz::GeneRegionTrack
 #' (\code{"symbol"}, \code{"gene"}, \code{"transcript"}, etc.)
 #' @param statCol the color of the lollipops for q-value and log2FC
@@ -273,13 +279,11 @@ makeTx2Tss <- function(x) {
 #'
 #' @export
 plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
-                            tpmFilter=NULL,
-                            countFilter=NULL,
+                            tpmFilter=1, countFilter=10, pc=1,
                             transcriptAnnotation="symbol",
                             statCol="black",
                             allelicCol=c("dodgerblue","goldenrod1"),
-                            isoformCol="firebrick",
-                            bgCol="grey60",
+                            isoformCol="firebrick", bgCol="grey60",
                             ideogram=TRUE) {
   if (!requireNamespace("Gviz", quietly=TRUE)) {
     stop("plotAllelicGene() requires 'Gviz' Bioconductor package")
@@ -290,19 +294,25 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   stopifnot(is.character(gene))
   stopifnot(is(db, "TxDb") | is(db, "EnsDb"))
   stopifnot(length(allelicCol) == 2)
+  stopifnot("gene_id" %in% names(mcols(y)))
+  # pull out the ranges of y to build the Gviz plot
   gr <- rowRanges(y)
   # standard chr's and UCSC for compatibility w Gviz
   gr <- GenomeInfoDb::keepStandardChromosomes(
                         gr, pruning.mode="coarse")
   GenomeInfoDb::seqlevelsStyle(gr) <- "UCSC"
+  # gene must be in the metadata
   stopifnot(gene %in% gr$gene_id)
   # pull out the ranges for the gene of interest
   gr <- gr[gr$gene_id == gene]
+  # use TPM and count filtering to remove lowly expressed features
   if (!is.null(tpmFilter) | !is.null(countFilter)) {
+    keep <- rep(TRUE, length(gr))
     if (!is.null(tpmFilter)) {
-      keep <- rowMeans(assay(y[names(gr),], "abundance")) > tpmFilter
-    } else {
-      keep <- rowMeans(assay(y[names(gr),], "counts")) > countFilter
+      keep <- keep & rowMeans(assay(y[names(gr),,drop=FALSE], "abundance")) >= tpmFilter
+    }
+    if (!is.null(countFilter)) {
+      keep <- keep & rowMeans(assay(y[names(gr),,drop=FALSE], "counts")) >= countFilter
     }
     stopifnot(sum(keep) > 0)
     gr <- gr[keep,]
@@ -319,39 +329,46 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   }  
   # plot data at the TSS
   gr <- flank(gr, width=1)
-  # TODO: filter features by minimum mean count?
-
-  
-  
   strand(gr) <- "*"
-  # so data plots work
+  # so data plots work, need to be sorted
   gr <- sort(gr)
   gr$minusLogQ <- -log10(gr$qvalue)
   # define upper bounds for the q-value and LFC
   qUpper <- 1.2 * max(gr$minusLogQ)
   lfcUpper <- 1.2 * max(abs(gr$log2FC))
   chr <- as.character(seqnames(region))
-  # allelic data
+  ##########################################
+  ## store allelic data in GRanges object ##
+  ##########################################
   gr_allelic <- gr
   mcols(gr_allelic) <- NULL
   stopifnot("counts" %in% assayNames(y))
-  allelic_counts <- assay(y[names(gr),], "counts")
+  allelic_counts <- assay(y[names(gr),,drop=FALSE], "counts")
   stopifnot(rownames(allelic_counts) == names(gr_allelic))
   n <- ncol(allelic_counts)/2
-  total_counts <- allelic_counts[,1:n] + allelic_counts[,(n+1):(2*n)]
-  allelic_prop <- allelic_counts / cbind(total_counts, total_counts)
+  total_counts <- (
+    allelic_counts[,1:n,drop=FALSE] +
+    allelic_counts[,(n+1):(2*n),drop=FALSE])
+  allelic_prop <- (allelic_counts+pc) / cbind(total_counts+2*pc, total_counts+2*pc)
+  rowMeans(allelic_prop, na.rm=TRUE)
   mcols(gr_allelic) <- allelic_prop
-  # isoform data
+  ##########################################
+  ## store isoform data in GRanges object ##
+  ##########################################
   gr_isoform <- gr
   mcols(gr_isoform) <- NULL
   stopifnot("abundance" %in% assayNames(y))
-  allelic_tpm <- assay(y[names(gr),], "abundance")
-  total_tpm <- allelic_tpm[,1:n] + allelic_tpm[,(n+1):(2*n)]
+  allelic_tpm <- assay(y[names(gr),,drop=FALSE], "abundance")
+  total_tpm <- (
+    allelic_tpm[,1:n,drop=FALSE] +
+    allelic_tpm[,(n+1):(2*n),drop=FALSE])
   gene_tpm <- colSums(total_tpm)
   isoform_prop <- t(t(total_tpm) / gene_tpm)
   isoUpper <- 1.1 * max(isoform_prop)
   mcols(gr_isoform) <- isoform_prop
-  # ideogram track
+  ####################
+  ## ideogram track ##
+  ####################
   if (ideogram) {
     if (is.null(genome)) {
       genome <- GenomeInfoDb::genome(gr)[1]
@@ -360,7 +377,9 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   } else {
     ideo_track <- NULL
   }
-  # genome track
+  ##################
+  ## genome track ##
+  ##################
   genome_track <- Gviz::GenomeAxisTrack()
   # for ensembldb EnsDb
   if (is(db, "EnsDb")) {
@@ -392,6 +411,9 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
       transcriptAnnotation=transcriptAnnotation,
       background.title = bgCol)
   }
+  ##################################
+  ## put together the data tracks ##
+  ##################################
   gridCol="grey60"
   qvalue_track <- Gviz::DataTrack(
     grSelect(gr, "minusLogQ"),
@@ -427,6 +449,9 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
     gvizFrom <- start(region)
     gvizTo <- end(region)
   }
+  ##############################
+  ## finally, plot the tracks ##
+  ##############################
   Gviz::plotTracks(list(
     ideo_track, genome_track, gene_track,
     qvalue_track, lfc_track,
