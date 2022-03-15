@@ -10,8 +10,9 @@ plotAllelicGene(
   db,
   region = NULL,
   genome = NULL,
-  tpmFilter = NULL,
-  countFilter = NULL,
+  tpmFilter = 1,
+  countFilter = 10,
+  pc = 1,
   transcriptAnnotation = "symbol",
   statCol = "black",
   allelicCol = c("dodgerblue", "goldenrod1"),
@@ -23,7 +24,9 @@ plotAllelicGene(
 \arguments{
 \item{y}{a SummarizedExperiment (see \code{swish})}
 
-\item{gene}{the name of the gene of interest}
+\item{gene}{the name of the gene of interest, requires
+a column \code{gene_id} in the metadata columns of the
+rowRanges of y}
 
 \item{db}{either a TxDb or EnsDb object}
 
@@ -34,9 +37,11 @@ of the total gene extent on either side}
 \item{genome}{UCSC genome code (e.g. \code{"hg38"},
 if not provided it will use the genome() of the rowRanges of \code{y}}
 
-\item{tpmFilter}{TPM value (mean over samples) to filter out features}
+\item{tpmFilter}{minimum TPM value (mean over samples) to keep a feature}
 
-\item{countFilter}{count value (mean over samples) to filter out features}
+\item{countFilter}{minimum count value (mean over samples) to keep a feature}
+
+\item{pc}{pseudocount to avoid dividing by zero in allelic proportion}
 
 \item{transcriptAnnotation}{argument passed to Gviz::GeneRegionTrack
 (\code{"symbol"}, \code{"gene"}, \code{"transcript"}, etc.)}
@@ -57,5 +62,8 @@ nothing, a plot is displayed
 \description{
 Plot allelic data (allelic proportions, isoform propostions)
 in a gene context leveraging the Gviz package. See the allelic
-vignette for example usage.
+vignette for example usage. TPM and count filters are used by
+default to clean up the plot of features with minimal signal;
+note that the isoform proportion displayed at the bottom of the
+plot is among the features that pass the filtering steps.
 }

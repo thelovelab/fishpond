@@ -45,12 +45,12 @@ reference:
   - title: Fishpond
   - contents:
     - fishpond-package
-  - title: Swish
+  - title: Swish method
   - contents:
     - scaleInfReps
     - labelKeep
     - swish
-  - title: Plotting functions
+  - title: Main Swish plotting functions
   - contents:
     - plotInfReps
     - plotMASwish
@@ -60,13 +60,13 @@ reference:
     - makeSimSwishData
     - getTrace
     - isoformProportions
-  - title: Allelic analysis
+  - title: Allelic analysis and plotting
   - contents:
     - makeTx2Tss
     - importAllelicCounts
     - plotAllelicGene
     - plotAllelicHeatmap
-  - title: Alevin import
+  - title: Alevin import and utilities
   - contents:
     - loadFry
     - readEDS
