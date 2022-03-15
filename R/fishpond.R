@@ -45,7 +45,7 @@
 #' @importFrom graphics plot points segments rect abline title axis legend
 #' @importFrom stats median quantile qnorm rpois runif rnbinom var cor
 #' @importFrom utils head tail capture.output read.table write.table read.csv
-#' @importFrom methods is as
+#' @importFrom methods is as slot
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' assayNames assayNames<- assay assay<- assays assays<-
 #' colData colData<- mcols mcols<- rowRanges rowRanges<-
