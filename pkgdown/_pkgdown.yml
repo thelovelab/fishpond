@@ -57,9 +57,10 @@ reference:
   - title: Helper functions
   - contents:
     - computeInfRV
-    - makeSimSwishData
     - getTrace
     - isoformProportions
+    - salmonEC
+    - makeSimSwishData
   - title: Allelic analysis and plotting
   - contents:
     - makeTx2Tss
