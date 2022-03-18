@@ -258,22 +258,33 @@ makeTx2Tss <- function(x) {
 #' @param gene the name of the gene of interest, requires
 #' a column \code{gene_id} in the metadata columns of the
 #' rowRanges of y
-#' @param db either a TxDb or EnsDb object
+#' @param db either a TxDb or EnsDb object to use for the gene model
 #' @param region GRanges, the region to be displayed in the Gviz plot.
 #' if not specified, will be set according to the gene plus 20%
 #' of the total gene extent on either side
 #' @param genome UCSC genome code (e.g. \code{"hg38"},
-#' if not provided it will use the genome() of the rowRanges of \code{y}
+#' if not specified it will use the \code{GenomeInfoDb::genome()}
+#' of the rowRanges of \code{y}
 #' @param tpmFilter minimum TPM value (mean over samples) to keep a feature
 #' @param countFilter minimum count value (mean over samples) to keep a feature
-#' @param pc pseudocount to avoid dividing by zero in allelic proportion
+#' @param pc pseudocount to avoid dividing by zero in allelic proportion calculation
 #' @param transcriptAnnotation argument passed to Gviz::GeneRegionTrack
 #' (\code{"symbol"}, \code{"gene"}, \code{"transcript"}, etc.)
-#' @param statCol the color of the lollipops for q-value and log2FC
-#' @param allelicCol the colors of the lines for allelic proportion
-#' @param isoformCol the colors of the lines for isoform proportion
-#' @param bgCol background color of the axis labels
 #' @param ideogram logical, whether to include ideogram
+#' @param allelicCol the colors of the points and lines for allelic proportion
+#' @param isoformCol the colors of the points and lines for isoform proportion
+#' @param statCol the color of the lollipops for q-value and log2FC
+#' @param gridCol the color of the grid in the data tracks
+#' @param baselineCol the color of the horizontal baseline for q-value and lo2gFC
+#' @param titleCol font color of the side titles (track labels)
+#' @param titleAxisCol axis color of the side titles (track labels)
+#' @param titleBgCol background color of the side titles (track labels)
+#' @param geneBorderCol the color of the borders and font in gene region track
+#' @param geneFillCol the color of the fill in the gene region track
+#' @param genomeAxisCol line color of the genome axis track
+#' @param innerFontCol font color of genome axis track, ideogram, and
+#' allelic proportion legend
+#' @param ... additional arguments passed to \code{Gviz::plotTracks()}
 #'
 #' @return nothing, a plot is displayed
 #'
@@ -281,10 +292,19 @@ makeTx2Tss <- function(x) {
 plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
                             tpmFilter=1, countFilter=10, pc=1,
                             transcriptAnnotation="symbol",
-                            statCol="black",
+                            ideogram=TRUE,
                             allelicCol=c("dodgerblue","goldenrod1"),
-                            isoformCol="firebrick", bgCol="grey60",
-                            ideogram=TRUE) {
+                            isoformCol="firebrick",
+                            statCol="black",
+                            gridCol="grey80",
+                            baselineCol="black",
+                            titleCol="black",
+                            titleAxisCol="black",
+                            titleBgCol="white",
+                            geneBorderCol="darkblue",
+                            geneFillCol="darkblue",
+                            genomeAxisCol="black",
+                            innerFontCol="black", ...) {
   if (!requireNamespace("Gviz", quietly=TRUE)) {
     stop("plotAllelicGene() requires 'Gviz' Bioconductor package")
   }
@@ -309,10 +329,12 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   if (!is.null(tpmFilter) | !is.null(countFilter)) {
     keep <- rep(TRUE, length(gr))
     if (!is.null(tpmFilter)) {
-      keep <- keep & rowMeans(assay(y[names(gr),,drop=FALSE], "abundance")) >= tpmFilter
+      keep <- keep & rowMeans(assay(y[names(gr),,drop=FALSE],
+                                    "abundance")) >= tpmFilter
     }
     if (!is.null(countFilter)) {
-      keep <- keep & rowMeans(assay(y[names(gr),,drop=FALSE], "counts")) >= countFilter
+      keep <- keep & rowMeans(assay(y[names(gr),,drop=FALSE],
+                                    "counts")) >= countFilter
     }
     stopifnot(sum(keep) > 0)
     gr <- gr[keep,]
@@ -349,7 +371,8 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   total_counts <- (
     allelic_counts[,1:n,drop=FALSE] +
     allelic_counts[,(n+1):(2*n),drop=FALSE])
-  allelic_prop <- (allelic_counts+pc) / cbind(total_counts+2*pc, total_counts+2*pc)
+  allelic_prop <- (allelic_counts+pc) /
+    cbind(total_counts+2*pc, total_counts+2*pc)
   rowMeans(allelic_prop, na.rm=TRUE)
   mcols(gr_allelic) <- allelic_prop
   ##########################################
@@ -373,14 +396,16 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
     if (is.null(genome)) {
       genome <- GenomeInfoDb::genome(gr)[1]
     }
-    ideo_track <- Gviz::IdeogramTrack(genome=genome, chromosome=chr)
+    ideo_track <- Gviz::IdeogramTrack(genome=genome, chromosome=chr,
+                                      fontcolor=innerFontCol)
   } else {
     ideo_track <- NULL
   }
   ##################
   ## genome track ##
   ##################
-  genome_track <- Gviz::GenomeAxisTrack()
+  genome_track <- Gviz::GenomeAxisTrack(col=genomeAxisCol,
+                                        fontcolor=innerFontCol)
   # for ensembldb EnsDb
   if (is(db, "EnsDb")) {
     if (!requireNamespace("ensembldb", quietly=TRUE)) {
@@ -399,7 +424,8 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
       range=gene_region,
       name="gene model",
       transcriptAnnotation=transcriptAnnotation,
-      background.title = bgCol)
+      col=geneBorderCol, col.line=geneBorderCol,
+      fontcolor.group=geneBorderCol, fill=geneFillCol)
   } else {
     message("using TxDb, assuming UCSC seqlevelsStyle")
     gene_track <- Gviz::GeneRegionTrack(
@@ -409,38 +435,36 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
       end=end(region)-10,
       name="gene model",
       transcriptAnnotation=transcriptAnnotation,
-      background.title = bgCol)
+      col=geneBorderCol, col.line=geneBorderCol,
+      fontcolor.group=geneBorderCol, fill=geneFillCol)
   }
   ##################################
   ## put together the data tracks ##
   ##################################
-  gridCol="grey60"
   qvalue_track <- Gviz::DataTrack(
     grSelect(gr, "minusLogQ"),
     type=c("p","h","g"), name="-log10 qvalue",
-    cex=1.5, lwd=2, ylim=c(0,qUpper), baseline=0,
-    col=statCol, col.baseline=gridCol,
-    background.title=bgCol)
+    col=statCol, col.grid=gridCol, cex=1.5, lwd=2,
+    ylim=c(0,qUpper), baseline=0)
   lfc_track <- Gviz::DataTrack(
     grSelect(gr, "log2FC"),
     type=c("p","h","g"), name="log2FC",
-    cex=1.5, lwd=2, baseline=0, ylim=c(-lfcUpper,lfcUpper),
-    col=statCol, col.baseline=gridCol,
-    background.title=bgCol)
+    col=statCol, col.grid=gridCol, cex=1.5, lwd=2,
+    baseline=0,
+    ylim=c(-lfcUpper,lfcUpper))
   allele_track <-  Gviz::DataTrack(
     gr_allelic,
     type=c("a","p","g","confint"), name="allelic prop.",
-    groups=y$allele, baseline=0.5, lwd=2,
-    col=allelicCol,
-    col.baseline=gridCol,
-    background.title=bgCol)
+    groups=y$allele,
+    col=allelicCol, col.grid=gridCol, lwd=2,
+    baseline=0.5,
+    fontcolor.legend=innerFontCol)
   isoform_track <- Gviz::DataTrack(
     gr_isoform,
     type=c("a","p","g","confint"), name="isoform prop.",
-    lwd=2, col=isoformCol,
-    ylim=c(0, isoUpper),
-    col.baseline=gridCol,
-    background.title=bgCol)
+    col=isoformCol, col.grid=gridCol, lwd=2,
+    baseline=0,
+    ylim=c(0, isoUpper))
   if (!regionProvided) {
     eps <- round(.2 * total_width)
     gvizFrom <- start(region) - eps
@@ -457,7 +481,11 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
     qvalue_track, lfc_track,
     allele_track, isoform_track),
     from=gvizFrom,
-    to=gvizTo)
+    to=gvizTo,
+    col.title=titleCol,
+    col.axis=titleAxisCol,
+    background.title=titleBgCol,
+    col.baseline=baselineCol, ...)
 }
 
 grSelect <- function(gr, col) {

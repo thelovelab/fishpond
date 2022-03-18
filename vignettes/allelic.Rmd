@@ -104,6 +104,7 @@ plotInfReps(y, idx=2, x="allele", cov="sample", xaxis=FALSE, xlab="")
 ```
 
 ```{r fig.dim=c(8,7)}
+gene <- rowRanges(y)$gene_id[1]
 plotAllelicGene(y, gene, edb)
 ```
 
