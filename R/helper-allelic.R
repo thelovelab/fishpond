@@ -454,14 +454,14 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
     ylim=c(-lfcUpper,lfcUpper))
   allele_track <-  Gviz::DataTrack(
     gr_allelic,
-    type=c("a","p","g","confint"), name="allelic prop.",
+    type=c("p","a","g"), name="allelic prop.",
     groups=y$allele,
     col=allelicCol, col.grid=gridCol, lwd=2,
     baseline=0.5,
     fontcolor.legend=innerFontCol)
   isoform_track <- Gviz::DataTrack(
     gr_isoform,
-    type=c("a","p","g","confint"), name="isoform prop.",
+    type=c("p","a","g"), name="isoform prop.",
     col=isoformCol, col.grid=gridCol, lwd=2,
     baseline=0,
     ylim=c(0, isoUpper))
