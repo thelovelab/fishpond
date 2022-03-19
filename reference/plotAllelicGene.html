@@ -22,7 +22,7 @@ plot is among the features that pass the filtering steps."><!-- mathjax --><scri
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.26</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.27</span>
       </span>
     </div>
 
@@ -86,7 +86,12 @@ plot is among the features that pass the filtering steps.</p>
   countFilter <span class="op">=</span> <span class="fl">10</span>,
   pc <span class="op">=</span> <span class="fl">1</span>,
   transcriptAnnotation <span class="op">=</span> <span class="st">"symbol"</span>,
+  labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a2 <span class="op">=</span> <span class="st">"a2"</span>, a1 <span class="op">=</span> <span class="st">"a1"</span><span class="op">)</span>,
+  qvalue <span class="op">=</span> <span class="cn">TRUE</span>,
+  log2FC <span class="op">=</span> <span class="cn">TRUE</span>,
   ideogram <span class="op">=</span> <span class="cn">TRUE</span>,
+  cov <span class="op">=</span> <span class="cn">NULL</span>,
+  covFacetIsoform <span class="op">=</span> <span class="cn">FALSE</span>,
   allelicCol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dodgerblue"</span>, <span class="st">"goldenrod1"</span><span class="op">)</span>,
   isoformCol <span class="op">=</span> <span class="st">"firebrick"</span>,
   statCol <span class="op">=</span> <span class="st">"black"</span>,
@@ -130,8 +135,22 @@ of the rowRanges of <code>y</code></p></dd>
 <dt>transcriptAnnotation</dt>
 <dd><p>argument passed to Gviz::GeneRegionTrack
 (<code>"symbol"</code>, <code>"gene"</code>, <code>"transcript"</code>, etc.)</p></dd>
+<dt>labels</dt>
+<dd><p>list, labels for a2 (non-effect) and a1 (effect) alleles</p></dd>
+<dt>qvalue</dt>
+<dd><p>logical, whether to inclue qvalue track</p></dd>
+<dt>log2FC</dt>
+<dd><p>logical, whether to include log2FC track</p></dd>
 <dt>ideogram</dt>
-<dd><p>logical, whether to include ideogram</p></dd>
+<dd><p>logical, whether to include ideogram track</p></dd>
+<dt>cov</dt>
+<dd><p>character specifying a factor or integer variable to use
+to facet the allelic proportion plots, should be a column in
+<code>colData(y)</code></p></dd>
+<dt>covFacetIsoform</dt>
+<dd><p>logical, if <code>cov</code> is provided,
+should it also be used to facet the isoform proportion track,
+in addition to the allelic proportion track</p></dd>
 <dt>allelicCol</dt>
 <dd><p>the colors of the points and lines for allelic proportion</p></dd>
 <dt>isoformCol</dt>

@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   allelic: allelic.html
   swish: swish.html
-last_built: 2022-03-18T23:11Z
+last_built: 2022-03-19T13:16Z
 urls:
   reference: https://mikelove.github.io/fishpond/reference
   article: https://mikelove.github.io/fishpond/articles
