@@ -14,7 +14,12 @@ plotAllelicGene(
   countFilter = 10,
   pc = 1,
   transcriptAnnotation = "symbol",
+  labels = list(a2 = "a2", a1 = "a1"),
+  qvalue = TRUE,
+  log2FC = TRUE,
   ideogram = TRUE,
+  cov = NULL,
+  covFacetIsoform = FALSE,
   allelicCol = c("dodgerblue", "goldenrod1"),
   isoformCol = "firebrick",
   statCol = "black",
@@ -56,7 +61,21 @@ of the rowRanges of \code{y}}
 \item{transcriptAnnotation}{argument passed to Gviz::GeneRegionTrack
 (\code{"symbol"}, \code{"gene"}, \code{"transcript"}, etc.)}
 
-\item{ideogram}{logical, whether to include ideogram}
+\item{labels}{list, labels for a2 (non-effect) and a1 (effect) alleles}
+
+\item{qvalue}{logical, whether to inclue qvalue track}
+
+\item{log2FC}{logical, whether to include log2FC track}
+
+\item{ideogram}{logical, whether to include ideogram track}
+
+\item{cov}{character specifying a factor or integer variable to use
+to facet the allelic proportion plots, should be a column in
+\code{colData(y)}}
+
+\item{covFacetIsoform}{logical, if \code{cov} is provided,
+should it also be used to facet the isoform proportion track,
+in addition to the allelic proportion track}
 
 \item{allelicCol}{the colors of the points and lines for allelic proportion}
 

@@ -113,11 +113,31 @@ plotAllelicGene(y, gene, edb,
                 transcriptAnnotation="transcript")
 ```
 
+```{r fig.dim=c(8,7)}
+plotAllelicGene(y, gene, edb, labels=list(a2="maternal",a1="paternal"))
+```
+
+```{r fig.dim=c(7,4)}
+y$allele_new <- y$allele
+# note a2 is non-effect, a1 is effect:
+levels(y$allele)
+# replace a2 then a1:
+levels(y$allele_new) <- c("maternal","paternal")
+plotInfReps(y, idx=1, x="allele_new", 
+            legend=TRUE, legendPos="bottom")
+```
+
 # Testing for dynamic allelic imbalance
 
 ```{r}
 set.seed(1)
 y <- makeSimSwishData(dynamic=TRUE)
+```
+
+Again, a hidden code chunk adds ranges to our simulation data.
+
+```{r echo=FALSE}
+rowRanges(y) <- tss
 ```
 
 ```{r}
@@ -159,4 +179,22 @@ col_dat <- data.frame(time=y$time[1:10],
 plotAllelicHeatmap(y, idx=idx,
                    annotation_row=row_dat,
                    annotation_col=col_dat)
+```
+
+```{r}
+gene <- rowRanges(y)$gene_id[1]
+y$time_bins <- cut(y$time,breaks=c(0,.25,.75,1),include.lowest=TRUE,labels=FALSE)
+y$time_bins <- paste0("time-",y$time_bins)
+table(y$time_bins[ y$allele == "a2" ])
+```
+
+```{r}
+plotAllelicGene(y, gene, edb, cov="time_bins",
+                qvalue=FALSE, log2FC=FALSE)
+```
+
+```{r}
+plotAllelicGene(y, gene, edb, cov="time_bins",
+                covFacetIsoform=TRUE,
+                qvalue=FALSE, log2FC=FALSE)
 ```

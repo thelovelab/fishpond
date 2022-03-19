@@ -270,7 +270,16 @@ makeTx2Tss <- function(x) {
 #' @param pc pseudocount to avoid dividing by zero in allelic proportion calculation
 #' @param transcriptAnnotation argument passed to Gviz::GeneRegionTrack
 #' (\code{"symbol"}, \code{"gene"}, \code{"transcript"}, etc.)
-#' @param ideogram logical, whether to include ideogram
+#' @param labels list, labels for a2 (non-effect) and a1 (effect) alleles
+#' @param qvalue logical, whether to inclue qvalue track
+#' @param log2FC logical, whether to include log2FC track
+#' @param ideogram logical, whether to include ideogram track
+#' @param cov character specifying a factor or integer variable to use
+#' to facet the allelic proportion plots, should be a column in
+#' \code{colData(y)}
+#' @param covFacetIsoform logical, if \code{cov} is provided,
+#' should it also be used to facet the isoform proportion track,
+#' in addition to the allelic proportion track
 #' @param allelicCol the colors of the points and lines for allelic proportion
 #' @param isoformCol the colors of the points and lines for isoform proportion
 #' @param statCol the color of the lollipops for q-value and log2FC
@@ -292,7 +301,12 @@ makeTx2Tss <- function(x) {
 plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
                             tpmFilter=1, countFilter=10, pc=1,
                             transcriptAnnotation="symbol",
+                            labels=list(a2="a2",a1="a1"),
+                            qvalue=TRUE,
+                            log2FC=TRUE,
                             ideogram=TRUE,
+                            cov=NULL,
+                            covFacetIsoform=FALSE,
                             allelicCol=c("dodgerblue","goldenrod1"),
                             isoformCol="firebrick",
                             statCol="black",
@@ -315,6 +329,12 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   stopifnot(is(db, "TxDb") | is(db, "EnsDb"))
   stopifnot(length(allelicCol) == 2)
   stopifnot("gene_id" %in% names(mcols(y)))
+  stopifnot(all(c("a2","a1") %in% names(labels)))
+  if (!is.null(cov)) {
+    stopifnot(cov %in% names(colData(y)))
+  } else {
+    stopifnot(!covFacetIsoform)
+  }
   # pull out the ranges of y to build the Gviz plot
   gr <- rowRanges(y)
   # standard chr's and UCSC for compatibility w Gviz
@@ -368,6 +388,7 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   allelic_counts <- assay(y[names(gr),,drop=FALSE], "counts")
   stopifnot(rownames(allelic_counts) == names(gr_allelic))
   n <- ncol(allelic_counts)/2
+  stopifnot(all(y$allele == rep(c("a2","a1"),each=n)))
   total_counts <- (
     allelic_counts[,1:n,drop=FALSE] +
     allelic_counts[,(n+1):(2*n),drop=FALSE])
@@ -441,30 +462,71 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   ##################################
   ## put together the data tracks ##
   ##################################
-  qvalue_track <- Gviz::DataTrack(
-    grSelect(gr, "minusLogQ"),
-    type=c("p","h","g"), name="-log10 qvalue",
-    col=statCol, col.grid=gridCol, cex=1.5, lwd=2,
-    ylim=c(0,qUpper), baseline=0)
-  lfc_track <- Gviz::DataTrack(
-    grSelect(gr, "log2FC"),
-    type=c("p","h","g"), name="log2FC",
-    col=statCol, col.grid=gridCol, cex=1.5, lwd=2,
-    baseline=0,
-    ylim=c(-lfcUpper,lfcUpper))
-  allele_track <-  Gviz::DataTrack(
-    gr_allelic,
-    type=c("p","a","g"), name="allelic prop.",
-    groups=y$allele,
-    col=allelicCol, col.grid=gridCol, lwd=2,
-    baseline=0.5,
-    fontcolor.legend=innerFontCol)
-  isoform_track <- Gviz::DataTrack(
-    gr_isoform,
-    type=c("p","a","g"), name="isoform prop.",
-    col=isoformCol, col.grid=gridCol, lwd=2,
-    baseline=0,
-    ylim=c(0, isoUpper))
+  if (qvalue) {
+    qvalue_track <- Gviz::DataTrack(
+      grSelect(gr, "minusLogQ"),
+      type=c("p","h","g"), name="-log10 qvalue",
+      col=statCol, col.grid=gridCol, cex=1.5, lwd=2,
+      ylim=c(0,qUpper), baseline=0)
+  } else {
+    qvalue_track <- NULL
+  }
+  if (log2FC) {
+    lfc_track <- Gviz::DataTrack(
+      grSelect(gr, "log2FC"),
+      type=c("p","h","g"), name="log2FC",
+      col=statCol, col.grid=gridCol, cex=1.5, lwd=2,
+      baseline=0,
+      ylim=c(-lfcUpper,lfcUpper))
+  } else {
+    lfc_track <- NULL
+  }
+  allele <- y$allele
+  # optionally relabelling of alleles
+  if (!(labels$a2 == "a2" & labels$a1 == "a1")) {
+    levels(allele) <- c(labels$a2, labels$a1)
+  }
+  # case where we are not faceting across a covariate
+  if (is.null(cov)) {
+    allele_track <- list(Gviz::DataTrack(
+      gr_allelic, type=c("p","a","g"), name="allelic prop.",
+      groups=allele, col=allelicCol, col.grid=gridCol, lwd=2,
+      baseline=0.5, fontcolor.legend=innerFontCol))
+  } else {
+    # faceting case
+    covariate <- colData(y)[[cov]]
+    if (!is(covariate, "factor")) {
+      covariate <- factor(covariate)
+    }
+    allele_track <- lapply(levels(covariate), function(i) {
+      gr_allelic_sub <- gr_allelic
+      idx <- covariate == i
+      mcols(gr_allelic_sub) <- mcols(gr_allelic_sub)[,idx]
+      Gviz::DataTrack(
+        gr_allelic_sub, type=c("p","a","g"), name=i,
+        groups=allele[idx], col=allelicCol, col.grid=gridCol, lwd=2,
+        baseline=0.5, fontcolor.legend=innerFontCol)
+    })
+  }
+  # case where we are not faceting across a covariate
+  if (!covFacetIsoform) {
+    isoform_track <- list(Gviz::DataTrack(
+      gr_isoform, type=c("p","a","g"), name="isoform prop.",
+      col=isoformCol, col.grid=gridCol, lwd=2,
+      baseline=0, ylim=c(0, isoUpper)))
+  } else {
+    # faceting case
+    isoform_track <- lapply(levels(covariate), function(i) {
+      gr_isoform_sub <- gr_isoform
+      # subset to one half of the covariate vector
+      idx <- covariate[1:n] == i
+      mcols(gr_isoform_sub) <- mcols(gr_isoform_sub)[,idx]
+      Gviz::DataTrack(
+        gr_isoform_sub, type=c("p","a","g"), name=i,
+        col=isoformCol, col.grid=gridCol, lwd=2,
+        baseline=0, ylim=c(0, isoUpper))
+    })
+  }
   if (!regionProvided) {
     eps <- round(.2 * total_width)
     gvizFrom <- start(region) - eps
@@ -476,12 +538,13 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   ##############################
   ## finally, plot the tracks ##
   ##############################
-  Gviz::plotTracks(list(
-    ideo_track, genome_track, gene_track,
-    qvalue_track, lfc_track,
-    allele_track, isoform_track),
-    from=gvizFrom,
-    to=gvizTo,
+  tracks <- c(list(ideo_track, genome_track, gene_track,
+                   qvalue_track, lfc_track),
+              allele_track, # already list
+              isoform_track) # already list
+  tracks <- tracks[!sapply(tracks, is.null)]
+  Gviz::plotTracks(
+    tracks, from=gvizFrom, to=gvizTo,
     col.title=titleCol,
     col.axis=titleAxisCol,
     background.title=titleBgCol,
