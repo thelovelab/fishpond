@@ -108,6 +108,8 @@ gene <- rowRanges(y)$gene_id[1]
 plotAllelicGene(y, gene, edb)
 ```
 
+Note about the lines...
+
 ```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb,
                 transcriptAnnotation="transcript")
@@ -188,12 +190,12 @@ y$time_bins <- paste0("time-",y$time_bins)
 table(y$time_bins[ y$allele == "a2" ])
 ```
 
-```{r}
+```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb, cov="time_bins",
                 qvalue=FALSE, log2FC=FALSE)
 ```
 
-```{r}
+```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb, cov="time_bins",
                 covFacetIsoform=TRUE,
                 qvalue=FALSE, log2FC=FALSE)
