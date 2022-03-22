@@ -19,7 +19,7 @@ various experimental designs. See References for details.'><!-- mathjax --><scri
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.28</span>
       </span>
     </div>
 
@@ -102,17 +102,19 @@ computed as non-reference level over reference level (see vignette:
 <dt>cov</dt>
 <dd><p>the name of the covariate for adjustment.
 If provided a stratified Wilcoxon in performed.
-Cannot be used with <code>pair</code> (unless using <code>cor</code>)</p></dd>
+Cannot be used with <code>pair</code>, unless using
+either <code>interaction</code> or <code>cor</code></p></dd>
 <dt>pair</dt>
 <dd><p>the name of the pair variable, which should be the
 number of the pair. Can be an integer or factor.
 If specified, a signed rank test is used
 to build the statistic. All samples across <code>x</code> must be
-pairs if this is specified. Cannot be used with <code>cov</code>
-(unless using <code>cor</code>)</p></dd>
+pairs if this is specified. Cannot be used with <code>cov</code>,
+unless using either <code>interaction</code> or <code>cor</code></p></dd>
 <dt>interaction</dt>
 <dd><p>logical, whether to perform a test of an interaction
-between <code>x</code> and <code>cov</code>. See Details.</p></dd>
+between <code>x</code> and <code>cov</code>. Can use <code>pair</code> or not.
+See Details.</p></dd>
 <dt>cor</dt>
 <dd><p>character, whether to compute correlation of <code>x</code>
 with the log counts, and signifance testing on the correlation
