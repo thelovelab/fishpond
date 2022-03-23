@@ -1,7 +1,7 @@
 #' Load in data from alevin-fry USA mode
 #'
-#' Enables easy loading of sparse data matrices provided by alevin-fry USA mode.
-#' Alevin-fry - \url{https://www.biorxiv.org/content/10.1101/2021.06.29.450377v1}
+#' Enables easy loading of sparse data matrices provided by
+#' alevin-fry USA mode.
 #'
 #' @param fryDir path to the output directory returned by
 #' alevin-fry quant command. This directory should contain a
@@ -90,8 +90,15 @@
 #' The row names are feature names, and the column names are cell
 #' barcodes
 #'
-#' @concept preprocessing
+#' @references
 #'
+#' alevin-fry publication:
+#'
+#' He, D., Zakeri, M., Sarkar, H. et al. "Alevin-fry unlocks rapid, accurate and 
+#' memory-frugal quantification of single-cell RNA-seq data."
+#' Nature Methods 19, 316–322 (2022).
+#' \url{https://doi.org/10.1038/s41592-022-01408-3}
+#' 
 #' @examples
 #' 
 #' # Get path for minimal example avelin-fry output dir
@@ -112,73 +119,7 @@
 #'
 #' @author Dongze He, with contributions from Steve Lianoglou, Wes Wilson
 #' 
-#' @name loadFry
-NULL
-
 #' @export
-#' @rdname loadFry
-#' @importFrom jsonlite fromJSON
-#' @importFrom Matrix readMM
-#' @importFrom utils read.table
-load_fry_raw <- function(fryDir, quiet = FALSE) {
-  # Check `fryDir` is legit
-  if (!quiet) {
-    message("locating quant file")
-  }
-  quant.file <- file.path(fryDir, "alevin", "quants_mat.mtx")
-  if (!file.exists(quant.file)) {
-    stop("The `fryDir` directory provided does not look like a directory generated from alevin-fry:\n",
-         sprintf("Missing quant file: %s", quant.file)
-    )
-  }
-  
-  # Since alevin-fry 0.4.1, meta_info.json is changed to quant.json, we check both
-  # read in metadata
-  qfile <- file.path(fryDir, "quant.json")
-  if (!file.exists(qfile)) {
-    qfile <- file.path(fryDir, "meta_info.json")
-  }
-  
-  # read in metadata
-  meta.info <- fromJSON(qfile)
-  ng <- meta.info$num_genes
-  usa.mode <- meta.info$usa_mode
-  
-  if (!quiet) {
-    message("Reading meta data")
-    message(paste0("USA mode: ", usa.mode))
-  }
-  
-  # if usa mode, each gene gets 3 rows, so the actual number of genes is ng/3
-  if (usa.mode) {
-    if (ng %% 3 != 0) {
-      stop("The number of quantified targets is not a multiple of 3")
-    }
-    ng <- as.integer(ng/3)
-  }
-  
-  # read in count matrix, gene names, and barcodes
-  count.mat <- as(readMM(file = quant.file), "dgCMatrix")
-  afg <-  read.table(file.path(fryDir, "alevin", "quants_mat_cols.txt"),
-                     strip.white = TRUE, header = FALSE, nrows = ng,
-                     col.names = c("gene_ids"))
-  rownames(afg) <- afg$gene_ids
-  afc <-  read.table(file.path(fryDir, "alevin", "quants_mat_rows.txt"),
-                     strip.white = TRUE, header = FALSE,
-                     col.names = c("barcodes"))
-  rownames(afc) <- afc$barcodes
-  
-  if (!quiet) {
-    message(paste("Processing", ng, "genes", "and", nrow(count.mat), "barcodes"))
-  }
-  
-  list(count.mat = count.mat, gene.names = afg, barcodes = afc, meta.data = list(num.genes = ng, usa.mode = usa.mode))
-}
-
-#' @export
-#' @rdname loadFry
-#' @importFrom Matrix t colSums
-#' @importFrom SingleCellExperiment SingleCellExperiment
 loadFry <- function(fryDir, 
                     outputFormat = "scRNA", 
                     nonzero = FALSE,
@@ -318,6 +259,61 @@ for the list of predifined format")
   }
   
   sce
+}
+
+load_fry_raw <- function(fryDir, quiet = FALSE) {
+  # Check `fryDir` is legit
+  if (!quiet) {
+    message("locating quant file")
+  }
+  quant.file <- file.path(fryDir, "alevin", "quants_mat.mtx")
+  if (!file.exists(quant.file)) {
+    stop("The `fryDir` directory provided does not look like a directory generated from alevin-fry:\n",
+         sprintf("Missing quant file: %s", quant.file)
+    )
+  }
+  
+  # Since alevin-fry 0.4.1, meta_info.json is changed to quant.json, we check both
+  # read in metadata
+  qfile <- file.path(fryDir, "quant.json")
+  if (!file.exists(qfile)) {
+    qfile <- file.path(fryDir, "meta_info.json")
+  }
+  
+  # read in metadata
+  meta.info <- fromJSON(qfile)
+  ng <- meta.info$num_genes
+  usa.mode <- meta.info$usa_mode
+  
+  if (!quiet) {
+    message("Reading meta data")
+    message(paste0("USA mode: ", usa.mode))
+  }
+  
+  # if usa mode, each gene gets 3 rows, so the actual number of genes is ng/3
+  if (usa.mode) {
+    if (ng %% 3 != 0) {
+      stop("The number of quantified targets is not a multiple of 3")
+    }
+    ng <- as.integer(ng/3)
+  }
+  
+  # read in count matrix, gene names, and barcodes
+  count.mat <- as(readMM(file = quant.file), "dgCMatrix")
+  afg <-  read.table(file.path(fryDir, "alevin", "quants_mat_cols.txt"),
+                     strip.white = TRUE, header = FALSE, nrows = ng,
+                     col.names = c("gene_ids"))
+  rownames(afg) <- afg$gene_ids
+  afc <-  read.table(file.path(fryDir, "alevin", "quants_mat_rows.txt"),
+                     strip.white = TRUE, header = FALSE,
+                     col.names = c("barcodes"))
+  rownames(afc) <- afc$barcodes
+  
+  if (!quiet) {
+    message(paste("Processing", ng, "genes", "and", nrow(count.mat), "barcodes"))
+  }
+  
+  list(count.mat = count.mat, gene.names = afg, barcodes = afc, meta.data = list(num.genes = ng, usa.mode = usa.mode))
 }
 
 # Functions to help with running or creating test data

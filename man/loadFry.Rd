@@ -2,11 +2,8 @@
 % Please edit documentation in R/alevin-loadFry.R
 \name{loadFry}
 \alias{loadFry}
-\alias{load_fry_raw}
 \title{Load in data from alevin-fry USA mode}
 \usage{
-load_fry_raw(fryDir, quiet = FALSE)
-
 loadFry(fryDir, outputFormat = "scRNA", nonzero = FALSE, quiet = FALSE)
 }
 \arguments{
@@ -15,8 +12,6 @@ alevin-fry quant command. This directory should contain a
 \code{metainfo.json}, and an alevin folder which contains
 \code{quants_mat.mtx}, \code{quants_mat_cols.txt} and
 \code{quants_mat_rows.txt}}
-
-\item{quiet}{logical whether to display no messages}
 
 \item{outputFormat}{can be \emph{either} be a list that defines the
 desired format of the output \code{SingleCellExperiment} object
@@ -30,6 +25,8 @@ value across all genes (default \code{FALSE}).
 If \code{TRUE}, this will filter based on all assays.
 If a string vector of assay names, it will filter based
 on the matching assays in the vector.}
+
+\item{quiet}{logical whether to display no messages}
 }
 \value{
 A \code{SingleCellExperiment} object that contains one
@@ -38,8 +35,8 @@ The row names are feature names, and the column names are cell
 barcodes
 }
 \description{
-Enables easy loading of sparse data matrices provided by alevin-fry USA mode.
-Alevin-fry - \url{https://www.biorxiv.org/content/10.1101/2021.06.29.450377v1}
+Enables easy loading of sparse data matrices provided by
+alevin-fry USA mode.
 }
 \section{Details about \code{loadFry}}{
 
@@ -129,7 +126,14 @@ scev <- loadFry(fryDir=testdat$parent_dir, outputFormat=scvelo_format, nonzero=T
 SummarizedExperiment::assayNames(scev)
 
 }
+\references{
+alevin-fry publication:
+
+He, D., Zakeri, M., Sarkar, H. et al. "Alevin-fry unlocks rapid, accurate and 
+memory-frugal quantification of single-cell RNA-seq data."
+Nature Methods 19, 316–322 (2022).
+\url{https://doi.org/10.1038/s41592-022-01408-3}
+}
 \author{
 Dongze He, with contributions from Steve Lianoglou, Wes Wilson
 }
-\concept{preprocessing}
