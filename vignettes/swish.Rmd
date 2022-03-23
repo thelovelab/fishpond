@@ -733,7 +733,7 @@ variance.  We set `skipMeta=TRUE`, although in general you would want
 `tximeta` to add the gene range information and other metadata if
 working with human, mouse, or fruit fly.
 
-```{r}
+```{r eval=FALSE}
 dir <- system.file("extdata", package="tximportData")
 files <- file.path(dir,"alevin/neurons_900_v014/alevin/quants_mat.gz")
 neurons <- tximeta(files, type="alevin",
@@ -749,7 +749,7 @@ objects, consult the following online book:
 [Orchestrating Single-Cell Analysis with Bioconductor](https://osca.bioconductor.org/)
 [@Amezquita2020].
 
-```{r}
+```{r eval=FALSE}
 library(SingleCellExperiment)
 sce <- as(neurons, "SingleCellExperiment")
 sce$cluster <- factor(paste0("cl",sample(1:6,ncol(sce),TRUE)))
@@ -780,7 +780,7 @@ Note that the figures scale to some degree by the number of cells; for
 example with $n \in [1,150)$ or $[150,400)$, more visual elements
 per cell will be included: 
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=FALSE}
 par(mfrow=c(2,1), mar=c(2,4,2,1))
 plotInfReps(sce[,1:50], "ENSMUSG00000072235.6", x="cluster")
 plotInfReps(sce[,1:150], "ENSMUSG00000072235.6", x="cluster")
