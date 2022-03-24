@@ -25,7 +25,7 @@ set ideogram=FALSE."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/a
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.31</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.33</span>
       </span>
     </div>
 
@@ -87,6 +87,7 @@ set <code>ideogram=FALSE</code>.</p>
   <span class="va">gene</span>,
   <span class="va">db</span>,
   region <span class="op">=</span> <span class="cn">NULL</span>,
+  symbol <span class="op">=</span> <span class="cn">NULL</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>,
   tpmFilter <span class="op">=</span> <span class="fl">1</span>,
   countFilter <span class="op">=</span> <span class="fl">10</span>,
@@ -128,6 +129,10 @@ rowRanges of y</p></dd>
 <dd><p>GRanges, the region to be displayed in the Gviz plot.
 if not specified, will be set according to the gene plus 20<!-- % -->
 of the total gene extent on either side</p></dd>
+<dt>symbol</dt>
+<dd><p>alternative to <code>gene</code>, to specify
+the gene of interest according to a column <code>symbol</code>
+in the metadata columns of the rowRanges of y</p></dd>
 <dt>genome</dt>
 <dd><p>UCSC genome code (e.g. <code>"hg38"</code>,
 if not specified it will use the <code><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">GenomeInfoDb::genome()</a></code>
