@@ -588,15 +588,15 @@ plotAllelicHeatmap <- function(y, idx,
     stop("plotAllelicHeatmap() requires 'pheatmap' CRAN package")
   }
   if ("mean" %in% assayNames(y)) {
-    cts <- assay(y, "mean")[idx,]
+    cts <- assay(y, "mean")[idx,,drop=FALSE]
     message("using posterior mean for calculating ratio")
   } else {
-    cts <- assay(y, "counts")[idx,]
+    cts <- assay(y, "counts")[idx,,drop=FALSE]
     message("using counts, for posterior mean, run computeInfRV")
   }
   stopifnot("allele" %in% names(colData(y)))
-  cts_a2 <- cts[,y$allele == "a2"]
-  cts_a1 <- cts[,y$allele == "a1"]
+  cts_a2 <- cts[,y$allele == "a2",drop=FALSE]
+  cts_a1 <- cts[,y$allele == "a1",drop=FALSE]
   tot <- cts_a2 + cts_a1
   ratio <- cts_a1 / tot
   if (!is.null(breaks)) {
