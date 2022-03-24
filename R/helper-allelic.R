@@ -265,6 +265,9 @@ makeTx2Tss <- function(x) {
 #' @param region GRanges, the region to be displayed in the Gviz plot.
 #' if not specified, will be set according to the gene plus 20%
 #' of the total gene extent on either side
+#' @param symbol alternative to \code{gene}, to specify
+#' the gene of interest according to a column \code{symbol}
+#' in the metadata columns of the rowRanges of y
 #' @param genome UCSC genome code (e.g. \code{"hg38"},
 #' if not specified it will use the \code{GenomeInfoDb::genome()}
 #' of the rowRanges of \code{y}
@@ -301,7 +304,8 @@ makeTx2Tss <- function(x) {
 #' @return nothing, a plot is displayed
 #'
 #' @export
-plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
+plotAllelicGene <- function(y, gene, db,
+                            region=NULL, symbol=NULL, genome=NULL,
                             tpmFilter=1, countFilter=10, pc=1,
                             transcriptAnnotation="symbol",
                             labels=list(a2="a2",a1="a1"),
@@ -328,10 +332,14 @@ plotAllelicGene <- function(y, gene, db, region=NULL, genome=NULL,
   if (!requireNamespace("GenomeInfoDb", quietly=TRUE)) {
     stop("plotAllelicGene() requires 'GenomeInfoDb' Bioconductor package")
   }
+  stopifnot("gene_id" %in% names(mcols(y)))
+  if (!is.null(symbol)) {
+    stopifnot("symbol" %in% names(mcols(y)))
+    gene <- mcols(y)$gene_id[match(symbol, mcols(y)$symbol)]
+  }
   stopifnot(is.character(gene))
   stopifnot(is(db, "TxDb") | is(db, "EnsDb"))
   stopifnot(length(allelicCol) == 2)
-  stopifnot("gene_id" %in% names(mcols(y)))
   stopifnot(all(c("a2","a1") %in% names(labels)))
   if (!is.null(cov)) {
     stopifnot(cov %in% names(colData(y)))

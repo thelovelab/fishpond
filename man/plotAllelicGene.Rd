@@ -9,6 +9,7 @@ plotAllelicGene(
   gene,
   db,
   region = NULL,
+  symbol = NULL,
   genome = NULL,
   tpmFilter = 1,
   countFilter = 10,
@@ -47,6 +48,10 @@ rowRanges of y}
 \item{region}{GRanges, the region to be displayed in the Gviz plot.
 if not specified, will be set according to the gene plus 20%
 of the total gene extent on either side}
+
+\item{symbol}{alternative to \code{gene}, to specify
+the gene of interest according to a column \code{symbol}
+in the metadata columns of the rowRanges of y}
 
 \item{genome}{UCSC genome code (e.g. \code{"hg38"},
 if not specified it will use the \code{GenomeInfoDb::genome()}

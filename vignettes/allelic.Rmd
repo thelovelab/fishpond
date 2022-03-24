@@ -108,6 +108,12 @@ gene <- rowRanges(y)$gene_id[1]
 plotAllelicGene(y, gene, edb)
 ```
 
+You can also specify the gene using `symbol`:
+
+```{r fig.dim=c(8,7)}
+plotAllelicGene(y, symbol="ADSS", edb)
+```
+
 Note about the lines...
 
 ```{r fig.dim=c(8,7)}
