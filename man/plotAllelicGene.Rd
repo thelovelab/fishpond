@@ -114,4 +114,7 @@ vignette for example usage. TPM and count filters are used by
 default to clean up the plot of features with minimal signal;
 note that the isoform proportion displayed at the bottom of the
 plot is among the features that pass the filtering steps.
+If the function is not responding, it is likely due to issues
+connecting to UCSC servers to draw the ideogram, in this case
+set \code{ideogram=FALSE}.
 }

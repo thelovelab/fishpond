@@ -253,6 +253,9 @@ makeTx2Tss <- function(x) {
 #' default to clean up the plot of features with minimal signal;
 #' note that the isoform proportion displayed at the bottom of the
 #' plot is among the features that pass the filtering steps.
+#' If the function is not responding, it is likely due to issues
+#' connecting to UCSC servers to draw the ideogram, in this case
+#' set \code{ideogram=FALSE}.
 #' 
 #' @param y a SummarizedExperiment (see \code{swish})
 #' @param gene the name of the gene of interest, requires
@@ -587,6 +590,7 @@ plotAllelicHeatmap <- function(y, idx,
   if (!requireNamespace("GenomeInfoDb", quietly=TRUE)) {
     stop("plotAllelicHeatmap() requires 'pheatmap' CRAN package")
   }
+  stopifnot(ncol(y) > 1)
   if ("mean" %in% assayNames(y)) {
     cts <- assay(y, "mean")[idx,,drop=FALSE]
     message("using posterior mean for calculating ratio")
