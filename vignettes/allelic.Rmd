@@ -58,7 +58,7 @@ manually for transcript- or gene-level analysis, using the
 tss <- t2g[!duplicated(t2g$group_id)]
 tss$symbol <- mapIds(edb, tss$gene_id, "SYMBOL", "GENEID")
 names(tss) <- paste0(tss$symbol, "-", tss$tss)
-mcols(tss) <- mcols(tss)[,c("tx_id","gene_id","tss","group_id")]
+mcols(tss) <- mcols(tss)[,c("tx_id","gene_id","tss","group_id","symbol")]
 # slow...
 #tx_id <- CharacterList(split(t2g$tx_id,t2g$group_id))
 #tss$tx_id <- tx_id[names(tss)]
@@ -111,7 +111,7 @@ plotAllelicGene(y, gene, edb)
 You can also specify the gene using `symbol`:
 
 ```{r fig.dim=c(8,7)}
-plotAllelicGene(y, symbol="ADSS", edb)
+plotAllelicGene(y, symbol="ADSS", db=edb)
 ```
 
 Note about the lines...
