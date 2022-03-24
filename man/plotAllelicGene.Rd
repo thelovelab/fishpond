@@ -17,7 +17,7 @@ plotAllelicGene(
   labels = list(a2 = "a2", a1 = "a1"),
   qvalue = TRUE,
   log2FC = TRUE,
-  ideogram = TRUE,
+  ideogram = FALSE,
   cov = NULL,
   covFacetIsoform = FALSE,
   allelicCol = c("dodgerblue", "goldenrod1"),

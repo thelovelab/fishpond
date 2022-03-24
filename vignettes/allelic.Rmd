@@ -116,7 +116,8 @@ plotAllelicGene(y, gene, edb,
 ```
 
 ```{r fig.dim=c(8,7)}
-plotAllelicGene(y, gene, edb, labels=list(a2="maternal",a1="paternal"))
+plotAllelicGene(y, gene, edb, ideogram=TRUE,
+                labels=list(a2="maternal",a1="paternal"))
 ```
 
 ```{r fig.dim=c(7,4)}
