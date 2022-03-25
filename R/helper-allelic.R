@@ -356,6 +356,7 @@ plotAllelicGene <- function(y, gene, db,
   stopifnot(gene %in% gr$gene_id)
   # pull out the ranges for the gene of interest
   gr <- gr[gr$gene_id == gene]
+  stopifnot(!any(duplicated(names(gr))))
   # use TPM and count filtering to remove lowly expressed features
   if (!is.null(tpmFilter) | !is.null(countFilter)) {
     keep <- rep(TRUE, length(gr))
