@@ -1,5 +1,5 @@
 ---
-title: "Allelic expression analysis with Salmon and Swish"
+title: "SEESAW - Allelic expression analysis with Salmon and Swish"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output:
   rmarkdown::html_document:
@@ -8,7 +8,7 @@ output:
     toc_float: true
 bibliography: library.bib
 vignette: |
-  %\VignetteIndexEntry{2. Allelic expression analysis with Salmon and Swish}
+  %\VignetteIndexEntry{2. SEESAW - Allelic expression analysis with Salmon and Swish}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,42 +16,116 @@ vignette: |
 <!-- run this document with rmarkdown::render("swish.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
+knitr::opts_chunk$set(tidy=FALSE, cache=TRUE, dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
-# Allelic analysis
+# Introduction
+
+In this vignette, we describe usage of a suite of tools, **SEESAW**,
+Statistical Estimation of allelic Expression using Salmon and
+Swish. 
+
+Running SEESAW involves generation of a diploid transcriptome 
+(e.g. using [g2gtools](http://churchill-lab.github.io/g2gtools/),
+construction of a diploid Salmon index (specifying
+`--keepDuplicates`), followed by Salmon quantification with a number of
+[bootstrap inferential replicates](https://salmon.readthedocs.io/en/latest/salmon.html#numbootstraps)
+(we recommend 30 bootstrap replicates).
+These three steps (diploid reference preparation, indexing, quantification
+with bootstraps) provide the input data for the following statistical
+analyses in R/Bioconductor. The steps shown in this vignette leverage
+Bioconductor infrastructure including *SummarizedExperiment* for
+storage of input data and results, *tximport* for data import, and
+*GRanges* and *Gviz* for plotting.
+
+In short the SEESAW steps are:
+
+1. g2gtools (reference preparation)
+2. Salmon indexing with `--keepDuplicates`
+3. Salmon quantification with bootstraps
+4. Link transcripts to TSS (for TSS-level analysis)
+5. `importAllelicCounts()`
+6. Swish analysis: `labelKeep()` and `swish()` (skip scaling)
+7. Plotting
+
+SEESAW allows for testing *global allelic imbalance* across all
+samples (pairwise testing within each individual), as well as
+*differential or dynamic allelic imbalance* (pairwise allelic fold
+changes estimated within individual, followed by testing across or
+along an additional covariate). Each of these allelic imbalance (AI)
+analyses takes into account the potentially heterogeneous amount of
+inferential uncertainty per sample, per feature (transcript,
+transcript-group, or gene), and per allele.
+
+Below we demonstrate an analysis where transcripts are grouped by their
+transcription start site (TSS), although gene-level or
+transcript-level analysis is also possible. New plotting functions
+added to *fishpond* facilitate visualization of allelic and isoform
+changes at different resolutions, alongside gene models. In the first
+example, we perform global AI testing, and in the second example we
+perform dynamic AI testing, in both cases on simulated data associated
+with human genes.
 
 # Linking transcripts to TSS
+
+We begin assuming steps 1-3 have been completed. We can use the
+`makeTx2Tss` function to generate a *GRanges* object `t2g` that
+connects transcripts to transcript groups. 
+
 
 ```{r}
 suppressPackageStartupMessages(library(ensembldb))
 library(EnsDb.Hsapiens.v86)
 library(fishpond)
 edb <- EnsDb.Hsapiens.v86
-t2g <- makeTx2Tss(edb)
+t2g <- makeTx2Tss(edb) # GRanges object
 mcols(t2g)[,c("tx_id","group_id")]
 ```
 
+Alternatively for gene-level analysis, one could either prepare a
+`t2g` data.frame with `tx_id` and `gene_id` columns, or a `t2g`
+*GRanges* object with a column `group_id` that is equal to `gene_id`.
+
 # Importing allelic counts
+
+Here we will use simulated data, but we can import allelic counts with
+the `importAllelicCounts()` function. It is best to read over the
+manual page for this function. For TSS-level analysis, the `t2g`
+*GRanges* generated above should be passed to the `tx2gene`
+argument. This will summarize transcript-level counts to the TSS
+level, and will attach `rowRanges` that provide the genomic locations
+of the grouped transcripts.
+
+# Testing for allelic imbalance across samples
+
+We begin by generating a simulated data object that resembles what one
+would obtain with `importAllelicCounts()`. The import function
+arranges the `a2` (non-effect) allelic counts first, followed by the
+`a1` (effect) allelic counts. Allelic ratios are calculated at
+`a1/a2`.
 
 ```{r}
 suppressPackageStartupMessages(library(SummarizedExperiment))
 ```
 
-# Testing for allelic imbalance across samples
-
 ```{r}
 set.seed(1)
 y <- makeSimSwishData(allelic=TRUE)
+colData(y)
+levels(y$allele) # a1/a2 allelic fold changes
 ```
 
 A hidden code chunk is used to add ranges from the *EnsDb* to the
-simulated data set. For a real dataset, the ranges would be added
+simulated dataset. For a real dataset, the ranges would be added
 either by `importAllelicCounts` (if using `tx2gene`) or could be added
 manually for transcript- or gene-level analysis, using the
 `rowRanges<-` setter function. The ranges are only needed for the
 `plotAllelicGene` plotting function below.
+
+```
+<hidden code chunk>
+```
 
 ```{r echo=FALSE}
 # hidden chunk to add ranges to the `se`
@@ -73,7 +147,10 @@ rowRanges(y) <- tss
 ```
 
 We can already plot a heatmap of allelic ratios, before performing
-statistical testing.
+statistical testing. We can see in the first gene, *ADSS*, there
+appear to be two groups of transcripts with opposing allelic fold
+change. SEESAW makes use of *pheatmap* for plotting a heatmap of
+allelic ratios.
 
 ```{r fig.dim=c(7,3.5)}
 y <- computeInfRV(y) # for posterior mean, variance
@@ -82,6 +159,11 @@ idx <- mcols(y)$gene_id == gene
 plotAllelicHeatmap(y, idx=idx)
 ```
 
+The following two functions perform a Swish analysis, comparing the
+allelic counts within sample, while accounting for uncertainty in the
+assignment of the reads. The underlying test statistic is a Wilcoxon
+signed-rank statistic.
+
 ```{r}
 y <- labelKeep(y)
 y <- swish(y, x="allele", pair="sample")
@@ -89,7 +171,8 @@ y <- swish(y, x="allele", pair="sample")
 
 # Plotting results
 
-We can return to the heatmap, and now add q-values, etc.
+We can return to the heatmap, and now add q-values, etc. For details
+on adding metadata to a *pheatmap* plot object, see `?pheatmap`.
 
 ```{r fig.dim=c(8,4)}
 dat <- data.frame(minusLogQ=-log10(mcols(y)$qvalue[idx]),
@@ -97,11 +180,21 @@ dat <- data.frame(minusLogQ=-log10(mcols(y)$qvalue[idx]),
 plotAllelicHeatmap(y, idx=idx, annotation_row=dat)
 ```
 
-```{r fig.dim=c(7,7)}
+In order to visualize the inferential uncertainty, we can make use of
+`plotInfReps()`:
+
+```{r fig.dim=c(5,5)}
 par(mfrow=c(2,1), mar=c(1,4.1,2,2))
 plotInfReps(y, idx=1, x="allele", cov="sample", xaxis=FALSE, xlab="")
 plotInfReps(y, idx=2, x="allele", cov="sample", xaxis=FALSE, xlab="")
 ```
+
+SEESAW provides `plotAllelicGene()` in order to build visualization of
+Swish test statistics, allelic proportions, and isoform proportions,
+in a genomic context, making use of *Gviz*. The first three arguments
+are the *SummarizedExperiment* object, the name of a gene (should
+match `gene_id` column), and a *TxDb* or *EnsDb* to use for plotting
+the gene model at the top.
 
 ```{r fig.dim=c(8,7)}
 gene <- rowRanges(y)$gene_id[1]
@@ -206,4 +299,10 @@ plotAllelicGene(y, gene, edb, cov="time_bins",
 plotAllelicGene(y, gene, edb, cov="time_bins",
                 covFacetIsoform=TRUE,
                 qvalue=FALSE, log2FC=FALSE)
+```
+
+# Session info
+
+```{r}
+sessionInfo()
 ```
