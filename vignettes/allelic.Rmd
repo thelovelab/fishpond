@@ -219,19 +219,16 @@ genomic features (methylation or accessibility), there is no meaning
 to the allelic proportion or isoform proportion outside of measured
 start sites of transcription.
 
-We can customize the labels displayed on the gene model:
+We can further customize the plot, for example, 
+changing the labels displayed on the gene model, and changing the
+labels for the alleles. An ideogram can be added with `ideogram=TRUE`,
+although this requires connecting to an external FTP site.
+
+See `importAllelicGene()` manual page for more details.
 
 ```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb,
                 transcriptAnnotation="transcript")
-```
-
-We can further customize the plot, for example, 
-adding an ideogram, and changing the labels for the alleles. See
-`importAllelicGene()` manual page for more details.
-
-```{r fig.dim=c(8,7)}
-plotAllelicGene(y, gene, edb, ideogram=TRUE,
                 labels=list(a2="maternal",a1="paternal"))
 ```
 
@@ -344,8 +341,8 @@ First we create the binned covariate using `cut`, and rename the
 labels for nicer labels in our plot: 
 
 ```{r}
-gene <- rowRanges(y)$gene_id[1]
-y$time_bins <- cut(y$time,breaks=c(0,.25,.75,1),include.lowest=TRUE,labels=FALSE)
+y$time_bins <- cut(y$time,breaks=c(0,.25,.75,1),
+                   include.lowest=TRUE, labels=FALSE)
 y$time_bins <- paste0("time-",y$time_bins)
 table(y$time_bins[ y$allele == "a2" ])
 ```
@@ -353,6 +350,7 @@ table(y$time_bins[ y$allele == "a2" ])
 We can then make our facetted allelic proportion plot:
 
 ```{r fig.dim=c(8,7)}
+gene <- rowRanges(y)$gene_id[1]
 plotAllelicGene(y, gene, edb, cov="time_bins",
                 qvalue=FALSE, log2FC=FALSE)
 ```
