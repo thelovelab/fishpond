@@ -228,7 +228,7 @@ See `importAllelicGene()` manual page for more details.
 
 ```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb,
-                transcriptAnnotation="transcript"),
+                transcriptAnnotation="transcript",
                 labels=list(a2="maternal",a1="paternal"))
 ```
 
