@@ -16,7 +16,7 @@ vignette: |
 <!-- run this document with rmarkdown::render("swish.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=TRUE, dev="png",
+knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
@@ -194,7 +194,9 @@ Swish test statistics, allelic proportions, and isoform proportions,
 in a genomic context, making use of *Gviz*. The first three arguments
 are the *SummarizedExperiment* object, the name of a gene (should
 match `gene_id` column), and a *TxDb* or *EnsDb* to use for plotting
-the gene model at the top.
+the gene model at the top. The statistics and proportions are then
+plotted at the first position of the feature (`start` for `+` features
+and `end` for `-` features).
 
 ```{r fig.dim=c(8,7)}
 gene <- rowRanges(y)$gene_id[1]
@@ -207,19 +209,38 @@ You can also specify the gene using `symbol`:
 plotAllelicGene(y, symbol="ADSS", db=edb)
 ```
 
-Note about the lines...
+In the allelic proportion and isoform proportion tracks, a line is
+drawn through the mean proportion for a2 and a1 allele, and for the
+isoform proportion, across samples, at the start site for each
+transcript group. The line is meant only to help visualize the mean
+value as it may change across transcript groups, but the line has no
+meaning in the ranges in between features. That is, unlike continuous
+genomic features (methylation or accessibility), there is no meaning
+to the allelic proportion or isoform proportion outside of measured
+start sites of transcription.
+
+We can customize the labels displayed on the gene model:
 
 ```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb,
                 transcriptAnnotation="transcript")
 ```
 
+We can further customize the plot, for example, 
+adding an ideogram, and changing the labels for the alleles. See
+`importAllelicGene()` manual page for more details.
+
 ```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb, ideogram=TRUE,
                 labels=list(a2="maternal",a1="paternal"))
 ```
 
-```{r fig.dim=c(7,4)}
+We can also customize the display of the alleles in the
+`plotInfReps()` plots, by adding a new factor, while carefully noting
+the existing and new allele labels, to make sure the annotation is
+correct: 
+
+```{r fig.dim=c(5,4)}
 y$allele_new <- y$allele
 # note a2 is non-effect, a1 is effect:
 levels(y$allele)
@@ -231,29 +252,55 @@ plotInfReps(y, idx=1, x="allele_new",
 
 # Testing for dynamic allelic imbalance
 
+Above, we tested for global AI, where the allelic fold change is
+consistent across all samples. We can also test for differential or
+dynamic AI, by adding specification of a `cov` (covariate) which can
+be either a two-group factor, or a continuous variable. For continuous
+variable, the user should specify a correlation test, either
+`cor="pearson"` or `"spearman"`.
+
 ```{r}
 set.seed(1)
 y <- makeSimSwishData(dynamic=TRUE)
+colData(y)
 ```
 
 Again, a hidden code chunk adds ranges to our simulation data.
 
+```
+<hidden code chunk>
+```
+
 ```{r echo=FALSE}
 rowRanges(y) <- tss
 ```
+
+In the following, we test for changes in allelic imbalance within
+sample that correlate with a covariate `time`.
 
 ```{r}
 y <- labelKeep(y)
 y <- swish(y, x="allele", pair="sample", cov="time", cor="pearson")
 ```
 
+Note the first two features have small q-values and opposite test
+statistic; here the test statistic is the average Pearson correlation
+of the allelic log fold change with the `time` variable, averaging
+over bootstrap replicates. 
+
 ```{r}
 mcols(y)[1:2,c("stat","qvalue")]
 ```
 
+For plotting inferential replicates over a continuous variable, we
+must first compute summary statistics of inferential mean and
+variance: 
+
 ```{r}
-y <- computeInfRV(y) # for posterior mean, variance
+y <- computeInfRV(y)
 ```
+
+Now we can examine the allelic counts across the `time` variable:
 
 ```{r fig.dim=c(7,7)}
 par(mfrow=c(2,1), mar=c(2.5,4,2,2))
@@ -262,7 +309,9 @@ par(mar=c(4.5,4,0,2))
 plotInfReps(y, idx=2, x="time", cov="allele", shiftX=.01, main="")
 ```
 
-```{r fig.dim=c(7,7)}
+With a little more code, we can add a `lowess` line for each series:
+
+```{r fig.dim=c(7,5)}
 plotInfReps(y, idx=1, x="time", cov="allele", shiftX=.01)
 dat <- data.frame(
   time = y$time[1:10],
@@ -271,6 +320,10 @@ dat <- data.frame(
 lines(lowess(dat[,c(1,2)]), col="dodgerblue")
 lines(lowess(dat[,c(1,3)]), col="goldenrod4")
 ```
+
+Visualizing the allelic proportion in a heatmap helps to see
+relationships with the `time` variable, while also showing data from
+multiple features at once:
 
 ```{r fig.dim=c(8,4)}
 idx <- c(1:4)
@@ -283,6 +336,13 @@ plotAllelicHeatmap(y, idx=idx,
                    annotation_col=col_dat)
 ```
 
+Finally, by binning the `time` covariate into a few groups, we can
+again draw the allelic and isoform proportions in the genomic context,
+now facetting across time. 
+
+First we create the binned covariate using `cut`, and rename the
+labels for nicer labels in our plot: 
+
 ```{r}
 gene <- rowRanges(y)$gene_id[1]
 y$time_bins <- cut(y$time,breaks=c(0,.25,.75,1),include.lowest=TRUE,labels=FALSE)
@@ -290,16 +350,29 @@ y$time_bins <- paste0("time-",y$time_bins)
 table(y$time_bins[ y$allele == "a2" ])
 ```
 
+We can then make our facetted allelic proportion plot:
+
 ```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb, cov="time_bins",
                 qvalue=FALSE, log2FC=FALSE)
 ```
+
+If we also want to visualize how isoform proportions may be changing,
+we can add `covFacetIsoform=TRUE`, which additionally facets the
+isoform proportion plot by the covariate:
 
 ```{r fig.dim=c(8,7)}
 plotAllelicGene(y, gene, edb, cov="time_bins",
                 covFacetIsoform=TRUE,
                 qvalue=FALSE, log2FC=FALSE)
 ```
+
+For further questions about the SEESAW steps, please post to one of
+these locations:
+
+* Bioconductor support site <https://support.bioconductor.org> and use
+  the tag `fishpond` or `swish`
+* GitHub Issue <https://github.com/mikelove/fishpond>
 
 # Session info
 
