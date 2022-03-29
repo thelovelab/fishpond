@@ -19,6 +19,7 @@
 #' If \code{TRUE}, this will filter based on all assays.
 #' If a string vector of assay names, it will filter based
 #' on the matching assays in the vector.
+#' If not in USA mode, it must be TRUE/FALSE/counts.
 #' @param quiet logical whether to display no messages
 #'
 #' @section Details about \code{loadFry}:
@@ -37,7 +38,6 @@
 #' returned object will contains the desired assays defined by
 #' \code{outputFormat}, with rownames as the barcode of samples and
 #' colnames as the feature names.
-#' 
 #' 
 #' @section Details about the output format:
 #' The \code{outputFormat} argument takes \emph{either} be a list that defines 
@@ -187,7 +187,7 @@ for the list of predifined format")
         if (is.character(outputFormat) && outputFormat == "scvelo") {
           nonzero <- c("counts")
         } else {
-          nonzero <- c() 
+          nonzero <- c()
         }
       }
     } else if (is.character(nonzero)) {
@@ -232,10 +232,27 @@ for the list of predifined format")
       }
     }
   } else {
+    # not in USA mode
     if (!quiet) {
-      message("Not in USA mode, ignore argument outputFormat")
+      message("Not in USA mode, set assay name as \"counts\"")
     }
     
+    if (is.logical(nonzero)) {
+      if (nonzero) {
+        nonzero <- c("counts")
+      } else {
+        nonzero <- c()
+      }
+    } else {
+      if (nonzero != "counts") {
+        message("Not in USA mode, nonzero must be TRUE/FALSE/counts")
+        message("Set nonzero as FALSE")
+        nonzero <- c()
+      } else {
+        nonzero <- c("counts")
+      }
+    }
+
     # define output matrix
     alist <- list(counts = t(fry.raw$count.mat))
   }
