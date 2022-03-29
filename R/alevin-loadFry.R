@@ -187,7 +187,7 @@ for the list of predifined format")
         if (is.character(outputFormat) && outputFormat == "scvelo") {
           nonzero <- c("counts")
         } else {
-          nonzero <- c() 
+          nonzero <- c()
         }
       }
     } else if (is.character(nonzero)) {
@@ -234,7 +234,7 @@ for the list of predifined format")
   } else {
     # not in USA mode
     if (!quiet) {
-      message("Not in USA mode, ignore outputFormat")
+      message("Not in USA mode, set assay name as \"counts\"")
     }
     
     if (is.logical(nonzero)) {
