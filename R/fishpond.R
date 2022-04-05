@@ -45,18 +45,20 @@
 #' @importFrom graphics plot points segments rect abline title axis legend
 #' @importFrom stats median quantile qnorm rpois runif rnbinom var cor
 #' @importFrom utils head tail capture.output read.table write.table read.csv
-#' @importFrom methods is as
+#' @importFrom methods is as slot
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' assayNames assayNames<- assay assay<- assays assays<-
 #' colData colData<- mcols mcols<- rowRanges rowRanges<-
+#' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom IRanges CharacterList
 #' @importFrom S4Vectors DataFrame metadata metadata<-
 #' @importFrom GenomicRanges start end strand width
 #' start<- end<- strand<- resize flank sort seqnames
 #' @importFrom gtools permutations
-#' @importFrom Matrix rowSums
+#' @importFrom Matrix rowSums readMM t colSums
 #' @importFrom matrixStats rowRanks rowMedians rowVars rowQuantiles
 #' @importFrom svMisc progress
+#' @importFrom jsonlite fromJSON
 #' 
 #' @docType package
 #' @name fishpond-package

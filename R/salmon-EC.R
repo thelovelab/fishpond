@@ -23,16 +23,16 @@
 #' 
 #' @return a sparse count matrix 
 #' 
-#' @importFrom Matrix sparseMatrix
+#' @importFrom Matrix sparseMatrix sparseVector
 #' @export
 salmonEC <- function(paths, tx2gene, multigene = FALSE, quiet = FALSE){
   
   # get line number where the TCCs start (same for each file, get from first file)
-  startread <- fread(paths[1], nrows=1, sep = " ", 
+  startread <- data.table::fread(paths[1], nrows=1, sep = " ", 
                      quote = "", header = FALSE)$V1 + 2
   
   # order tx2gene like transcripts in ECC files
-  tx_lookup <- fread(paths[1], skip = 2, nrows = startread-2, 
+  tx_lookup <- data.table::fread(paths[1], skip = 2, nrows = startread-2, 
                      sep = " ", quote = "", header = FALSE)$V1
   tx2gene <- tx2gene[match(tx_lookup, tx2gene$isoform_id),]
   
@@ -83,7 +83,7 @@ salmonEC <- function(paths, tx2gene, multigene = FALSE, quiet = FALSE){
 # multiple genes.
 readEq <- function(file, geneSet, startread, multigene){
   
-  ec_df <- fread(file, skip=startread, sep = " ", quote = "", header = FALSE)
+  ec_df <- data.table::fread(file, skip=startread, sep = " ", quote = "", header = FALSE)
   eccs <- strsplit(ec_df$V1,"\t",fixed=TRUE)
   
   # remove first and last -> keep ECCs and not their corresponding TXs and counts
@@ -99,7 +99,7 @@ readEq <- function(file, geneSet, startread, multigene){
   
   #ec_txs <- unlist(lapply(eccs_hlp, stringi::stri_c, collapse = "|"))
   ec_txs <- unlist(lapply(eccs_hlp, paste, collapse = "|"))
-  ec_counts <- as.integer(vapply(eccs, last, FUN.VALUE = character(1)))
+  ec_counts <- as.integer(vapply(eccs, data.table::last, FUN.VALUE = character(1)))
   
   return(list(ec_txs, ec_counts))
 }
