@@ -1,4 +1,5 @@
-#' Construct a matrix of transcript compatibility counts from alevin output
+#' Construct a sparse matrix of transcript compatibility counts from alevin 
+#' output
 #'
 #' Constructs a UMI count matrix with equivalence class identifiers
 #' in the rows and barcode identifiers in the columns. The count matrix is 
@@ -8,7 +9,7 @@
 #'
 #' @rdname alevinEC
 #' 
-#' @param paths `Charachter` or `character vector`, full path specifying the 
+#' @param paths `Charachter` or `character vector`, path specifying the 
 #' location of the `bfh.txt` files generated with alevin-fry.
 #' @param tx2gene A `dataframe` linking transcript identifiers to their 
 #' corresponding gene identifiers. Transcript identifiers must be in a column 
