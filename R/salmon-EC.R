@@ -154,7 +154,7 @@ readEq <- function(file, geneSet, startread, multigene){
       if(all(is.na(gene_cur))){
         return(TRUE)
       } else{
-        return(length(unique(geneSet[as.integer(element)+1]))!=1)
+        return(length(unique(gene_cur))!=1)
       }
     }))
     eccs_hlp[hlp] <- NULL
