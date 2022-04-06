@@ -75,8 +75,12 @@ alevinEC <- function(paths, tx2gene, multigene = FALSE, ignoreTxVersion = FALSE,
   }
   
   if (!any(tname %in% tx2gene$isoform_id)) {
-    txFromFile <- paste0("Example IDs (file): [", paste(head(tname,3),collapse=", "),", ...]")
-    txFromTable <- paste0("Example IDs (tx2gene): [", paste(head(tx2gene$isoform_id,3),collapse=", "),", ...]")
+    txFromFile <- paste0("Example IDs (file): [", 
+                         paste(head(tname,3),collapse=", "),
+                         ", ...]")
+    txFromTable <- paste0("Example IDs (tx2gene): [",
+                          paste(head(tx2gene$isoform_id,3),
+                                collapse=", "),", ...]")
     stop(paste0("
 None of the transcripts in the quantification files are present
 in the first column of tx2gene. Check to see that you are using
@@ -145,11 +149,13 @@ the same annotation for both.\n\n",txFromFile,"\n\n",txFromTable,
 # (i) the names of the ECs
 # (ii) the indices of the barcodes in which each of the ECs are expressed
 # (iii) the UMI expression level for each EC/barcode pair
-# (iv) number of barcodes in which each EC is expressed (to construct sparseMatrix)
+# (iv) number of barcodes in which each EC is expressed (to construct 
+# sparseMatrix)
 # (v) the names of the barcodes
 readBFH <- function(file, tx2gene, multigene){
   
-  numbers <- data.table::fread(file, nrows=3, sep = " ", quote = "", header = FALSE)
+  numbers <- data.table::fread(file, nrows=3, sep = " ", quote = "", 
+                               header = FALSE)
   n_tx <- numbers$V1[1]
   n_bc <- numbers$V1[2]
   
@@ -159,7 +165,8 @@ readBFH <- function(file, tx2gene, multigene){
   
   # read ECs
   startread <- sum(n_tx, n_bc, 3) # first line with EC info
-  ec_df <- data.table::fread(file, skip=startread, sep = " ", quote = "", header = FALSE)
+  ec_df <- data.table::fread(file, skip=startread, sep = " ", quote = "", 
+                             header = FALSE)
   eccs <- strsplit(ec_df$V1,"\t",fixed=TRUE)
   
   # code strongly based on read_bfh() from 
@@ -169,7 +176,8 @@ readBFH <- function(file, tx2gene, multigene){
     num_labels <- as.integer(toks[1])
     txps <- as.integer(toks[2:(num_labels+1)])+1
     genes <-  tx2gene$gene_id[txps]
-    if(any(is.na(genes))){ # if annotation not complete -> remove EC with any NA genes
+    # if annotation not complete -> remove EC with any NA genes
+    if(any(is.na(genes))){ 
       return(NULL)
     }
     if(!multigene){

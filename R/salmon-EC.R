@@ -39,7 +39,7 @@
 #' the transcripts and their respective genes in rows 1, 2 and 8 of 
 #' `tx2gene_matched`.
 #' 
-#' @importFrom Matrix sparseMatrix
+#' @importFrom Matrix sparseMatrix sparseVector
 #' @export
 salmonEC <- function(paths, tx2gene, multigene = FALSE, ignoreTxVersion = FALSE, 
                       ignoreAfterBar = FALSE, quiet = FALSE){
@@ -60,12 +60,12 @@ salmonEC <- function(paths, tx2gene, multigene = FALSE, ignoreTxVersion = FALSE,
   }
   
   # get line number where the TCCs start (same for each file, get from first file)
-  startread <- fread(paths[1], nrows=1, sep = " ", 
-                     quote = "", header = FALSE)$V1 + 2
+  startread <- data.table::fread(paths[1], nrows=1, sep = " ",
+                                 quote = "", header = FALSE)$V1 + 2
   
   # order tx2gene like transcripts in ECC files
-  tx_lookup <- fread(paths[1], skip = 2, nrows = startread-2, 
-                     sep = " ", quote = "", header = FALSE)$V1
+  tx_lookup <- data.table::fread(paths[1], skip = 2, nrows = startread-2, 
+                                 sep = " ", quote = "", header = FALSE)$V1
   
   if (ignoreTxVersion) {
     tx2gene$isoform_id <- sub("\\..*", "", tx2gene$isoform_id)
@@ -76,8 +76,12 @@ salmonEC <- function(paths, tx2gene, multigene = FALSE, ignoreTxVersion = FALSE,
   }
   
   if (!any(tx_lookup %in% tx2gene$isoform_id)) {
-    txFromFile <- paste0("Example IDs (file): [", paste(head(tx_lookup,3),collapse=", "),", ...]")
-    txFromTable <- paste0("Example IDs (tx2gene): [", paste(head(tx2gene$isoform_id,3),collapse=", "),", ...]")
+    txFromFile <- paste0("Example IDs (file): [", 
+                         paste(head(tx_lookup,3),collapse=", "),
+                         ", ...]")
+    txFromTable <- paste0("Example IDs (tx2gene): [", 
+                          paste(head(tx2gene$isoform_id,3),
+                                collapse=", "),", ...]")
     stop(paste0("
   None of the transcripts in the quantification files are present
   in the first column of tx2gene. Check to see that you are using
@@ -142,7 +146,8 @@ salmonEC <- function(paths, tx2gene, multigene = FALSE, ignoreTxVersion = FALSE,
 # multiple genes.
 readEq <- function(file, geneSet, startread, multigene){
   
-  ec_df <- fread(file, skip=startread, sep = " ", quote = "", header = FALSE)
+  ec_df <- data.table::fread(file, skip=startread, sep = " ", quote = "", 
+                             header = FALSE)
   eccs <- strsplit(ec_df$V1,"\t",fixed=TRUE)
   
   # remove first and last -> keep ECCs and not their corresponding TXs and counts
@@ -151,7 +156,8 @@ readEq <- function(file, geneSet, startread, multigene){
   if(!multigene){ # remove ECs corresponding to multiple genes
     hlp <- unlist(lapply(eccs_hlp, function(element) {
       gene_cur <- geneSet[as.integer(element)+1]
-      if(any(is.na(gene_cur))){ # if annotation not complete -> remove EC with any NA genes
+      # if annotation not complete -> remove EC with any NA genes
+      if(any(is.na(gene_cur))){ 
         return(TRUE)
       } else{
         return(length(unique(gene_cur))!=1)
@@ -163,7 +169,8 @@ readEq <- function(file, geneSet, startread, multigene){
   
   #ec_txs <- unlist(lapply(eccs_hlp, stringi::stri_c, collapse = "|"))
   ec_txs <- unlist(lapply(eccs_hlp, paste, collapse = "|"))
-  ec_counts <- as.integer(vapply(eccs, last, FUN.VALUE = character(1)))
+  ec_counts <- as.integer(vapply(eccs, data.table::last, 
+                                 FUN.VALUE = character(1)))
   
   return(list(ec_txs, ec_counts))
 }
