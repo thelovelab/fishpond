@@ -44,6 +44,21 @@
 salmonEC <- function(paths, tx2gene, multigene = FALSE, ignoreTxVersion = FALSE, 
                       ignoreAfterBar = FALSE, quiet = FALSE){
   
+  if (!requireNamespace("data.table", quietly=TRUE)) {
+    stop("alevinEC() requires CRAN package data.table")
+  }
+  
+  if(!all(file.exists(paths))){
+    stop("The following paths do not exist: ",
+         paste(paths[which(!file.exists(paths))], "\n")
+    )
+  }
+  
+  if(!isTRUE(all.equal(colnames(tx2gene),
+                       c("isoform_id","gene_id")))){
+    stop("tx2gene does not contain columns gene_id and isoform_id")
+  }
+  
   # get line number where the TCCs start (same for each file, get from first file)
   startread <- fread(paths[1], nrows=1, sep = " ", 
                      quote = "", header = FALSE)$V1 + 2
