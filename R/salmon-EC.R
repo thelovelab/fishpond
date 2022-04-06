@@ -13,15 +13,15 @@
 #' @param tx2gene A `dataframe` linking transcript identifiers to their 
 #' corresponding gene identifiers. Transcript identifiers must be in a column
 #' `isoform_id`. Corresponding gene identifiers must be in a column `gene_id`.
+#' @param multigene `Logical`, should equivalence classes that are compatible 
+#' with multiple genes be retained? Default is `FALSE`, removing such ambiguous
+#' equivalence classes.
 #' @param ignoreTxVersion logical, whether to split the isoform id on the '.' 
 #' character to remove version information to facilitate matching with the
 #' isoform id in `tx2gene` (default FALSE).
 #' @param ignoreAfterBar logical, whether to split the isoform id on the '|' 
 #' character to facilitate matching with the isoform id in `tx2gene` 
 #' (default FALSE).
-#' @param multigene `Logical`, should equivalence classes that are compatible 
-#' with multiple genes be retained? Default is `FALSE`, removing such ambiguous
-#' equivalence classes.
 #' @param quiet `Logical`, set `TRUE` to avoid displaying messages.
 #'
 #' @author Jeroen Gilis
