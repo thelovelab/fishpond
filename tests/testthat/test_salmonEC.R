@@ -74,7 +74,7 @@ test_that("Importing transcript compatibility counts from salmon output works",{
   expect_true(validObject(EC_mat_2))
   expect_true(nrow(EC_mat$counts) >= nrow(EC_mat_2$counts)) # missing transcripts
   
-  # test wrong tx2gene list (e.g. when not ignoring tx version)
+  # test faulty tx2gene list (e.g. when not ignoring tx version)
   expect_error(EC_mat_3 <- salmonEC(paths = files,
                                     tx2gene = tx2gene,
                                     ignoreTxVersion = FALSE,

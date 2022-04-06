@@ -169,10 +169,10 @@ readBFH <- function(file, tx2gene, multigene){
     num_labels <- as.integer(toks[1])
     txps <- as.integer(toks[2:(num_labels+1)])+1
     genes <-  tx2gene$gene_id[txps]
+    if(any(is.na(genes))){ # if annotation not complete -> remove EC with any NA genes
+      return(NULL)
+    }
     if(!multigene){
-      if(all(is.na(genes))){
-        return(NULL)
-      }
       if(length(unique(genes))>1){
         return(NULL)
       }

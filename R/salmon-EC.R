@@ -151,7 +151,7 @@ readEq <- function(file, geneSet, startread, multigene){
   if(!multigene){ # remove ECs corresponding to multiple genes
     hlp <- unlist(lapply(eccs_hlp, function(element) {
       gene_cur <- geneSet[as.integer(element)+1]
-      if(all(is.na(gene_cur))){
+      if(any(is.na(gene_cur))){ # if annotation not complete -> remove EC with any NA genes
         return(TRUE)
       } else{
         return(length(unique(gene_cur))!=1)
