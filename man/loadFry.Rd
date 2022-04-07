@@ -24,7 +24,8 @@ how to define custom format.}
 value across all genes (default \code{FALSE}).
 If \code{TRUE}, this will filter based on all assays.
 If a string vector of assay names, it will filter based
-on the matching assays in the vector.}
+on the matching assays in the vector.
+If not in USA mode, it must be TRUE/FALSE/counts.}
 
 \item{quiet}{logical whether to display no messages}
 }

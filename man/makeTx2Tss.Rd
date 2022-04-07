@@ -4,12 +4,15 @@
 \alias{makeTx2Tss}
 \title{Make a GRanges linking transcripts to TSS within gene}
 \usage{
-makeTx2Tss(x)
+makeTx2Tss(x, maxgap = 0)
 }
 \arguments{
 \item{x}{either TxDb/EnsDb or GRanges object. The GRanges
 object should have metadata columns \code{tx_id} and
 \code{gene_id}}
+
+\item{maxgap}{integer, number of basepairs to use determining
+whether to combine nearby TSS}
 }
 \value{
 GRanges with columns \code{tx_id}, \code{tss}, and
@@ -19,7 +22,8 @@ GRanges with columns \code{tx_id}, \code{tss}, and
 This helper function takes either a TxDb/EnsDb or
 GRanges object as input and outputs a GRanges object
 where transcripts are aggregated to the gene + TSS
-(transcription start site).
+(transcription start site). For nearby TSS that should
+be grouped together, see \code{maxgap}.
 }
 \examples{
 \dontrun{
