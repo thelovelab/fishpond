@@ -186,7 +186,7 @@ importAllelicCounts <- function(coldata, a1, a2,
                                                      "-", mcols(txps)$tss[1])
     # want to save individual TSS information in a list
     if (tss_grouped) {
-      tss_list <- CharacterList(split(mcols(txps)$tss, mcols(txps)$group_id))
+      tss_list <- IntegerList(split(mcols(txps)$tss, mcols(txps)$group_id))
     }
     tx_starts <- sapply(split(start(txps), mcols(txps)$group_id), min)
     tx_ends <- sapply(split(end(txps), mcols(txps)$group_id), max)
