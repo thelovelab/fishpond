@@ -409,9 +409,12 @@ plotAllelicGene <- function(y, gene, db,
     stopifnot(sum(keep) > 0)
     gr <- gr[keep,]
   }
-  if (!"qvalue" %in% names(mcols(gr))) {
-    stop("expecting qvalue and log2FC, first run swish()")
+  if (qvalue & !"qvalue" %in% names(mcols(gr))) {
+    stop("expecting qvalue, first run swish()")
   }
+  if (log2FC & !"log2FC" %in% names(mcols(gr))) {
+    stop("expecting log2FC, first run swish()")
+  }  
   regionProvided <- TRUE
   if (is.null(region)) {
     regionProvided <- FALSE
@@ -424,10 +427,14 @@ plotAllelicGene <- function(y, gene, db,
   strand(gr) <- "*"
   # so data plots work, need to be sorted
   gr <- sort(gr)
-  gr$minusLogQ <- -log10(gr$qvalue)
-  # define upper bounds for the q-value and LFC
-  qUpper <- 1.2 * max(gr$minusLogQ)
-  lfcUpper <- 1.2 * max(abs(gr$log2FC))
+  if (qvalue) {
+    gr$minusLogQ <- -log10(gr$qvalue)
+    # define upper bounds for the q-value and LFC
+    qUpper <- 1.2 * max(gr$minusLogQ)
+  }
+  if (log2FC) {
+    lfcUpper <- 1.2 * max(abs(gr$log2FC))
+  }
   chr <- as.character(seqnames(region))
   ##########################################
   ## store allelic data in GRanges object ##
