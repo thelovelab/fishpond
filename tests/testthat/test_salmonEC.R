@@ -10,7 +10,7 @@ test_that("Importing transcript compatibility counts from salmon output works",{
              file.path(dir,"salmon_ec/SRR7311386/aux_info/eq_classes.txt"))
   file.exists(files)
   
-  tx2gene <- read.csv2(file.path(dir, "tx2gene_tasic.csv"),
+  tx2gene <- read.csv2(file.path(dir, "salmon_ec/tx2gene_tasic.csv"),
                                header = TRUE, row.names = NULL)
   tx2gene <- tx2gene[,c(2,3)]
   colnames(tx2gene) <- c("isoform_id", "gene_id")
