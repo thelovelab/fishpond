@@ -39,15 +39,19 @@ Bioconductor infrastructure including *SummarizedExperiment* for
 storage of input data and results, *tximport* for data import, and
 *GRanges* and *Gviz* for plotting.
 
-In short the SEESAW steps are:
+In short the SEESAW steps are as listed, and diagrammed below:
 
-1. g2gtools (reference preparation)
+1. g2gtools (diploid reference preparation)
 2. Salmon indexing with `--keepDuplicates`
 3. Salmon quantification with bootstraps
-4. Link transcripts to TSS (for TSS-level analysis)
-5. `importAllelicCounts()`
+4. `makeTx2Tss()` aggregates data to TSS-level (optional)
+5. `importAllelicCounts()` creates a *SummarizedExperiment*
 6. Swish analysis: `labelKeep()` and `swish()` (skip scaling)
 7. Plotting
+
+```{r echo=FALSE}
+knitr::include_graphics("images/SEESAW.png")
+```
 
 SEESAW allows for testing *global allelic imbalance* across all
 samples (pairwise testing within each individual), as well as
