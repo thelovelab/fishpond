@@ -4,6 +4,7 @@ library(fishpond)
 
 test_that("Importing transcript compatibility counts from salmon output works",{
 
+
   if (packageVersion("tximportData") >= "1.23.4") {
   
     # import test data
@@ -89,5 +90,4 @@ test_that("Importing transcript compatibility counts from salmon output works",{
                                       quiet = TRUE))
 
   }
-  
 })
