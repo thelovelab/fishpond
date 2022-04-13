@@ -86,7 +86,9 @@ importAllelicCounts <- function(coldata, a1, a2,
   a1match <- paste0("_",a1,"$")
   a2match <- paste0("_",a2,"$")
 
-  txOut <- is.null(tx2gene) # output transcripts if no tx2gene provided
+  # output transcripts if no tx2gene provided
+  txOut <- is.null(tx2gene) 
+  # if tx2gene is ranges, some extra steps to modify output rowRanges
   t2gRanges <- is(tx2gene, "GRanges")
   if (!txOut) {
     # if tx2gene is ranges, then pull out the table for collapsing
@@ -168,6 +170,7 @@ importAllelicCounts <- function(coldata, a1, a2,
     metadata(se_a1) <- c(metadata(se_a1), list(alleles=c(a1=a1, a2=a2)))
     out <- se_a1
   }
+  # extra steps to assign rowRanges to output
   if (t2gRanges) {
     if (diploid) {
       txps <- txps[grepl(a1match, names(txps))]
@@ -177,6 +180,14 @@ importAllelicCounts <- function(coldata, a1, a2,
     }
     stopifnot(all(rownames(out) %in% mcols(txps)$group_id))
     tx_list <- CharacterList(split(mcols(txps)$tx_id, mcols(txps)$group_id))
+    # detect if the TSS have been grouped by `maxgap`
+    # (the group_id will not be equal to "gene-tss")
+    tss_grouped <- mcols(txps)$group_id[1] != paste0(mcols(txps)$gene_id[1],
+                                                     "-", mcols(txps)$tss[1])
+    # want to save individual TSS information in a list
+    if (tss_grouped) {
+      tss_list <- IntegerList(split(mcols(txps)$tss, mcols(txps)$group_id))
+    }
     tx_starts <- sapply(split(start(txps), mcols(txps)$group_id), min)
     tx_ends <- sapply(split(end(txps), mcols(txps)$group_id), max)
     txps <- txps[!duplicated(mcols(txps)$group_id)]
@@ -185,7 +196,10 @@ importAllelicCounts <- function(coldata, a1, a2,
     end(txps) <- tx_ends[names(txps)]
     txps <- txps[rownames(out)]
     mcols(txps)$tx_id <- tx_list[rownames(out)]
-     SummarizedExperiment::rowRanges(out) <- txps
+    if (tss_grouped) {
+      mcols(txps)$tss <- tss_list[rownames(out)]
+    }
+    SummarizedExperiment::rowRanges(out) <- txps
   }
   out
 }
@@ -195,11 +209,14 @@ importAllelicCounts <- function(coldata, a1, a2,
 #' This helper function takes either a TxDb/EnsDb or
 #' GRanges object as input and outputs a GRanges object
 #' where transcripts are aggregated to the gene + TSS
-#' (transcription start site).
+#' (transcription start site). For nearby TSS that should
+#' be grouped together, see \code{maxgap}.
 #'
 #' @param x either TxDb/EnsDb or GRanges object. The GRanges
 #' object should have metadata columns \code{tx_id} and
 #' \code{gene_id}
+#' @param maxgap integer, number of basepairs to use determining
+#' whether to combine nearby TSS
 #'
 #' @return GRanges with columns \code{tx_id}, \code{tss}, and
 #' \code{group_id}
@@ -212,7 +229,7 @@ importAllelicCounts <- function(coldata, a1, a2,
 #' }
 #' 
 #' @export
-makeTx2Tss <- function(x) {
+makeTx2Tss <- function(x, maxgap=0) {
   if (is(x, "GRanges")) {
     txps <- x
     if (!all(c("tx_id","gene_id") %in% names(mcols(txps)))) {
@@ -229,6 +246,7 @@ makeTx2Tss <- function(x) {
     mcols(txps)$tx_id <- mcols(txps)$tx_name
     tx_id_stripped <- sub("\\..*", "", mcols(txps)$tx_id)
     mcols(txps)$gene_id <- AnnotationDbi::mapIds(x, tx_id_stripped, "GENEID", "TXNAME")
+    # if any missing gene IDs, just propagate the txp IDs
     missing.idx <- is.na(mcols(txps)$gene_id)
     mcols(txps)$gene_id[ missing.idx ] <- mcols(txps)$tx_id[ missing.idx ]
   } else if (is(x, "EnsDb")) {
@@ -239,10 +257,30 @@ makeTx2Tss <- function(x) {
   } else {
     stop("'x' should be a GRanges or TxDb/EnsDb")
   }
-  tss <- GenomicRanges::start(GenomicRanges::resize(txps, width=1))
+  tss_ranges <- GenomicRanges::resize(txps, width=1)
+  tss <- GenomicRanges::start(tss_ranges)
   mcols(txps)$tss <- tss
-  mcols(txps)$group_id <- paste0(mcols(txps)$gene_id, "-", mcols(txps)$tss)
+  if (maxgap == 0) {
+    # group ID is just gene ID + TSS
+    mcols(txps)$group_id <- paste0(mcols(txps)$gene_id, "-", mcols(txps)$tss)
+  } else {
+    # in this case, we will number the TSS groups with 1,2,...
+    # nearby TSS are grouped together according to maxgap
+    tss_ranges <- sort(tss_ranges)
+    txps <- txps[ names(tss_ranges) ]
+    txps <- txps[ order(mcols(txps)$gene_id) ]
+    sp_tss <- split(mcols(txps)$tss, mcols(txps)$gene_id)
+    tss_groups <- lapply(sp_tss, joinNearbyTss, maxgap)
+    mcols(txps)$group_id <- paste0(mcols(txps)$gene_id, "-", unlist(tss_groups))
+  }
   txps
+}
+
+joinNearbyTss <- function(tss, maxgap) {
+  delta <- diff(tss, lag=1)
+  new_tss_loc <- as.integer(delta > maxgap)
+  tss_loc <- c(1,cumsum(new_tss_loc) + 1)
+  tss_loc
 }
 
 #' Plot allelic counts in a gene context using Gviz
@@ -371,9 +409,12 @@ plotAllelicGene <- function(y, gene, db,
     stopifnot(sum(keep) > 0)
     gr <- gr[keep,]
   }
-  if (!"qvalue" %in% names(mcols(gr))) {
-    stop("expecting qvalue and log2FC, first run swish()")
+  if (qvalue & !"qvalue" %in% names(mcols(gr))) {
+    stop("expecting qvalue, first run swish()")
   }
+  if (log2FC & !"log2FC" %in% names(mcols(gr))) {
+    stop("expecting log2FC, first run swish()")
+  }  
   regionProvided <- TRUE
   if (is.null(region)) {
     regionProvided <- FALSE
@@ -386,10 +427,14 @@ plotAllelicGene <- function(y, gene, db,
   strand(gr) <- "*"
   # so data plots work, need to be sorted
   gr <- sort(gr)
-  gr$minusLogQ <- -log10(gr$qvalue)
-  # define upper bounds for the q-value and LFC
-  qUpper <- 1.2 * max(gr$minusLogQ)
-  lfcUpper <- 1.2 * max(abs(gr$log2FC))
+  if (qvalue) {
+    gr$minusLogQ <- -log10(gr$qvalue)
+    # define upper bounds for the q-value and LFC
+    qUpper <- 1.2 * max(gr$minusLogQ)
+  }
+  if (log2FC) {
+    lfcUpper <- 1.2 * max(abs(gr$log2FC))
+  }
   chr <- as.character(seqnames(region))
   ##########################################
   ## store allelic data in GRanges object ##
