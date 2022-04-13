@@ -59,19 +59,19 @@ reference:
     - computeInfRV
     - getTrace
     - isoformProportions
-    - salmonEC
     - makeSimSwishData
+  - title: Import and utilities
+  - contents:
+    - loadFry
+    - readEDS
+    - alevinEC
+    - salmonEC
   - title: Allelic analysis and plotting
   - contents:
     - makeTx2Tss
     - importAllelicCounts
     - plotAllelicGene
     - plotAllelicHeatmap
-  - title: Alevin import and utilities
-  - contents:
-    - loadFry
-    - readEDS
-    - alevinEC
   - title: Compression
   - contents:
     - splitSwish
