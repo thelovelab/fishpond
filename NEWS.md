@@ -1,14 +1,21 @@
-# fishpond 2.1.11
+# fishpond 2.2.0
 
-* New makeTx2Tss() helper function for allelic analysis
+* New vignette demonstrating allelic analysis at isoform, 
+  TSS, or gene-level. See more details below.
+* New import functions for equivalence class analysis of Salmon
+  or alevin data, written by Jeroen Gilis. See salmonEC() and
+  alevinEC() man pages.
+* New plotAllelicGene() and plotAllelicHeatmap() functions
+  for plotting results from allelic expression analysis.
+* New makeTx2Tss() helper function for allelic analysis.
 * Now importFromAllelicCounts() can take a GRanges
   object as the `tx2gene` argument, so that ranges will
   be distributed to the rowRanges of the output 
   SummarizedExperiment.
-* Re-organizing package for new pkgdown homepage
-* Adding vignette shell for allelic analysis
 * Adding `shiftX` argument to plotInfReps() for numeric
   x variable, to help with overplotting.
+* Re-organized package for new pkgdown homepage:
+  https://mikelove.github.io/fishpond
 
 # fishpond 2.0.0
 
