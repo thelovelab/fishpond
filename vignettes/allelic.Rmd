@@ -101,6 +101,24 @@ argument. This will summarize transcript-level counts to the TSS
 level, and will attach `rowRanges` that provide the genomic locations
 of the grouped transcripts.
 
+# Filtering features that have no information
+
+Because we use `--keepDuplicates` in the step when we build the Salmon
+index, there will be a number of features in which there is no
+information about the allelic expression in the reads. We can find
+these features in bootstrap data by examining when the inferential
+replicates are nearly identical for the two alleles, as this is how
+the EM will split the reads. Removing these features avoids downstream
+problems during differential testing. Code for this filtering follows:
+
+```{r eval=FALSE}
+n <- ncol(y)/2
+rep1a1 <- assay(y, "infRep1")[,y$allele == "a1"]
+rep1a2 <- assay(y, "infRep1")[,y$allele == "a2"]
+mcols(y)$someInfo <- rowSums(abs(rep1a1 - rep1a2) < 1) < n
+y <- y[ mcols(y)$someInfo, ]
+```
+
 # Testing for allelic imbalance across samples
 
 We begin by generating a simulated data object that resembles what one
