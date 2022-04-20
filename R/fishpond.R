@@ -50,7 +50,7 @@
 #' assayNames assayNames<- assay assay<- assays assays<-
 #' colData colData<- mcols mcols<- rowRanges rowRanges<-
 #' @importFrom SingleCellExperiment SingleCellExperiment
-#' @importFrom IRanges CharacterList
+#' @importFrom IRanges IntegerList
 #' @importFrom S4Vectors DataFrame metadata metadata<-
 #' @importFrom GenomicRanges start end strand width
 #' start<- end<- strand<- resize flank sort seqnames

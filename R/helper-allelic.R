@@ -310,6 +310,7 @@ joinNearbyTss <- function(tss, maxgap) {
 #' if not specified it will use the \code{GenomeInfoDb::genome()}
 #' of the rowRanges of \code{y}
 #' @param tpmFilter minimum TPM value (mean over samples) to keep a feature
+#' @param isoPropFilter minimum percent of isoform proportion to keep a feature
 #' @param countFilter minimum count value (mean over samples) to keep a feature
 #' @param pc pseudocount to avoid dividing by zero in allelic proportion calculation
 #' @param transcriptAnnotation argument passed to Gviz::GeneRegionTrack
@@ -344,14 +345,11 @@ joinNearbyTss <- function(tss, maxgap) {
 #' @export
 plotAllelicGene <- function(y, gene, db,
                             region=NULL, symbol=NULL, genome=NULL,
-                            tpmFilter=1, countFilter=10, pc=1,
-                            transcriptAnnotation="symbol",
+                            tpmFilter=1, isoPropFilter=.05, countFilter=10,
+                            pc=1, transcriptAnnotation="symbol",
                             labels=list(a2="a2",a1="a1"),
-                            qvalue=TRUE,
-                            log2FC=TRUE,
-                            ideogram=FALSE,
-                            cov=NULL,
-                            covFacetIsoform=FALSE,
+                            qvalue=TRUE, log2FC=TRUE, ideogram=FALSE,
+                            cov=NULL, covFacetIsoform=FALSE,
                             allelicCol=c("dodgerblue","goldenrod1"),
                             isoformCol="firebrick",
                             statCol="black",
@@ -398,13 +396,17 @@ plotAllelicGene <- function(y, gene, db,
   # use TPM and count filtering to remove lowly expressed features
   if (!is.null(tpmFilter) | !is.null(countFilter)) {
     keep <- rep(TRUE, length(gr))
+    meanTPM <- rowMeans(assay(y[names(gr),,drop=FALSE],"abundance"))
+    meanIsoProp <- meanTPM / sum(meanTPM)
+    meanCounts <- rowMeans(assay(y[names(gr),,drop=FALSE],"counts"))
     if (!is.null(tpmFilter)) {
-      keep <- keep & rowMeans(assay(y[names(gr),,drop=FALSE],
-                                    "abundance")) >= tpmFilter
+      keep <- keep & meanTPM >= tpmFilter
+    }
+    if (!is.null(tpmFilter)) {
+      keep <- keep & meanIsoProp >= isoPropFilter
     }
     if (!is.null(countFilter)) {
-      keep <- keep & rowMeans(assay(y[names(gr),,drop=FALSE],
-                                    "counts")) >= countFilter
+      keep <- keep & meanCounts >= countFilter
     }
     stopifnot(sum(keep) > 0)
     gr <- gr[keep,]

@@ -12,6 +12,7 @@ plotAllelicGene(
   symbol = NULL,
   genome = NULL,
   tpmFilter = 1,
+  isoPropFilter = 0.05,
   countFilter = 10,
   pc = 1,
   transcriptAnnotation = "symbol",
@@ -58,6 +59,8 @@ if not specified it will use the \code{GenomeInfoDb::genome()}
 of the rowRanges of \code{y}}
 
 \item{tpmFilter}{minimum TPM value (mean over samples) to keep a feature}
+
+\item{isoPropFilter}{minimum percent of isoform proportion to keep a feature}
 
 \item{countFilter}{minimum count value (mean over samples) to keep a feature}
 

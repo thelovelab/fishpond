@@ -1,4 +1,5 @@
-#' Construct a matrix of transcript compatibility counts from alevin output
+#' Construct a sparse matrix of transcript compatibility counts from alevin 
+#' output
 #'
 #' Constructs a UMI count matrix with equivalence class identifiers
 #' in the rows and barcode identifiers in the columns. The count matrix is 
@@ -8,7 +9,7 @@
 #'
 #' @rdname alevinEC
 #' 
-#' @param paths `Charachter` or `character vector`, full path specifying the 
+#' @param paths `Charachter` or `character vector`, path specifying the 
 #' location of the `bfh.txt` files generated with alevin-fry.
 #' @param tx2gene A `dataframe` linking transcript identifiers to their 
 #' corresponding gene identifiers. Transcript identifiers must be in a column 
@@ -16,15 +17,34 @@
 #' @param multigene `Logical`, should equivalence classes that are compatible 
 #' with multiple genes be retained? Default is `FALSE`, removing such ambiguous
 #' equivalence classes.
+#' @param ignoreTxVersion logical, whether to split the isoform id on the '.' 
+#' character to remove version information to facilitate matching with the
+#' isoform id in `tx2gene` (default FALSE).
+#' @param ignoreAfterBar logical, whether to split the isoform id on the '|' 
+#' character to facilitate matching with the isoform id in `tx2gene` 
+#' (default FALSE).
 #' @param quiet `Logical`, set `TRUE` to avoid displaying messages.
 #'
 #' @author Jeroen Gilis
 #' 
-#' @return a sparse matrix of UMI counts
+#' @return A list with two elements. The first element `counts` is a sparse 
+#' count matrix with equivalence class identifiers in the rows and barcode 
+#' identifiers in the columns. The second element `tx2gene_matched` allows for 
+#' linking the equivalence class identifiers to their respective transcripts 
+#' and genes.
+#' 
+#' @section Details:
+#' The resulting count matrix uses equivalence class identifiers as rownames.
+#' These can be linked to respective transcripts and genes using the 
+#' `tx2gene_matched` element of the output. Specifically, if the equivalence 
+#' class identifier reads 1|2|8, then the equivalence class is compatible with
+#' the transcripts and their respective genes in rows 1, 2 and 8 of 
+#' `tx2gene_matched`.
 #' 
 #' @importFrom Matrix sparseMatrix
 #' @export
-alevinEC <- function(paths, tx2gene, multigene = FALSE, quiet = FALSE){
+alevinEC <- function(paths, tx2gene, multigene = FALSE, ignoreTxVersion = FALSE,
+                     ignoreAfterBar = FALSE, quiet = FALSE){
 
   if (!requireNamespace("data.table", quietly=TRUE)) {
     stop("alevinEC() requires CRAN package data.table")
@@ -46,7 +66,33 @@ alevinEC <- function(paths, tx2gene, multigene = FALSE, quiet = FALSE){
                 sep = " ",quote = "", header = FALSE)$V1
   tname <- data.table::fread(paths[1], skip = 3, nrows = n_tx, 
                  sep = " ", quote = "", header = FALSE)$V1
-  tx2gene <- tx2gene[match(tname,tx2gene$isoform_id),]
+  if (ignoreTxVersion) {
+    tx2gene$isoform_id <- sub("\\..*", "", tx2gene$isoform_id)
+    tname <- sub("\\..*", "", tname)
+  } else if (ignoreAfterBar) {
+    tx2gene$isoform_id <- sub("\\|.*", "", tx2gene$isoform_id)
+    tname <- sub("\\|.*", "", tname)
+  }
+  
+  if (!any(tname %in% tx2gene$isoform_id)) {
+    txFromFile <- paste0("Example IDs (file): [", 
+                         paste(head(tname,3),collapse=", "),
+                         ", ...]")
+    txFromTable <- paste0("Example IDs (tx2gene): [",
+                          paste(head(tx2gene$isoform_id,3),
+                                collapse=", "),", ...]")
+    stop(paste0("
+None of the transcripts in the quantification files are present
+in the first column of tx2gene. Check to see that you are using
+the same annotation for both.\n\n",txFromFile,"\n\n",txFromTable,
+                "\n\n  This can sometimes (not always) be fixed using 'ignoreTxVersion' or 'ignoreAfterBar'.\n\n"))
+  }
+  
+  # matching of tname and tx2gene
+  tx2gene <- tx2gene[match(tname, tx2gene$isoform_id),]
+  
+  ntxmissing <- sum(!tname %in% tx2gene$isoform_id)
+  if (ntxmissing > 0) message("transcripts missing from tx2gene: ", ntxmissing)
   
   # Reading and wrangling alevin output
   # message("Reading and wrangling alevin output")
@@ -93,7 +139,9 @@ alevinEC <- function(paths, tx2gene, multigene = FALSE, quiet = FALSE){
   }
   matrix_umis <- do.call(cbind, mat_list)
   
-  return(matrix_umis)
+  rownames(tx2gene) <- seq_len(nrow(tx2gene))
+  
+  return(list(counts = matrix_umis, tx2gene_matched = tx2gene))
 }
 
 
@@ -101,11 +149,13 @@ alevinEC <- function(paths, tx2gene, multigene = FALSE, quiet = FALSE){
 # (i) the names of the ECs
 # (ii) the indices of the barcodes in which each of the ECs are expressed
 # (iii) the UMI expression level for each EC/barcode pair
-# (iv) number of barcodes in which each EC is expressed (to construct sparseMatrix)
+# (iv) number of barcodes in which each EC is expressed (to construct 
+# sparseMatrix)
 # (v) the names of the barcodes
 readBFH <- function(file, tx2gene, multigene){
   
-  numbers <- data.table::fread(file, nrows=3, sep = " ", quote = "", header = FALSE)
+  numbers <- data.table::fread(file, nrows=3, sep = " ", quote = "", 
+                               header = FALSE)
   n_tx <- numbers$V1[1]
   n_bc <- numbers$V1[2]
   
@@ -115,7 +165,8 @@ readBFH <- function(file, tx2gene, multigene){
   
   # read ECs
   startread <- sum(n_tx, n_bc, 3) # first line with EC info
-  ec_df <- data.table::fread(file, skip=startread, sep = " ", quote = "", header = FALSE)
+  ec_df <- data.table::fread(file, skip=startread, sep = " ", quote = "", 
+                             header = FALSE)
   eccs <- strsplit(ec_df$V1,"\t",fixed=TRUE)
   
   # code strongly based on read_bfh() from 
@@ -125,6 +176,10 @@ readBFH <- function(file, tx2gene, multigene){
     num_labels <- as.integer(toks[1])
     txps <- as.integer(toks[2:(num_labels+1)])+1
     genes <-  tx2gene$gene_id[txps]
+    # if annotation not complete -> remove EC with any NA genes
+    if(any(is.na(genes))){ 
+      return(NULL)
+    }
     if(!multigene){
       if(length(unique(genes))>1){
         return(NULL)
