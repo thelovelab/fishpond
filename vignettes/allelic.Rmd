@@ -55,9 +55,9 @@ knitr::include_graphics("images/SEESAW.png")
 
 SEESAW allows for testing *global allelic imbalance* across all
 samples (pairwise testing within each individual), as well as
-*differential or dynamic allelic imbalance* (pairwise allelic fold
-changes estimated within individual, followed by testing across or
-along an additional covariate). Each of these allelic imbalance (AI)
+*differential, or dynamic allelic imbalance* (pairwise allelic fold
+changes estimated within individual, followed by testing across two
+groups, or along an additional covariate). Each of these allelic imbalance (AI)
 analyses takes into account the potentially heterogeneous amount of
 inferential uncertainty per sample, per feature (transcript,
 transcript-group, or gene), and per allele.
