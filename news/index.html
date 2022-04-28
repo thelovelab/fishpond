@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.45</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.1</span>
       </span>
     </div>
 
@@ -93,16 +93,13 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.9.6" id="fishpond-196">fishpond 1.9.6<a class="anchor" aria-label="anchor" href="#fishpond-196"></a></h2>
-<ul><li>Specifying ties.method in matrixStats::rowRanks.</li>
-</ul></div>
+<ul><li>Specifying ties.method in matrixStats::rowRanks.</li></ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.9.1" id="fishpond-191">fishpond 1.9.1<a class="anchor" aria-label="anchor" href="#fishpond-191"></a></h2>
-<ul><li>Added importAllelicCounts() with options for importing Salmon quantification on diploid transcriptomes.</li>
-</ul></div>
+<ul><li>Added importAllelicCounts() with options for importing Salmon quantification on diploid transcriptomes.</li></ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.8.0" id="fishpond-180">fishpond 1.8.0<a class="anchor" aria-label="anchor" href="#fishpond-180"></a></h2>
-<ul><li>Added note in vignette about how to deal with estimated batch factors, e.g. from RUVSeq or SVA. Two strategies are outlined: either discretizing the estimate batch factors and performing stratified analysis, or regressing out the batch-associated variation using limma’s removeBatchEffect. Demonstation code is included.</li>
-</ul></div>
+<ul><li>Added note in vignette about how to deal with estimated batch factors, e.g. from RUVSeq or SVA. Two strategies are outlined: either discretizing the estimate batch factors and performing stratified analysis, or regressing out the batch-associated variation using limma’s removeBatchEffect. Demonstation code is included.</li></ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.6.0" id="fishpond-160">fishpond 1.6.0<a class="anchor" aria-label="anchor" href="#fishpond-160"></a></h2>
 <ul><li>Added makeInfReps() to create pseudo-inferential replicates via negative binomial simulation from mean and variance matrices. Note: the mean and the variance provide the <em>inferential</em> distribution per element of the count matrix. See preprint for details, doi: 10.1101/2020.07.06.189639.</li>
@@ -111,8 +108,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.5.2" id="fishpond-152">fishpond 1.5.2<a class="anchor" aria-label="anchor" href="#fishpond-152"></a></h2>
-<ul><li>First version of makeInfReps(), to create pseudo-infReps via negative binomial simulation from set of mean and variance matrices in the assays of the SummarizedExperiment.</li>
-</ul></div>
+<ul><li>First version of makeInfReps(), to create pseudo-infReps via negative binomial simulation from set of mean and variance matrices in the assays of the SummarizedExperiment.</li></ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.4.0" id="fishpond-140">fishpond 1.4.0<a class="anchor" aria-label="anchor" href="#fishpond-140"></a></h2>
 <ul><li>Added isoformProportions(), which can be run after scaleInfReps() and optionally after filtering out transcripts using labelKeep(). Running swish() after isoformProportions() will produce differential transcript usage (DTU) results, instead of differential transcript expression (DTE) results. Example in vignette.</li>
@@ -120,12 +116,10 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.3.8" id="fishpond-138">fishpond 1.3.8<a class="anchor" aria-label="anchor" href="#fishpond-138"></a></h2>
-<ul><li>Added isoformProportions(), which can be run after scaleInfReps() and optionally after filtering out transcripts using labelKeep(). Running swish() after isoformProportions() will produce differential transcript usage (DTU) results, instead of differential transcript expression (DTE) results. Example in vignette.</li>
-</ul></div>
+<ul><li>Added isoformProportions(), which can be run after scaleInfReps() and optionally after filtering out transcripts using labelKeep(). Running swish() after isoformProportions() will produce differential transcript usage (DTU) results, instead of differential transcript expression (DTE) results. Example in vignette.</li></ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.3.4" id="fishpond-134">fishpond 1.3.4<a class="anchor" aria-label="anchor" href="#fishpond-134"></a></h2>
-<ul><li>Default number of permutations increased from 30 to 100. It was observed that there was too much fluctuation in the DE called set for nperms=30 across different seeds, and setting to 100 helped to stabilize results across seeds, without increasing running time too much. For further reduced dependence on the seed, even higher values of nperms (e.g. 200, 300) can be used.</li>
-</ul></div>
+<ul><li>Default number of permutations increased from 30 to 100. It was observed that there was too much fluctuation in the DE called set for nperms=30 across different seeds, and setting to 100 helped to stabilize results across seeds, without increasing running time too much. For further reduced dependence on the seed, even higher values of nperms (e.g. 200, 300) can be used.</li></ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.2.0" id="fishpond-120">fishpond 1.2.0<a class="anchor" aria-label="anchor" href="#fishpond-120"></a></h2>
 <ul><li>Switching to a faster version of Swish which only computes the ranks of the data once, and then re-uses this for the permutation distribution. This bypasses the addition of uniform noise per permutation and is 10x faster. Two designs which still require re-computation of ranks per permutation are the paired analysis and the general interaction analysis. Two-group, stratified two-group, and the paired interaction analysis now default to the new fast method, but the original, slower method can be used by setting fast=0 in the call to swish().</li>
@@ -143,8 +137,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.99.0" id="fishpond-0990">fishpond 0.99.0<a class="anchor" aria-label="anchor" href="#fishpond-0990"></a></h2>
-<ul><li>fishpond getting ready for submission to Bioc</li>
-</ul></div>
+<ul><li>fishpond getting ready for submission to Bioc</li></ul></div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -159,7 +152,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>

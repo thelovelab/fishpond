@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1.45</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.1</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>SEESAW - Allelic expression analysis with Salmon and Swish</h1>
             
-            <h4 data-toc-skip class="date">04/20/2022</h4>
+            <h4 data-toc-skip class="date">04/28/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/vignettes/allelic.Rmd" class="external-link"><code>vignettes/allelic.Rmd</code></a></small>
       <div class="hidden name"><code>allelic.Rmd</code></div>
@@ -118,8 +118,8 @@
 <li>Swish analysis: <code><a href="../reference/labelKeep.html">labelKeep()</a></code> and <code><a href="../reference/swish.html">swish()</a></code> (skip scaling)</li>
 <li>Plotting</li>
 </ol>
-<p><img src="images/SEESAW.png" width="2400"></p>
-<p>SEESAW allows for testing <em>global allelic imbalance</em> across all samples (pairwise testing within each individual), as well as <em>differential or dynamic allelic imbalance</em> (pairwise allelic fold changes estimated within individual, followed by testing across or along an additional covariate). Each of these allelic imbalance (AI) analyses takes into account the potentially heterogeneous amount of inferential uncertainty per sample, per feature (transcript, transcript-group, or gene), and per allele.</p>
+<p><img src="images/SEESAW.png" width="1240"></p>
+<p>SEESAW allows for testing <em>global allelic imbalance</em> across all samples (pairwise testing within each individual), as well as <em>differential, or dynamic allelic imbalance</em> (pairwise allelic fold changes estimated within individual, followed by testing across two groups, or along an additional covariate). Each of these allelic imbalance (AI) analyses takes into account the potentially heterogeneous amount of inferential uncertainty per sample, per feature (transcript, transcript-group, or gene), and per allele.</p>
 <p>Below we demonstrate an analysis where transcripts are grouped by their transcription start site (TSS), although gene-level or transcript-level analysis is also possible. New plotting functions added to <em>fishpond</em> facilitate visualization of allelic and isoform changes at different resolutions, alongside gene models. In the first example, we perform global AI testing, and in the second example we perform dynamic AI testing, in both cases on simulated data associated with human genes.</p>
 </div>
 <div class="section level2">
@@ -374,7 +374,7 @@
 <span class="co">## </span>
 <span class="co">## other attached packages:</span>
 <span class="co">##  [1] SummarizedExperiment_1.24.0 MatrixGenerics_1.6.0       </span>
-<span class="co">##  [3] matrixStats_0.61.0          fishpond_2.1.45            </span>
+<span class="co">##  [3] matrixStats_0.62.0          fishpond_2.3.1             </span>
 <span class="co">##  [5] EnsDb.Hsapiens.v86_2.99.0   ensembldb_2.18.4           </span>
 <span class="co">##  [7] AnnotationFilter_1.18.0     GenomicFeatures_1.46.5     </span>
 <span class="co">##  [9] AnnotationDbi_1.56.2        Biobase_2.54.0             </span>
@@ -392,20 +392,20 @@
 <span class="co">##  [13] farver_2.1.0                bit64_4.0.5                </span>
 <span class="co">##  [15] fansi_1.0.3                 xml2_1.3.3                 </span>
 <span class="co">##  [17] splines_4.1.1               cachem_1.0.6               </span>
-<span class="co">##  [19] knitr_1.38                  Formula_1.2-4              </span>
+<span class="co">##  [19] knitr_1.39                  Formula_1.2-4              </span>
 <span class="co">##  [21] jsonlite_1.8.0              Rsamtools_2.10.0           </span>
 <span class="co">##  [23] cluster_2.1.3               dbplyr_2.1.1               </span>
 <span class="co">##  [25] png_0.1-7                   pheatmap_1.0.12            </span>
 <span class="co">##  [27] compiler_4.1.1              httr_1.4.2                 </span>
 <span class="co">##  [29] backports_1.4.1             assertthat_0.2.1           </span>
 <span class="co">##  [31] Matrix_1.4-1                fastmap_1.1.0              </span>
-<span class="co">##  [33] lazyeval_0.2.2              cli_3.2.0                  </span>
+<span class="co">##  [33] lazyeval_0.2.2              cli_3.3.0                  </span>
 <span class="co">##  [35] htmltools_0.5.2             prettyunits_1.1.1          </span>
 <span class="co">##  [37] tools_4.1.1                 gtable_0.3.0               </span>
 <span class="co">##  [39] glue_1.6.2                  GenomeInfoDbData_1.2.7     </span>
 <span class="co">##  [41] reshape2_1.4.4              dplyr_1.0.8                </span>
 <span class="co">##  [43] rappdirs_0.3.3              Rcpp_1.0.8.3               </span>
-<span class="co">##  [45] jquerylib_0.1.4             pkgdown_2.0.2              </span>
+<span class="co">##  [45] jquerylib_0.1.4             pkgdown_2.0.3              </span>
 <span class="co">##  [47] vctrs_0.4.1                 Biostrings_2.62.0          </span>
 <span class="co">##  [49] rtracklayer_1.54.0          xfun_0.30                  </span>
 <span class="co">##  [51] stringr_1.4.0               lifecycle_1.0.1            </span>
@@ -422,7 +422,7 @@
 <span class="co">##  [73] biomaRt_2.50.3              latticeExtra_0.6-29        </span>
 <span class="co">##  [75] stringi_1.7.6               RSQLite_2.2.12             </span>
 <span class="co">##  [77] highr_0.9                   BiocIO_1.4.0               </span>
-<span class="co">##  [79] desc_1.4.1                  checkmate_2.0.0            </span>
+<span class="co">##  [79] desc_1.4.1                  checkmate_2.1.0            </span>
 <span class="co">##  [81] filelock_1.0.2              BiocParallel_1.28.3        </span>
 <span class="co">##  [83] rlang_1.0.2                 pkgconfig_2.0.3            </span>
 <span class="co">##  [85] systemfonts_1.0.4           bitops_1.0-7               </span>
@@ -431,7 +431,7 @@
 <span class="co">##  [91] GenomicAlignments_1.30.0    bit_4.0.4                  </span>
 <span class="co">##  [93] tidyselect_1.1.2            plyr_1.8.7                 </span>
 <span class="co">##  [95] magrittr_2.0.3              R6_2.5.1                   </span>
-<span class="co">##  [97] Hmisc_4.6-0                 generics_0.1.2             </span>
+<span class="co">##  [97] Hmisc_4.7-0                 generics_0.1.2             </span>
 <span class="co">##  [99] DelayedArray_0.20.0         DBI_1.1.2                  </span>
 <span class="co">## [101] foreign_0.8-82              pillar_1.7.0               </span>
 <span class="co">## [103] svMisc_1.2.3                nnet_7.3-17                </span>
@@ -439,7 +439,7 @@
 <span class="co">## [107] abind_1.4-5                 RCurl_1.98-1.6             </span>
 <span class="co">## [109] tibble_3.1.6                crayon_1.5.1               </span>
 <span class="co">## [111] utf8_1.2.2                  BiocFileCache_2.2.1        </span>
-<span class="co">## [113] rmarkdown_2.13              jpeg_0.1-9                 </span>
+<span class="co">## [113] rmarkdown_2.14              jpeg_0.1-9                 </span>
 <span class="co">## [115] progress_1.2.2              grid_4.1.1                 </span>
 <span class="co">## [117] data.table_1.14.2           blob_1.2.3                 </span>
 <span class="co">## [119] digest_0.6.29               textshaping_0.3.6          </span>
@@ -465,7 +465,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer>
