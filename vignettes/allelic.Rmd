@@ -99,7 +99,9 @@ manual page for this function. For TSS-level analysis, the `t2g`
 *GRanges* generated above should be passed to the `tx2gene`
 argument. This will summarize transcript-level counts to the TSS
 level, and will attach `rowRanges` that provide the genomic locations
-of the grouped transcripts.
+of the grouped transcripts. Note that `importAllelicCounts` does not
+yet have the ability to automatically generate ranges based on
+sequence hashing (as occurs in `tximeta`).
 
 # Filtering features that have no information
 
