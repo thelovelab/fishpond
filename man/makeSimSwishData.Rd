@@ -11,7 +11,8 @@ makeSimSwishData(
   null = FALSE,
   meanVariance = FALSE,
   allelic = FALSE,
-  dynamic = FALSE
+  diffAI = FALSE,
+  dynamicAI = FALSE
 )
 }
 \arguments{
@@ -28,7 +29,9 @@ variance of inferential replicates}
 
 \item{allelic}{logical, whether to make an allelic sim dataset}
 
-\item{dynamic}{logical, whether to make a dynamic allelic sim dataset}
+\item{diffAI}{logical, whether to make a differential allelic sim dataset}
+
+\item{dynamicAI}{logical, whether to make a dynamic allelic sim dataset}
 }
 \value{
 a SummarizedExperiment

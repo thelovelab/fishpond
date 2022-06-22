@@ -180,7 +180,8 @@ labelKeep <- function(y, minCount=10, minN=3, x) {
 #' @param meanVariance logical, whether to output only mean and
 #' variance of inferential replicates
 #' @param allelic logical, whether to make an allelic sim dataset
-#' @param dynamic logical, whether to make a dynamic allelic sim dataset
+#' @param diffAI logical, whether to make a differential allelic sim dataset
+#' @param dynamicAI logical, whether to make a dynamic allelic sim dataset
 #'
 #' @return a SummarizedExperiment
 #'
@@ -193,13 +194,17 @@ labelKeep <- function(y, minCount=10, minN=3, x) {
 #' @export
 makeSimSwishData <- function(m=1000, n=10, numReps=20,
                              null=FALSE, meanVariance=FALSE,
-                             allelic=FALSE, dynamic=FALSE) {
+                             allelic=FALSE, diffAI=FALSE,
+                             dynamicAI=FALSE) {
   stopifnot(m > 8)
-  if (dynamic) {
+  stopifnot(!(diffAI & dynamicAI))
+  if (diffAI | dynamicAI) {
     allelic <- TRUE
   }
   if (allelic) {
-    n <- 2 * n
+    # this is to trick the function into making a sim dataset
+    # that is double wide (allele 1 and allele 2)
+    n <- 2 * n 
   }
   stopifnot(n %% 2 == 0)
   cts <- matrix(rpois(m*n, lambda=80), ncol=n)
@@ -207,9 +212,14 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
     grp1 <- 1:(n/2)
     grp2 <- (n/2+1):n
     # standard sim
-    if (!dynamic) {
+    if (!diffAI & !dynamicAI) {
       cts[1:6,grp2] <- rpois(3*n, lambda=120)
-    } else {
+    } else if (diffAI) {
+      # differential AI, the LFC differs over a covariate
+      for (i in 1:6) {
+        cts[i,grp2] <- rpois(n/2, lambda=rep(c(60,100),each=n/4))
+      }      
+    } else if (dynamicAI) {
       # dynamic AI, the LFC varies over a covariate
       for (i in 1:6) {
         cts[i,grp2] <- rpois(n/2, lambda=seq(53,120,length=n/2))
@@ -233,19 +243,22 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
     m <- matrix(rpois(m*n, lambda=80), ncol=n)
     if (!null) {
       # standard sim
-      if (!dynamic) {
+      if (!diffAI & !dynamicAI) {
         # these row numbers are fixed for the demo dataset
         m[1:6,grp2] <- rpois(3*n, lambda=120)
-        m[3:4,] <- round(m[3:4,] * runif(2*n,.5,1.5))
-        m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
       } else {
-        # dynamic AI, the LFC varies over a covariate
-        for (i in 1:6) {
-          m[i,grp2] <- rpois(n/2, lambda=seq(53,120,length=n/2))
+        if (diffAI) {
+          for (i in 1:6) {
+            m[i,grp2] <- rpois(n/2, lambda=rep(c(60,100),each=n/4))
+          }
+        } else if (dynamicAI) {
+          for (i in 1:6) {
+            m[i,grp2] <- rpois(n/2, lambda=seq(53,120,length=n/2))
+          }
         }
-        m[3:4,] <- round(m[3:4,] * runif(2*n,.5,1.5))
-        m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
       }
+      m[3:4,] <- round(m[3:4,] * runif(2*n,.5,1.5))
+      m[5:6,grp2] <- round(pmax(m[5:6,grp2] + runif(n,-120,80),0))
       m[7:8,] <- 0
     }
     if (allelic) {
@@ -280,7 +293,10 @@ makeSimSwishData <- function(m=1000, n=10, numReps=20,
     coldata <- DataFrame(allele=allele,
                          sample=sample,
                          row.names=colnames(se))
-    if (dynamic) {
+    if (diffAI) {
+      coldata$condition <- factor(rep(rep(c("A","B"),each=n/4),2))
+    }
+    if (dynamicAI) {
       coldata$time <- rep(round(seq(0,1,length=n/2),2),2)
     }
   } else {

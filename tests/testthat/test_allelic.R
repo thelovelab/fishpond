@@ -2,11 +2,11 @@ context("ase")
 library(SummarizedExperiment)
 library(fishpond)
 
-test_that("fishpond code for ASE works", {
+test_that("fishpond code for importing allelic data works", {
 
   set.seed(1)
 
-  # test reading in wide format for ASE
+  # see allelic vignette for examples of allelic analysis...
   if (FALSE) {
     dir <- "../../../../ase_quants"
     names <- list.files(dir, pattern="sample")

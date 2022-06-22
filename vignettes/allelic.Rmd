@@ -16,7 +16,7 @@ vignette: |
 <!-- run this document with rmarkdown::render("swish.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
+knitr::opts_chunk$set(tidy=FALSE, cache=TRUE, dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
@@ -24,7 +24,20 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
 
 In this vignette, we describe usage of a suite of tools, **SEESAW**,
 Statistical Estimation of allelic Expression using Salmon and
-Swish. 
+Swish, which allow for testing allelic imbalance across samples.
+
+**Type of tests**
+
+SEESAW allows for testing *global allelic imbalance* across all
+samples (pairwise testing within each individual), as well as
+*differential, or dynamic allelic imbalance* (pairwise allelic fold
+changes estimated within individual, followed by testing across two
+groups, or along an additional covariate). Each of these allelic imbalance (AI)
+analyses takes into account the potentially heterogeneous amount of
+inferential uncertainty per sample, per feature (transcript,
+transcript-group, or gene), and per allele.
+
+**Steps in SEESAW**
 
 Running SEESAW involves generation of a diploid transcriptome 
 (e.g. using [g2gtools](http://churchill-lab.github.io/g2gtools/),
@@ -53,23 +66,15 @@ In short the SEESAW steps are as listed, and diagrammed below:
 knitr::include_graphics("images/SEESAW.png")
 ```
 
-SEESAW allows for testing *global allelic imbalance* across all
-samples (pairwise testing within each individual), as well as
-*differential, or dynamic allelic imbalance* (pairwise allelic fold
-changes estimated within individual, followed by testing across two
-groups, or along an additional covariate). Each of these allelic imbalance (AI)
-analyses takes into account the potentially heterogeneous amount of
-inferential uncertainty per sample, per feature (transcript,
-transcript-group, or gene), and per allele.
-
-Below we demonstrate an analysis where transcripts are grouped by their
-transcription start site (TSS), although gene-level or
-transcript-level analysis is also possible. New plotting functions
-added to *fishpond* facilitate visualization of allelic and isoform
-changes at different resolutions, alongside gene models. In the first
-example, we perform global AI testing, and in the second example we
-perform dynamic AI testing, in both cases on simulated data associated
-with human genes.
+Below we demonstrate an analysis where transcripts are grouped by
+their transcription start site (TSS), although gene-level or
+transcript-level analysis is also possible. Additionally, any custom
+grouping could be used, by manually generating a `t2g` table as shown
+below. Special plotting functions in *fishpond* facilitate
+visualization of allelic and isoform changes at different resolutions,
+alongside gene models. In three examples, we perform global AI
+testing, differential AI testing, and dynamic AI testing, in all cases
+on simulated data associated with human genes.
 
 # Linking transcripts to TSS
 
@@ -103,7 +108,7 @@ of the grouped transcripts. Note that `importAllelicCounts` does not
 yet have the ability to automatically generate ranges based on
 sequence hashing (as occurs in `tximeta`).
 
-# Filtering features that have no information
+# Filtering features with no information
 
 Because we use `--keepDuplicates` in the step when we build the Salmon
 index, there will be a number of features in which there is no
@@ -121,7 +126,7 @@ mcols(y)$someInfo <- rowSums(abs(rep1a1 - rep1a2) < 1) < n
 y <- y[ mcols(y)$someInfo, ]
 ```
 
-# Testing for allelic imbalance across samples
+# Global allelic imbalance
 
 We begin by generating a simulated data object that resembles what one
 would obtain with `importAllelicCounts()`. The import function
@@ -213,9 +218,16 @@ plotInfReps(y, idx=1, x="allele", cov="sample", xaxis=FALSE, xlab="")
 plotInfReps(y, idx=2, x="allele", cov="sample", xaxis=FALSE, xlab="")
 ```
 
+**Plotting results in genomic context**
+
+For analysis at the isoform or TSS-level, it may be useful to display
+results within a gene, relating the allelic differences to various
+gene features.
 SEESAW provides `plotAllelicGene()` in order to build visualization of
 Swish test statistics, allelic proportions, and isoform proportions,
-in a genomic context, making use of *Gviz*. The first three arguments
+in a genomic context, making use of *Gviz*. 
+Note that this function is not relevant for gene-level AI analysis.
+The first three arguments to `plotAllelicGene()`
 are the *SummarizedExperiment* object, the name of a gene (should
 match `gene_id` column), and a *TxDb* or *EnsDb* to use for plotting
 the gene model at the top. The statistics and proportions are then
@@ -271,22 +283,88 @@ plotInfReps(y, idx=1, x="allele_new",
             legend=TRUE, legendPos="bottom")
 ```
 
-# Testing for dynamic allelic imbalance
+# Differential allelic imbalance
 
 Above, we tested for global AI, where the allelic fold change is
 consistent across all samples. We can also test for differential or
 dynamic AI, by adding specification of a `cov` (covariate) which can
-be either a two-group factor, or a continuous variable. For continuous
-variable, the user should specify a correlation test, either
-`cor="pearson"` or `"spearman"`.
+be either a two-group factor, or a continuous variable. Here we
+demonstrate differential AI, when `cov` is a two-group factor, in this
+case called `"condition"`.
 
 ```{r}
 set.seed(1)
-y <- makeSimSwishData(dynamic=TRUE)
+y <- makeSimSwishData(diffAI=TRUE, n=12)
+colData(y)
+table(y$condition, y$allele)
+```
+
+In the following, we test for changes in allelic imbalance across
+`condition`. This is implemented as an "interaction" test, where we
+test if the fold change associated with `allele`, for paired samples,
+differs across `condition`.
+
+```{r}
+y <- labelKeep(y)
+y <- swish(y, x="allele", pair="sample",
+           cov="condition", interaction=TRUE)
+```
+
+In this simulated data, the top two features exhibit differential AI
+with low uncertainty, so these emerge as highly significant, as
+expected.
+
+```{r}
+mcols(y)[1:2,c("stat","qvalue")]
+```
+
+The non-AI features have roughly uniform p-values:
+
+```{r}
+hist(mcols(y)[-c(1:6),"pvalue"])
+```
+
+We can plot the allelic counts with uncertainty, grouped by the
+condition (black and grey lines at bottom).
+
+```{r}
+plotInfReps(y, idx=1, x="allele", cov="condition",
+            xaxis=FALSE, legend=TRUE, legendPos="bottomright")
+```
+
+We can also visualize the data across multiple features, in terms of
+allelic ratios:
+
+```{r fig.dim=c(8,4)}
+idx <- c(1:6)
+row_dat <- data.frame(minusLogQ=-log10(mcols(y)$qvalue[idx]),
+                      row.names=rownames(y)[idx])
+col_dat <- data.frame(condition=y$condition[1:12],
+                      row.names=paste0("s",1:12))
+plotAllelicHeatmap(y, idx=idx,
+                   annotation_row=row_dat,
+                   annotation_col=col_dat,
+                   cluster_rows=FALSE)
+```
+
+# Dynamic allelic imbalance
+
+Now we demonstrate dynamic AI testing when `cov` (covariate) is a
+continuous variable. In this case, the user should specify a
+correlation test, either `cor="pearson"` or `"spearman"`, which is the
+underlying test statistic used by Swish (it will then be averaged over
+bootstraps and a permutation null is generated to assess FDR). We have
+found that Pearson correlations work well in our testing, but the
+Spearman correlation offers additional robustness against outlying
+values in `cov`.
+
+```{r}
+set.seed(1)
+y <- makeSimSwishData(dynamicAI=TRUE)
 colData(y)
 ```
 
-Again, a hidden code chunk adds ranges to our simulation data.
+A hidden code chunk adds ranges to our simulation data.
 
 ```
 <hidden code chunk>
@@ -357,12 +435,23 @@ plotAllelicHeatmap(y, idx=idx,
                    annotation_col=col_dat)
 ```
 
-Finally, by binning the `time` covariate into a few groups, we can
-again draw the allelic and isoform proportions in the genomic context,
-now facetting across time. 
+**Plotting results in genomic context**
 
-First we create the binned covariate using `cut`, and rename the
-labels for nicer labels in our plot: 
+Previously, in the global AI section, we demonstrated how to plot
+TSS-level results in a genomic context using `plotAllelicGene()`. Here
+we demonstrate how to repeat such a plot for differential or dynamic
+AI analysis. There is an extra step for dynamic analysis (binning the
+continuous covariate into groups) but otherwise the code would be
+similar. 
+
+We begin by binning the `time` covariate into a few groups, so that we
+can diagram the allelic and isoform proportions in the genomic context,
+but facetting across time. 
+
+We create the binned covariate using `cut`, and rename the labels for
+nicer labels in our plot. For differential AI, this step would be
+skipped (as there already exists a two-group covariate for grouping
+samples).
 
 ```{r}
 y$time_bins <- cut(y$time,breaks=c(0,.25,.75,1),
