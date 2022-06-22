@@ -20,7 +20,7 @@ with the logical keep."><!-- mathjax --><script src="https://cdnjs.cloudflare.co
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
       </span>
     </div>
 
@@ -79,20 +79,34 @@ with the logical <code>keep</code>.</p>
     <h2>Arguments</h2>
     <dl><dt>y</dt>
 <dd><p>a SummarizedExperiment</p></dd>
+
+
 <dt>minCount</dt>
 <dd><p>the minimum count</p></dd>
+
+
 <dt>minN</dt>
 <dd><p>the minimum sample size at <code>minCount</code></p></dd>
+
+
 <dt>x</dt>
 <dd><p>the name of the condition variable, will
 use the smaller of the two groups to set <code>minN</code>.
 Similar to edgeR's <code>filterByExpr</code>, as the smaller group
 grows past 10, <code>minN</code> grows only by 0.7 increments
 of sample size</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a SummarizedExperiment with a new column <code>keep</code>in <code>mcols(y)</code></p>
+    
+
+<p>a SummarizedExperiment with a new column <code>keep</code></p>
+
+
+<p>in <code>mcols(y)</code></p>
+
+
     </div>
 
     <div id="ref-examples">
@@ -116,7 +130,7 @@ of sample size</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

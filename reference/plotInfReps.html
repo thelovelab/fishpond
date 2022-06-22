@@ -24,7 +24,7 @@ in order to add the mean and variance statistics."><!-- mathjax --><script src="
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
       </span>
     </div>
 
@@ -110,74 +110,117 @@ in order to add the mean and variance statistics.</p>
     <h2>Arguments</h2>
     <dl><dt>y</dt>
 <dd><p>a SummarizedExperiment (see <code>swish</code>)</p></dd>
+
+
 <dt>idx</dt>
 <dd><p>the name or row number of the gene or transcript</p></dd>
+
+
 <dt>x</dt>
 <dd><p>the name of the condition variable for splitting
 and coloring the samples or cells. Also can be a numeric,
 e.g. pseudotime, in which case, <code>cov</code> can be used
 to designate groups for coloring</p></dd>
+
+
 <dt>cov</dt>
 <dd><p>the name of the covariate for adjustment</p></dd>
+
+
 <dt>colsDrk</dt>
 <dd><p>dark colors for the lines of the boxes</p></dd>
+
+
 <dt>colsLgt</dt>
 <dd><p>light colors for the inside of the boxes</p></dd>
+
+
 <dt>xaxis</dt>
 <dd><p>logical, whether to label the sample numbers.
 default is <code>TRUE</code> if there are less than 30 samples</p></dd>
+
+
 <dt>xlab</dt>
 <dd><p>the x-axis label</p></dd>
+
+
 <dt>ylim</dt>
 <dd><p>y limits</p></dd>
+
+
 <dt>main</dt>
 <dd><p>title</p></dd>
+
+
 <dt>mainCol</dt>
 <dd><p>name of metadata column to use for title
 (instead of rowname)</p></dd>
+
+
 <dt>legend</dt>
 <dd><p>logical, show simple legend (default FALSE)</p></dd>
+
+
 <dt>legendPos</dt>
 <dd><p>character, position of the legend (default "topleft")</p></dd>
+
+
 <dt>legendTitle</dt>
 <dd><p>logical, whether to add the name of the
 grouping variable as a title on the legend (default FALSE)</p></dd>
+
+
 <dt>legendCex</dt>
 <dd><p>numeric, size of the legend (default 1)</p></dd>
+
+
 <dt>useMean</dt>
 <dd><p>logical, when inferential replicates
 are not present or when <code>x</code> is continuous,
 whether to use the <code>mean</code> assay or the
 <code>counts</code> assay for plotting</p></dd>
+
+
 <dt>q</dt>
 <dd><p>numeric, the quantile to use when plotting
 the intervals when inferential replicates are not
 present or when <code>x</code> is continuous. Default
 is <code>qnorm(.975) ~= 1.96</code> corresponding to 95<!-- % -->
 intervals</p></dd>
+
+
 <dt>applySF</dt>
 <dd><p>logical, when inferential replicates are
 not present, should <code>y$sizeFactor</code> be divided out
 from the mean and interval plots (default FALSE)</p></dd>
+
+
 <dt>reorder</dt>
 <dd><p>logical, should points within a group
 defined by condition and covariate be re-ordered by
 their count value (default is FALSE, except for alevin data)</p></dd>
+
+
 <dt>thin</dt>
 <dd><p>integer, should the mean and interval lines
 be drawn thin (the default switches from 0 [not thin]
 to 1 [thinner] at n=150 cells, and from 1 [thinner]
 to 2 [thinnest] at n=400 cells)</p></dd>
+
+
 <dt>shiftX</dt>
 <dd><p>when <code>x</code> is continuous and <code>cov</code>
 is provided, the amount to shift the values on the x-axis
 to improve visibility of the point and line ranges
 (will be subtracted from the first level of <code>cov</code>
 and added to the second level of <code>cov</code>)</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>nothing, a plot is displayed</p>
+    
+
+<p>nothing, a plot is displayed</p>
     </div>
 
     <div id="ref-examples">
@@ -206,7 +249,7 @@ and added to the second level of <code>cov</code>)</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

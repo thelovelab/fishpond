@@ -25,7 +25,7 @@ set ideogram=FALSE."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/a
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
       </span>
     </div>
 
@@ -120,82 +120,143 @@ set <code>ideogram=FALSE</code>.</p>
     <h2>Arguments</h2>
     <dl><dt>y</dt>
 <dd><p>a SummarizedExperiment (see <code>swish</code>)</p></dd>
+
+
 <dt>gene</dt>
 <dd><p>the name of the gene of interest, requires
 a column <code>gene_id</code> in the metadata columns of the
 rowRanges of y</p></dd>
+
+
 <dt>db</dt>
 <dd><p>either a TxDb or EnsDb object to use for the gene model</p></dd>
+
+
 <dt>region</dt>
 <dd><p>GRanges, the region to be displayed in the Gviz plot.
 if not specified, will be set according to the gene plus 20<!-- % -->
 of the total gene extent on either side</p></dd>
+
+
 <dt>symbol</dt>
 <dd><p>alternative to <code>gene</code>, to specify
 the gene of interest according to a column <code>symbol</code>
 in the metadata columns of the rowRanges of y</p></dd>
+
+
 <dt>genome</dt>
 <dd><p>UCSC genome code (e.g. <code>"hg38"</code>,
 if not specified it will use the <code><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">GenomeInfoDb::genome()</a></code>
 of the rowRanges of <code>y</code></p></dd>
+
+
 <dt>tpmFilter</dt>
 <dd><p>minimum TPM value (mean over samples) to keep a feature</p></dd>
+
+
 <dt>isoPropFilter</dt>
 <dd><p>minimum percent of isoform proportion to keep a feature</p></dd>
+
+
 <dt>countFilter</dt>
 <dd><p>minimum count value (mean over samples) to keep a feature</p></dd>
+
+
 <dt>pc</dt>
 <dd><p>pseudocount to avoid dividing by zero in allelic proportion calculation</p></dd>
+
+
 <dt>transcriptAnnotation</dt>
 <dd><p>argument passed to Gviz::GeneRegionTrack
 (<code>"symbol"</code>, <code>"gene"</code>, <code>"transcript"</code>, etc.)</p></dd>
+
+
 <dt>labels</dt>
 <dd><p>list, labels for a2 (non-effect) and a1 (effect) alleles</p></dd>
+
+
 <dt>qvalue</dt>
 <dd><p>logical, whether to inclue qvalue track</p></dd>
+
+
 <dt>log2FC</dt>
 <dd><p>logical, whether to include log2FC track</p></dd>
+
+
 <dt>ideogram</dt>
 <dd><p>logical, whether to include ideogram track</p></dd>
+
+
 <dt>cov</dt>
 <dd><p>character specifying a factor or integer variable to use
 to facet the allelic proportion plots, should be a column in
 <code>colData(y)</code></p></dd>
+
+
 <dt>covFacetIsoform</dt>
 <dd><p>logical, if <code>cov</code> is provided,
 should it also be used to facet the isoform proportion track,
 in addition to the allelic proportion track</p></dd>
+
+
 <dt>allelicCol</dt>
 <dd><p>the colors of the points and lines for allelic proportion</p></dd>
+
+
 <dt>isoformCol</dt>
 <dd><p>the colors of the points and lines for isoform proportion</p></dd>
+
+
 <dt>statCol</dt>
 <dd><p>the color of the lollipops for q-value and log2FC</p></dd>
+
+
 <dt>gridCol</dt>
 <dd><p>the color of the grid in the data tracks</p></dd>
+
+
 <dt>baselineCol</dt>
 <dd><p>the color of the horizontal baseline for q-value and lo2gFC</p></dd>
+
+
 <dt>titleCol</dt>
 <dd><p>font color of the side titles (track labels)</p></dd>
+
+
 <dt>titleAxisCol</dt>
 <dd><p>axis color of the side titles (track labels)</p></dd>
+
+
 <dt>titleBgCol</dt>
 <dd><p>background color of the side titles (track labels)</p></dd>
+
+
 <dt>geneBorderCol</dt>
 <dd><p>the color of the borders and font in gene region track</p></dd>
+
+
 <dt>geneFillCol</dt>
 <dd><p>the color of the fill in the gene region track</p></dd>
+
+
 <dt>genomeAxisCol</dt>
 <dd><p>line color of the genome axis track</p></dd>
+
+
 <dt>innerFontCol</dt>
 <dd><p>font color of genome axis track, ideogram, and
 allelic proportion legend</p></dd>
+
+
 <dt>...</dt>
 <dd><p>additional arguments passed to <code><a href="https://rdrr.io/pkg/Gviz/man/plotTracks.html" class="external-link">Gviz::plotTracks()</a></code></p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>nothing, a plot is displayed</p>
+    
+
+<p>nothing, a plot is displayed</p>
     </div>
 
   </div>
@@ -210,7 +271,7 @@ allelic proportion legend</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

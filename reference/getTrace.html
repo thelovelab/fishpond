@@ -21,7 +21,7 @@ data.frame for easy plotting."><!-- mathjax --><script src="https://cdnjs.cloudf
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
       </span>
     </div>
 
@@ -82,16 +82,23 @@ data.frame for easy plotting.</p>
     <dl><dt>y</dt>
 <dd><p>a SummarizedExperiment with inferential replicates
 as assays <code>infRep1</code> etc.</p></dd>
+
+
 <dt>idx</dt>
 <dd><p>the names or row numbers
 of the gene or transcript to plot</p></dd>
+
+
 <dt>samp_idx</dt>
 <dd><p>the names or column numbers
 of the samples to plot</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a data.frame with the counts along the interential
+    
+
+<p>a data.frame with the counts along the interential
 replicates, possible with additional columns specifying
 feature or sample</p>
     </div>
@@ -102,26 +109,26 @@ feature or sample</p>
 <span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu">getTrace</span><span class="op">(</span><span class="va">y</span>, <span class="st">"gene-1"</span>, <span class="st">"s1"</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    infRep count</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1    71</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2    84</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3    79</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4    61</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       5    80</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       6    81</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7       7    89</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8       8    96</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1    84</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2    72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3    88</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4    72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       5    86</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       6    83</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7       7    70</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8       8    77</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9       9    94</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10     10    68</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11     11    79</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12     12    82</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13     13    79</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14     14   102</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15     15    75</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16     16    85</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17     17    91</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18     18    81</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19     19    92</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20     20    73</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     10    85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     11    89</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12     12    94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13     13    95</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     14    70</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     15    69</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16     16    65</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17     17    93</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18     18    78</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19     19    97</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20     20    78</span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>
@@ -137,7 +144,7 @@ feature or sample</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

@@ -24,7 +24,7 @@ minimize systematic differences across samples."><!-- mathjax --><script src="ht
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
       </span>
     </div>
 
@@ -99,32 +99,49 @@ minimize systematic differences across samples.</p>
 inferential replicate count matrices, <code>counts</code> the
 estimated counts matrix, and <code>length</code> the effective
 lengths matrix</p></dd>
+
+
 <dt>lengthCorrect</dt>
 <dd><p>whether to use effective length correction
 (default is TRUE)</p></dd>
+
+
 <dt>meanDepth</dt>
 <dd><p>(optional) user can
 specify a different mean sequencing depth. By default
 the geometric mean sequencing depth is computed</p></dd>
+
+
 <dt>sfFun</dt>
 <dd><p>(optional) size factors function. An
 alternative to the median ratio can be provided here to adjust
 the scaledTPM so as to remove remaining library size differences.
 Alternatively, one can provide a numeric vector of size factors</p></dd>
+
+
 <dt>minCount</dt>
 <dd><p>for internal filtering, the minimum count</p></dd>
+
+
 <dt>minN</dt>
 <dd><p>for internal filtering, the minimum sample size
 at <code>minCount</code></p></dd>
+
+
 <dt>saveMeanScaled</dt>
 <dd><p>store the mean of scaled inferential
 replicates as an assay 'meanScaled'</p></dd>
+
+
 <dt>quiet</dt>
 <dd><p>display no messages</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a SummarizedExperiment with the inferential replicates
+    
+
+<p>a SummarizedExperiment with the inferential replicates
 as scaledTPM with library size already corrected (no need for further
 normalization). A column <code>log10mean</code> is also added which is the
 log10 of the mean of scaled counts across all samples and all inferential
@@ -151,7 +168,7 @@ replicates.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

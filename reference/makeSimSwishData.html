@@ -22,7 +22,7 @@ genes have all zeros to demonstrate labelKeep."><!-- mathjax --><script src="htt
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
       </span>
     </div>
 
@@ -83,7 +83,8 @@ genes have all zeros to demonstrate <code>labelKeep</code>.</p>
   null <span class="op">=</span> <span class="cn">FALSE</span>,
   meanVariance <span class="op">=</span> <span class="cn">FALSE</span>,
   allelic <span class="op">=</span> <span class="cn">FALSE</span>,
-  dynamic <span class="op">=</span> <span class="cn">FALSE</span>
+  diffAI <span class="op">=</span> <span class="cn">FALSE</span>,
+  dynamicAI <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -91,23 +92,42 @@ genes have all zeros to demonstrate <code>labelKeep</code>.</p>
     <h2>Arguments</h2>
     <dl><dt>m</dt>
 <dd><p>number of genes</p></dd>
+
+
 <dt>n</dt>
 <dd><p>number of samples</p></dd>
+
+
 <dt>numReps</dt>
 <dd><p>how many inferential replicates to generate</p></dd>
+
+
 <dt>null</dt>
 <dd><p>logical, whether to make an all null dataset</p></dd>
+
+
 <dt>meanVariance</dt>
 <dd><p>logical, whether to output only mean and
 variance of inferential replicates</p></dd>
+
+
 <dt>allelic</dt>
 <dd><p>logical, whether to make an allelic sim dataset</p></dd>
-<dt>dynamic</dt>
+
+
+<dt>diffAI</dt>
+<dd><p>logical, whether to make a differential allelic sim dataset</p></dd>
+
+
+<dt>dynamicAI</dt>
 <dd><p>logical, whether to make a dynamic allelic sim dataset</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a SummarizedExperiment</p>
+    
+
+<p>a SummarizedExperiment</p>
     </div>
 
     <div id="ref-examples">
@@ -135,7 +155,7 @@ variance of inferential replicates</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

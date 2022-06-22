@@ -19,7 +19,7 @@ various experimental designs. See References for details.'><!-- mathjax --><scri
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
       </span>
     </div>
 
@@ -93,17 +93,23 @@ various experimental designs. See References for details.</p>
     <dl><dt>y</dt>
 <dd><p>a SummarizedExperiment containing the inferential replicate
 matrices of median-ratio-scaled TPM as assays 'infRep1', 'infRep2', etc.</p></dd>
+
+
 <dt>x</dt>
 <dd><p>the name of the condition variable. A factor with two
 levels for a two group analysis (possible to adjust for covariate
 or matched samples, see next two arguments). The log fold change is
 computed as non-reference level over reference level (see vignette:
 'Note on factor levels')</p></dd>
+
+
 <dt>cov</dt>
 <dd><p>the name of the covariate for adjustment.
 If provided a stratified Wilcoxon in performed.
 Cannot be used with <code>pair</code>, unless using
 either <code>interaction</code> or <code>cor</code></p></dd>
+
+
 <dt>pair</dt>
 <dd><p>the name of the pair variable, which should be the
 number of the pair. Can be an integer or factor.
@@ -111,10 +117,14 @@ If specified, a signed rank test is used
 to build the statistic. All samples across <code>x</code> must be
 pairs if this is specified. Cannot be used with <code>cov</code>,
 unless using either <code>interaction</code> or <code>cor</code></p></dd>
+
+
 <dt>interaction</dt>
 <dd><p>logical, whether to perform a test of an interaction
 between <code>x</code> and <code>cov</code>. Can use <code>pair</code> or not.
 See Details.</p></dd>
+
+
 <dt>cor</dt>
 <dd><p>character, whether to compute correlation of <code>x</code>
 with the log counts, and signifance testing on the correlation
@@ -127,35 +137,54 @@ Default is <code>"none"</code>, e.g. two-group comparison using the rank sum tes
 or other alternatives listed above.
 Additionally, correlation can be computed between a continuous variable
 <code>cov</code> and log fold changes across <code>x</code> matched by <code>pair</code></p></dd>
+
+
 <dt>nperms</dt>
 <dd><p>the number of permutations. if set above the possible
 number of permutations, the function will print a message that the
 value is set to the maximum number of permutations possible</p></dd>
+
+
 <dt>estPi0</dt>
 <dd><p>logical, whether to estimate pi0</p></dd>
+
+
 <dt>qvaluePkg</dt>
 <dd><p>character, which package to use for q-value estimation,
 <code>samr</code> or <code>qvalue</code></p></dd>
+
+
 <dt>pc</dt>
 <dd><p>pseudocount for finite estimation of <code>log2FC</code>, not used
 in calculation of test statistics, <code>locfdr</code> or <code>qvalue</code></p></dd>
+
+
 <dt>nRandomPairs</dt>
 <dd><p>the number of random pseudo-pairs (only used with
 <code>interaction=TRUE</code> and un-matched samples) to use to calculate
 the test statistic</p></dd>
+
+
 <dt>fast</dt>
 <dd><p>an integer, toggles different methods based on speed
 (<code>fast=1</code> is default, <code>0</code> is slower). See Details.</p></dd>
+
+
 <dt>returnNulls</dt>
 <dd><p>logical, only return the <code>stat</code> vector,
 the <code>log2FC</code> vector, and the <code>nulls</code> matrix
 (default FALSE)</p></dd>
+
+
 <dt>quiet</dt>
 <dd><p>display no messages</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a SummarizedExperiment with metadata columns added:
+    
+
+<p>a SummarizedExperiment with metadata columns added:
 the statistic (either a centered Wilcoxon Mann-Whitney
 or a signed rank statistic, aggregated over inferential replicates),
 a log2 fold change (the median over inferential replicates,
@@ -241,7 +270,7 @@ in RNA-Seq data" Stat Methods Med Res (2013).
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

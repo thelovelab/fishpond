@@ -24,7 +24,7 @@ Further information in Details below."><!-- mathjax --><script src="https://cdnj
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
       </span>
     </div>
 
@@ -94,10 +94,16 @@ Further information in Details below.</p>
     <h2>Arguments</h2>
     <dl><dt>coldata</dt>
 <dd><p>a data.frame as used in <code>tximeta</code></p></dd>
+
+
 <dt>a1</dt>
 <dd><p>the symbol for the effect allele</p></dd>
+
+
 <dt>a2</dt>
 <dd><p>the symbol for the non-effect allele</p></dd>
+
+
 <dt>format</dt>
 <dd><p>either <code>"wide"</code> or <code>"assays"</code> for whether
 to combine the allelic counts as columns (wide) or put the allelic
@@ -108,6 +114,8 @@ of the factor variable <code>se$allele</code> will be <code>"a2"</code>
 (so by default comparisons will be: a1 vs a2).
 For assays output, all of the original matrices are renamed with a prefix,
 either <code>a1-</code> or <code>a2-</code>.</p></dd>
+
+
 <dt>tx2gene</dt>
 <dd><p>optional, a data.frame with first column indicating
 transcripts, second column indicating genes (or any other transcript
@@ -115,12 +123,17 @@ grouping). Alternatively, this can be a GRanges object with
 required columns <code>tx_id</code>, and <code>group_id</code>
 (see <code>makeTx2Tss</code>). For more information on this argument,
 see Details.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>any arguments to pass to tximeta</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a SummarizedExperiment, with allele counts (and other data)
+    
+
+<p>a SummarizedExperiment, with allele counts (and other data)
 combined into a wide matrix <code>[a2 | a1]</code>, or as assays (a1, then a2).
 The original strings associated with a1 and a2 are stored in the
 metadata of the object, in the <code>alleles</code> list element.
@@ -177,7 +190,7 @@ returned.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

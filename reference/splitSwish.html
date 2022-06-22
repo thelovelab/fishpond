@@ -25,7 +25,7 @@ a Snakefile: https://snakemake.readthedocs.io"><!-- mathjax --><script src="http
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
       </span>
     </div>
 
@@ -89,23 +89,34 @@ a <code>Snakefile</code>: <a href="https://snakemake.readthedocs.io" class="exte
     <h2>Arguments</h2>
     <dl><dt>y</dt>
 <dd><p>a SummarizedExperiment</p></dd>
+
+
 <dt>nsplits</dt>
 <dd><p>integer, how many pieces to break <code>y</code> into</p></dd>
+
+
 <dt>prefix</dt>
 <dd><p>character, the path of the RDS files to write out,
 e.g. <code>prefix="/path/to/swish"</code> will generate <code>swish.rds</code>
 files at this path</p></dd>
+
+
 <dt>snakefile</dt>
 <dd><p>character, the path of a Snakemake file, e.g.
 <code>Snakefile</code>, that should be written out. If <code>NULL</code>,
 then no <code>Snakefile</code> is written out</p></dd>
+
+
 <dt>overwrite</dt>
 <dd><p>logical, whether the <code>snakefile</code> and
 RDS files (<code>swish1.rds</code>, ...) should overwrite existing files</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>nothing, files are written out</p>
+    
+
+<p>nothing, files are written out</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -134,7 +145,7 @@ Bioinformatics.
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>
