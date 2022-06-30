@@ -131,8 +131,9 @@ y <- y[ mcols(y)$someInfo, ]
 We begin by generating a simulated data object that resembles what one
 would obtain with `importAllelicCounts()`. The import function
 arranges the `a2` (non-effect) allelic counts first, followed by the
-`a1` (effect) allelic counts. Allelic ratios are calculated at
-`a1/a2`.
+`a1` (effect) allelic counts. Allelic ratios are calculated as
+`a1/a2`, which follows the notational standard in PLINK and other
+tools. 
 
 ```{r}
 suppressPackageStartupMessages(library(SummarizedExperiment))
@@ -194,7 +195,7 @@ assignment of the reads. The underlying test statistic is a Wilcoxon
 signed-rank statistic, which compares the two allele counts from each
 sample, so a paired analysis.
 
-Note that we do not use `scaleInfReps` in the allelic
+**Scaling:** Note that we do not use `scaleInfReps` in the allelic
 pipeline. Because we compare the two alleles within samples, there is
 no need to perform scaling of the counts to adjust for sequencing
 depth. We simply import counts, filter low counts with `lableKeep` and
