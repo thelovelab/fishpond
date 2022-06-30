@@ -862,16 +862,11 @@ distributed job, and with `lengthCorrect=FALSE` by default).
 library(SingleCellExperiment)
 y <- as(y, "SingleCellExperiment")
 # then, after filtering genes and cells...
-
 # compute and store sizeFactors calculated over all genes
-library(scran)
-y <- computeSumFactors(y)
-
+y <- scran::computeSumFactors(y)
 # split swish objects into 8 RDS files:
 splitSwish(y, nsplits=8, prefix="swish", snakefile="Snakefile")
-
 # now, run snakemake from command line
-
 # after finished, results back into R:
 y <- addStatsFromCSV(y, "summary.csv")
 ```
