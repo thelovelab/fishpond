@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.5</span>
       </span>
     </div>
 
@@ -104,11 +104,11 @@
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <p>The following paradigm is used for running a Swish analysis:</p>
-<pre><code><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">tximeta</span><span class="op">(</span><span class="va">coldata</span><span class="op">)</span> <span class="co"># reads in counts and inf reps</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># scales counts</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># labels features to keep</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span><span class="op">)</span> <span class="co"># simplest Swish case</span></code></pre>
+<pre><code><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">tximeta</span><span class="op">(</span><span class="va">coldata</span><span class="op">)</span> <span class="co"># reads in counts and inf reps</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># scales counts</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># labels features to keep</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span><span class="op">)</span> <span class="co"># simplest Swish case</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="how-does-swish-work">How does Swish work<a class="anchor" aria-label="anchor" href="#how-does-swish-work"></a>
@@ -133,7 +133,7 @@
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>This package can be installed via Bioconductor:</p>
-<pre><code><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"fishpond"</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"fishpond"</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="funding">Funding<a class="anchor" aria-label="anchor" href="#funding"></a>
@@ -208,7 +208,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer>

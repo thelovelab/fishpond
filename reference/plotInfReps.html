@@ -24,7 +24,7 @@ in order to add the mean and variance statistics."><!-- mathjax --><script src="
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.5</span>
       </span>
     </div>
 
@@ -80,30 +80,30 @@ in order to add the mean and variance statistics.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">plotInfReps</span><span class="op">(</span>
-  <span class="va">y</span>,
-  <span class="va">idx</span>,
-  <span class="va">x</span>,
-  cov <span class="op">=</span> <span class="cn">NULL</span>,
-  colsDrk <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dodgerblue"</span>, <span class="st">"goldenrod4"</span>, <span class="st">"royalblue4"</span>, <span class="st">"red3"</span>, <span class="st">"purple4"</span>, <span class="st">"darkgreen"</span><span class="op">)</span>,
-  colsLgt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lightblue1"</span>, <span class="st">"goldenrod1"</span>, <span class="st">"royalblue1"</span>, <span class="st">"salmon1"</span>, <span class="st">"orchid1"</span>,
-    <span class="st">"limegreen"</span><span class="op">)</span>,
-  <span class="va">xaxis</span>,
-  <span class="va">xlab</span>,
-  <span class="va">ylim</span>,
-  <span class="va">main</span>,
-  <span class="va">mainCol</span>,
-  legend <span class="op">=</span> <span class="cn">FALSE</span>,
-  legendPos <span class="op">=</span> <span class="st">"topleft"</span>,
-  legendTitle <span class="op">=</span> <span class="cn">FALSE</span>,
-  legendCex <span class="op">=</span> <span class="fl">1</span>,
-  useMean <span class="op">=</span> <span class="cn">TRUE</span>,
-  q <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">0.975</span><span class="op">)</span>,
-  applySF <span class="op">=</span> <span class="cn">FALSE</span>,
-  <span class="va">reorder</span>,
-  <span class="va">thin</span>,
-  <span class="va">shiftX</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotInfReps</span><span class="op">(</span></span>
+<span>  <span class="va">y</span>,</span>
+<span>  <span class="va">idx</span>,</span>
+<span>  <span class="va">x</span>,</span>
+<span>  cov <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  colsDrk <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dodgerblue"</span>, <span class="st">"goldenrod4"</span>, <span class="st">"royalblue4"</span>, <span class="st">"red3"</span>, <span class="st">"purple4"</span>, <span class="st">"darkgreen"</span><span class="op">)</span>,</span>
+<span>  colsLgt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lightblue1"</span>, <span class="st">"goldenrod1"</span>, <span class="st">"royalblue1"</span>, <span class="st">"salmon1"</span>, <span class="st">"orchid1"</span>,</span>
+<span>    <span class="st">"limegreen"</span><span class="op">)</span>,</span>
+<span>  <span class="va">xaxis</span>,</span>
+<span>  <span class="va">xlab</span>,</span>
+<span>  <span class="va">ylim</span>,</span>
+<span>  <span class="va">main</span>,</span>
+<span>  <span class="va">mainCol</span>,</span>
+<span>  legend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  legendPos <span class="op">=</span> <span class="st">"topleft"</span>,</span>
+<span>  legendTitle <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  legendCex <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  useMean <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  q <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">0.975</span><span class="op">)</span>,</span>
+<span>  applySF <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">reorder</span>,</span>
+<span>  <span class="va">thin</span>,</span>
+<span>  <span class="va">shiftX</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -225,16 +225,16 @@ and added to the second level of <code>cov</code>)</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">plotInfReps</span><span class="op">(</span><span class="va">y</span>, <span class="fl">3</span>, <span class="st">"condition"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plotInfReps</span><span class="op">(</span><span class="va">y</span>, <span class="fl">3</span>, <span class="st">"condition"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plotInfReps-1.png" alt="" width="528" height="326"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>n<span class="op">=</span><span class="fl">40</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">y</span><span class="op">$</span><span class="va">batch</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">10</span>,<span class="fl">5</span>,<span class="fl">5</span>,<span class="fl">10</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">plotInfReps</span><span class="op">(</span><span class="va">y</span>, <span class="fl">3</span>, <span class="st">"condition"</span>, <span class="st">"batch"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>n<span class="op">=</span><span class="fl">40</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span><span class="op">$</span><span class="va">batch</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">10</span>,<span class="fl">5</span>,<span class="fl">5</span>,<span class="fl">10</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plotInfReps</span><span class="op">(</span><span class="va">y</span>, <span class="fl">3</span>, <span class="st">"condition"</span>, <span class="st">"batch"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plotInfReps-2.png" alt="" width="528" height="326"></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -249,7 +249,7 @@ and added to the second level of <code>cov</code>)</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

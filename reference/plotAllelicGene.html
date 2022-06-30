@@ -25,7 +25,7 @@ set ideogram=FALSE."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/a
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.5</span>
       </span>
     </div>
 
@@ -82,38 +82,38 @@ set <code>ideogram=FALSE</code>.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">plotAllelicGene</span><span class="op">(</span>
-  <span class="va">y</span>,
-  <span class="va">gene</span>,
-  <span class="va">db</span>,
-  region <span class="op">=</span> <span class="cn">NULL</span>,
-  symbol <span class="op">=</span> <span class="cn">NULL</span>,
-  genome <span class="op">=</span> <span class="cn">NULL</span>,
-  tpmFilter <span class="op">=</span> <span class="fl">1</span>,
-  isoPropFilter <span class="op">=</span> <span class="fl">0.05</span>,
-  countFilter <span class="op">=</span> <span class="fl">10</span>,
-  pc <span class="op">=</span> <span class="fl">1</span>,
-  transcriptAnnotation <span class="op">=</span> <span class="st">"symbol"</span>,
-  labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a2 <span class="op">=</span> <span class="st">"a2"</span>, a1 <span class="op">=</span> <span class="st">"a1"</span><span class="op">)</span>,
-  qvalue <span class="op">=</span> <span class="cn">TRUE</span>,
-  log2FC <span class="op">=</span> <span class="cn">TRUE</span>,
-  ideogram <span class="op">=</span> <span class="cn">FALSE</span>,
-  cov <span class="op">=</span> <span class="cn">NULL</span>,
-  covFacetIsoform <span class="op">=</span> <span class="cn">FALSE</span>,
-  allelicCol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dodgerblue"</span>, <span class="st">"goldenrod1"</span><span class="op">)</span>,
-  isoformCol <span class="op">=</span> <span class="st">"firebrick"</span>,
-  statCol <span class="op">=</span> <span class="st">"black"</span>,
-  gridCol <span class="op">=</span> <span class="st">"grey80"</span>,
-  baselineCol <span class="op">=</span> <span class="st">"black"</span>,
-  titleCol <span class="op">=</span> <span class="st">"black"</span>,
-  titleAxisCol <span class="op">=</span> <span class="st">"black"</span>,
-  titleBgCol <span class="op">=</span> <span class="st">"white"</span>,
-  geneBorderCol <span class="op">=</span> <span class="st">"darkblue"</span>,
-  geneFillCol <span class="op">=</span> <span class="st">"darkblue"</span>,
-  genomeAxisCol <span class="op">=</span> <span class="st">"black"</span>,
-  innerFontCol <span class="op">=</span> <span class="st">"black"</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotAllelicGene</span><span class="op">(</span></span>
+<span>  <span class="va">y</span>,</span>
+<span>  <span class="va">gene</span>,</span>
+<span>  <span class="va">db</span>,</span>
+<span>  region <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  symbol <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  genome <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tpmFilter <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  isoPropFilter <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  countFilter <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  pc <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  transcriptAnnotation <span class="op">=</span> <span class="st">"symbol"</span>,</span>
+<span>  labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a2 <span class="op">=</span> <span class="st">"a2"</span>, a1 <span class="op">=</span> <span class="st">"a1"</span><span class="op">)</span>,</span>
+<span>  qvalue <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  log2FC <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  ideogram <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cov <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  covFacetIsoform <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  allelicCol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dodgerblue"</span>, <span class="st">"goldenrod1"</span><span class="op">)</span>,</span>
+<span>  isoformCol <span class="op">=</span> <span class="st">"firebrick"</span>,</span>
+<span>  statCol <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  gridCol <span class="op">=</span> <span class="st">"grey80"</span>,</span>
+<span>  baselineCol <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  titleCol <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  titleAxisCol <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  titleBgCol <span class="op">=</span> <span class="st">"white"</span>,</span>
+<span>  geneBorderCol <span class="op">=</span> <span class="st">"darkblue"</span>,</span>
+<span>  geneFillCol <span class="op">=</span> <span class="st">"darkblue"</span>,</span>
+<span>  genomeAxisCol <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  innerFontCol <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -271,7 +271,7 @@ allelic proportion legend</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

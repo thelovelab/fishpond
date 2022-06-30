@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.5</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>SEESAW - Allelic expression analysis with Salmon and Swish</h1>
             
-            <h4 data-toc-skip class="date">06/22/2022</h4>
+            <h4 data-toc-skip class="date">06/30/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/vignettes/allelic.Rmd" class="external-link"><code>vignettes/allelic.Rmd</code></a></small>
       <div class="hidden name"><code>allelic.Rmd</code></div>
@@ -129,26 +129,26 @@
 </h2>
 <p>We begin assuming steps 1-3 have been completed. We can use the <code>makeTx2Tss</code> function to generate a <em>GRanges</em> object <code>t2g</code> that connects transcripts to transcript groups.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jorainer/ensembldb" class="external-link">ensembldb</a></span><span class="op">)</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">EnsDb.Hsapiens.v86</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/fishpond" class="external-link">fishpond</a></span><span class="op">)</span>
-<span class="va">edb</span> <span class="op">&lt;-</span> <span class="va">EnsDb.Hsapiens.v86</span>
-<span class="va">t2g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeTx2Tss.html">makeTx2Tss</a></span><span class="op">(</span><span class="va">edb</span><span class="op">)</span> <span class="co"># GRanges object</span>
-<span class="fu">mcols</span><span class="op">(</span><span class="va">t2g</span><span class="op">)</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tx_id"</span>,<span class="st">"group_id"</span><span class="op">)</span><span class="op">]</span></code></pre></div>
-<pre><code><span class="co">## DataFrame with 216741 rows and 2 columns</span>
-<span class="co">##                           tx_id               group_id</span>
-<span class="co">##                     &lt;character&gt;            &lt;character&gt;</span>
-<span class="co">## ENST00000456328 ENST00000456328  ENSG00000223972-11869</span>
-<span class="co">## ENST00000450305 ENST00000450305  ENSG00000223972-12010</span>
-<span class="co">## ENST00000488147 ENST00000488147  ENSG00000227232-29570</span>
-<span class="co">## ENST00000619216 ENST00000619216  ENSG00000278267-17436</span>
-<span class="co">## ENST00000473358 ENST00000473358  ENSG00000243485-29554</span>
-<span class="co">## ...                         ...                    ...</span>
-<span class="co">## ENST00000420810 ENST00000420810 ENSG00000224240-2654..</span>
-<span class="co">## ENST00000456738 ENST00000456738 ENSG00000227629-2659..</span>
-<span class="co">## ENST00000435945 ENST00000435945 ENSG00000237917-2663..</span>
-<span class="co">## ENST00000435741 ENST00000435741 ENSG00000231514-2662..</span>
-<span class="co">## ENST00000431853 ENST00000431853 ENSG00000235857-5685..</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jorainer/ensembldb" class="external-link">ensembldb</a></span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">EnsDb.Hsapiens.v86</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/fishpond" class="external-link">fishpond</a></span><span class="op">)</span></span>
+<span><span class="va">edb</span> <span class="op">&lt;-</span> <span class="va">EnsDb.Hsapiens.v86</span></span>
+<span><span class="va">t2g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeTx2Tss.html">makeTx2Tss</a></span><span class="op">(</span><span class="va">edb</span><span class="op">)</span> <span class="co"># GRanges object</span></span>
+<span><span class="fu">mcols</span><span class="op">(</span><span class="va">t2g</span><span class="op">)</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tx_id"</span>,<span class="st">"group_id"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## DataFrame with 216741 rows and 2 columns</span></span>
+<span><span class="co">##                           tx_id               group_id</span></span>
+<span><span class="co">##                     &lt;character&gt;            &lt;character&gt;</span></span>
+<span><span class="co">## ENST00000456328 ENST00000456328  ENSG00000223972-11869</span></span>
+<span><span class="co">## ENST00000450305 ENST00000450305  ENSG00000223972-12010</span></span>
+<span><span class="co">## ENST00000488147 ENST00000488147  ENSG00000227232-29570</span></span>
+<span><span class="co">## ENST00000619216 ENST00000619216  ENSG00000278267-17436</span></span>
+<span><span class="co">## ENST00000473358 ENST00000473358  ENSG00000243485-29554</span></span>
+<span><span class="co">## ...                         ...                    ...</span></span>
+<span><span class="co">## ENST00000420810 ENST00000420810 ENSG00000224240-2654..</span></span>
+<span><span class="co">## ENST00000456738 ENST00000456738 ENSG00000227629-2659..</span></span>
+<span><span class="co">## ENST00000435945 ENST00000435945 ENSG00000237917-2663..</span></span>
+<span><span class="co">## ENST00000435741 ENST00000435741 ENSG00000231514-2662..</span></span>
+<span><span class="co">## ENST00000431853 ENST00000431853 ENSG00000235857-5685..</span></span></code></pre>
 <p>Alternatively for gene-level analysis, one could either prepare a <code>t2g</code> data.frame with <code>tx_id</code> and <code>gene_id</code> columns, or a <code>t2g</code> <em>GRanges</em> object with a column <code>group_id</code> that is equal to <code>gene_id</code>.</p>
 </div>
 <div class="section level2">
@@ -161,97 +161,98 @@
 </h2>
 <p>Because we use <code>--keepDuplicates</code> in the step when we build the Salmon index, there will be a number of features in which there is no information about the allelic expression in the reads. We can find these features in bootstrap data by examining when the inferential replicates are nearly identical for the two alleles, as this is how the EM will split the reads. Removing these features avoids downstream problems during differential testing. Code for this filtering follows:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span>
-<span class="va">rep1a1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"infRep1"</span><span class="op">)</span><span class="op">[</span>,<span class="va">y</span><span class="op">$</span><span class="va">allele</span> <span class="op">==</span> <span class="st">"a1"</span><span class="op">]</span>
-<span class="va">rep1a2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"infRep1"</span><span class="op">)</span><span class="op">[</span>,<span class="va">y</span><span class="op">$</span><span class="va">allele</span> <span class="op">==</span> <span class="st">"a2"</span><span class="op">]</span>
-<span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">someInfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">rep1a1</span> <span class="op">-</span> <span class="va">rep1a2</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1</span><span class="op">)</span> <span class="op">&lt;</span> <span class="va">n</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">someInfo</span>, <span class="op">]</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span></span>
+<span><span class="va">rep1a1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"infRep1"</span><span class="op">)</span><span class="op">[</span>,<span class="va">y</span><span class="op">$</span><span class="va">allele</span> <span class="op">==</span> <span class="st">"a1"</span><span class="op">]</span></span>
+<span><span class="va">rep1a2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"infRep1"</span><span class="op">)</span><span class="op">[</span>,<span class="va">y</span><span class="op">$</span><span class="va">allele</span> <span class="op">==</span> <span class="st">"a2"</span><span class="op">]</span></span>
+<span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">someInfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">rep1a1</span> <span class="op">-</span> <span class="va">rep1a2</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1</span><span class="op">)</span> <span class="op">&lt;</span> <span class="va">n</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">someInfo</span>, <span class="op">]</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="global-allelic-imbalance">Global allelic imbalance<a class="anchor" aria-label="anchor" href="#global-allelic-imbalance"></a>
 </h2>
 <p>We begin by generating a simulated data object that resembles what one would obtain with <code><a href="../reference/importAllelicCounts.html">importAllelicCounts()</a></code>. The import function arranges the <code>a2</code> (non-effect) allelic counts first, followed by the <code>a1</code> (effect) allelic counts. Allelic ratios are calculated at <code>a1/a2</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>allelic<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## DataFrame with 20 rows and 2 columns</span>
-<span class="co">##          allele   sample</span>
-<span class="co">##        &lt;factor&gt; &lt;factor&gt;</span>
-<span class="co">## s1-a2        a2  sample1</span>
-<span class="co">## s2-a2        a2  sample2</span>
-<span class="co">## s3-a2        a2  sample3</span>
-<span class="co">## s4-a2        a2  sample4</span>
-<span class="co">## s5-a2        a2  sample5</span>
-<span class="co">## ...         ...      ...</span>
-<span class="co">## s6-a1        a1 sample6 </span>
-<span class="co">## s7-a1        a1 sample7 </span>
-<span class="co">## s8-a1        a1 sample8 </span>
-<span class="co">## s9-a1        a1 sample9 </span>
-<span class="co">## s10-a1       a1 sample10</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>allelic<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## DataFrame with 20 rows and 2 columns</span></span>
+<span><span class="co">##          allele   sample</span></span>
+<span><span class="co">##        &lt;factor&gt; &lt;factor&gt;</span></span>
+<span><span class="co">## s1-a2        a2  sample1</span></span>
+<span><span class="co">## s2-a2        a2  sample2</span></span>
+<span><span class="co">## s3-a2        a2  sample3</span></span>
+<span><span class="co">## s4-a2        a2  sample4</span></span>
+<span><span class="co">## s5-a2        a2  sample5</span></span>
+<span><span class="co">## ...         ...      ...</span></span>
+<span><span class="co">## s6-a1        a1 sample6 </span></span>
+<span><span class="co">## s7-a1        a1 sample7 </span></span>
+<span><span class="co">## s8-a1        a1 sample8 </span></span>
+<span><span class="co">## s9-a1        a1 sample9 </span></span>
+<span><span class="co">## s10-a1       a1 sample10</span></span></code></pre>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">allele</span><span class="op">)</span> <span class="co"># a1/a2 allelic fold changes</span></code></pre></div>
-<pre><code><span class="co">## [1] "a2" "a1"</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">allele</span><span class="op">)</span> <span class="co"># a1/a2 allelic fold changes</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "a2" "a1"</span></span></code></pre>
 <p>A hidden code chunk is used to add ranges from the <em>EnsDb</em> to the simulated dataset. For a real dataset, the ranges would be added either by <code>importAllelicCounts</code> (if using <code>tx2gene</code>) or could be added manually for transcript- or gene-level analysis, using the <code>rowRanges&lt;-</code> setter function. The ranges are only needed for the <code>plotAllelicGene</code> plotting function below.</p>
 <pre><code>&lt;hidden code chunk&gt;</code></pre>
 <p>We can already plot a heatmap of allelic ratios, before performing statistical testing. We can see in the first gene, <em>ADSS</em>, there appear to be two groups of transcripts with opposing allelic fold change. SEESAW makes use of <em>pheatmap</em> for plotting a heatmap of allelic ratios.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computeInfRV.html">computeInfRV</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># for posterior mean, variance</span>
-<span class="va">gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">rowRanges</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
-<span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span> <span class="op">==</span> <span class="va">gene</span>
-<span class="fu"><a href="../reference/plotAllelicHeatmap.html">plotAllelicHeatmap</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="va">idx</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computeInfRV.html">computeInfRV</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># for posterior mean, variance</span></span>
+<span><span class="va">gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowRanges.html" class="external-link">rowRanges</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span> <span class="op">==</span> <span class="va">gene</span></span>
+<span><span class="fu"><a href="../reference/plotAllelicHeatmap.html">plotAllelicHeatmap</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="va">idx</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-7-1.png"><!-- --></p>
-<p>The following two functions perform a Swish analysis, comparing the allelic counts within sample, while accounting for uncertainty in the assignment of the reads. The underlying test statistic is a Wilcoxon signed-rank statistic.</p>
+<p>The following two functions perform a Swish analysis, comparing the allelic counts within sample, while accounting for uncertainty in the assignment of the reads. The underlying test statistic is a Wilcoxon signed-rank statistic, which compares the two allele counts from each sample, so a paired analysis.</p>
+<p>Note that we do not use <code>scaleInfReps</code> in the allelic pipeline. Because we compare the two alleles within samples, there is no need to perform scaling of the counts to adjust for sequencing depth. We simply import counts, filter low counts with <code>lableKeep</code> and then run the statistical testing with <code>swish</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"allele"</span>, pair<span class="op">=</span><span class="st">"sample"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"allele"</span>, pair<span class="op">=</span><span class="st">"sample"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="plotting-results">Plotting results<a class="anchor" aria-label="anchor" href="#plotting-results"></a>
 </h2>
 <p>We can return to the heatmap, and now add q-values, etc. For details on adding metadata to a <em>pheatmap</em> plot object, see <code>?pheatmap</code>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>minusLogQ<span class="op">=</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>,
-                  row.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotAllelicHeatmap.html">plotAllelicHeatmap</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="va">idx</span>, annotation_row<span class="op">=</span><span class="va">dat</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>minusLogQ<span class="op">=</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                  row.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotAllelicHeatmap.html">plotAllelicHeatmap</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="va">idx</span>, annotation_row<span class="op">=</span><span class="va">dat</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-9-1.png"><!-- --></p>
 <p>In order to visualize the inferential uncertainty, we can make use of <code><a href="../reference/plotInfReps.html">plotInfReps()</a></code>:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>, mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">4.1</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"allele"</span>, cov<span class="op">=</span><span class="st">"sample"</span>, xaxis<span class="op">=</span><span class="cn">FALSE</span>, xlab<span class="op">=</span><span class="st">""</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">2</span>, x<span class="op">=</span><span class="st">"allele"</span>, cov<span class="op">=</span><span class="st">"sample"</span>, xaxis<span class="op">=</span><span class="cn">FALSE</span>, xlab<span class="op">=</span><span class="st">""</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>, mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">4.1</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"allele"</span>, cov<span class="op">=</span><span class="st">"sample"</span>, xaxis<span class="op">=</span><span class="cn">FALSE</span>, xlab<span class="op">=</span><span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">2</span>, x<span class="op">=</span><span class="st">"allele"</span>, cov<span class="op">=</span><span class="st">"sample"</span>, xaxis<span class="op">=</span><span class="cn">FALSE</span>, xlab<span class="op">=</span><span class="st">""</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-10-1.png"><!-- --></p>
 <p><strong>Plotting results in genomic context</strong></p>
 <p>For analysis at the isoform or TSS-level, it may be useful to display results within a gene, relating the allelic differences to various gene features. SEESAW provides <code><a href="../reference/plotAllelicGene.html">plotAllelicGene()</a></code> in order to build visualization of Swish test statistics, allelic proportions, and isoform proportions, in a genomic context, making use of <em>Gviz</em>. Note that this function is not relevant for gene-level AI analysis. The first three arguments to <code><a href="../reference/plotAllelicGene.html">plotAllelicGene()</a></code> are the <em>SummarizedExperiment</em> object, the name of a gene (should match <code>gene_id</code> column), and a <em>TxDb</em> or <em>EnsDb</em> to use for plotting the gene model at the top. The statistics and proportions are then plotted at the first position of the feature (<code>start</code> for <code>+</code> features and <code>end</code> for <code>-</code> features).</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">rowRanges</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
-<span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gene</span>, <span class="va">edb</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowRanges.html" class="external-link">rowRanges</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gene</span>, <span class="va">edb</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-11-1.png"><!-- --></p>
 <p>You can also specify the gene using <code>symbol</code>:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, symbol<span class="op">=</span><span class="st">"ADSS"</span>, db<span class="op">=</span><span class="va">edb</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, symbol<span class="op">=</span><span class="st">"ADSS"</span>, db<span class="op">=</span><span class="va">edb</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-12-1.png"><!-- --></p>
 <p>In the allelic proportion and isoform proportion tracks, a line is drawn through the mean proportion for a2 and a1 allele, and for the isoform proportion, across samples, at the start site for each transcript group. The line is meant only to help visualize the mean value as it may change across transcript groups, but the line has no meaning in the ranges in between features. That is, unlike continuous genomic features (methylation or accessibility), there is no meaning to the allelic proportion or isoform proportion outside of measured start sites of transcription.</p>
 <p>We can further customize the plot, for example, changing the labels displayed on the gene model, and changing the labels for the alleles. An ideogram can be added with <code>ideogram=TRUE</code>, although this requires connecting to an external FTP site.</p>
 <p>See <code>importAllelicGene()</code> manual page for more details.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gene</span>, <span class="va">edb</span>,
-                transcriptAnnotation<span class="op">=</span><span class="st">"transcript"</span>,
-                labels<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a2<span class="op">=</span><span class="st">"maternal"</span>,a1<span class="op">=</span><span class="st">"paternal"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gene</span>, <span class="va">edb</span>,</span>
+<span>                transcriptAnnotation<span class="op">=</span><span class="st">"transcript"</span>,</span>
+<span>                labels<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a2<span class="op">=</span><span class="st">"maternal"</span>,a1<span class="op">=</span><span class="st">"paternal"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-13-1.png"><!-- --></p>
 <p>We can also customize the display of the alleles in the <code><a href="../reference/plotInfReps.html">plotInfReps()</a></code> plots, by adding a new factor, while carefully noting the existing and new allele labels, to make sure the annotation is correct:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span><span class="op">$</span><span class="va">allele_new</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">$</span><span class="va">allele</span>
-<span class="co"># note a2 is non-effect, a1 is effect:</span>
-<span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">allele</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "a2" "a1"</span></code></pre>
+<code class="sourceCode R"><span><span class="va">y</span><span class="op">$</span><span class="va">allele_new</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">$</span><span class="va">allele</span></span>
+<span><span class="co"># note a2 is non-effect, a1 is effect:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">allele</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "a2" "a1"</span></span></code></pre>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># replace a2 then a1:</span>
-<span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">allele_new</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"maternal"</span>,<span class="st">"paternal"</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"allele_new"</span>, 
-            legend<span class="op">=</span><span class="cn">TRUE</span>, legendPos<span class="op">=</span><span class="st">"bottom"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># replace a2 then a1:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">allele_new</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"maternal"</span>,<span class="st">"paternal"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"allele_new"</span>, </span>
+<span>            legend<span class="op">=</span><span class="cn">TRUE</span>, legendPos<span class="op">=</span><span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-14-1.png"><!-- --></p>
 </div>
 <div class="section level2">
@@ -259,62 +260,62 @@
 </h2>
 <p>Above, we tested for global AI, where the allelic fold change is consistent across all samples. We can also test for differential or dynamic AI, by adding specification of a <code>cov</code> (covariate) which can be either a two-group factor, or a continuous variable. Here we demonstrate differential AI, when <code>cov</code> is a two-group factor, in this case called <code>"condition"</code>.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>diffAI<span class="op">=</span><span class="cn">TRUE</span>, n<span class="op">=</span><span class="fl">12</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## DataFrame with 24 rows and 3 columns</span>
-<span class="co">##          allele   sample condition</span>
-<span class="co">##        &lt;factor&gt; &lt;factor&gt;  &lt;factor&gt;</span>
-<span class="co">## s1-a2        a2  sample1         A</span>
-<span class="co">## s2-a2        a2  sample2         A</span>
-<span class="co">## s3-a2        a2  sample3         A</span>
-<span class="co">## s4-a2        a2  sample4         A</span>
-<span class="co">## s5-a2        a2  sample5         A</span>
-<span class="co">## ...         ...      ...       ...</span>
-<span class="co">## s8-a1        a1 sample8          B</span>
-<span class="co">## s9-a1        a1 sample9          B</span>
-<span class="co">## s10-a1       a1 sample10         B</span>
-<span class="co">## s11-a1       a1 sample11         B</span>
-<span class="co">## s12-a1       a1 sample12         B</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>diffAI<span class="op">=</span><span class="cn">TRUE</span>, n<span class="op">=</span><span class="fl">12</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## DataFrame with 24 rows and 3 columns</span></span>
+<span><span class="co">##          allele   sample condition</span></span>
+<span><span class="co">##        &lt;factor&gt; &lt;factor&gt;  &lt;factor&gt;</span></span>
+<span><span class="co">## s1-a2        a2  sample1         A</span></span>
+<span><span class="co">## s2-a2        a2  sample2         A</span></span>
+<span><span class="co">## s3-a2        a2  sample3         A</span></span>
+<span><span class="co">## s4-a2        a2  sample4         A</span></span>
+<span><span class="co">## s5-a2        a2  sample5         A</span></span>
+<span><span class="co">## ...         ...      ...       ...</span></span>
+<span><span class="co">## s8-a1        a1 sample8          B</span></span>
+<span><span class="co">## s9-a1        a1 sample9          B</span></span>
+<span><span class="co">## s10-a1       a1 sample10         B</span></span>
+<span><span class="co">## s11-a1       a1 sample11         B</span></span>
+<span><span class="co">## s12-a1       a1 sample12         B</span></span></code></pre>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">condition</span>, <span class="va">y</span><span class="op">$</span><span class="va">allele</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##    </span>
-<span class="co">##     a2 a1</span>
-<span class="co">##   A  6  6</span>
-<span class="co">##   B  6  6</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">condition</span>, <span class="va">y</span><span class="op">$</span><span class="va">allele</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##    </span></span>
+<span><span class="co">##     a2 a1</span></span>
+<span><span class="co">##   A  6  6</span></span>
+<span><span class="co">##   B  6  6</span></span></code></pre>
 <p>In the following, we test for changes in allelic imbalance across <code>condition</code>. This is implemented as an “interaction” test, where we test if the fold change associated with <code>allele</code>, for paired samples, differs across <code>condition</code>.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"allele"</span>, pair<span class="op">=</span><span class="st">"sample"</span>,
-           cov<span class="op">=</span><span class="st">"condition"</span>, interaction<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"allele"</span>, pair<span class="op">=</span><span class="st">"sample"</span>,</span>
+<span>           cov<span class="op">=</span><span class="st">"condition"</span>, interaction<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>In this simulated data, the top two features exhibit differential AI with low uncertainty, so these emerge as highly significant, as expected.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stat"</span>,<span class="st">"qvalue"</span><span class="op">)</span><span class="op">]</span></code></pre></div>
-<pre><code><span class="co">## DataFrame with 2 rows and 2 columns</span>
-<span class="co">##             stat    qvalue</span>
-<span class="co">##        &lt;numeric&gt; &lt;numeric&gt;</span>
-<span class="co">## gene-1      17.3     0.005</span>
-<span class="co">## gene-2     -17.5     0.005</span></code></pre>
+<code class="sourceCode R"><span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stat"</span>,<span class="st">"qvalue"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## DataFrame with 2 rows and 2 columns</span></span>
+<span><span class="co">##             stat    qvalue</span></span>
+<span><span class="co">##        &lt;numeric&gt; &lt;numeric&gt;</span></span>
+<span><span class="co">## gene-1      17.3     0.005</span></span>
+<span><span class="co">## gene-2     -17.5     0.005</span></span></code></pre>
 <p>The non-AI features have roughly uniform p-values:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>,<span class="st">"pvalue"</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>,<span class="st">"pvalue"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-18-1.png"><!-- --></p>
 <p>We can plot the allelic counts with uncertainty, grouped by the condition (black and grey lines at bottom).</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"allele"</span>, cov<span class="op">=</span><span class="st">"condition"</span>,
-            xaxis<span class="op">=</span><span class="cn">FALSE</span>, legend<span class="op">=</span><span class="cn">TRUE</span>, legendPos<span class="op">=</span><span class="st">"bottomright"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"allele"</span>, cov<span class="op">=</span><span class="st">"condition"</span>,</span>
+<span>            xaxis<span class="op">=</span><span class="cn">FALSE</span>, legend<span class="op">=</span><span class="cn">TRUE</span>, legendPos<span class="op">=</span><span class="st">"bottomright"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-19-1.png"><!-- --></p>
 <p>We can also visualize the data across multiple features, in terms of allelic ratios:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>
-<span class="va">row_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>minusLogQ<span class="op">=</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>,
-                      row.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>
-<span class="va">col_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>condition<span class="op">=</span><span class="va">y</span><span class="op">$</span><span class="va">condition</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>,
-                      row.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"s"</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotAllelicHeatmap.html">plotAllelicHeatmap</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="va">idx</span>,
-                   annotation_row<span class="op">=</span><span class="va">row_dat</span>,
-                   annotation_col<span class="op">=</span><span class="va">col_dat</span>,
-                   cluster_rows<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span>
+<span><span class="va">row_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>minusLogQ<span class="op">=</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                      row.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">col_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>condition<span class="op">=</span><span class="va">y</span><span class="op">$</span><span class="va">condition</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>,</span>
+<span>                      row.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"s"</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotAllelicHeatmap.html">plotAllelicHeatmap</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="va">idx</span>,</span>
+<span>                   annotation_row<span class="op">=</span><span class="va">row_dat</span>,</span>
+<span>                   annotation_col<span class="op">=</span><span class="va">col_dat</span>,</span>
+<span>                   cluster_rows<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-20-1.png"><!-- --></p>
 </div>
 <div class="section level2">
@@ -322,91 +323,91 @@
 </h2>
 <p>Now we demonstrate dynamic AI testing when <code>cov</code> (covariate) is a continuous variable. In this case, the user should specify a correlation test, either <code>cor="pearson"</code> or <code>"spearman"</code>, which is the underlying test statistic used by Swish (it will then be averaged over bootstraps and a permutation null is generated to assess FDR). We have found that Pearson correlations work well in our testing, but the Spearman correlation offers additional robustness against outlying values in <code>cov</code>.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>dynamicAI<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## DataFrame with 20 rows and 3 columns</span>
-<span class="co">##          allele   sample      time</span>
-<span class="co">##        &lt;factor&gt; &lt;factor&gt; &lt;numeric&gt;</span>
-<span class="co">## s1-a2        a2  sample1      0.00</span>
-<span class="co">## s2-a2        a2  sample2      0.11</span>
-<span class="co">## s3-a2        a2  sample3      0.22</span>
-<span class="co">## s4-a2        a2  sample4      0.33</span>
-<span class="co">## s5-a2        a2  sample5      0.44</span>
-<span class="co">## ...         ...      ...       ...</span>
-<span class="co">## s6-a1        a1 sample6       0.56</span>
-<span class="co">## s7-a1        a1 sample7       0.67</span>
-<span class="co">## s8-a1        a1 sample8       0.78</span>
-<span class="co">## s9-a1        a1 sample9       0.89</span>
-<span class="co">## s10-a1       a1 sample10      1.00</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span>dynamicAI<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## DataFrame with 20 rows and 3 columns</span></span>
+<span><span class="co">##          allele   sample      time</span></span>
+<span><span class="co">##        &lt;factor&gt; &lt;factor&gt; &lt;numeric&gt;</span></span>
+<span><span class="co">## s1-a2        a2  sample1      0.00</span></span>
+<span><span class="co">## s2-a2        a2  sample2      0.11</span></span>
+<span><span class="co">## s3-a2        a2  sample3      0.22</span></span>
+<span><span class="co">## s4-a2        a2  sample4      0.33</span></span>
+<span><span class="co">## s5-a2        a2  sample5      0.44</span></span>
+<span><span class="co">## ...         ...      ...       ...</span></span>
+<span><span class="co">## s6-a1        a1 sample6       0.56</span></span>
+<span><span class="co">## s7-a1        a1 sample7       0.67</span></span>
+<span><span class="co">## s8-a1        a1 sample8       0.78</span></span>
+<span><span class="co">## s9-a1        a1 sample9       0.89</span></span>
+<span><span class="co">## s10-a1       a1 sample10      1.00</span></span></code></pre>
 <p>A hidden code chunk adds ranges to our simulation data.</p>
 <pre><code>&lt;hidden code chunk&gt;</code></pre>
 <p>In the following, we test for changes in allelic imbalance within sample that correlate with a covariate <code>time</code>.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"allele"</span>, pair<span class="op">=</span><span class="st">"sample"</span>, cov<span class="op">=</span><span class="st">"time"</span>, cor<span class="op">=</span><span class="st">"pearson"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"allele"</span>, pair<span class="op">=</span><span class="st">"sample"</span>, cov<span class="op">=</span><span class="st">"time"</span>, cor<span class="op">=</span><span class="st">"pearson"</span><span class="op">)</span></span></code></pre></div>
 <p>Note the first two features have small q-values and opposite test statistic; here the test statistic is the average Pearson correlation of the allelic log fold change with the <code>time</code> variable, averaging over bootstrap replicates.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stat"</span>,<span class="st">"qvalue"</span><span class="op">)</span><span class="op">]</span></code></pre></div>
-<pre><code><span class="co">## DataFrame with 2 rows and 2 columns</span>
-<span class="co">##                     stat    qvalue</span>
-<span class="co">##                &lt;numeric&gt; &lt;numeric&gt;</span>
-<span class="co">## ADSS-244452134  0.870969     0.005</span>
-<span class="co">## ADSS-244419273 -0.861573     0.005</span></code></pre>
+<code class="sourceCode R"><span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stat"</span>,<span class="st">"qvalue"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## DataFrame with 2 rows and 2 columns</span></span>
+<span><span class="co">##                     stat    qvalue</span></span>
+<span><span class="co">##                &lt;numeric&gt; &lt;numeric&gt;</span></span>
+<span><span class="co">## ADSS-244452134  0.870969     0.005</span></span>
+<span><span class="co">## ADSS-244419273 -0.861573     0.005</span></span></code></pre>
 <p>For plotting inferential replicates over a continuous variable, we must first compute summary statistics of inferential mean and variance:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computeInfRV.html">computeInfRV</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computeInfRV.html">computeInfRV</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></code></pre></div>
 <p>Now we can examine the allelic counts across the <code>time</code> variable:</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>, mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"time"</span>, cov<span class="op">=</span><span class="st">"allele"</span>, shiftX<span class="op">=</span><span class="fl">.01</span>, xaxis<span class="op">=</span><span class="cn">FALSE</span>, xlab<span class="op">=</span><span class="st">""</span>, main<span class="op">=</span><span class="st">""</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>,<span class="fl">4</span>,<span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">2</span>, x<span class="op">=</span><span class="st">"time"</span>, cov<span class="op">=</span><span class="st">"allele"</span>, shiftX<span class="op">=</span><span class="fl">.01</span>, main<span class="op">=</span><span class="st">""</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>, mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"time"</span>, cov<span class="op">=</span><span class="st">"allele"</span>, shiftX<span class="op">=</span><span class="fl">.01</span>, xaxis<span class="op">=</span><span class="cn">FALSE</span>, xlab<span class="op">=</span><span class="st">""</span>, main<span class="op">=</span><span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>,<span class="fl">4</span>,<span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">2</span>, x<span class="op">=</span><span class="st">"time"</span>, cov<span class="op">=</span><span class="st">"allele"</span>, shiftX<span class="op">=</span><span class="fl">.01</span>, main<span class="op">=</span><span class="st">""</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-26-1.png"><!-- --></p>
 <p>With a little more code, we can add a <code>lowess</code> line for each series:</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"time"</span>, cov<span class="op">=</span><span class="st">"allele"</span>, shiftX<span class="op">=</span><span class="fl">.01</span><span class="op">)</span>
-<span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
-  time <span class="op">=</span> <span class="va">y</span><span class="op">$</span><span class="va">time</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,
-  a2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"mean"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,<span class="va">y</span><span class="op">$</span><span class="va">allele</span><span class="op">==</span><span class="st">"a2"</span><span class="op">]</span>,
-  a1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"mean"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,<span class="va">y</span><span class="op">$</span><span class="va">allele</span><span class="op">==</span><span class="st">"a1"</span><span class="op">]</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lowess.html" class="external-link">lowess</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="st">"dodgerblue"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lowess.html" class="external-link">lowess</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="st">"goldenrod4"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="fl">1</span>, x<span class="op">=</span><span class="st">"time"</span>, cov<span class="op">=</span><span class="st">"allele"</span>, shiftX<span class="op">=</span><span class="fl">.01</span><span class="op">)</span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  time <span class="op">=</span> <span class="va">y</span><span class="op">$</span><span class="va">time</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,</span>
+<span>  a2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"mean"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,<span class="va">y</span><span class="op">$</span><span class="va">allele</span><span class="op">==</span><span class="st">"a2"</span><span class="op">]</span>,</span>
+<span>  a1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"mean"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,<span class="va">y</span><span class="op">$</span><span class="va">allele</span><span class="op">==</span><span class="st">"a1"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lowess.html" class="external-link">lowess</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="st">"dodgerblue"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lowess.html" class="external-link">lowess</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, col<span class="op">=</span><span class="st">"goldenrod4"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-27-1.png"><!-- --></p>
 <p>Visualizing the allelic proportion in a heatmap helps to see relationships with the <code>time</code> variable, while also showing data from multiple features at once:</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span>
-<span class="va">row_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>minusLogQ<span class="op">=</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>,
-                      row.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>
-<span class="va">col_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>time<span class="op">=</span><span class="va">y</span><span class="op">$</span><span class="va">time</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,
-                      row.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"s"</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotAllelicHeatmap.html">plotAllelicHeatmap</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="va">idx</span>,
-                   annotation_row<span class="op">=</span><span class="va">row_dat</span>,
-                   annotation_col<span class="op">=</span><span class="va">col_dat</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">row_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>minusLogQ<span class="op">=</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                      row.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">col_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>time<span class="op">=</span><span class="va">y</span><span class="op">$</span><span class="va">time</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,</span>
+<span>                      row.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"s"</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plotAllelicHeatmap.html">plotAllelicHeatmap</a></span><span class="op">(</span><span class="va">y</span>, idx<span class="op">=</span><span class="va">idx</span>,</span>
+<span>                   annotation_row<span class="op">=</span><span class="va">row_dat</span>,</span>
+<span>                   annotation_col<span class="op">=</span><span class="va">col_dat</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-28-1.png"><!-- --></p>
 <p><strong>Plotting results in genomic context</strong></p>
 <p>Previously, in the global AI section, we demonstrated how to plot TSS-level results in a genomic context using <code><a href="../reference/plotAllelicGene.html">plotAllelicGene()</a></code>. Here we demonstrate how to repeat such a plot for differential or dynamic AI analysis. There is an extra step for dynamic analysis (binning the continuous covariate into groups) but otherwise the code would be similar.</p>
 <p>We begin by binning the <code>time</code> covariate into a few groups, so that we can diagram the allelic and isoform proportions in the genomic context, but facetting across time.</p>
 <p>We create the binned covariate using <code>cut</code>, and rename the labels for nicer labels in our plot. For differential AI, this step would be skipped (as there already exists a two-group covariate for grouping samples).</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span><span class="op">$</span><span class="va">time_bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">time</span>,breaks<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.25</span>,<span class="fl">.75</span>,<span class="fl">1</span><span class="op">)</span>,
-                   include.lowest<span class="op">=</span><span class="cn">TRUE</span>, labels<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
-<span class="va">y</span><span class="op">$</span><span class="va">time_bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"time-"</span>,<span class="va">y</span><span class="op">$</span><span class="va">time_bins</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">time_bins</span><span class="op">[</span> <span class="va">y</span><span class="op">$</span><span class="va">allele</span> <span class="op">==</span> <span class="st">"a2"</span> <span class="op">]</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## </span>
-<span class="co">## time-1 time-2 time-3 </span>
-<span class="co">##      3      4      3</span></code></pre>
+<code class="sourceCode R"><span><span class="va">y</span><span class="op">$</span><span class="va">time_bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">time</span>,breaks<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">.25</span>,<span class="fl">.75</span>,<span class="fl">1</span><span class="op">)</span>,</span>
+<span>                   include.lowest<span class="op">=</span><span class="cn">TRUE</span>, labels<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">y</span><span class="op">$</span><span class="va">time_bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"time-"</span>,<span class="va">y</span><span class="op">$</span><span class="va">time_bins</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">time_bins</span><span class="op">[</span> <span class="va">y</span><span class="op">$</span><span class="va">allele</span> <span class="op">==</span> <span class="st">"a2"</span> <span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## time-1 time-2 time-3 </span></span>
+<span><span class="co">##      3      4      3</span></span></code></pre>
 <p>We can then make our facetted allelic proportion plot:</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">rowRanges</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
-<span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gene</span>, <span class="va">edb</span>, cov<span class="op">=</span><span class="st">"time_bins"</span>,
-                qvalue<span class="op">=</span><span class="cn">FALSE</span>, log2FC<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">gene</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowRanges.html" class="external-link">rowRanges</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">gene_id</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gene</span>, <span class="va">edb</span>, cov<span class="op">=</span><span class="st">"time_bins"</span>,</span>
+<span>                qvalue<span class="op">=</span><span class="cn">FALSE</span>, log2FC<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-30-1.png"><!-- --></p>
 <p>If we also want to visualize how isoform proportions may be changing, we can add <code>covFacetIsoform=TRUE</code>, which additionally facets the isoform proportion plot by the covariate:</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gene</span>, <span class="va">edb</span>, cov<span class="op">=</span><span class="st">"time_bins"</span>,
-                covFacetIsoform<span class="op">=</span><span class="cn">TRUE</span>,
-                qvalue<span class="op">=</span><span class="cn">FALSE</span>, log2FC<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotAllelicGene.html">plotAllelicGene</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">gene</span>, <span class="va">edb</span>, cov<span class="op">=</span><span class="st">"time_bins"</span>,</span>
+<span>                covFacetIsoform<span class="op">=</span><span class="cn">TRUE</span>,</span>
+<span>                qvalue<span class="op">=</span><span class="cn">FALSE</span>, log2FC<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-31-1.png"><!-- --></p>
 <p>For further questions about the SEESAW steps, please post to one of these locations:</p>
 <ul>
@@ -420,99 +421,99 @@
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## R version 4.1.1 (2021-08-10)</span>
-<span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span>
-<span class="co">## Running under: Ubuntu 20.04.3 LTS</span>
-<span class="co">## </span>
-<span class="co">## Matrix products: default</span>
-<span class="co">## BLAS/LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.8.so</span>
-<span class="co">## </span>
-<span class="co">## locale:</span>
-<span class="co">##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              </span>
-<span class="co">##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    </span>
-<span class="co">##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=C             </span>
-<span class="co">##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 </span>
-<span class="co">##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            </span>
-<span class="co">## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span>
-<span class="co">## </span>
-<span class="co">## attached base packages:</span>
-<span class="co">## [1] stats4    stats     graphics  grDevices utils     datasets  methods  </span>
-<span class="co">## [8] base     </span>
-<span class="co">## </span>
-<span class="co">## other attached packages:</span>
-<span class="co">##  [1] SummarizedExperiment_1.24.0 MatrixGenerics_1.6.0       </span>
-<span class="co">##  [3] matrixStats_0.62.0          fishpond_2.3.3             </span>
-<span class="co">##  [5] EnsDb.Hsapiens.v86_2.99.0   ensembldb_2.18.4           </span>
-<span class="co">##  [7] AnnotationFilter_1.18.0     GenomicFeatures_1.46.5     </span>
-<span class="co">##  [9] AnnotationDbi_1.56.2        Biobase_2.54.0             </span>
-<span class="co">## [11] GenomicRanges_1.46.1        GenomeInfoDb_1.30.1        </span>
-<span class="co">## [13] IRanges_2.28.0              S4Vectors_0.32.4           </span>
-<span class="co">## [15] BiocGenerics_0.40.0        </span>
-<span class="co">## </span>
-<span class="co">## loaded via a namespace (and not attached):</span>
-<span class="co">##   [1] colorspace_2.0-3            rjson_0.2.21               </span>
-<span class="co">##   [3] ellipsis_0.3.2              rprojroot_2.0.3            </span>
-<span class="co">##   [5] htmlTable_2.4.0             biovizBase_1.42.0          </span>
-<span class="co">##   [7] qvalue_2.26.0               XVector_0.34.0             </span>
-<span class="co">##   [9] base64enc_0.1-3             fs_1.5.2                   </span>
-<span class="co">##  [11] dichromat_2.0-0.1           rstudioapi_0.13            </span>
-<span class="co">##  [13] farver_2.1.0                bit64_4.0.5                </span>
-<span class="co">##  [15] fansi_1.0.3                 xml2_1.3.3                 </span>
-<span class="co">##  [17] codetools_0.2-18            splines_4.1.1              </span>
-<span class="co">##  [19] cachem_1.0.6                knitr_1.39                 </span>
-<span class="co">##  [21] Formula_1.2-4               jsonlite_1.8.0             </span>
-<span class="co">##  [23] Rsamtools_2.10.0            cluster_2.1.3              </span>
-<span class="co">##  [25] dbplyr_2.2.0                png_0.1-7                  </span>
-<span class="co">##  [27] pheatmap_1.0.12             compiler_4.1.1             </span>
-<span class="co">##  [29] httr_1.4.3                  backports_1.4.1            </span>
-<span class="co">##  [31] assertthat_0.2.1            Matrix_1.4-1               </span>
-<span class="co">##  [33] fastmap_1.1.0               lazyeval_0.2.2             </span>
-<span class="co">##  [35] cli_3.3.0                   htmltools_0.5.2            </span>
-<span class="co">##  [37] prettyunits_1.1.1           tools_4.1.1                </span>
-<span class="co">##  [39] gtable_0.3.0                glue_1.6.2                 </span>
-<span class="co">##  [41] GenomeInfoDbData_1.2.7      reshape2_1.4.4             </span>
-<span class="co">##  [43] dplyr_1.0.9                 rappdirs_0.3.3             </span>
-<span class="co">##  [45] Rcpp_1.0.8.3                jquerylib_0.1.4            </span>
-<span class="co">##  [47] pkgdown_2.0.4               vctrs_0.4.1                </span>
-<span class="co">##  [49] Biostrings_2.62.0           rtracklayer_1.54.0         </span>
-<span class="co">##  [51] xfun_0.31                   stringr_1.4.0              </span>
-<span class="co">##  [53] lifecycle_1.0.1             restfulr_0.0.15            </span>
-<span class="co">##  [55] gtools_3.9.2.2              XML_3.99-0.10              </span>
-<span class="co">##  [57] zlibbioc_1.40.0             scales_1.2.0               </span>
-<span class="co">##  [59] BSgenome_1.62.0             VariantAnnotation_1.40.0   </span>
-<span class="co">##  [61] ragg_1.2.2                  hms_1.1.1                  </span>
-<span class="co">##  [63] ProtGenerics_1.26.0         parallel_4.1.1             </span>
-<span class="co">##  [65] RColorBrewer_1.1-3          SingleCellExperiment_1.16.0</span>
-<span class="co">##  [67] yaml_2.3.5                  curl_4.3.2                 </span>
-<span class="co">##  [69] gridExtra_2.3               memoise_2.0.1              </span>
-<span class="co">##  [71] ggplot2_3.3.6               sass_0.4.1                 </span>
-<span class="co">##  [73] rpart_4.1.16                biomaRt_2.50.3             </span>
-<span class="co">##  [75] latticeExtra_0.6-29         stringi_1.7.6              </span>
-<span class="co">##  [77] RSQLite_2.2.14              highr_0.9                  </span>
-<span class="co">##  [79] BiocIO_1.4.0                desc_1.4.1                 </span>
-<span class="co">##  [81] checkmate_2.1.0             filelock_1.0.2             </span>
-<span class="co">##  [83] BiocParallel_1.28.3         rlang_1.0.2                </span>
-<span class="co">##  [85] pkgconfig_2.0.3             systemfonts_1.0.4          </span>
-<span class="co">##  [87] bitops_1.0-7                evaluate_0.15              </span>
-<span class="co">##  [89] lattice_0.20-45             purrr_0.3.4                </span>
-<span class="co">##  [91] htmlwidgets_1.5.4           GenomicAlignments_1.30.0   </span>
-<span class="co">##  [93] bit_4.0.4                   tidyselect_1.1.2           </span>
-<span class="co">##  [95] plyr_1.8.7                  magrittr_2.0.3             </span>
-<span class="co">##  [97] R6_2.5.1                    Hmisc_4.7-0                </span>
-<span class="co">##  [99] generics_0.1.2              DelayedArray_0.20.0        </span>
-<span class="co">## [101] DBI_1.1.3                   foreign_0.8-82             </span>
-<span class="co">## [103] pillar_1.7.0                svMisc_1.2.3               </span>
-<span class="co">## [105] nnet_7.3-17                 survival_3.3-1             </span>
-<span class="co">## [107] KEGGREST_1.34.0             abind_1.4-5                </span>
-<span class="co">## [109] RCurl_1.98-1.7              tibble_3.1.7               </span>
-<span class="co">## [111] crayon_1.5.1                utf8_1.2.2                 </span>
-<span class="co">## [113] BiocFileCache_2.2.1         rmarkdown_2.14             </span>
-<span class="co">## [115] jpeg_0.1-9                  progress_1.2.2             </span>
-<span class="co">## [117] grid_4.1.1                  data.table_1.14.2          </span>
-<span class="co">## [119] blob_1.2.3                  digest_0.6.29              </span>
-<span class="co">## [121] textshaping_0.3.6           munsell_0.5.0              </span>
-<span class="co">## [123] Gviz_1.38.4                 bslib_0.3.1</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## R version 4.1.1 (2021-08-10)</span></span>
+<span><span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
+<span><span class="co">## Running under: Ubuntu 20.04.3 LTS</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Matrix products: default</span></span>
+<span><span class="co">## BLAS/LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.8.so</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## locale:</span></span>
+<span><span class="co">##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              </span></span>
+<span><span class="co">##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    </span></span>
+<span><span class="co">##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=C             </span></span>
+<span><span class="co">##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 </span></span>
+<span><span class="co">##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            </span></span>
+<span><span class="co">## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## attached base packages:</span></span>
+<span><span class="co">## [1] stats4    stats     graphics  grDevices utils     datasets  methods  </span></span>
+<span><span class="co">## [8] base     </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## other attached packages:</span></span>
+<span><span class="co">##  [1] SummarizedExperiment_1.24.0 MatrixGenerics_1.6.0       </span></span>
+<span><span class="co">##  [3] matrixStats_0.62.0          fishpond_2.3.5             </span></span>
+<span><span class="co">##  [5] EnsDb.Hsapiens.v86_2.99.0   ensembldb_2.18.4           </span></span>
+<span><span class="co">##  [7] AnnotationFilter_1.18.0     GenomicFeatures_1.46.5     </span></span>
+<span><span class="co">##  [9] AnnotationDbi_1.56.2        Biobase_2.54.0             </span></span>
+<span><span class="co">## [11] GenomicRanges_1.46.1        GenomeInfoDb_1.30.1        </span></span>
+<span><span class="co">## [13] IRanges_2.28.0              S4Vectors_0.32.4           </span></span>
+<span><span class="co">## [15] BiocGenerics_0.40.0        </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## loaded via a namespace (and not attached):</span></span>
+<span><span class="co">##   [1] colorspace_2.0-3            rjson_0.2.21               </span></span>
+<span><span class="co">##   [3] ellipsis_0.3.2              rprojroot_2.0.3            </span></span>
+<span><span class="co">##   [5] htmlTable_2.4.0             biovizBase_1.42.0          </span></span>
+<span><span class="co">##   [7] qvalue_2.26.0               XVector_0.34.0             </span></span>
+<span><span class="co">##   [9] base64enc_0.1-3             fs_1.5.2                   </span></span>
+<span><span class="co">##  [11] dichromat_2.0-0.1           rstudioapi_0.13            </span></span>
+<span><span class="co">##  [13] farver_2.1.0                bit64_4.0.5                </span></span>
+<span><span class="co">##  [15] fansi_1.0.3                 xml2_1.3.3                 </span></span>
+<span><span class="co">##  [17] splines_4.1.1               cachem_1.0.6               </span></span>
+<span><span class="co">##  [19] knitr_1.39                  Formula_1.2-4              </span></span>
+<span><span class="co">##  [21] jsonlite_1.8.0              Rsamtools_2.10.0           </span></span>
+<span><span class="co">##  [23] cluster_2.1.3               dbplyr_2.2.1               </span></span>
+<span><span class="co">##  [25] png_0.1-7                   pheatmap_1.0.12            </span></span>
+<span><span class="co">##  [27] compiler_4.1.1              httr_1.4.3                 </span></span>
+<span><span class="co">##  [29] backports_1.4.1             assertthat_0.2.1           </span></span>
+<span><span class="co">##  [31] Matrix_1.4-1                fastmap_1.1.0              </span></span>
+<span><span class="co">##  [33] lazyeval_0.2.2              cli_3.3.0                  </span></span>
+<span><span class="co">##  [35] htmltools_0.5.2             prettyunits_1.1.1          </span></span>
+<span><span class="co">##  [37] tools_4.1.1                 gtable_0.3.0               </span></span>
+<span><span class="co">##  [39] glue_1.6.2                  GenomeInfoDbData_1.2.7     </span></span>
+<span><span class="co">##  [41] reshape2_1.4.4              dplyr_1.0.9                </span></span>
+<span><span class="co">##  [43] rappdirs_0.3.3              Rcpp_1.0.8.3               </span></span>
+<span><span class="co">##  [45] jquerylib_0.1.4             pkgdown_2.0.5              </span></span>
+<span><span class="co">##  [47] vctrs_0.4.1                 Biostrings_2.62.0          </span></span>
+<span><span class="co">##  [49] rtracklayer_1.54.0          xfun_0.31                  </span></span>
+<span><span class="co">##  [51] stringr_1.4.0               lifecycle_1.0.1            </span></span>
+<span><span class="co">##  [53] restfulr_0.0.15             gtools_3.9.2.2             </span></span>
+<span><span class="co">##  [55] XML_3.99-0.10               zlibbioc_1.40.0            </span></span>
+<span><span class="co">##  [57] scales_1.2.0                BSgenome_1.62.0            </span></span>
+<span><span class="co">##  [59] VariantAnnotation_1.40.0    ragg_1.2.2                 </span></span>
+<span><span class="co">##  [61] hms_1.1.1                   ProtGenerics_1.26.0        </span></span>
+<span><span class="co">##  [63] parallel_4.1.1              RColorBrewer_1.1-3         </span></span>
+<span><span class="co">##  [65] SingleCellExperiment_1.16.0 yaml_2.3.5                 </span></span>
+<span><span class="co">##  [67] curl_4.3.2                  gridExtra_2.3              </span></span>
+<span><span class="co">##  [69] memoise_2.0.1               ggplot2_3.3.6              </span></span>
+<span><span class="co">##  [71] sass_0.4.1                  rpart_4.1.16               </span></span>
+<span><span class="co">##  [73] biomaRt_2.50.3              latticeExtra_0.6-29        </span></span>
+<span><span class="co">##  [75] stringi_1.7.6               RSQLite_2.2.14             </span></span>
+<span><span class="co">##  [77] highr_0.9                   BiocIO_1.4.0               </span></span>
+<span><span class="co">##  [79] desc_1.4.1                  checkmate_2.1.0            </span></span>
+<span><span class="co">##  [81] filelock_1.0.2              BiocParallel_1.28.3        </span></span>
+<span><span class="co">##  [83] rlang_1.0.3                 pkgconfig_2.0.3            </span></span>
+<span><span class="co">##  [85] systemfonts_1.0.4           bitops_1.0-7               </span></span>
+<span><span class="co">##  [87] evaluate_0.15               lattice_0.20-45            </span></span>
+<span><span class="co">##  [89] purrr_0.3.4                 htmlwidgets_1.5.4          </span></span>
+<span><span class="co">##  [91] GenomicAlignments_1.30.0    bit_4.0.4                  </span></span>
+<span><span class="co">##  [93] tidyselect_1.1.2            plyr_1.8.7                 </span></span>
+<span><span class="co">##  [95] magrittr_2.0.3              R6_2.5.1                   </span></span>
+<span><span class="co">##  [97] Hmisc_4.7-0                 generics_0.1.2             </span></span>
+<span><span class="co">##  [99] DelayedArray_0.20.0         DBI_1.1.3                  </span></span>
+<span><span class="co">## [101] foreign_0.8-82              pillar_1.7.0               </span></span>
+<span><span class="co">## [103] svMisc_1.2.3                nnet_7.3-17                </span></span>
+<span><span class="co">## [105] survival_3.3-1              KEGGREST_1.34.0            </span></span>
+<span><span class="co">## [107] abind_1.4-5                 RCurl_1.98-1.7             </span></span>
+<span><span class="co">## [109] tibble_3.1.7                crayon_1.5.1               </span></span>
+<span><span class="co">## [111] utf8_1.2.2                  BiocFileCache_2.2.1        </span></span>
+<span><span class="co">## [113] rmarkdown_2.14              jpeg_0.1-9                 </span></span>
+<span><span class="co">## [115] progress_1.2.2              grid_4.1.1                 </span></span>
+<span><span class="co">## [117] data.table_1.14.2           blob_1.2.3                 </span></span>
+<span><span class="co">## [119] digest_0.6.29               textshaping_0.3.6          </span></span>
+<span><span class="co">## [121] munsell_0.5.0               Gviz_1.38.4                </span></span>
+<span><span class="co">## [123] bslib_0.3.1</span></span></code></pre>
 </div>
   </div>
 
@@ -533,7 +534,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer>

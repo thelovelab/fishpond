@@ -22,7 +22,7 @@ genes have all zeros to demonstrate labelKeep."><!-- mathjax --><script src="htt
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.5</span>
       </span>
     </div>
 
@@ -76,16 +76,16 @@ genes have all zeros to demonstrate <code>labelKeep</code>.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">makeSimSwishData</span><span class="op">(</span>
-  m <span class="op">=</span> <span class="fl">1000</span>,
-  n <span class="op">=</span> <span class="fl">10</span>,
-  numReps <span class="op">=</span> <span class="fl">20</span>,
-  null <span class="op">=</span> <span class="cn">FALSE</span>,
-  meanVariance <span class="op">=</span> <span class="cn">FALSE</span>,
-  allelic <span class="op">=</span> <span class="cn">FALSE</span>,
-  diffAI <span class="op">=</span> <span class="cn">FALSE</span>,
-  dynamicAI <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">makeSimSwishData</span><span class="op">(</span></span>
+<span>  m <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  n <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  numReps <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  null <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  meanVariance <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  allelic <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  diffAI <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  dynamicAI <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -132,15 +132,15 @@ variance of inferential replicates</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">makeSimSwishData</span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">makeSimSwishData</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "counts"    "abundance" "length"    "infRep1"   "infRep2"   "infRep3"  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "infRep4"   "infRep5"   "infRep6"   "infRep7"   "infRep8"   "infRep9"  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [13] "infRep10"  "infRep11"  "infRep12"  "infRep13"  "infRep14"  "infRep15" </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [19] "infRep16"  "infRep17"  "infRep18"  "infRep19"  "infRep20" </span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -155,7 +155,7 @@ variance of inferential replicates</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

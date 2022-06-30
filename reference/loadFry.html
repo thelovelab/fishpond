@@ -18,7 +18,7 @@ alevin-fry USA mode."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.5</span>
       </span>
     </div>
 
@@ -68,7 +68,7 @@ alevin-fry USA mode.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">loadFry</span><span class="op">(</span><span class="va">fryDir</span>, outputFormat <span class="op">=</span> <span class="st">"scRNA"</span>, nonzero <span class="op">=</span> <span class="cn">FALSE</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">loadFry</span><span class="op">(</span><span class="va">fryDir</span>, outputFormat <span class="op">=</span> <span class="st">"scRNA"</span>, nonzero <span class="op">=</span> <span class="cn">FALSE</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -205,15 +205,15 @@ Nature Methods 19, 316–322 (2022).
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="co"># Get path for minimal example avelin-fry output dir</span></span>
-<span class="r-in"><span class="va">testdat</span> <span class="op">&lt;-</span> <span class="fu">fishpond</span><span class="fu">:::</span><span class="fu">readExampleFryData</span><span class="op">(</span><span class="st">"fry-usa-basic"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># This is exactly how the velocity format defined internally.</span></span>
-<span class="r-in"><span class="va">custom_velocity_format</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"spliced"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"S"</span>,<span class="st">"A"</span><span class="op">)</span>, <span class="st">"unspliced"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"U"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Load alevin-fry gene quantification in velocity format</span></span>
-<span class="r-in"><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu">loadFry</span><span class="op">(</span>fryDir<span class="op">=</span><span class="va">testdat</span><span class="op">$</span><span class="va">parent_dir</span>, outputFormat<span class="op">=</span><span class="va">custom_velocity_format</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Get path for minimal example avelin-fry output dir</span></span></span>
+<span class="r-in"><span><span class="va">testdat</span> <span class="op">&lt;-</span> <span class="fu">fishpond</span><span class="fu">:::</span><span class="fu">readExampleFryData</span><span class="op">(</span><span class="st">"fry-usa-basic"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># This is exactly how the velocity format defined internally.</span></span></span>
+<span class="r-in"><span><span class="va">custom_velocity_format</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"spliced"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"S"</span>,<span class="st">"A"</span><span class="op">)</span>, <span class="st">"unspliced"</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"U"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Load alevin-fry gene quantification in velocity format</span></span></span>
+<span class="r-in"><span><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu">loadFry</span><span class="op">(</span>fryDir<span class="op">=</span><span class="va">testdat</span><span class="op">$</span><span class="va">parent_dir</span>, outputFormat<span class="op">=</span><span class="va">custom_velocity_format</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> locating quant file</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Reading meta data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> USA mode: TRUE</span>
@@ -223,13 +223,13 @@ Nature Methods 19, 316–322 (2022).
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Building the 'unspliced' assay, which contains U</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Constructing output SingleCellExperiment object</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Done</span>
-<span class="r-in"><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">sce</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">sce</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "spliced"   "unspliced"</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Load the same data but use pre-defined, velociraptor R pckage desired format</span></span>
-<span class="r-in"><span class="va">scvelo_format</span> <span class="op">&lt;-</span> <span class="st">"scVelo"</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">scev</span> <span class="op">&lt;-</span> <span class="fu">loadFry</span><span class="op">(</span>fryDir<span class="op">=</span><span class="va">testdat</span><span class="op">$</span><span class="va">parent_dir</span>, outputFormat<span class="op">=</span><span class="va">scvelo_format</span>, nonzero<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Load the same data but use pre-defined, velociraptor R pckage desired format</span></span></span>
+<span class="r-in"><span><span class="va">scvelo_format</span> <span class="op">&lt;-</span> <span class="st">"scVelo"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">scev</span> <span class="op">&lt;-</span> <span class="fu">loadFry</span><span class="op">(</span>fryDir<span class="op">=</span><span class="va">testdat</span><span class="op">$</span><span class="va">parent_dir</span>, outputFormat<span class="op">=</span><span class="va">scvelo_format</span>, nonzero<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> locating quant file</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Reading meta data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> USA mode: TRUE</span>
@@ -240,9 +240,9 @@ Nature Methods 19, 316–322 (2022).
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Building the 'unspliced' assay, which contains U</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Constructing output SingleCellExperiment object</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Done</span>
-<span class="r-in"><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">scev</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">scev</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "counts"    "spliced"   "unspliced"</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -257,7 +257,7 @@ Nature Methods 19, 316–322 (2022).
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

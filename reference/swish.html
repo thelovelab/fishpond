@@ -19,7 +19,7 @@ various experimental designs. See References for details.'><!-- mathjax --><scri
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.5</span>
       </span>
     </div>
 
@@ -70,22 +70,22 @@ various experimental designs. See References for details.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">swish</span><span class="op">(</span>
-  <span class="va">y</span>,
-  <span class="va">x</span>,
-  cov <span class="op">=</span> <span class="cn">NULL</span>,
-  pair <span class="op">=</span> <span class="cn">NULL</span>,
-  interaction <span class="op">=</span> <span class="cn">FALSE</span>,
-  cor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"spearman"</span>, <span class="st">"pearson"</span><span class="op">)</span>,
-  nperms <span class="op">=</span> <span class="fl">100</span>,
-  estPi0 <span class="op">=</span> <span class="cn">FALSE</span>,
-  qvaluePkg <span class="op">=</span> <span class="st">"qvalue"</span>,
-  pc <span class="op">=</span> <span class="fl">5</span>,
-  nRandomPairs <span class="op">=</span> <span class="fl">30</span>,
-  fast <span class="op">=</span> <span class="fl">1</span>,
-  returnNulls <span class="op">=</span> <span class="cn">FALSE</span>,
-  quiet <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">swish</span><span class="op">(</span></span>
+<span>  <span class="va">y</span>,</span>
+<span>  <span class="va">x</span>,</span>
+<span>  cov <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pair <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  interaction <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"spearman"</span>, <span class="st">"pearson"</span><span class="op">)</span>,</span>
+<span>  nperms <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  estPi0 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  qvaluePkg <span class="op">=</span> <span class="st">"qvalue"</span>,</span>
+<span>  pc <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  nRandomPairs <span class="op">=</span> <span class="fl">30</span>,</span>
+<span>  fast <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  returnNulls <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -230,32 +230,32 @@ in RNA-Seq data" Stat Methods Med Res (2013).
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">swish</span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># histogram of the swish statistics</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">stat</span>, breaks<span class="op">=</span><span class="fl">40</span>, col<span class="op">=</span><span class="st">"grey"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">cols</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>,<span class="st">"purple"</span>,<span class="st">"red"</span><span class="op">)</span>,each<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">  <span class="fu"><a href="https://rdrr.io/r/graphics/arrows.html" class="external-link">arrows</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">stat</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="fl">20</span>,</span>
-<span class="r-in">         <span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">stat</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="fl">10</span>,</span>
-<span class="r-in">         col<span class="op">=</span><span class="va">cols</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, length<span class="op">=</span><span class="fl">.1</span>, lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">swish</span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># histogram of the swish statistics</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">stat</span>, breaks<span class="op">=</span><span class="fl">40</span>, col<span class="op">=</span><span class="st">"grey"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cols</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>,<span class="st">"purple"</span>,<span class="st">"red"</span><span class="op">)</span>,each<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/arrows.html" class="external-link">arrows</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">stat</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="fl">20</span>,</span></span>
+<span class="r-in"><span>         <span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">stat</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>         col<span class="op">=</span><span class="va">cols</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, length<span class="op">=</span><span class="fl">.1</span>, lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-plt img"><img src="swish-1.png" alt="" width="528" height="326"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># plot inferential replicates</span></span>
-<span class="r-in"><span class="fu"><a href="plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">1</span>, <span class="st">"condition"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># plot inferential replicates</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">1</span>, <span class="st">"condition"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="swish-2.png" alt="" width="528" height="326"></span>
-<span class="r-in"><span class="fu"><a href="plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">3</span>, <span class="st">"condition"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">3</span>, <span class="st">"condition"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="swish-3.png" alt="" width="528" height="326"></span>
-<span class="r-in"><span class="fu"><a href="plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">5</span>, <span class="st">"condition"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">5</span>, <span class="st">"condition"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="swish-4.png" alt="" width="528" height="326"></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -270,7 +270,7 @@ in RNA-Seq data" Stat Methods Med Res (2013).
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>
