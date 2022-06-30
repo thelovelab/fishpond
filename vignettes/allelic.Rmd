@@ -16,7 +16,7 @@ vignette: |
 <!-- run this document with rmarkdown::render("swish.Rmd") -->
 
 ```{r setup, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(tidy=FALSE, cache=TRUE, dev="png",
+knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 
@@ -191,7 +191,14 @@ plotAllelicHeatmap(y, idx=idx)
 The following two functions perform a Swish analysis, comparing the
 allelic counts within sample, while accounting for uncertainty in the
 assignment of the reads. The underlying test statistic is a Wilcoxon
-signed-rank statistic.
+signed-rank statistic, which compares the two allele counts from each
+sample, so a paired analysis.
+
+Note that we do not use `scaleInfReps` in the allelic
+pipeline. Because we compare the two alleles within samples, there is
+no need to perform scaling of the counts to adjust for sequencing
+depth. We simply import counts, filter low counts with `lableKeep` and
+then run the statistical testing with `swish`.
 
 ```{r}
 y <- labelKeep(y)
