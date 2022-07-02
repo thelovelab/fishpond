@@ -42,9 +42,11 @@
 #'
 #' If \code{tx2gene} is a GRanges object, the rowRanges of the output
 #' will be the reduced ranges of the grouped input ranges, with
-#' \code{tx_id} collapsed into a CharacterList. Other metadata columns
-#' are not manipulated, just the metadata for the first range is
-#' returned.
+#' \code{tx_id} collapsed into a CharacterList, and TSS positions
+#' saved as an IntegerList, if these are not equal among the transcripts
+#' of a group.
+#' Other metadata columns are not manipulated, just the metadata
+#' for the first range is returned.
 #' 
 #' @param coldata a data.frame as used in \code{tximeta}
 #' @param a1 the symbol for the effect allele
@@ -182,8 +184,13 @@ importAllelicCounts <- function(coldata, a1, a2,
     tx_list <- CharacterList(split(mcols(txps)$tx_id, mcols(txps)$group_id))
     # detect if the TSS have been grouped by `maxgap`
     # (the group_id will not be equal to "gene-tss")
-    tss_grouped <- mcols(txps)$group_id[1] != paste0(mcols(txps)$gene_id[1],
-                                                     "-", mcols(txps)$tss[1])
+    tss_avail <- "tss" %in% names(mcols(txps))
+    if (tss_avail) {
+      tss_grouped <- mcols(txps)$group_id[1] != paste0(mcols(txps)$gene_id[1],
+                                                       "-", mcols(txps)$tss[1])
+    } else {
+      tss_grouped <- FALSE
+    }
     # want to save individual TSS information in a list
     if (tss_grouped) {
       tss_list <- IntegerList(split(mcols(txps)$tss, mcols(txps)$group_id))
