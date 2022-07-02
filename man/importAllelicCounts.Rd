@@ -92,7 +92,9 @@ depending on developments in upstream annotations and software.
 
 If \code{tx2gene} is a GRanges object, the rowRanges of the output
 will be the reduced ranges of the grouped input ranges, with
-\code{tx_id} collapsed into a CharacterList. Other metadata columns
-are not manipulated, just the metadata for the first range is
-returned.
+\code{tx_id} collapsed into a CharacterList, and TSS positions
+saved as an IntegerList, if these are not equal among the transcripts
+of a group.
+Other metadata columns are not manipulated, just the metadata
+for the first range is returned.
 }
