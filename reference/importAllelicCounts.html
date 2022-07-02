@@ -24,7 +24,7 @@ Further information in Details below."><!-- mathjax --><script src="https://cdnj
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.6</span>
       </span>
     </div>
 
@@ -173,9 +173,11 @@ collection. This may change in future iterations of the function,
 depending on developments in upstream annotations and software.</p>
 <p>If <code>tx2gene</code> is a GRanges object, the rowRanges of the output
 will be the reduced ranges of the grouped input ranges, with
-<code>tx_id</code> collapsed into a CharacterList. Other metadata columns
-are not manipulated, just the metadata for the first range is
-returned.</p>
+<code>tx_id</code> collapsed into a CharacterList, and TSS positions
+saved as an IntegerList, if these are not equal among the transcripts
+of a group.
+Other metadata columns are not manipulated, just the metadata
+for the first range is returned.</p>
     </div>
 
   </div>
