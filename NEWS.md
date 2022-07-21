@@ -1,3 +1,7 @@
+# fishpond 2.3.7
+
+* readEDS() has moved to the `eds` package.
+
 # fishpond 2.2.0
 
 * New vignette demonstrating allelic analysis at isoform, 
