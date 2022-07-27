@@ -63,7 +63,6 @@ reference:
   - title: Import and utilities
   - contents:
     - loadFry
-    - readEDS
     - alevinEC
     - salmonEC
   - title: Allelic analysis and plotting
