@@ -198,6 +198,9 @@ swish <- function(y, x, cov=NULL, pair=NULL,
     # two group with covariate stratification
     stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]] # covariate, e.g. batch effects
+    if (any(as.vector(table(covariate, condition)) == 0)) {
+      stop("some strata do not have complete data for computing LFC")
+    }
     out <- swishStrat(infRepsArray, condition, covariate,
                       nperms, pc, fast, quiet)
     

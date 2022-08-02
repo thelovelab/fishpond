@@ -51,6 +51,12 @@ test_that("basic variable errors thrown", {
   y <- scaleInfReps(y, quiet=TRUE)
   y <- labelKeep(y)
   expect_error(swish(y, x="condition", cov="batch"), "too few samples")
+
+  # missing samples for stratified
+  y <- makeSimSwishData(m=100, n=20)
+  y$batch <- factor(rep(c(2,1,2),c(10,5,5)))
+  table(y$condition, y$batch)
+  expect_error(swish(y, "condition", cov="batch"), "some strata")
   
 })
 
