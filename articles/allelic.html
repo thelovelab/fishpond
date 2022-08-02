@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.10</span>
       </span>
     </div>
 
@@ -131,7 +131,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jorainer/ensembldb" class="external-link">ensembldb</a></span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">EnsDb.Hsapiens.v86</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/fishpond" class="external-link">fishpond</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mikelove.github.io/fishpond">fishpond</a></span><span class="op">)</span></span>
 <span><span class="va">edb</span> <span class="op">&lt;-</span> <span class="va">EnsDb.Hsapiens.v86</span></span>
 <span><span class="va">t2g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeTx2Tss.html">makeTx2Tss</a></span><span class="op">(</span><span class="va">edb</span><span class="op">)</span> <span class="co"># GRanges object</span></span>
 <span><span class="fu">mcols</span><span class="op">(</span><span class="va">t2g</span><span class="op">)</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tx_id"</span>,<span class="st">"group_id"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
@@ -443,7 +443,7 @@
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
 <span><span class="co">##  [1] SummarizedExperiment_1.24.0 MatrixGenerics_1.6.0       </span></span>
-<span><span class="co">##  [3] matrixStats_0.62.0          fishpond_2.3.9             </span></span>
+<span><span class="co">##  [3] matrixStats_0.62.0          fishpond_2.3.10            </span></span>
 <span><span class="co">##  [5] EnsDb.Hsapiens.v86_2.99.0   ensembldb_2.18.4           </span></span>
 <span><span class="co">##  [7] AnnotationFilter_1.18.0     GenomicFeatures_1.46.5     </span></span>
 <span><span class="co">##  [9] AnnotationDbi_1.56.2        Biobase_2.54.0             </span></span>
