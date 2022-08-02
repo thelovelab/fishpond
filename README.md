@@ -53,17 +53,6 @@ described in the following publication:
 > *Nucleic Acids Research* (2019) 47(18):e105
 > [PMC6765120](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6765120/)
 
-## Software issues and support
-
-You can browse the code or submit an Issue at the following link:
-
-<https://github.com/mikelove/fishpond>
-
-For software support please use the following link and tag with
-`swish` or `fishpond`:
-
-<https://support.bioconductor.org>
-
 ## Installation
 
 This package can be installed via Bioconductor:
