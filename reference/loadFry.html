@@ -18,7 +18,7 @@ alevin-fry USA mode."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.12</span>
       </span>
     </div>
 
@@ -172,23 +172,6 @@ The name of an element in the list will be the name of the corresponding
 assay in the output object. Each element in the list should be defined as 
 a vector that takes at least one of the three kinds of count, which are U, S and A.
 See the provided toy example for defining a custom output format.</p>
-    </div>
-    <div id="details-about-load-fry-raw">
-    <h2>Details about <code>load_fry_raw</code></h2>
-    
-
-<p>This function processes alevin-fry's quantification result
-contained within the input folder.This function returns a list
-that consists of the gene count matrix, the gene names list, the
-barcode list, and some metadata, such as the number of genes in
-the experiment and whether alevin-fry was executed in USA
-mode. In the returned list, the all-in-one count matrix,
-<code>count_mat</code>, returned from the USA mode of alevin-fry
-consists of the spliced count of genes defined in
-<code>gene.names</code> for all barcodes defined in <code>barcodes</code>,
-followed by the unspliced count of genes in the same order for
-all cells, then followed by the ambiguous count of genes in the
-same order for all cells.</p>
     </div>
     <div id="references">
     <h2>References</h2>
