@@ -92,22 +92,6 @@ a vector that takes at least one of the three kinds of count, which are U, S and
 See the provided toy example for defining a custom output format.
 }
 
-\section{Details about \code{load_fry_raw}}{
-
-This function processes alevin-fry's quantification result
-contained within the input folder.This function returns a list
-that consists of the gene count matrix, the gene names list, the
-barcode list, and some metadata, such as the number of genes in
-the experiment and whether alevin-fry was executed in USA
-mode. In the returned list, the all-in-one count matrix,
-\code{count_mat}, returned from the USA mode of alevin-fry
-consists of the spliced count of genes defined in
-\code{gene.names} for all barcodes defined in \code{barcodes},
-followed by the unspliced count of genes in the same order for
-all cells, then followed by the ambiguous count of genes in the
-same order for all cells.
-}
-
 \examples{
 
 # Get path for minimal example avelin-fry output dir
