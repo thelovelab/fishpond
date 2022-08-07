@@ -1,5 +1,5 @@
 swishInterxPair <- function(infRepsArray, condition, covariate, pair,
-                              nperms=100, pc=5, fast, quiet=FALSE) {
+                              nperms=100, pc=5, quiet=FALSE) {
   stopifnot(is.numeric(pair) | is.character(pair) | is.factor(pair))
   stopifnot(!anyNA(covariate))
   stopifnot(!anyNA(pair))
@@ -16,21 +16,18 @@ swishInterxPair <- function(infRepsArray, condition, covariate, pair,
   group <- out$group
   lfcArray <- out$lfcArray
 
-  # if fast==1, avoid re-computing the ranks for the permutation distribution
-  if (fast == 1) {
-    ranks <- out$ranks
-  } else {
-    ranks <- NULL
-  }
+  ranks <- out$ranks
+  # old code re-computed ranks per permutation
+  # ranks <- NULL
   
   grp1 <- group == levels(group)[1]
   grp2 <- group == levels(group)[2]
-  lfcMat <- apply(lfcArray[,grp2,], c(1,3), mean) -
+  lfc_mat <- apply(lfcArray[,grp2,], c(1,3), mean) -
             apply(lfcArray[,grp1,], c(1,3), mean)
 
   # the reported log2FC is the difference in the mean LFC between the two groups
   # the median here is taken over inferential replicates
-  log2FC <- rowMedians(lfcMat)
+  log2FC <- rowMedians(lfc_mat)
 
   # the permutation framework is to permute which pairs are in which group
   perms <- getPerms(group, nperms)
@@ -58,13 +55,13 @@ swishInterx <- function(infRepsArray, condition, covariate,
 
   tab <- table(condition, covariate)
   # if sizes are equal, don't need to double or splice out columns
-  allEqual <- all(tab[,2] == tab[,1])
+  all_equal <- all(tab[,2] == tab[,1])
 
   # don't have pairs, but instead we use pseudo-pairs multiple times
   stats <- matrix(nrow=dims[1], ncol=nRandomPairs)
   for (r in seq_len(nRandomPairs)) {
     # the easy case: balanced numbers of samples across condition
-    if (allEqual) {
+    if (all_equal) {
       pair <- getPseudoPair(condition, covariate)
       out <- getInterxPairStat(infRepsArray, condition, covariate,
                                pair, pc)
@@ -98,7 +95,7 @@ swishInterx <- function(infRepsArray, condition, covariate,
   if (!quiet) message("generating test statistics over permutations")
   for (p in seq_len(nperms)) {
     if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
-    if (allEqual) {
+    if (all_equal) {
       # first draw a pseudo-pairing
       pair <- getPseudoPair(condition, covariate)
       out <- getInterxPairStat(infRepsArray, condition, covariate,
@@ -159,16 +156,16 @@ getPseudoPair <- function(condition, covariate) {
 randomSamplesToRemove <- function(tab, condition, covariate) {
   cond1 <- condition == levels(condition)[1]
   cond2 <- condition == levels(condition)[2]
-  cov.lvls <- levels(covariate)
+  cov_lvls <- levels(covariate)
   idx <- numeric()
   for (i in which(tab[,1] != tab[,2])) {
     cond1small <- tab[1,i] < tab[2,i]
     if (cond1small) {
-      idx <- c(idx, sample(which(cond2 & covariate == cov.lvls[i]),
+      idx <- c(idx, sample(which(cond2 & covariate == cov_lvls[i]),
                            tab[2,i] - tab[1,i],
                            replace=FALSE))
     } else {
-      idx <- c(idx, sample(which(cond1 & covariate == cov.lvls[i]),
+      idx <- c(idx, sample(which(cond1 & covariate == cov_lvls[i]),
                            tab[1,i] - tab[2,i],
                            replace=FALSE))
     }

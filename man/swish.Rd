@@ -16,7 +16,7 @@ swish(
   qvaluePkg = "qvalue",
   pc = 5,
   nRandomPairs = 30,
-  fast = 1,
+  fast = NULL,
   returnNulls = FALSE,
   quiet = FALSE
 )
@@ -75,8 +75,9 @@ in calculation of test statistics, \code{locfdr} or \code{qvalue}}
 \code{interaction=TRUE} and un-matched samples) to use to calculate
 the test statistic}
 
-\item{fast}{an integer, toggles different methods based on speed
-(\code{fast=1} is default, \code{0} is slower). See Details.}
+\item{fast}{an integer (0 or 1), toggles different methods based on speed,
+currently only relevant for simple paired analysis. \code{fast=1} triggers
+a z-score based one sample test for paired data.}
 
 \item{returnNulls}{logical, only return the \code{stat} vector,
 the \code{log2FC} vector, and the \code{nulls} matrix
@@ -107,16 +108,6 @@ will perform a Wilcoxon rank sum test on the two groups
 of matched sample LFCs. If \code{pair} is not included, multiple
 random pairs of samples within the two groups are chosen,
 and again a Wilcoxon rank sum test compared the LFCs across groups.
-
-\strong{fast:}
-'0' involves recomputing ranks of the inferential replicates for
-each permutation, '1' (default) is roughly 10x faster by avoiding
-re-computing ranks for each permutation.
-The \code{fast} argument is only relevant for the following three
-experimental designs: (1) two group Wilcoxon, (2) stratified Wilcoxon, e.g.
-\code{cov} is specified, and (3) the paired interaction test,
-e.g. \code{pair} and \code{cov} are specified. For paired design and
-general interaction test, there are not fast/slow alternatives.
 }
 \examples{
 

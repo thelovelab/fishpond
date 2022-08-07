@@ -80,9 +80,6 @@ test_that("basic swish analyses", {
   iso <- isoformProportions(y, quiet=TRUE)
   iso <- swish(iso, x="condition", quiet=TRUE)
   
-  # try the old, slow method
-  y <- swish(y, x="condition", fast=0, quiet=TRUE)
-  
   # estimate pi0
   y <- swish(y, x="condition", estPi0=TRUE, qvaluePkg="qvalue", quiet=TRUE)
   y <- swish(y, x="condition", estPi0=TRUE, qvaluePkg="samr", quiet=TRUE)
@@ -99,9 +96,6 @@ test_that("basic swish analyses", {
   plotInfReps(y, 1, "condition", "batch")
   dev.off()
 
-  # try the old, slow method
-  y <- swish(y, x="condition", cov="batch", fast=0, quiet=TRUE)
-  
   # two group, matched samples
   y <- makeSimSwishData(m=200)
   y$pair <- rep(1:5,2)

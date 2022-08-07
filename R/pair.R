@@ -1,10 +1,17 @@
-swishPair <- function(infRepsArray, condition, pair,
+swishPair <- function(infRepsArray, condition, pair, fast,
                       nperms=100, pc=5, quiet=FALSE) {
   pair <- checkPair(pair, condition)
-  stat <- getSignedRank(infRepsArray, condition, pair)
-  log2FC <- getLog2FCPair(infRepsArray, condition, pair, pc)
-  cond.sign <- ifelse(condition == levels(condition)[1], 1, -1)
-  perms <- getPairPerms(cond.sign * pair, nperms)
+  if (fast == 1) {
+    lfcArray <- getLog2FCPair(infRepsArray, condition, pair, pc, array=TRUE)
+    log2FC <- medianOverMean(lfcArray)
+    stat <- getZscore(lfcArray)
+    dims <- dim(lfcArray)
+  } else {
+    log2FC <- getLog2FCPair(infRepsArray, condition, pair, pc)
+    stat <- getSignedRank(infRepsArray, condition, pair)
+  }
+  cond_sign <- ifelse(condition == levels(condition)[1], 1, -1)
+  perms <- getPairPerms(cond_sign * pair, nperms)
   nperms <- permsNote(perms, nperms)
   # now just work with the permutations matrix
   perms <- perms$perms
@@ -12,27 +19,47 @@ swishPair <- function(infRepsArray, condition, pair,
   if (!quiet) message("generating test statistics over permutations")
   for (p in seq_len(nperms)) {
     if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
-    nulls[,p] <- getSignedRank(infRepsArray, condition[perms[p,]],
-                               pair[perms[p,]])
+    if (fast == 1) {
+      sign_flip_mat <- getSignFlipMat(dims)
+      nulls[,p] <- getZscore(sign_flip_mat * lfcArray)
+    } else {
+      nulls[,p] <- getSignedRank(infRepsArray,
+                                 condition[perms[p,]],
+                                 pair[perms[p,]])
+    }
   }
   if (!quiet) message("")
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
+getZscore <- function(lfcArray) {
+  dims <- dim(lfcArray)
+  z_mat <- matrix(nrow=dims[1],ncol=dims[3])
+  for (k in seq_len(dims[3])) {
+    z_mat[,k] <- rowMeans(lfcArray[,,k]) / sqrt(rowVars(lfcArray[,,k]))
+  }
+  rowMedians(z_mat)
+}
+
+getSignFlipMat <- function(dims) {
+  flips <- sample(c(-1,1), size=dims[1]*dims[2]*dims[3], replace=TRUE)
+  array(flips, dim=dims)
+}
+
 getSignedRank <- function(infRepsArray, condition, pair) {
   dims <- dim(infRepsArray)
-  sgn.ranks <- array(dim=c(dims[1],dims[2]/2,dims[3]))
+  signed_ranks <- array(dim=c(dims[1],dims[2]/2,dims[3]))
   o <- order(condition, pair)
   grp1 <- head(o, length(condition)/2)
   grp2 <- tail(o, length(condition)/2)
   for (k in seq_len(dims[3])) {
     diff <- infRepsArray[,grp2,k] - infRepsArray[,grp1,k]
-    sgn.ranks[,,k] <- sign(diff) *
+    signed_ranks[,,k] <- sign(diff) *
       rowRanks(abs(diff) + 0.1 * runif(dims[1]*dims[2]/2),
                ties.method = "average")
   }
   # sums of signed rank, expectation is 0
-  W <- apply(sgn.ranks, c(1,3), sum)
+  W <- apply(signed_ranks, c(1,3), sum)
   rowMeans(W)
 }
 
@@ -50,10 +77,15 @@ getLog2FCPair <- function(infRepsArray, condition, pair, pc=5, array=FALSE) {
   if (array) {
     return(lfcArray)
   }
+  # mean over sample, then median over infReps
+  medianOverMean(lfcArray)
+}
+
+medianOverMean <- function(lfcArray) {
   # mean over samples
-  lfcMat <- apply(lfcArray, c(1,3), mean)
+  lfc_mat <- apply(lfcArray, c(1,3), mean)
   # median over inferential replicates
-  rowMedians(lfcMat)
+  rowMedians(lfc_mat)
 }
 
 # spair = signed pair
@@ -82,6 +114,7 @@ getPairPerms <- function(spair, nperms) {
         }
       }
     }
+    # output structured like the samr function
     perms <- list(perms = pair.perms,
                   all.perms.flag = as.integer(nrow(out0) <= nperms),
                   nperms.act = nrow(out))
@@ -100,6 +133,7 @@ getPairPerms <- function(spair, nperms) {
         }
       }        
     }
+    # output structured like the samr function
     perms <- list(perms = pair.perms,
                   all.perms.flag = 0,
                   nperms.act = nperms)

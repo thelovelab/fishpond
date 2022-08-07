@@ -14,16 +14,6 @@
 #' random pairs of samples within the two groups are chosen,
 #' and again a Wilcoxon rank sum test compared the LFCs across groups.
 #'
-#' \strong{fast:}
-#' '0' involves recomputing ranks of the inferential replicates for
-#' each permutation, '1' (default) is roughly 10x faster by avoiding
-#' re-computing ranks for each permutation.
-#' The \code{fast} argument is only relevant for the following three
-#' experimental designs: (1) two group Wilcoxon, (2) stratified Wilcoxon, e.g.
-#' \code{cov} is specified, and (3) the paired interaction test,
-#' e.g. \code{pair} and \code{cov} are specified. For paired design and
-#' general interaction test, there are not fast/slow alternatives.
-#' 
 #' @param y a SummarizedExperiment containing the inferential replicate
 #' matrices of median-ratio-scaled TPM as assays 'infRep1', 'infRep2', etc.
 #' @param x the name of the condition variable. A factor with two
@@ -66,8 +56,9 @@
 #' @param nRandomPairs the number of random pseudo-pairs (only used with
 #' \code{interaction=TRUE} and un-matched samples) to use to calculate
 #' the test statistic
-#' @param fast an integer, toggles different methods based on speed
-#' (\code{fast=1} is default, \code{0} is slower). See Details.
+#' @param fast an integer (0 or 1), toggles different methods based on speed,
+#' currently only relevant for simple paired analysis. \code{fast=1} triggers
+#' a z-score based one sample test for paired data.
 #' @param returnNulls logical, only return the \code{stat} vector,
 #' the \code{log2FC} vector, and the \code{nulls} matrix
 #' (default FALSE)
@@ -128,19 +119,16 @@ swish <- function(y, x, cov=NULL, pair=NULL,
                   cor=c("none","spearman","pearson"),
                   nperms=100,
                   estPi0=FALSE, qvaluePkg="qvalue",
-                  pc=5, nRandomPairs=30, fast=1,
+                  pc=5, nRandomPairs=30, fast=NULL,
                   returnNulls=FALSE,
                   quiet=FALSE) {
 
-  stopifnot(is(y, "SummarizedExperiment"))
-  stopifnot(fast %in% 0:1)
-
+  stopifnot(is(y, "SummarizedExperiment"))  
   # define some logicals
   cor <- match.arg(cor)
   correlation <- cor != "none"
   paired <- !is.null(pair)
   cov_given <- !is.null(cov)
-  
   # 'cov' or 'pair' or neither, but not both,
   # except for interaction and correlation tests
   if (!interaction & !correlation) stopifnot(!cov_given | !paired)
@@ -152,6 +140,9 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   # and vice-versa
   if (correlation & !paired) stopifnot(!cov_given)
   if (correlation & paired) stopifnot(cov_given)
+  if (!is.null(fast)) {
+    stopifnot(fast %in% 0:1)
+  }
   if (!interactive()) { quiet <- TRUE }
   if (is.null(metadata(y)$preprocessed) || !metadata(y)$preprocessed) {
     y <- labelKeep(y)
@@ -192,7 +183,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
   if (!interaction & !cov_given & !paired & !correlation) {
     # basic two group
     out <- swishTwoGroup(infRepsArray, condition,
-                         nperms, pc, fast, quiet)
+                         nperms, pc, quiet)
     
   } else if (!interaction & cov_given & !correlation) {
     # two group with covariate stratification
@@ -202,27 +193,28 @@ swish <- function(y, x, cov=NULL, pair=NULL,
       stop("some strata do not have complete data for computing LFC")
     }
     out <- swishStrat(infRepsArray, condition, covariate,
-                      nperms, pc, fast, quiet)
+                      nperms, pc, quiet)
     
   } else if (!interaction & paired & !correlation) {
-    # two group with matched samples
+    # two group with paired samples
     stopifnot(pair %in% names(colData(y)))
     pair <- colData(y)[[pair]] # sample pairing
-    out <- swishPair(infRepsArray, condition, pair,
+    if (is.null(fast)) fast <- 0 # default is to use signed ranks
+    out <- swishPair(infRepsArray, condition, pair, fast=fast,
                      nperms, pc, quiet)
     
   } else if (interaction & paired) {
-    # two group 'x', two group 'cov', with matched samples
+    # two group 'x', two group 'cov', with paired samples
     stopifnot(cov %in% names(colData(y)))
     stopifnot(pair %in% names(colData(y)))
     covariate <- colData(y)[[cov]]
     pair <- colData(y)[[pair]]
     out <- swishInterxPair(infRepsArray, condition,
                            covariate, pair, nperms,
-                           pc, fast, quiet)
+                           pc, quiet)
     
   } else if (interaction & !paired) {
-    # two group 'x', two group 'cov', samples not matched
+    # two group 'x', two group 'cov', samples not paired
     stopifnot(cov %in% names(colData(y)))
     covariate <- colData(y)[[cov]]
     out <- swishInterx(infRepsArray, condition,
@@ -237,7 +229,7 @@ swish <- function(y, x, cov=NULL, pair=NULL,
                     cor, nperms, pc, quiet)
     
   } else if (correlation & paired) {
-    # correlation of 'cov' with log fold change of matched samples
+    # correlation of 'cov' with log fold change of paired samples
     stopifnot(cov %in% names(colData(y)))
     stopifnot(pair %in% names(colData(y)))
     covariate <- colData(y)[[cov]]
@@ -285,17 +277,14 @@ getInfReps <- function(ys) {
 }
 
 swishTwoGroup <- function(infRepsArray, condition,
-                          nperms=100, pc=5, fast, quiet=FALSE) {
+                          nperms=100, pc=5, quiet=FALSE) {
   dims <- dim(infRepsArray)
-  # if fast==1, avoid re-computing the ranks for the permutation distribution
-  if (fast == 1) {
-    out <- getSamStat(infRepsArray, condition, returnRanks=TRUE)
-    stat <- out$stat
-    ranks <- out$ranks
-  } else {
-    stat <- getSamStat(infRepsArray, condition)
-    ranks <- NULL
-  }
+  out <- getSamStat(infRepsArray, condition, returnRanks=TRUE)
+  stat <- out$stat
+  ranks <- out$ranks
+  # old code re-computed ranks for each permutation
+  ## stat <- getSamStat(infRepsArray, condition)
+  ## ranks <- NULL
   log2FC <- getLog2FC(infRepsArray, condition, pc)
   perms <- getPerms(condition, nperms)
   nperms <- permsNote(perms, nperms)
@@ -316,8 +305,8 @@ getSamStat <- function(infRepsArray, condition, ranks=NULL, returnRanks=FALSE) {
   if (dims[2] == 2) stop("too few samples to compute the rank sum statistic")
   cond2 <- condition == levels(condition)[2]
   if (sum(cond2) < 2) stop("too few samples to compute the rank sum statistic")
-  # calculate ranks if they are not provided...
-  # for fast=1, we instead use the pre-calculated ranks to save time
+  # old code: calculate ranks if they are not provided...
+  # now we instead use the pre-calculated ranks to save time
   if (is.null(ranks)) {
     ranks <- array(dim=dims)
     for (k in seq_len(dims[3])) {
@@ -421,6 +410,7 @@ getPerms <- function(condition, nperms) {
     } else {
       out <- out0
     }
+    # output structured like the samr function
     perms <- list(perms = out,
                   all.perms.flag = as.integer(nrow(out0) <= nperms),
                   nperms.act = nrow(out))
@@ -428,6 +418,7 @@ getPerms <- function(condition, nperms) {
     # with > 6 samples we have a good number of permutations (> 5,000),
     # just do random sampling
     x <- t(replicate(nperms, sample(length(condition))))
+    # output structured like the samr function
     perms <- list(perms = x,
                   all.perms.flag = 0,
                   nperms.act = nperms)
