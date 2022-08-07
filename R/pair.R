@@ -6,6 +6,7 @@ swishPair <- function(infRepsArray, condition, pair, fast,
     log2FC <- medianOverMean(lfcArray)
     stat <- getZscore(lfcArray)
     dims <- dim(lfcArray)
+    n <- dims[2] # nsamples
   } else {
     log2FC <- getLog2FCPair(infRepsArray, condition, pair, pc)
     stat <- getSignedRank(infRepsArray, condition, pair)
@@ -19,9 +20,12 @@ swishPair <- function(infRepsArray, condition, pair, fast,
   if (!quiet) message("generating test statistics over permutations")
   for (p in seq_len(nperms)) {
     if (!quiet) svMisc::progress(p, max.value=nperms, init=(p==1), gui=FALSE)
+    # fast code just uses one sample z-score, flips signs per permutation
     if (fast == 1) {
-      sign_flip_mat <- getSignFlipMat(dims)
-      nulls[,p] <- getZscore(sign_flip_mat * lfcArray)
+      # convert to 1 and -1 based on finite permutations
+      sign_flip <- ifelse(perms[p, 2 * 1:n] == 2 * 1:n, 1, -1)
+      # same permutation is used across all genes and inf reps
+      nulls[,p] <- getZscore(lfcArray, sign_flip=sign_flip)
     } else {
       nulls[,p] <- getSignedRank(infRepsArray,
                                  condition[perms[p,]],
@@ -32,18 +36,19 @@ swishPair <- function(infRepsArray, condition, pair, fast,
   list(stat=stat, log2FC=log2FC, nulls=nulls)
 }
 
-getZscore <- function(lfcArray) {
+getZscore <- function(lfcArray, sign_flip=NULL) {
   dims <- dim(lfcArray)
   z_mat <- matrix(nrow=dims[1],ncol=dims[3])
   for (k in seq_len(dims[3])) {
-    z_mat[,k] <- rowMeans(lfcArray[,,k]) / sqrt(rowVars(lfcArray[,,k]))
+    if (is.null(sign_flip)) {
+      z_mat[,k] <- rowMeans(lfcArray[,,k]) / sqrt(rowVars(lfcArray[,,k]))
+    } else {
+      # (nsamp x ngene) * nsamp
+      lfc <- t(lfcArray[,,k]) * sign_flip
+      z_mat[,k] <- colMeans(lfc) / sqrt(colVars(lfc))
+    }
   }
   rowMedians(z_mat)
-}
-
-getSignFlipMat <- function(dims) {
-  flips <- sample(c(-1,1), size=dims[1]*dims[2]*dims[3], replace=TRUE)
-  array(flips, dim=dims)
 }
 
 getSignedRank <- function(infRepsArray, condition, pair) {
