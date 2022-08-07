@@ -19,7 +19,7 @@ various experimental designs. See References for details.'><!-- mathjax --><scri
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.13</span>
       </span>
     </div>
 
@@ -82,7 +82,7 @@ various experimental designs. See References for details.</p>
 <span>  qvaluePkg <span class="op">=</span> <span class="st">"qvalue"</span>,</span>
 <span>  pc <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  nRandomPairs <span class="op">=</span> <span class="fl">30</span>,</span>
-<span>  fast <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  fast <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  returnNulls <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -166,8 +166,9 @@ the test statistic</p></dd>
 
 
 <dt>fast</dt>
-<dd><p>an integer, toggles different methods based on speed
-(<code>fast=1</code> is default, <code>0</code> is slower). See Details.</p></dd>
+<dd><p>an integer (0 or 1), toggles different methods based on speed,
+currently only relevant for simple paired analysis. <code>fast=1</code> triggers
+a z-score based one sample test for paired data.</p></dd>
 
 
 <dt>returnNulls</dt>
@@ -202,15 +203,6 @@ will perform a Wilcoxon rank sum test on the two groups
 of matched sample LFCs. If <code>pair</code> is not included, multiple
 random pairs of samples within the two groups are chosen,
 and again a Wilcoxon rank sum test compared the LFCs across groups.</p>
-<p><strong>fast:</strong>
-'0' involves recomputing ranks of the inferential replicates for
-each permutation, '1' (default) is roughly 10x faster by avoiding
-re-computing ranks for each permutation.
-The <code>fast</code> argument is only relevant for the following three
-experimental designs: (1) two group Wilcoxon, (2) stratified Wilcoxon, e.g.
-<code>cov</code> is specified, and (3) the paired interaction test,
-e.g. <code>pair</code> and <code>cov</code> are specified. For paired design and
-general interaction test, there are not fast/slow alternatives.</p>
     </div>
     <div id="references">
     <h2>References</h2>

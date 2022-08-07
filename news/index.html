@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.13</span>
       </span>
     </div>
 
@@ -60,6 +60,11 @@
       <small>Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="2.3.13" id="fishpond-2313">fishpond 2.3.13<a class="anchor" aria-label="anchor" href="#fishpond-2313"></a></h2>
+<ul><li>For simple paired swish analysis, adding a fast=1 method which performs a one-sample z-test on the paired LFCs (averaged over samples, then median over inferential replicates). The permutation is computed by changing the signs of the LFC matrix and recomputing z-scores. For a dataset of 20 samples, this appears to be 3x faster than the original paired method which makes use of the Wilcoxon signed rank statistic.</li>
+<li>Removed the fast=0 methods that were previously implemented where ranks could optionally be recomputed for every permutation. This was much slower and didn’t have any appreciable benefit.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.3.7" id="fishpond-237">fishpond 2.3.7<a class="anchor" aria-label="anchor" href="#fishpond-237"></a></h2>
 <ul><li>readEDS() has moved to the <code>eds</code> package.</li></ul></div>
