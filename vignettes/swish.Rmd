@@ -271,7 +271,7 @@ y <- swish(y, x="condition", pair="line")
 
 **Note:** the simple paired test is the slowest of all the other
 designs provided for Swish
-(see [further details](#further-details]), because it requires
+(see [further details](#further-details)), because it requires
 recomputing the signed ranks at each permutation. Other designs avoid
 recomputing ranks per permutation, or don't use ranks for the test
 statistic. For larger samples, you can set `fast=1` for simple paired
