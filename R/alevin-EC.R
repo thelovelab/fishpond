@@ -29,9 +29,9 @@
 #' 
 #' @return A list with two elements. The first element `counts` is a sparse 
 #' count matrix with equivalence class identifiers in the rows and barcode 
-#' identifiers in the columns. The second element `tx2gene_matched` allows for 
-#' linking the equivalence class identifiers to their respective transcripts 
-#' and genes.
+#' identifiers followed by an underscore and a sample identifier in the columns. 
+#' The second element `tx2gene_matched` allows for linking the equivalence class
+#' identifiers to their respective transcripts and genes.
 #' 
 #' @section Details:
 #' The resulting count matrix uses equivalence class identifiers as rownames.
@@ -122,7 +122,7 @@ the same annotation for both.\n\n",txFromFile,"\n\n",txFromTable,
     RowIdx <- rep(RowIdx, times=times)
     
     ## wrangle columns
-    bc_id_to_name <- sample_list[[i]][[5]]
+    bc_id_to_name <- paste0(sample_list[[i]][[5]], "_", i)
     ColIdx <- sample_list[[i]][[2]]
     
     ## wrangle entries
