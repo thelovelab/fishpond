@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.18</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Swish: differential expression accounting for inferential uncertainty</h1>
             
-            <h4 data-toc-skip class="date">08/10/2022</h4>
+            <h4 data-toc-skip class="date">08/12/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/vignettes/swish.Rmd" class="external-link"><code>vignettes/swish.Rmd</code></a></small>
       <div class="hidden name"><code>swish.Rmd</code></div>
@@ -192,30 +192,31 @@
 <p>We will read in quantification data for some of the samples. First we load the <em>SummarizedExperiment</em> package. We will store out data and the output of the statistical method in a <em>SummarizedExperiment</em> object. We use the <em>tximeta</em> <span class="citation">(Love et al. 2020)</span> package to read in the data:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>We load in the quantification data with <code>tximeta</code>:</p>
+<p>The <em>macrophage</em> package contains a number of samples under different conditions. In this vignette, we will demonstrate a two group comparison, and so we first subset our <code>coldata</code> to the <code>"naive"</code> and <code>"IFNg"</code> groups. Log fold changes will be made comparing <code>IFNg</code> to <code>naive</code> (the reference level).</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coldata</span> <span class="op">&lt;-</span> <span class="va">coldata</span><span class="op">[</span><span class="va">coldata</span><span class="op">$</span><span class="va">condition</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span>,<span class="op">]</span></span>
+<span><span class="va">coldata</span><span class="op">$</span><span class="va">condition</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">coldata</span><span class="op">$</span><span class="va">condition</span>, </span>
+<span>                            levels<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>We load in the quantification data with <code>tximeta</code>:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/tximeta" class="external-link">tximeta</a></span><span class="op">)</span></span>
 <span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tximeta/man/tximeta.html" class="external-link">tximeta</a></span><span class="op">(</span><span class="va">coldata</span><span class="op">)</span></span></code></pre></div>
 <p>We can see that all the assays have been loaded:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##  [1] "counts"    "abundance" "length"    "infRep1"   "infRep2"   "infRep3"  </span></span>
 <span><span class="co">##  [7] "infRep4"   "infRep5"   "infRep6"   "infRep7"   "infRep8"   "infRep9"  </span></span>
 <span><span class="co">## [13] "infRep10"  "infRep11"  "infRep12"  "infRep13"  "infRep14"  "infRep15" </span></span>
 <span><span class="co">## [19] "infRep16"  "infRep17"  "infRep18"  "infRep19"  "infRep20"</span></span></code></pre>
 <p><code>tximeta</code> loads transcript-level data, although it can later be summarized to the gene levels:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "ENST00000456328.2" "ENST00000450305.2" "ENST00000488147.1"</span></span>
 <span><span class="co">## [4] "ENST00000619216.1" "ENST00000473358.1" "ENST00000469289.1"</span></span></code></pre>
 <p>We will rename our <em>SummarizedExperiment</em> <code>y</code> for the statistical analysis. For speed of the vignette, we subset to the transcripts on chromosome 4.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">se</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr4"</span>,<span class="op">]</span></span></code></pre></div>
-<p>To demonstrate a two group comparison, we subset to the “naive” and “IFNg” groups. Log fold changes will be made comparing <code>IFNg</code> to <code>naive</code> (the reference level).</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span>,<span class="va">y</span><span class="op">$</span><span class="va">condition</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">y</span><span class="op">$</span><span class="va">condition</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">condition</span>, levels<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Note on factor levels</strong>: The <code>swish</code> function compares expression level across factors such that log2 fold changes are reported as the non-reference level over the reference level. By default, R will choose a <em>reference level</em> for factors based on alphabetical order, unless <code>levels</code> are explicitly set. It is recommended to set the factors levels, as in the above code chunk, with the reference level coming first in the character vector, so that log2 fold changes correspond to the comparison of interest.</p>
 </div>
 </div>
@@ -233,7 +234,7 @@
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">keep</span>,<span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span>, pair<span class="op">=</span><span class="st">"line"</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Note:</strong> the simple paired test is the slowest of all the other designs provided for Swish (see <a href="#further-details">further details</a>), because it requires recomputing the signed ranks at each permutation. Other designs avoid recomputing ranks per permutation, or don’t use ranks for the test statistic. For larger samples, you can set <code>fast=1</code> for simple paired designs, which implements a one-sample z-score as the test statistic, and permutations to provide p-values and q-values. These permutations are much faster than those that use the signed rank test.</p>
+<p><strong>Note:</strong> the simple paired test is the slowest of all the other designs provided for Swish (see <a href="#further-details">further details</a>), because it requires recomputing the signed ranks at each permutation. Other designs avoid recomputing ranks per permutation, or don’t use ranks for the test statistic. You can set <code>fast=1</code> for simple paired designs, which implements a one-sample z-score as the test statistic, and permutations to provide p-values and q-values. These permutations are much faster than those that use the signed rank test, for example with one core, the signed rank test is 12x slower than the one-sample z-score method when run across all transcripts, and they nevertheless detect nearly the same sets.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_fast</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span>, pair<span class="op">=</span><span class="st">"line"</span>, fast<span class="op">=</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span>original<span class="op">=</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.1</span>,</span>
@@ -349,19 +350,15 @@
 <code class="sourceCode R"><span><span class="va">gse</span> <span class="op">&lt;-</span> <span class="fu">summarizeToGene</span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span>
 <span><span class="va">gy</span> <span class="op">&lt;-</span> <span class="va">gse</span></span>
 <span><span class="va">gy</span> <span class="op">&lt;-</span> <span class="va">gy</span><span class="op">[</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr4"</span>,<span class="op">]</span></span></code></pre></div>
-<p>Two demonstrate a two group comparison, we subset to the “naive” and “IFNg” groups, as before.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gy</span> <span class="op">&lt;-</span> <span class="va">gy</span><span class="op">[</span>,<span class="va">gy</span><span class="op">$</span><span class="va">condition</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">gy</span><span class="op">$</span><span class="va">condition</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">gy</span><span class="op">$</span><span class="va">condition</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Next we can run the same steps as before. Again we set a random seed in order to be able to reproduce exact results in the future:</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">gy</span><span class="op">)</span></span>
 <span><span class="va">gy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">gy</span><span class="op">)</span></span>
 <span><span class="va">gy</span> <span class="op">&lt;-</span> <span class="va">gy</span><span class="op">[</span><span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">$</span><span class="va">keep</span>,<span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">gy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">gy</span>, x<span class="op">=</span><span class="st">"condition"</span>, pair<span class="op">=</span><span class="st">"line"</span><span class="op">)</span></span></code></pre></div>
 <p>As before, the number of genes in a 1% FDR set:</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.05</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## </span></span>
 <span><span class="co">## FALSE  TRUE </span></span>
@@ -371,11 +368,11 @@
 <h3 id="plotting-gene-results">Plotting gene results<a class="anchor" aria-label="anchor" href="#plotting-gene-results"></a>
 </h3>
 <p>The histogram of p-values:</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">pvalue</span>, col<span class="op">=</span><span class="st">"grey"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-32-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-31-1.png"><!-- --></p>
 <p>As before, finding the genes with the most extreme log2 fold change:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span>,</span>
 <span>     <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span>sig<span class="op">=</span><span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.05</span>, sign.lfc<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">log2FC</span><span class="op">)</span><span class="op">)</span></span>
 <span>     <span class="op">)</span>     </span></code></pre></div>
@@ -383,11 +380,11 @@
 <span><span class="co">## sig      -1   1</span></span>
 <span><span class="co">##   FALSE 251 152</span></span>
 <span><span class="co">##   TRUE  110 116</span></span></code></pre>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sig</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">$</span><span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.05</span></span>
 <span><span class="va">glo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">$</span><span class="va">log2FC</span> <span class="op">*</span> <span class="va">sig</span><span class="op">)</span></span>
 <span><span class="va">ghi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">$</span><span class="va">log2FC</span> <span class="op">*</span> <span class="va">sig</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gtop_up</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ghi</span><span class="op">)</span>,<span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">gtop_up</span><span class="op">)</span><span class="op">[</span>,<span class="va">cols</span><span class="op">]</span>, digits<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                    log10mean log2FC   pvalue   qvalue</span></span>
@@ -397,7 +394,7 @@
 <span><span class="co">## ENSG00000004468.12      3.61   5.55 2.48e-05 9.89e-05</span></span>
 <span><span class="co">## ENSG00000145365.10      3.87   5.16 2.48e-05 9.89e-05</span></span>
 <span><span class="co">## ENSG00000171509.15      2.42   4.68 2.48e-05 9.89e-05</span></span></code></pre>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gtop_down</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">glo</span><span class="op">)</span>,<span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">gtop_down</span><span class="op">)</span><span class="op">[</span>,<span class="va">cols</span><span class="op">]</span>, digits<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                    log10mean log2FC   pvalue   qvalue</span></span>
@@ -408,27 +405,27 @@
 <span><span class="co">## ENSG00000248187.1       2.27  -2.41 2.48e-05 9.89e-05</span></span>
 <span><span class="co">## ENSG00000145390.11      3.59  -2.36 2.48e-05 9.89e-05</span></span></code></pre>
 <p>We can plot a particular one of these genes:</p>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">gy</span>, idx<span class="op">=</span><span class="va">ghi</span><span class="op">[</span><span class="fl">100</span><span class="op">]</span>, x<span class="op">=</span><span class="st">"condition"</span>, cov<span class="op">=</span><span class="st">"line"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-35-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-34-1.png"><!-- --></p>
 <p>As expected, the highly up-regulated genes are involved in immune response. Many genes encoding guanylate-binding proteins (GBP) are up-regulated, and these proteins are induced by interferon, produced in response to infection by pathogenic microbes.</p>
 <p>We can make an MA plot, where the genes in our FDR set are colored:</p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotMASwish.html">plotMASwish</a></span><span class="op">(</span><span class="va">gy</span>, alpha<span class="op">=</span><span class="fl">.05</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-36-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-35-1.png"><!-- --></p>
 <p>Again, using the <code>addIds</code> function from <em>tximeta</em>, we can easily add gene symbols to our gene-level expression analysis:</p>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span><span class="op">)</span></span>
 <span><span class="va">gy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tximeta/man/addIds.html" class="external-link">addIds</a></span><span class="op">(</span><span class="va">gy</span>, <span class="st">"SYMBOL"</span>, gene<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>We can then add gene symbols to our MA plot:</p>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotMASwish.html">plotMASwish</a></span><span class="op">(</span><span class="va">gy</span>, alpha<span class="op">=</span><span class="fl">.05</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.5</span>,<span class="fl">5.5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span>, <span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.05</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">log2FC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">3</span><span class="op">)</span>,</span>
 <span>     <span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">log10mean</span>, <span class="va">log2FC</span>, <span class="va">SYMBOL</span>,</span>
 <span>          col<span class="op">=</span><span class="st">"blue"</span>, pos<span class="op">=</span><span class="fl">4</span>, cex<span class="op">=</span><span class="fl">.7</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-38-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-37-1.png"><!-- --></p>
 </div>
 </div>
 <div class="section level2">
@@ -436,7 +433,7 @@
 </h2>
 <p>We have added a new function <code>isoformProportions</code> which can be run after <code>scaleInfReps</code> (and optionally after removing genes via <code>labelKeep</code> and subsetting the SummarizedExperiment). This function, <code>isoformProportions</code> will create a new assay <code>isoProp</code> from the scaledTPM counts, containing isoform proportions per gene. The same procedure will also be applied to all the inferential replicates. Note that after <code>isoformProportions</code> the transcripts from single isoform genes will be removed, and the transcripts will be re-ordered by gene (alphabetically by gene).</p>
 <p>Following this function, running <code>swish</code> will be equivalent to a test of differential transcript usage, taking account of the uncertainty in transcript abundances, as it will look for transcripts where the isoform proportions change across condition.</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># run on the transcript-level dataset</span></span>
 <span><span class="va">iso</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/isoformProportions.html">isoformProportions</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="va">iso</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">iso</span>, x<span class="op">=</span><span class="st">"condition"</span>, pair<span class="op">=</span><span class="st">"line"</span><span class="op">)</span></span></code></pre></div>
@@ -445,12 +442,18 @@
 <h2 id="interaction-designs">Interaction designs<a class="anchor" aria-label="anchor" href="#interaction-designs"></a>
 </h2>
 <p>We also provide in <code>swish</code> methods for testing if a condition effect varies <em>across a secondary covariate</em>, using matched samples for condition, or un-matched samples, which we refer to as “interactions” in the software.</p>
-<p>If matched samples are available, we compute the log2 fold change for each pair of samples across condition in the same covariate group, and then we use a Wilcoxon rank sum statistic for comparing the log2 fold changes across the secondary covariate. For permutation significance, the secondary covariate labels of the pairs are permuted. For unmatched samples, multiple random “pseudo-pairs” of samples across condition within the two covariate groups are chosen, and the statistic computed as above, averaging over the random pseudo-pairings. The motivation for the above permutation schemes is to ensure the following condition, that “under the null hypothesis, the likelihood of the data is invariant under these permutations” <span class="citation">(Anderson and Ter Braak 2003)</span>, where our null hypothesis specifically involves the interaction between condition and the secondary covariate.</p>
-<p>For the macrophage dataset we have been working with <span class="citation">(Alasoo et al. 2018)</span>, we have a 2x2 experimental design, with IFN gamma stimulation, <em>Salmonella</em> infection, and both treatments, as well as control samples. We have these four conditions across 6 cell lines from 6 donors (a subset of all the RNA-seq samples available). So we can use the first method described above, where the cell line is used to match samples across condition. Our implementation does not make use of the pairing information across the secondary covariate, but we will still be well powered to detect differences in the log2 fold change.</p>
+<p>If matched samples are available, we compute the log2 fold change for each pair of samples across condition in the same covariate group, and then we use a Wilcoxon rank sum statistic for comparing the log2 fold changes across the secondary covariate. For permutation significance, the secondary covariate labels of the pairs are permuted. For un-matched samples, multiple random “pseudo-pairs” of samples across condition within the two covariate groups are chosen, and the statistic computed as above, averaging over the random pseudo-pairings. The motivation for the above permutation schemes is to ensure the following condition, that “under the null hypothesis, the likelihood of the data is invariant under these permutations” <span class="citation">(Anderson and Ter Braak 2003)</span>, where our null hypothesis specifically involves the interaction between condition and the secondary covariate.</p>
+<p>For the macrophage dataset we have been working with <span class="citation">(Alasoo et al. 2018)</span>, we have a 2x2 experimental design, with IFN gamma stimulation, <em>Salmonella</em> infection, and both treatments, as well as control samples. We have these four conditions across 6 cell lines from 6 donors (a subset of all the RNA-seq samples available). So we can use the first method described above, where the cell line is used to match samples across condition.</p>
 <div class="section level3">
 <h3 id="condition-and-secondary-covariates">Condition and secondary covariates<a class="anchor" aria-label="anchor" href="#condition-and-secondary-covariates"></a>
 </h3>
-<p>We begin the interaction analysis by re-loading the <em>SummarizedExperiment</em> with all the samples, and defining two new factors indicating IFNg status and <em>Salmonella</em> status:</p>
+<p>We begin the interaction analysis by now loading in the full set of samples, as before we only loaded the samples for the two group analysis. We then define two new factors indicating IFNg status and <em>Salmonella</em> status.</p>
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coldata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"coldata.csv"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">coldata</span> <span class="op">&lt;-</span> <span class="va">coldata</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">5</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">coldata</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"names"</span>,<span class="st">"id"</span>,<span class="st">"line"</span>,<span class="st">"condition"</span><span class="op">)</span></span>
+<span><span class="va">coldata</span><span class="op">$</span><span class="va">files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"quants"</span>, <span class="va">coldata</span><span class="op">$</span><span class="va">names</span>, <span class="st">"quant.sf.gz"</span><span class="op">)</span></span>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tximeta/man/tximeta.html" class="external-link">tximeta</a></span><span class="op">(</span><span class="va">coldata</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">se</span><span class="op">$</span><span class="va">ifng</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"IFNg"</span>,<span class="va">se</span><span class="op">$</span><span class="va">condition</span><span class="op">)</span>,</span>
@@ -459,8 +462,7 @@
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"SL1344"</span>,<span class="va">se</span><span class="op">$</span><span class="va">condition</span><span class="op">)</span>,</span>
 <span>  <span class="st">"infected"</span>,<span class="st">"control"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span>,</span>
-<span>     <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">ifng</span>, <span class="va">salmonella</span><span class="op">)</span></span>
-<span>     <span class="op">)</span></span></code></pre></div>
+<span>     <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">ifng</span>, <span class="va">salmonella</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##          salmonella</span></span>
 <span><span class="co">## ifng      control infected</span></span>
 <span><span class="co">##   control       6        6</span></span>
@@ -474,33 +476,28 @@
 <h3 id="create-and-check-paired-samples">Create and check paired samples<a class="anchor" aria-label="anchor" href="#create-and-check-paired-samples"></a>
 </h3>
 <p>Our implementation of the interaction design for matched samples takes into account matched samples within the <code>x</code> condition, which we will specify to be the <em>Salmonella</em> infection status. We will specify the secondary covariate <code>cov</code> to be the IFN gamma treatment. We will look for transcripts where the infection response changes based on IFN gamma treatment.</p>
-<p>We actually have matched samples across both IFN gamma treatment and <em>Salmonella</em> infection, but the extra pairing is not used by our current implementation of interactions (it is common that there would not be pairing across the secondary covariate).</p>
-<p>To perform the analysis, we create a new variable <code>pair</code> which will record which samples are related within a group based on IFN gamma treatment status.</p>
+<p>To perform the analysis, we create a new variable <code>pair</code> which will record which samples are related within groups defined by IFN gamma treatment status.</p>
 <div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">y2</span><span class="op">$</span><span class="va">line</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">y2</span><span class="op">$</span><span class="va">line</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span> <span class="co"># simplify names</span></span>
+<span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span><span class="op">)</span></span>
 <span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span><span class="op">[</span><span class="va">y2</span><span class="op">$</span><span class="va">ifng</span> <span class="op">==</span> <span class="st">"control"</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">##  [1] 1 1 2 2 3 3 4 4 5 5 6 6</span></span></code></pre>
+<pre><code><span><span class="co">##  [1] "A" "A" "B" "B" "C" "C" "D" "D" "E" "E" "F" "F"</span></span></code></pre>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span><span class="op">[</span><span class="va">y2</span><span class="op">$</span><span class="va">ifng</span> <span class="op">==</span> <span class="st">"treated"</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">##  [1] 1 1 2 2 3 3 4 4 5 5 6 6</span></span></code></pre>
+<pre><code><span><span class="co">##  [1] "A" "A" "B" "B" "C" "C" "D" "D" "E" "E" "F" "F"</span></span></code></pre>
 <div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span><span class="op">[</span><span class="va">y2</span><span class="op">$</span><span class="va">ifng</span> <span class="op">==</span> <span class="st">"treated"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">7</span><span class="op">:</span><span class="fl">12</span>,each<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span><span class="op">[</span><span class="va">y2</span><span class="op">$</span><span class="va">ifng</span> <span class="op">==</span> <span class="st">"treated"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">LETTERS</span><span class="op">[</span><span class="fl">7</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>, each<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span>, <span class="va">y2</span><span class="op">$</span><span class="va">salmonella</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##     </span></span>
-<span><span class="co">##      control infected</span></span>
-<span><span class="co">##   1        1        1</span></span>
-<span><span class="co">##   2        1        1</span></span>
-<span><span class="co">##   3        1        1</span></span>
-<span><span class="co">##   4        1        1</span></span>
-<span><span class="co">##   5        1        1</span></span>
-<span><span class="co">##   6        1        1</span></span>
-<span><span class="co">##   7        1        1</span></span>
-<span><span class="co">##   8        1        1</span></span>
-<span><span class="co">##   9        1        1</span></span>
-<span><span class="co">##   10       1        1</span></span>
-<span><span class="co">##   11       1        1</span></span>
-<span><span class="co">##   12       1        1</span></span></code></pre>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y2</span><span class="op">$</span><span class="va">pair</span>, <span class="va">y2</span><span class="op">$</span><span class="va">salmonella</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##    </span></span>
+<span><span class="co">##     control infected</span></span>
+<span><span class="co">##   A       1        1</span></span>
+<span><span class="co">##   B       1        1</span></span>
+<span><span class="co">##   C       1        1</span></span>
+<span><span class="co">##   D       1        1</span></span>
+<span><span class="co">##   E       1        1</span></span>
+<span><span class="co">##   F       1        1</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="swish-for-interaction-effects">Swish for interaction effects<a class="anchor" aria-label="anchor" href="#swish-for-interaction-effects"></a>
@@ -519,25 +516,26 @@
 <p>In this case, we appear to have fewer non-null p-values from first impression of the p-value histogram:</p>
 <div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y2</span><span class="op">)</span><span class="op">$</span><span class="va">pvalue</span>, col<span class="op">=</span><span class="st">"grey"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-45-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-44-1.png"><!-- --></p>
 <p>The MA plot shows significant transcripts on either side of <code>log2FC=0</code>. Note that the log2 fold change reported is the <em>difference</em> between the log2 fold change in the IFN gamma treated and IFN gamma control group. So positive <code>log2FC</code> in this plot indicates that the effect is higher with IGN gamma treatment than in absence of the treatment.</p>
 <div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotMASwish.html">plotMASwish</a></span><span class="op">(</span><span class="va">y2</span>, alpha<span class="op">=</span><span class="fl">.05</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-46-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-45-1.png"><!-- --></p>
 <p>We can plot some of the transcripts with high log fold change <em>difference</em> across IFN gamma treatment group, and which belong to the less than 5% nominal FDR group:</p>
 <div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">qvalue</span> <span class="op">&lt;</span> <span class="fl">.05</span> <span class="op">&amp;</span> <span class="va">log2FC</span> <span class="op">&gt;</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y2</span>, <span class="va">idx</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, x<span class="op">=</span><span class="st">"ifng"</span>, cov<span class="op">=</span><span class="st">"salmonella"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-47-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-46-1.png"><!-- --></p>
 <div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y2</span>, <span class="va">idx</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, x<span class="op">=</span><span class="st">"ifng"</span>, cov<span class="op">=</span><span class="st">"salmonella"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-47-2.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-46-2.png"><!-- --></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="correlation-test">Correlation test<a class="anchor" aria-label="anchor" href="#correlation-test"></a>
 </h2>
 <p><em>Swish</em> now has methods to compute correlations (<code>"spearman"</code> or <code>"pearson"</code>) of a continuous variable <code>x</code> with the log counts, and then assess the significance of those correlations using inferential replicates and permutation tests. Additionally, one can compute correlations of a covariate <code>cov</code> with log fold changes across a pairing variable (where <code>x</code> labels the condition for the log fold change and <code>pair</code> labels the pairs). The Spearman-based test statistic follows the procedure from the original method <em>SAMseq</em> that <em>Swish</em> is based upon <span class="citation">(Li and Tibshirani 2011)</span>, e.g. the methods used in that package with a quantitative response type. See <code><a href="../reference/swish.html">?swish</a></code> and the <code>cor</code> argument for more details on the use of correlations within <em>Swish</em>.</p>
+<p>For examples of the correlation tests, see the dynamic AI examples in the <code>"allelic"</code> fishpond vignette, or there are also some simulated examples in the <code>test_correlation.R</code> testing script located in fishpond’s <code>tests/testthat</code> directory.</p>
 </div>
 <div class="section level2">
 <h2 id="alevin-scrna-seq">alevin scRNA-seq<a class="anchor" aria-label="anchor" href="#alevin-scrna-seq"></a>
@@ -689,16 +687,16 @@
 <pre><code><span><span class="co">## [1] 9.889241e-05</span></span></code></pre>
 <div class="sourceCode" id="cb87"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">gres</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">stat</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">qvalue</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-61-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-60-1.png"><!-- --></p>
 <div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">gres</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">log2FC</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">qvalue</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v<span class="op">=</span><span class="fl">0</span>, col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-61-2.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-60-2.png"><!-- --></p>
 <div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">gres</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">log2FC</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">qvalue</span><span class="op">)</span>,</span>
 <span>                xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>,<span class="fl">1.5</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v<span class="op">=</span><span class="fl">0</span>, col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-61-3.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-60-3.png"><!-- --></p>
 </div>
 <div class="section level3">
 <h3 id="plotting-infrv">Plotting InfRV<a class="anchor" aria-label="anchor" href="#plotting-infrv"></a>
@@ -713,12 +711,12 @@
 <span><span class="va">y3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computeInfRV.html">computeInfRV</a></span><span class="op">(</span><span class="va">y3</span><span class="op">)</span></span>
 <span><span class="fu">mcols</span><span class="op">(</span><span class="va">y3</span><span class="op">)</span><span class="op">$</span><span class="va">meanCts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assays</a></span><span class="op">(</span><span class="va">y3</span><span class="op">)</span><span class="op">[[</span><span class="st">"counts"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">meanCts</span>, <span class="va">meanInfRV</span>, log<span class="op">=</span><span class="st">"xy"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-62-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-61-1.png"><!-- --></p>
 <div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y3</span><span class="op">)</span><span class="op">$</span><span class="va">meanInfRV</span><span class="op">)</span>,</span>
 <span>     col<span class="op">=</span><span class="st">"grey50"</span>, border<span class="op">=</span><span class="st">"white"</span>, breaks<span class="op">=</span><span class="fl">20</span>,</span>
 <span>     xlab<span class="op">=</span><span class="st">"mean InfRV"</span>, main<span class="op">=</span><span class="st">"Txp-level inferential uncertainty"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-62-2.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-61-2.png"><!-- --></p>
 </div>
 <div class="section level3">
 <h3 id="salmon-in-alignment-mode-how-to-use-tximeta">Salmon in alignment mode, how to use tximeta<a class="anchor" aria-label="anchor" href="#salmon-in-alignment-mode-how-to-use-tximeta"></a>
@@ -730,9 +728,9 @@
 <h3 id="permutation-schemes-for-interactions">Permutation schemes for interactions<a class="anchor" aria-label="anchor" href="#permutation-schemes-for-interactions"></a>
 </h3>
 <p>The following diagrams describe the permutation schemes used for the interaction designs implemented in <code>swish</code>. The case with matched samples (pair indicated by number, primary condition indicated by color, the vertical line separating the pairs by secondary covariate):</p>
-<p><img src="swish_files/figure-html/unnamed-chunk-63-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-62-1.png"><!-- --></p>
 <p>The case without matched samples (sample indicated by letter, primary condition indicated by color, the vertical line separating the samples by secondary covariate). Here multiple random pseudo-pairs are chosen across condition. The permutation scheme ensures that LFCs are always calculated between samples from the same covariate group.</p>
-<p><img src="swish_files/figure-html/unnamed-chunk-64-1.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-63-1.png"><!-- --></p>
 </div>
 <div class="section level3">
 <h3 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
@@ -761,7 +759,7 @@
 <span><span class="co">## other attached packages:</span></span>
 <span><span class="co">##  [1] limma_3.50.3                GenomicFeatures_1.46.5     </span></span>
 <span><span class="co">##  [3] org.Hs.eg.db_3.14.0         AnnotationDbi_1.56.2       </span></span>
-<span><span class="co">##  [5] fishpond_2.3.15             tximeta_1.12.4             </span></span>
+<span><span class="co">##  [5] fishpond_2.3.18             tximeta_1.12.4             </span></span>
 <span><span class="co">##  [7] SummarizedExperiment_1.24.0 Biobase_2.54.0             </span></span>
 <span><span class="co">##  [9] GenomicRanges_1.46.1        GenomeInfoDb_1.30.1        </span></span>
 <span><span class="co">## [11] IRanges_2.28.0              S4Vectors_0.32.4           </span></span>
@@ -791,7 +789,7 @@
 <span><span class="co">##  [39] Rcpp_1.0.9                    jquerylib_0.1.4              </span></span>
 <span><span class="co">##  [41] pkgdown_2.0.6                 vctrs_0.4.1                  </span></span>
 <span><span class="co">##  [43] Biostrings_2.62.0             rtracklayer_1.54.0           </span></span>
-<span><span class="co">##  [45] xfun_0.31                     stringr_1.4.0                </span></span>
+<span><span class="co">##  [45] xfun_0.32                     stringr_1.4.0                </span></span>
 <span><span class="co">##  [47] mime_0.12                     lifecycle_1.0.1              </span></span>
 <span><span class="co">##  [49] restfulr_0.0.15               ensembldb_2.18.4             </span></span>
 <span><span class="co">##  [51] gtools_3.9.3                  XML_3.99-0.10                </span></span>
@@ -809,7 +807,7 @@
 <span><span class="co">##  [75] filelock_1.0.2                BiocParallel_1.28.3          </span></span>
 <span><span class="co">##  [77] rlang_1.0.4                   pkgconfig_2.0.3              </span></span>
 <span><span class="co">##  [79] systemfonts_1.0.4             bitops_1.0-7                 </span></span>
-<span><span class="co">##  [81] evaluate_0.15                 lattice_0.20-45              </span></span>
+<span><span class="co">##  [81] evaluate_0.16                 lattice_0.20-45              </span></span>
 <span><span class="co">##  [83] purrr_0.3.4                   GenomicAlignments_1.30.0     </span></span>
 <span><span class="co">##  [85] bit_4.0.4                     tidyselect_1.1.2             </span></span>
 <span><span class="co">##  [87] plyr_1.8.7                    magrittr_2.0.3               </span></span>

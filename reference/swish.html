@@ -19,7 +19,7 @@ various experimental designs. See References for details.'><!-- mathjax --><scri
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.18</span>
       </span>
     </div>
 
@@ -113,10 +113,14 @@ either <code>interaction</code> or <code>cor</code></p></dd>
 <dt>pair</dt>
 <dd><p>the name of the pair variable, which should be the
 number of the pair. Can be an integer or factor.
-If specified, a signed rank test is used
-to build the statistic. All samples across <code>x</code> must be
-pairs if this is specified. Cannot be used with <code>cov</code>,
-unless using either <code>interaction</code> or <code>cor</code></p></dd>
+If specified, a signed rank test is used to build the statistic
+by default.
+<strong>Note:</strong> For simple paired designs, see use of <code>fast=1</code>
+for a much faster implementation of paired testing using a
+one-sample z-score test statistic. 
+All samples across <code>x</code> must be pairs if this argument is specified.
+Cannot be used with <code>cov</code>, unless using either
+<code>interaction</code> or <code>cor</code></p></dd>
 
 
 <dt>interaction</dt>
@@ -167,8 +171,13 @@ the test statistic</p></dd>
 
 <dt>fast</dt>
 <dd><p>an integer (0 or 1), toggles different methods based on speed,
-currently only relevant for simple paired analysis. <code>fast=1</code> triggers
-a z-score based one sample test for paired data.</p></dd>
+currently only relevant for simple paired analysis. For simple paired design,
+<code>fast=1</code> triggers the use of a one-sample z-score instead of a
+signed rank statistic. The one-sample z-score is much faster
+(can be &gt;10x faster), by avoiding the expensive re-computation of ranks
+during permutations.
+<code>fast=1</code> is not relevant for <code>interaction</code> or <code>cor</code>
+type designs</p></dd>
 
 
 <dt>returnNulls</dt>
