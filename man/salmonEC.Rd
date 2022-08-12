@@ -38,9 +38,10 @@ character to facilitate matching with the isoform id in `tx2gene`
 }
 \value{
 A list with two elements. The first element `counts` is a sparse 
-count matrix with equivalence class identifiers in the rows. The second 
-element `tx2gene_matched` allows for linking those identifiers to their 
-respective transcripts and genes.
+count matrix with equivalence class identifiers in the rows. If multiple 
+paths are specified, the columns are in the same order as the paths. The 
+second element `tx2gene_matched` allows for linking those identifiers to
+their respective transcripts and genes.
 }
 \description{
 Constructs a count matrix with equivalence class identifiers

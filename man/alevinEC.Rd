@@ -39,9 +39,9 @@ character to facilitate matching with the isoform id in `tx2gene`
 \value{
 A list with two elements. The first element `counts` is a sparse 
 count matrix with equivalence class identifiers in the rows and barcode 
-identifiers in the columns. The second element `tx2gene_matched` allows for 
-linking the equivalence class identifiers to their respective transcripts 
-and genes.
+identifiers followed by an underscore and a sample identifier in the columns. 
+The second element `tx2gene_matched` allows for linking the equivalence class
+identifiers to their respective transcripts and genes.
 }
 \description{
 Constructs a UMI count matrix with equivalence class identifiers

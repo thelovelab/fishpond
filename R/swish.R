@@ -27,10 +27,14 @@
 #' either \code{interaction} or \code{cor}
 #' @param pair the name of the pair variable, which should be the
 #' number of the pair. Can be an integer or factor.
-#' If specified, a signed rank test is used
-#' to build the statistic. All samples across \code{x} must be
-#' pairs if this is specified. Cannot be used with \code{cov},
-#' unless using either \code{interaction} or \code{cor}
+#' If specified, a signed rank test is used to build the statistic
+#' by default.
+#' \strong{Note:} For simple paired designs, see use of \code{fast=1}
+#' for a much faster implementation of paired testing using a
+#' one-sample z-score test statistic. 
+#' All samples across \code{x} must be pairs if this argument is specified.
+#' Cannot be used with \code{cov}, unless using either
+#' \code{interaction} or \code{cor}
 #' @param interaction logical, whether to perform a test of an interaction
 #' between \code{x} and \code{cov}. Can use \code{pair} or not.
 #' See Details.
@@ -57,8 +61,13 @@
 #' \code{interaction=TRUE} and un-matched samples) to use to calculate
 #' the test statistic
 #' @param fast an integer (0 or 1), toggles different methods based on speed,
-#' currently only relevant for simple paired analysis. \code{fast=1} triggers
-#' a z-score based one sample test for paired data.
+#' currently only relevant for simple paired analysis. For simple paired design,
+#' \code{fast=1} triggers the use of a one-sample z-score instead of a
+#' signed rank statistic. The one-sample z-score is much faster
+#' (can be >10x faster), by avoiding the expensive re-computation of ranks
+#' during permutations.
+#' \code{fast=1} is not relevant for \code{interaction} or \code{cor}
+#' type designs
 #' @param returnNulls logical, only return the \code{stat} vector,
 #' the \code{log2FC} vector, and the \code{nulls} matrix
 #' (default FALSE)
