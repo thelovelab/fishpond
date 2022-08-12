@@ -1,13 +1,15 @@
 # fishpond 2.3.14
 
-* For simple paired swish analysis, adding a fast=1 method 
-  which performs a one-sample z-test on the paired LFCs
+* For simple paired swish analysis, adding a `fast=1` method 
+  which uses a one-sample z-score on the paired LFCs
   (averaged over samples, then median over inferential 
   replicates). The permutation is computed by changing the
-  signs of the LFC matrix and recomputing z-scores. For a
-  dataset of 20 samples, this appears to be 6x faster
-  than the original paired method which makes use of 
-  the Wilcoxon signed rank statistic.
+  signs of the LFC matrix and recomputing z-scores.
+  Testing on the vignette example, but using all the transcripts,
+  the one-sample z-score method takes <20 seconds while the
+  signed rank method takes >200 seconds (12x speedup), 
+  while they have a high rate of agreement on the detected set (
+  30:1 in common vs discordant).
 * Removed the fast=0 methods that were previously implemented
   where ranks could optionally be recomputed for every
   permutation. This was much slower and didn't have any

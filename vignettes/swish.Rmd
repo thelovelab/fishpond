@@ -277,10 +277,13 @@ designs provided for Swish
 (see [further details](#further-details)), because it requires
 recomputing the signed ranks at each permutation. Other designs avoid
 recomputing ranks per permutation, or don't use ranks for the test
-statistic. For larger samples, you can set `fast=1` for simple paired
-designs, which implements a one-sample z-score as the test statistic,
-and permutations to provide p-values and q-values. These permutations
-are much faster than those that use the signed rank test.
+statistic. You can set `fast=1` for simple paired designs, 
+which implements a one-sample z-score as the test statistic,
+and permutations to provide p-values and q-values. 
+These permutations are much faster than those that use the signed 
+rank test, for example with one core, the signed rank test is 12x 
+slower than the one-sample z-score method when run across all
+transcripts, and they nevertheless detect nearly the same sets.
 
 ```{r}
 y_fast <- swish(y, x="condition", pair="line", fast=1)
