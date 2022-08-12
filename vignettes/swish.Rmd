@@ -437,14 +437,6 @@ gy <- gse
 gy <- gy[seqnames(gy) == "chr4",]
 ```
 
-Two demonstrate a two group comparison, we subset to the "naive" and
-"IFNg" groups, as before.
-
-```{r}
-gy <- gy[,gy$condition %in% c("naive","IFNg")]
-gy$condition <- factor(gy$condition, c("naive","IFNg"))
-```
-
 Next we can run the same steps as before. Again we set a random seed
 in order to be able to reproduce exact results in the future:
 
@@ -547,29 +539,6 @@ iso <- isoformProportions(y)
 iso <- swish(iso, x="condition", pair="line")
 ```
 
-```{r eval=FALSE, echo=FALSE}
-# some unevaluated code for looking into DTE within non-DGE gene
-# (DTE vs DGE plot)
-fisherP <- function(p) {
-  pchisq(-2 * sum(log(p)), 2*length(p), lower.tail=FALSE)
-}
-stopifnot(all(lengths(mcols(y)$gene_id) == 1))
-dat <- as.data.frame(mcols(y)[,c("gene_id","pvalue")])
-dat$gene_id <- unlist(dat$gene_id)
-pvals <- tapply(dat$pvalue, dat$gene_id, fisherP)
-dte <- data.frame(gene_id=names(pvals), pvalue=pvals)
-dte <- dte[rownames(gy),]
-plot(-log10(mcols(gy)$pvalue), -log10(dte$pvalue))
-#identify(-log10(mcols(gy)$pvalue), -log10(dte$pvalue))
-idx <- 193
-idx2 <- which(unlist(mcols(y)$gene_id) == rownames(gy)[idx])
-plotInfReps(gy, idx, x="condition", cov="line", xaxis=FALSE)
-par(mfrow=c(1,3))
-for (i in 1:3) {
-  plotInfReps(y, idx2[i], x="condition", cov="line", xaxis=FALSE)
-}
-```
-
 # Interaction designs
 
 We also provide in `swish` methods for testing if a condition effect
@@ -582,7 +551,7 @@ each pair of samples across condition in the same covariate group, and
 then we use a Wilcoxon rank sum statistic for comparing the log2 fold
 changes across the secondary covariate. For permutation significance,
 the secondary covariate labels of the pairs are permuted. For
-unmatched samples, multiple random "pseudo-pairs" of samples across
+un-matched samples, multiple random "pseudo-pairs" of samples across
 condition within the two covariate groups are chosen, and the
 statistic computed as above, averaging over the random
 pseudo-pairings. The motivation for the above permutation schemes is
@@ -597,15 +566,23 @@ have a 2x2 experimental design, with IFN gamma stimulation,
 samples. We have these four conditions across 6 cell lines from 6
 donors (a subset of all the RNA-seq samples available). So we can use
 the first method described above, where the cell line is used to match
-samples across condition. Our implementation does not make use of the
-pairing information across the secondary covariate, but we will still
-be well powered to detect differences in the log2 fold change.
+samples across condition. 
 
 ## Condition and secondary covariates
 
-We begin the interaction analysis by re-loading the
-*SummarizedExperiment* with all the samples, and defining two new
-factors indicating IFNg status and *Salmonella* status:
+We begin the interaction analysis by now loading in the full set of
+samples, as before we only loaded the samples for the two group
+analysis.
+We then define two new factors indicating IFNg status and *Salmonella*
+status.
+
+```{r}
+coldata <- read.csv(file.path(dir, "coldata.csv"))
+coldata <- coldata[,c(1,2,3,5)]
+names(coldata) <- c("names","id","line","condition")
+coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
+se <- tximeta(coldata)
+```
 
 ```{r}
 se$ifng <- factor(ifelse(
@@ -615,8 +592,7 @@ se$salmonella <- factor(ifelse(
   grepl("SL1344",se$condition),
   "infected","control"))
 with(colData(se),
-     table(ifng, salmonella)
-     )
+     table(ifng, salmonella))
 ```
 
 We will work with the chromosome 1 transcripts for demonstration:
@@ -635,22 +611,19 @@ secondary covariate `cov` to be the IFN gamma treatment. We will look
 for transcripts where the infection response changes based on IFN
 gamma treatment.
 
-We actually have matched samples across both IFN gamma treatment and
-*Salmonella* infection, but the extra pairing is not used by our
-current implementation of interactions (it is common that there would
-not be pairing across the secondary covariate).
-
 To perform the analysis, we create a new variable `pair` which will
-record which samples are related within a group based on IFN gamma
+record which samples are related within groups defined by IFN gamma
 treatment status.
 
 ```{r}
-y2$pair <- as.numeric(factor(y2$line))
+y2$pair <- factor(y2$line)
+levels(y2$pair) <- LETTERS[1:6] # simplify names
+y2$pair <- as.character(y2$pair)
 y2$pair[y2$ifng == "control"]
 y2$pair[y2$ifng == "treated"]
-y2$pair[y2$ifng == "treated"] <- rep(7:12,each=2)
+y2$pair[y2$ifng == "treated"] <- rep(LETTERS[7:12], each=2)
 y2$pair <- factor(y2$pair)
-table(y2$pair, y2$salmonella)
+head(table(y2$pair, y2$salmonella))
 ```
 
 ## Swish for interaction effects
@@ -713,6 +686,11 @@ original method *SAMseq* that *Swish* is based upon [@samseq],
 e.g. the methods used in that package with a quantitative response
 type. See `?swish` and the `cor` argument for more details on the
 use of correlations within *Swish*.
+
+For examples of the correlation tests, see the dynamic AI examples in
+the `"allelic"` fishpond vignette, or there are also some simulated
+examples in the `test_correlation.R` testing script located in
+fishpond's `tests/testthat` directory.
 
 # alevin scRNA-seq
 
