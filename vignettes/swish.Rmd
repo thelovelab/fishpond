@@ -195,6 +195,18 @@ makeLinkedTxome(
 # once can specify useHub=FALSE.
 ```
 
+The *macrophage* package contains a number of samples under different 
+conditions. In this vignette, we will  demonstrate a two group 
+comparison, and so we first subset our `coldata` to the `"naive"` 
+and `"IFNg"` groups. Log fold changes will be made comparing 
+`IFNg` to `naive` (the reference level).
+
+```{r}
+coldata <- coldata[coldata$condition %in% c("naive","IFNg"),]
+coldata$condition <- factor(coldata$condition, 
+                            levels=c("naive","IFNg"))
+```
+
 We load in the quantification data with `tximeta`:
 
 ```{r}
@@ -228,15 +240,6 @@ chromosome 4.
 ```{r}
 y <- se
 y <- y[seqnames(y) == "chr4",]
-```
-
-To demonstrate a two group comparison, we subset to the "naive" and
-"IFNg" groups. Log fold changes will be made comparing `IFNg` to
-`naive` (the reference level).
-
-```{r}
-y <- y[,y$condition %in% c("naive","IFNg")]
-y$condition <- factor(y$condition, levels=c("naive","IFNg"))
 ```
 
 **Note on factor levels**: 
