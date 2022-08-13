@@ -302,7 +302,7 @@ load_fry_raw <- function(fryDir, quiet = FALSE) {
   }
   
   # read in count matrix, gene names, and barcodes
-  count.mat <- as(readMM(file = quant.file), "dgCMatrix")
+  count.mat <- my_as_dgcmatrix(readMM(file = quant.file))
   afg <-  read.table(file.path(fryDir, "alevin", "quants_mat_cols.txt"),
                      strip.white = TRUE, header = FALSE, nrows = ng,
                      col.names = c("gene_ids"))
@@ -408,8 +408,8 @@ writeExampleFryDat <- function(x = "fry-usa-basic", ...) {
     stopifnot(dir.create(out.dir))
   }
 
-  m <- Matrix::Matrix(x$matrix, sparse = TRUE)
-  m <- as(m, "dgCMatrix")
+  m <- my_as_dgcmatrix(Matrix::Matrix(x$matrix, sparse = TRUE))
+  
   Matrix::writeMM(m, file.path(out.dir, "quants_mat.mtx"))
 
   write.table(
@@ -435,4 +435,10 @@ writeExampleFryDat <- function(x = "fry-usa-basic", ...) {
   write(
     jsonlite::toJSON(meta_info, pretty=TRUE),
     file = file.path(x$parent_dir, "meta_info.json"))
+}
+
+# added August 2022
+# see https://cran.r-project.org/web/packages/Matrix/vignettes/Design-issues.pdf
+my_as_dgcmatrix <- function(matrix) {
+  as(as(as(matrix, "dMatrix"), "generalMatrix"), "CsparseMatrix")
 }
