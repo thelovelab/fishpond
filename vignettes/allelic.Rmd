@@ -201,9 +201,20 @@ no need to perform scaling of the counts to adjust for sequencing
 depth. We simply import counts, filter low counts with `lableKeep` and
 then run the statistical testing with `swish`.
 
+**Fast mode:** for basic allelic analysis, we use a paired test,
+comparing one allele to the other. The default in `swish` for a simple
+paired test is to use a Wilcoxon signed rank test statistic with
+bootstrap aggregation and permutation significance. The ranks must be
+recomputed per permutation, which is a slow operation that is not
+necessary with other designs in `swish`.  A faster test statistic
+is the one-sample z-score, which gives similar results. Here we
+demonstrate using the fast version of the paired test. Note that
+`fast=1` is only relevant for simple paired tests, not for other
+designs, which are already fast.
+
 ```{r}
 y <- labelKeep(y)
-y <- swish(y, x="allele", pair="sample")
+y <- swish(y, x="allele", pair="sample", fast=1)
 ```
 
 # Plotting results
