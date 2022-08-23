@@ -89,7 +89,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Swish: differential expression accounting for inferential uncertainty</h1>
             
-            <h4 data-toc-skip class="date">08/17/2022</h4>
+            <h4 data-toc-skip class="date">08/23/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/vignettes/swish.Rmd" class="external-link"><code>vignettes/swish.Rmd</code></a></small>
       <div class="hidden name"><code>swish.Rmd</code></div>
@@ -532,6 +532,14 @@
 </div>
 </div>
 <div class="section level2">
+<h2 id="allelic-expression-analysis">Allelic expression analysis<a class="anchor" aria-label="anchor" href="#allelic-expression-analysis"></a>
+</h2>
+<p>We have a separate vignette for allelic expression analysis, either navigate to the <a href="https://mikelove.github.io/fishpond/articles/allelic.html">allelic vignette</a> on the <em>fishpond</em> website, or the following from the R prompt:</p>
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span>topic<span class="op">=</span><span class="st">"allelic"</span>, package<span class="op">=</span><span class="st">"fishpond"</span><span class="op">)</span></span></code></pre></div>
+<p>The allelic analysis methods are described in <span class="citation">Wu et al. (2022)</span> <a href="https://doi.org/10.1101/2022.08.12.503785" class="external-link">doi: 10.1101/2022.08.12.503785</a>.</p>
+</div>
+<div class="section level2">
 <h2 id="correlation-test">Correlation test<a class="anchor" aria-label="anchor" href="#correlation-test"></a>
 </h2>
 <p><em>Swish</em> now has methods to compute correlations (<code>"spearman"</code> or <code>"pearson"</code>) of a continuous variable <code>x</code> with the log counts, and then assess the significance of those correlations using inferential replicates and permutation tests. Additionally, one can compute correlations of a covariate <code>cov</code> with log fold changes across a pairing variable (where <code>x</code> labels the condition for the log fold change and <code>pair</code> labels the pairs). The Spearman-based test statistic follows the procedure from the original method <em>SAMseq</em> that <em>Swish</em> is based upon <span class="citation">(Li and Tibshirani 2011)</span>, e.g. the methods used in that package with a quantitative response type. See <code><a href="../reference/swish.html">?swish</a></code> and the <code>cor</code> argument for more details on the use of correlations within <em>Swish</em>.</p>
@@ -544,7 +552,7 @@
 <p>The storage format for counts, mean, variance, and inferential replicates, involves writing one cell at a time, storing the locations of the non-zero counts, and then the non-zero counts. The matrices are loaded into R sparely using the <em>Matrix</em> package. The storage format is efficient, for example, the estimated counts for the 900 mouse neuron dataset from 10x Genomics takes up 4.2 Mb, the mean/variance matrices take up 8.6 Mb each, and the inferential replicates takes up 72 Mb (20 bootstrap inferential replicates). Hence avoiding writing and importing the inferential replicates themselves, and only using the mean and variance, is desirable.</p>
 <p>The <code>swish</code> and <em>alevin</em> authors have developed a workflow that uses inferential mean and variance to generate pseudo-inferential replicates in place of the actual inferential replicates. Storing and importing only the inferential mean and variance is much more efficient (dramatically faster load time and less space on disk and in memory). The faster workflow would then skip <code>--dumpFeatures</code> when running <em>alevin</em>, or subsequently use <code>dropInfReps=TRUE</code> to not load the inferential replicates into R.</p>
 <p><strong>Plotting:</strong> To demonstrate how the inferential mean and variance look across real scRNA-seq data, we load the neurons dataset and plot the inferential replicate data across cells. First we read in the counts, in this case using <code>dropInfReps=TRUE</code> because the directory includes the actual inferential replicates, not only the mean and variance. We set <code>skipMeta=TRUE</code>, although in general you would want <code>tximeta</code> to add the gene range information and other metadata if working with human, mouse, or fruit fly.</p>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package<span class="op">=</span><span class="st">"tximportData"</span><span class="op">)</span></span>
 <span><span class="va">files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>,<span class="st">"alevin/neurons_900_v014/alevin/quants_mat.gz"</span><span class="op">)</span></span>
 <span><span class="va">neurons</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tximeta/man/tximeta.html" class="external-link">tximeta</a></span><span class="op">(</span><span class="va">files</span>, type<span class="op">=</span><span class="st">"alevin"</span>,</span>
@@ -552,7 +560,7 @@
 <span>                   dropInfReps<span class="op">=</span><span class="cn">TRUE</span>,</span>
 <span>                   alevinArgs<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>filterBarcodes<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We can easily make a <em>SingleCellExperiment</em> object <span class="citation">(Amezquita et al. 2020)</span>, and plot counts across cluster (here a randomly assigned cluster label). For more details on working with <em>SingleCellExperiment</em> objects, consult the following online book: <a href="https://osca.bioconductor.org/" class="external-link">Orchestrating Single-Cell Analysis with Bioconductor</a> <span class="citation">(Amezquita et al. 2020)</span>.</p>
-<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">SingleCellExperiment</span><span class="op">)</span></span>
 <span><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/as.html" class="external-link">as</a></span><span class="op">(</span><span class="va">neurons</span>, <span class="st">"SingleCellExperiment"</span><span class="op">)</span></span>
 <span><span class="va">sce</span><span class="op">$</span><span class="va">cluster</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"cl"</span>,<span class="fu"><a href="https://rdrr.io/pkg/AnnotationDbi/man/Bimap-envirAPI.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,<span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">sce</span><span class="op">)</span>,<span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -574,22 +582,22 @@
 <p>Note that the figures scale to some degree by the number of cells; for example with <span class="math inline">\(n \in [1,150)\)</span> or <span class="math inline">\([150,400)\)</span>, more visual elements per cell will be included:</p>
 <p><strong>Advice on Swish testing:</strong> <code>swish</code> can be run on <em>alevin</em> counts imported with <code>tximeta</code>, but there are a few extra steps suggested. The following does not use evaluated code chunks, but provides suggestions for how to tailor <code>swish</code> to single-cell datasets.</p>
 <p><strong>Filter genes:</strong> we recommend to filter genes as the first step, to reduce the size of the data before losing sparsity on the count matrices (conversion of data to ranks loses data sparsity inside the <code><a href="../reference/swish.html">swish()</a></code> function). One can run <code>labelKeep</code> therefore before <code>scaleInfReps</code>. E.g., to remove genes for which there are not 10 cells with a count of 3 or more:</p>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span>, minCount<span class="op">=</span><span class="fl">3</span>, minN<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">keep</span>,<span class="op">]</span> <span class="co"># subset genes</span></span></code></pre></div>
 <p><strong>Subset cells:</strong> One should also subset to the groups of cells of interest for differential testing, in order to take up the least amount of memory when the sparse matrices are converted to dense matrices. Note that <code>swish</code> only allows for differential testing of two groups (although it allows for blocking factors and interaction tests).</p>
 <p><strong>(Slower) With inferential replicates:</strong> After one has filtered both genes and cells down to the set that are of interest for differential testing, one can run the following commands, to make the sparse matrices into dense ones, scale the cells, and perform <em>Swish</em> differential expression, however read on for faster suggestions.</p>
-<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assays</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assays</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="va">as.matrix</span><span class="op">)</span> <span class="co"># make dense matrices</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">y</span>, lengthCorrect<span class="op">=</span><span class="cn">FALSE</span>, sfFun<span class="op">=</span><span class="va">sfFun</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Size factor function:</strong> Note that <code>scaleInfReps</code> has an argument <code>sfFun</code> which allows the user to provide their own size factor calculation function. We have found that <code>calculateSumFactors</code> <span class="citation">(Aaron T. L. Lun, Bach, and Marioni 2016)</span> in the <em>scran</em> package <span class="citation">(A. T. L. Lun, McCarthy, and Marioni 2016)</span> works well for computing size factors. <code>sfFun</code> should be specified as a function that returns a vector of size factors, or a numeric vector of the size factors themselves.</p>
 <p><strong>(Faster) Without inferential replicates:</strong> The following workflow can be used in the case that <code>assayNames(y)</code> only contains counts, mean, and variance, which is much faster by avoiding writing/importing inferential replicates. We first generate pseudo-inferential replicates from inferential mean and variance matrices before running <code>scaleInfReps</code> from the code chunk above. The generation of pseudo-inferential replicates is described in <span class="citation">Van Buren et al. (2020)</span>.</p>
 <p>The following function can be used just before <code>scaleInfReps</code>:</p>
-<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeInfReps.html">makeInfReps</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
 <p>There is alternatively a scheme for splitting the operation of generating (dense) inferential replicate matrices across multiple jobs, and running <code>swish</code> across batches of genes at a time. This job-splitting procedure is also described and benchmarked in <span class="citation">Van Buren et al. (2020)</span>. This helps to reduce the total memory used, in the case that the counts, mean, and variance matrices are too large to be made dense altogether. This scheme involves 1) splitting the object into smaller pieces, written out to <code>.rds</code> files, 2) running <code>swish</code> as a distributed job, 3) reading the <code>.csv</code> output back into R. The following code chunk would start with a ‘y’ with sparse matrix assays, and without ever running <code>scaleInfReps</code> (it is run within the distributed job, and with <code>lengthCorrect=FALSE</code> by default).</p>
-<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">SingleCellExperiment</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/as.html" class="external-link">as</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"SingleCellExperiment"</span><span class="op">)</span></span>
 <span><span class="co"># then, after filtering genes and cells...</span></span>
@@ -630,31 +638,31 @@
 </ol>
 <p>For the second approach, one can directly scale the inferential counts using <em>limma</em> and <code>removeBatchEffect</code>.</p>
 <p>Here a demonstration using simulated data:</p>
-<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeSimSwishData.html">makeSimSwishData</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>First we perform standard scaling for sequencing depth and labeling of feautures with too few counts. We save the mean of scaled inferential replicates using <code>saveMeanScaled=TRUE</code> as we will use this to estimate the batch factors.</p>
-<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">y</span>, saveMeanScaled<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>,<span class="fl">4</span><span class="op">)</span> <span class="co"># 'meanScaled' assay</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "infRep18"   "infRep19"   "infRep20"   "meanScaled"</span></span></code></pre>
-<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">keep</span>,<span class="op">]</span></span></code></pre></div>
 <p>Next estimate the batch factors on the mean of scaled inferential count matrices.</p>
-<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">norm_cts_for_batch</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="st">"meanScaled"</span><span class="op">)</span></span>
 <span><span class="co"># use batch factor estimation method of your choosing</span></span>
 <span><span class="co"># ...</span></span></code></pre></div>
 <p>Suppose we estimate two batch factors, <code>w1</code> and <code>w2</code>, now we remove the variation from each inferential replicate associated with these, using limma’s <code>removeBatchEffect</code>.</p>
-<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">w1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="co"># here simulated w1, use real instead</span></span>
 <span><span class="va">w2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="co"># here simulated w2, use real instead</span></span>
 <span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">w1</span>, <span class="va">w2</span><span class="op">)</span></span>
 <span><span class="va">infRepIdx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"infRep"</span>,<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>,value<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">nreps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">infRepIdx</span><span class="op">)</span></span></code></pre></div>
 <p>The following loads <em>limma</em> and removes batch associated variation on the log2 scale (a pseudocount is added to avoid <code>-Inf</code> values).</p>
-<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://bioinf.wehi.edu.au/limma" class="external-link">limma</a></span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">mm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="op">~</span><span class="va">condition</span>, <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">pc</span> <span class="op">&lt;-</span> <span class="fl">.1</span></span>
@@ -667,7 +675,7 @@
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">infRepIdx</span><span class="op">[</span><span class="va">k</span><span class="op">]</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logInfRep</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Now we run <code>swish</code> as usual:</p>
-<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span><span class="op">)</span></span></code></pre></div>
 <p>While we have assessed this approach with a small number of estimated nuisance covariates, note that with many covariates this approach may lead to inflation of test statistics.</p>
 </div>
@@ -681,28 +689,28 @@
 <h3 id="plotting-q-values-over-statistics">Plotting q-values over statistics<a class="anchor" aria-label="anchor" href="#plotting-q-values-over-statistics"></a>
 </h3>
 <p>As with <em>SAMseq</em> and <em>SAM</em>, <code>swish</code> makes use of the permutation plug-in approach for q-value calculation. <code>swish</code> calls the <code>empPvals</code> and <code>qvalue</code> functions from the <em>qvalue</em> package to calculate the q-values (or optionally similar functions from the <em>samr</em> package). If we plot the q-values against the statistic, or against the log2 fold change, one can see clusters of genes with the same q-value (because they have the same or similar statistic). One consequence of this is that, in order to rank the genes, rather than ranking directly by q-value, it makes more sense to pick a q-value threshold and then within that set of genes, to rank by the log fold change, as shown above when the code chunk has <code>log2FC * sig</code>.</p>
-<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gres</span> <span class="op">&lt;-</span> <span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">[</span><span class="fu">mcols</span><span class="op">(</span><span class="va">gy</span><span class="op">)</span><span class="op">$</span><span class="va">keep</span>,<span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">gres</span><span class="op">$</span><span class="va">qvalue</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> <span class="co"># min nominal FDR is not 0</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 9.889241e-05</span></span></code></pre>
-<div class="sourceCode" id="cb87"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">gres</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">stat</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">qvalue</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-60-1.png"><!-- --></p>
 <div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">gres</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">stat</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">qvalue</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="swish_files/figure-html/unnamed-chunk-61-1.png"><!-- --></p>
+<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">gres</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">log2FC</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">qvalue</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v<span class="op">=</span><span class="fl">0</span>, col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-60-2.png"><!-- --></p>
-<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
+<p><img src="swish_files/figure-html/unnamed-chunk-61-2.png"><!-- --></p>
+<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">gres</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">log2FC</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">qvalue</span><span class="op">)</span>,</span>
 <span>                xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.5</span>,<span class="fl">1.5</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v<span class="op">=</span><span class="fl">0</span>, col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-60-3.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-61-3.png"><!-- --></p>
 </div>
 <div class="section level3">
 <h3 id="plotting-infrv">Plotting InfRV<a class="anchor" aria-label="anchor" href="#plotting-infrv"></a>
 </h3>
 <p>In the Swish paper, we describe a statistic, InfRV, which is useful for categorizing groups of features by their inferential uncertainty. Note that InfRV is not used in the <code>swish</code> method, but only for visualization in the paper. Here we show how to compute and plot the InfRV:</p>
-<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y3</span> <span class="op">&lt;-</span> <span class="va">se</span></span>
 <span><span class="va">y3</span> <span class="op">&lt;-</span> <span class="va">y3</span><span class="op">[</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">y3</span><span class="op">)</span> <span class="op">==</span> <span class="st">"chr4"</span>,<span class="op">]</span></span>
 <span><span class="va">y3</span> <span class="op">&lt;-</span> <span class="va">y3</span><span class="op">[</span>,<span class="va">y3</span><span class="op">$</span><span class="va">condition</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span><span class="op">]</span></span>
@@ -711,12 +719,12 @@
 <span><span class="va">y3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computeInfRV.html">computeInfRV</a></span><span class="op">(</span><span class="va">y3</span><span class="op">)</span></span>
 <span><span class="fu">mcols</span><span class="op">(</span><span class="va">y3</span><span class="op">)</span><span class="op">$</span><span class="va">meanCts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assays</a></span><span class="op">(</span><span class="va">y3</span><span class="op">)</span><span class="op">[[</span><span class="st">"counts"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">meanCts</span>, <span class="va">meanInfRV</span>, log<span class="op">=</span><span class="st">"xy"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-61-1.png"><!-- --></p>
-<div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
+<p><img src="swish_files/figure-html/unnamed-chunk-62-1.png"><!-- --></p>
+<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y3</span><span class="op">)</span><span class="op">$</span><span class="va">meanInfRV</span><span class="op">)</span>,</span>
 <span>     col<span class="op">=</span><span class="st">"grey50"</span>, border<span class="op">=</span><span class="st">"white"</span>, breaks<span class="op">=</span><span class="fl">20</span>,</span>
 <span>     xlab<span class="op">=</span><span class="st">"mean InfRV"</span>, main<span class="op">=</span><span class="st">"Txp-level inferential uncertainty"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="swish_files/figure-html/unnamed-chunk-61-2.png"><!-- --></p>
+<p><img src="swish_files/figure-html/unnamed-chunk-62-2.png"><!-- --></p>
 </div>
 <div class="section level3">
 <h3 id="salmon-in-alignment-mode-how-to-use-tximeta">Salmon in alignment mode, how to use tximeta<a class="anchor" aria-label="anchor" href="#salmon-in-alignment-mode-how-to-use-tximeta"></a>
@@ -728,14 +736,14 @@
 <h3 id="permutation-schemes-for-interactions">Permutation schemes for interactions<a class="anchor" aria-label="anchor" href="#permutation-schemes-for-interactions"></a>
 </h3>
 <p>The following diagrams describe the permutation schemes used for the interaction designs implemented in <code>swish</code>. The case with matched samples (pair indicated by number, primary condition indicated by color, the vertical line separating the pairs by secondary covariate):</p>
-<p><img src="swish_files/figure-html/unnamed-chunk-62-1.png"><!-- --></p>
-<p>The case without matched samples (sample indicated by letter, primary condition indicated by color, the vertical line separating the samples by secondary covariate). Here multiple random pseudo-pairs are chosen across condition. The permutation scheme ensures that LFCs are always calculated between samples from the same covariate group.</p>
 <p><img src="swish_files/figure-html/unnamed-chunk-63-1.png"><!-- --></p>
+<p>The case without matched samples (sample indicated by letter, primary condition indicated by color, the vertical line separating the samples by secondary covariate). Here multiple random pseudo-pairs are chosen across condition. The permutation scheme ensures that LFCs are always calculated between samples from the same covariate group.</p>
+<p><img src="swish_files/figure-html/unnamed-chunk-64-1.png"><!-- --></p>
 </div>
 <div class="section level3">
 <h3 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h3>
-<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb93"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## R version 4.1.1 (2021-08-10)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
@@ -778,7 +786,7 @@
 <span><span class="co">##  [17] Rsamtools_2.10.0              dbplyr_2.2.1                 </span></span>
 <span><span class="co">##  [19] png_0.1-7                     shiny_1.7.2                  </span></span>
 <span><span class="co">##  [21] BiocManager_1.30.18           compiler_4.1.1               </span></span>
-<span><span class="co">##  [23] httr_1.4.3                    assertthat_0.2.1             </span></span>
+<span><span class="co">##  [23] httr_1.4.4                    assertthat_0.2.1             </span></span>
 <span><span class="co">##  [25] Matrix_1.4-1                  fastmap_1.1.0                </span></span>
 <span><span class="co">##  [27] lazyeval_0.2.2                cli_3.3.0                    </span></span>
 <span><span class="co">##  [29] later_1.3.0                   htmltools_0.5.3              </span></span>
@@ -801,7 +809,7 @@
 <span><span class="co">##  [63] yaml_2.3.5                    curl_4.3.2                   </span></span>
 <span><span class="co">##  [65] memoise_2.0.1                 ggplot2_3.3.6                </span></span>
 <span><span class="co">##  [67] sass_0.4.2                    biomaRt_2.50.3               </span></span>
-<span><span class="co">##  [69] stringi_1.7.8                 RSQLite_2.2.15               </span></span>
+<span><span class="co">##  [69] stringi_1.7.8                 RSQLite_2.2.16               </span></span>
 <span><span class="co">##  [71] highr_0.9                     BiocVersion_3.14.0           </span></span>
 <span><span class="co">##  [73] BiocIO_1.4.0                  desc_1.4.1                   </span></span>
 <span><span class="co">##  [75] filelock_1.0.2                BiocParallel_1.28.3          </span></span>
@@ -817,7 +825,7 @@
 <span><span class="co">##  [95] KEGGREST_1.34.0               abind_1.4-5                  </span></span>
 <span><span class="co">##  [97] RCurl_1.98-1.8                tibble_3.1.8                 </span></span>
 <span><span class="co">##  [99] crayon_1.5.1                  utf8_1.2.2                   </span></span>
-<span><span class="co">## [101] BiocFileCache_2.2.1           rmarkdown_2.14               </span></span>
+<span><span class="co">## [101] BiocFileCache_2.2.1           rmarkdown_2.15               </span></span>
 <span><span class="co">## [103] progress_1.2.2                grid_4.1.1                   </span></span>
 <span><span class="co">## [105] blob_1.2.3                    digest_0.6.29                </span></span>
 <span><span class="co">## [107] xtable_1.8-4                  httpuv_1.6.5                 </span></span>
@@ -864,6 +872,9 @@ Storey, JD, and R Tibshirani. 2003. <span>“<span class="nocase"> Statistical s
 </div>
 <div id="ref-compression" class="csl-entry">
 Van Buren, S, H Sarkar, A Srivastava, NU Rashid, R Patro, and MI Love. 2020. <span>“<span class="nocase">Compression of quantification uncertainty for scRNA-seq counts</span>.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2020.07.06.189639" class="external-link">https://doi.org/10.1101/2020.07.06.189639</a>.
+</div>
+<div id="ref-wu2022" class="csl-entry">
+Wu, Euphy, Noor P. Singh, Kwangbom Choi, Mohsen Zakeri, Matthew Vincent, Gary A. Churchill, Cheryl L. Ackert-Bicknell, Rob Patro, and Michael I. Love. 2022. <span>“Detecting Isoform-Level Allelic Imbalance Accounting for Inferential Uncertainty.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2022.08.12.503785" class="external-link">https://doi.org/10.1101/2022.08.12.503785</a>.
 </div>
 <div id="ref-swish" class="csl-entry">
 Zhu, A, A Srivastava, JG Ibrahim, R Patro, and MI Love. 2019. <span>“<span class="nocase">Nonparametric expression analysis using inferential replicate counts</span>.”</span> <em>Nucleic Acids Research</em> 47: e105. <a href="https://doi.org/10.1093/nar/gkz622" class="external-link">https://doi.org/10.1093/nar/gkz622</a>.

@@ -89,7 +89,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>SEESAW - Allelic expression analysis with Salmon and Swish</h1>
             
-            <h4 data-toc-skip class="date">08/17/2022</h4>
+            <h4 data-toc-skip class="date">08/23/2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/vignettes/allelic.Rmd" class="external-link"><code>vignettes/allelic.Rmd</code></a></small>
       <div class="hidden name"><code>allelic.Rmd</code></div>
@@ -103,6 +103,8 @@
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>In this vignette, we describe usage of a suite of tools, <strong>SEESAW</strong>, Statistical Estimation of allelic Expression using Salmon and Swish, which allow for testing allelic imbalance across samples.</p>
+<p>The methods are described in <span class="citation">Wu et al. (2022)</span> <a href="https://doi.org/10.1101/2022.08.12.503785" class="external-link">doi: 10.1101/2022.08.12.503785</a>.</p>
+<p><em>SEESAW</em> makes use of <em>Swish</em> <span class="citation">(Zhu et al. 2019)</span> for paired inference, which is an extension of the <em>SAMseq</em> <span class="citation">(Li and Tibshirani 2011)</span> methods for permutation-based FDR control.</p>
 <p><strong>Type of tests</strong></p>
 <p>SEESAW allows for testing <em>global allelic imbalance</em> across all samples (pairwise testing within each individual), as well as <em>differential, or dynamic allelic imbalance</em> (pairwise allelic fold changes estimated within individual, followed by testing across two groups, or along an additional covariate). Each of these allelic imbalance (AI) analyses takes into account the potentially heterogeneous amount of inferential uncertainty per sample, per feature (transcript, transcript-group, or gene), and per allele.</p>
 <p><strong>Steps in SEESAW</strong></p>
@@ -478,7 +480,7 @@
 <span><span class="co">##  [45] progress_1.2.2              htmlTable_2.4.1            </span></span>
 <span><span class="co">##  [47] foreign_0.8-82              bit_4.0.4                  </span></span>
 <span><span class="co">##  [49] Formula_1.2-4               htmlwidgets_1.5.4          </span></span>
-<span><span class="co">##  [51] httr_1.4.3                  RColorBrewer_1.1-3         </span></span>
+<span><span class="co">##  [51] httr_1.4.4                  RColorBrewer_1.1-3         </span></span>
 <span><span class="co">##  [53] ellipsis_0.3.2              pkgconfig_2.0.3            </span></span>
 <span><span class="co">##  [55] XML_3.99-0.10               farver_2.1.1               </span></span>
 <span><span class="co">##  [57] Gviz_1.38.4                 nnet_7.3-17                </span></span>
@@ -488,7 +490,7 @@
 <span><span class="co">##  [65] reshape2_1.4.4              munsell_0.5.0              </span></span>
 <span><span class="co">##  [67] tools_4.1.1                 cachem_1.0.6               </span></span>
 <span><span class="co">##  [69] cli_3.3.0                   generics_0.1.3             </span></span>
-<span><span class="co">##  [71] RSQLite_2.2.15              evaluate_0.16              </span></span>
+<span><span class="co">##  [71] RSQLite_2.2.16              evaluate_0.16              </span></span>
 <span><span class="co">##  [73] stringr_1.4.0               fastmap_1.1.0              </span></span>
 <span><span class="co">##  [75] yaml_2.3.5                  ragg_1.2.2                 </span></span>
 <span><span class="co">##  [77] knitr_1.39                  bit64_4.0.5                </span></span>
@@ -513,9 +515,24 @@
 <span><span class="co">## [115] Rsamtools_2.10.0            GenomeInfoDbData_1.2.7     </span></span>
 <span><span class="co">## [117] parallel_4.1.1              hms_1.1.1                  </span></span>
 <span><span class="co">## [119] grid_4.1.1                  rpart_4.1.16               </span></span>
-<span><span class="co">## [121] rmarkdown_2.14              biovizBase_1.42.0          </span></span>
+<span><span class="co">## [121] rmarkdown_2.15              biovizBase_1.42.0          </span></span>
 <span><span class="co">## [123] base64enc_0.1-3             interp_1.1-3               </span></span>
 <span><span class="co">## [125] restfulr_0.0.15</span></span></code></pre>
+</div>
+<div class="section level2">
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-samseq" class="csl-entry">
+Li, J, and R Tibshirani. 2011. <span>“<span class="nocase">Finding consistent patterns: A nonparametric approach for identifying differential expression in RNA-Seq data</span>.”</span> <em>Statistical Methods in Medical Research</em> 22 (5): 519–36. <a href="https://doi.org/10.1177/0962280211428386" class="external-link">https://doi.org/10.1177/0962280211428386</a>.
+</div>
+<div id="ref-wu2022" class="csl-entry">
+Wu, Euphy, Noor P. Singh, Kwangbom Choi, Mohsen Zakeri, Matthew Vincent, Gary A. Churchill, Cheryl L. Ackert-Bicknell, Rob Patro, and Michael I. Love. 2022. <span>“Detecting Isoform-Level Allelic Imbalance Accounting for Inferential Uncertainty.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2022.08.12.503785" class="external-link">https://doi.org/10.1101/2022.08.12.503785</a>.
+</div>
+<div id="ref-swish" class="csl-entry">
+Zhu, A, A Srivastava, JG Ibrahim, R Patro, and MI Love. 2019. <span>“<span class="nocase">Nonparametric expression analysis using inferential replicate counts</span>.”</span> <em>Nucleic Acids Research</em> 47: e105. <a href="https://doi.org/10.1093/nar/gkz622" class="external-link">https://doi.org/10.1093/nar/gkz622</a>.
+</div>
+</div>
 </div>
   </div>
 

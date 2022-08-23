@@ -107,7 +107,7 @@
 <pre><code><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">tximeta</span><span class="op">(</span><span class="va">coldata</span><span class="op">)</span> <span class="co"># reads in counts and inf reps</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># scales counts</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># labels features to keep</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="co"># for reproducibility</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/swish.html">swish</a></span><span class="op">(</span><span class="va">y</span>, x<span class="op">=</span><span class="st">"condition"</span><span class="op">)</span> <span class="co"># simplest Swish case</span></span></code></pre>
 </div>
 <div class="section level2">
@@ -118,8 +118,11 @@
 <p><img src="reference/figures/plotInfReps.png"></p>
 <p>The test statistic is formed by averaging over these sets of data:</p>
 <p><img src="reference/figures/swish.gif"></p>
-<p>p-values and q-values are computed through permutation of samples (see vignette for details on permutation schemes). The Swish method is described in the following publication:</p>
+<p>p-values and q-values are computed through permutation of samples (see vignette for details on permutation schemes).</p>
+<p>The <em>Swish</em> method is described in the following publication:</p>
 <blockquote><p>Zhu, A., Srivastava, A., Ibrahim, J.G., Patro, R., Love, M.I. “Nonparametric expression analysis using inferential replicate counts” <em>Nucleic Acids Research</em> (2019) 47(18):e105 <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6765120/" class="external-link">PMC6765120</a></p></blockquote>
+<p>The <em>SEESAW</em> method for allelic expression analysis is described in the following preprint:</p>
+<blockquote><p>Euphy Wu, Noor P. Singh, Kwangbom Choi, Mohsen Zakeri, Matthew Vincent, Gary A. Churchill, Cheryl L. Ackert-Bicknell, Rob Patro, Michael I. Love. “Detecting isoform-level allelic imbalance accounting for inferential uncertainty” <em>bioRxiv</em> (2022) <a href="https://doi.org/10.1101/2022.08.12.503785" class="external-link">doi: 10.1101/2022.08.12.503785</a></p></blockquote>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
