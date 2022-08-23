@@ -26,6 +26,13 @@ In this vignette, we describe usage of a suite of tools, **SEESAW**,
 Statistical Estimation of allelic Expression using Salmon and
 Swish, which allow for testing allelic imbalance across samples.
 
+The methods are described in @wu2022 
+[doi: 10.1101/2022.08.12.503785](https://doi.org/10.1101/2022.08.12.503785).
+
+*SEESAW* makes use of *Swish* [@swish] for paired inference, which is
+an extension of the *SAMseq* [@samseq] methods for permutation-based
+FDR control.
+
 **Type of tests**
 
 SEESAW allows for testing *global allelic imbalance* across all
@@ -509,3 +516,5 @@ these locations:
 ```{r}
 sessionInfo()
 ```
+
+# References

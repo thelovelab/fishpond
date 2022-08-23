@@ -67,7 +67,7 @@
 #' (see \code{makeTx2Tss}). For more information on this argument,
 #' see Details.
 #' @param ... any arguments to pass to tximeta
-#' 
+#'
 #' @return a SummarizedExperiment, with allele counts (and other data)
 #' combined into a wide matrix \code{[a2 | a1]}, or as assays (a1, then a2).
 #' The original strings associated with a1 and a2 are stored in the
@@ -75,6 +75,15 @@
 #' Note the reference level of \code{se$allele} will be \code{"a2"}, 
 #' such that comparisons by default will be a1 vs a2
 #' (effect vs non-effect). 
+#'
+#' @references
+#'
+#' Euphy Wu, Noor P. Singh, Kwangbom Choi, Mohsen Zakeri, Matthew
+#' Vincent, Gary A. Churchill, Cheryl L. Ackert-Bicknell, Rob Patro,
+#' Michael I. Love.
+#' "Detecting isoform-level allelic imbalance accounting for
+#' inferential uncertainty" bioRxiv (2022)
+#' \url{https://doi.org/10.1101/2022.08.12.503785}
 #' 
 #' @export
 importAllelicCounts <- function(coldata, a1, a2,
@@ -349,6 +358,25 @@ joinNearbyTss <- function(tss, maxgap) {
 #'
 #' @return nothing, a plot is displayed
 #'
+#' @references
+#'
+#' The methods for allelic expression analysis are described in:
+#' 
+#' Euphy Wu, Noor P. Singh, Kwangbom Choi, Mohsen Zakeri, Matthew
+#' Vincent, Gary A. Churchill, Cheryl L. Ackert-Bicknell, Rob Patro,
+#' Michael I. Love.
+#' "Detecting isoform-level allelic imbalance accounting for
+#' inferential uncertainty" bioRxiv (2022)
+#' \url{https://doi.org/10.1101/2022.08.12.503785}
+#'
+#' This function makes use of the Gviz package that is described in:
+#'
+#' Hahne, F., Ivanek, R. (2016). Visualizing Genomic Data
+#' Using Gviz and Bioconductor.
+#' In: Mathé, E., Davis, S. (eds) Statistical Genomics.
+#' Methods in Molecular Biology, vol 1418. Humana Press,
+#' New York, NY. \url{https://doi.org/10.1007/978-1-4939-3578-9_16}
+#' 
 #' @export
 plotAllelicGene <- function(y, gene, db,
                             region=NULL, symbol=NULL, genome=NULL,
@@ -643,6 +671,22 @@ grSelect <- function(gr, col) {
 #'
 #' @return nothing, a plot is displayed
 #'
+#' @references
+#'
+#' The methods for allelic expression analysis are described in:
+#' 
+#' Euphy Wu, Noor P. Singh, Kwangbom Choi, Mohsen Zakeri, Matthew
+#' Vincent, Gary A. Churchill, Cheryl L. Ackert-Bicknell, Rob Patro,
+#' Michael I. Love.
+#' "Detecting isoform-level allelic imbalance accounting for
+#' inferential uncertainty" bioRxiv (2022)
+#' \url{https://doi.org/10.1101/2022.08.12.503785}
+#'
+#' This function makes use of the pheatmap package:
+#'
+#' Kolde, Raivo. "Pheatmap: pretty heatmaps."
+#' R package version 1.2 (2012): 726.
+#' 
 #' @export
 plotAllelicHeatmap <- function(y, idx,
                                breaks=NULL,

@@ -126,3 +126,21 @@ If the function is not responding, it is likely due to issues
 connecting to UCSC servers to draw the ideogram, in this case
 set \code{ideogram=FALSE}.
 }
+\references{
+The methods for allelic expression analysis are described in:
+
+Euphy Wu, Noor P. Singh, Kwangbom Choi, Mohsen Zakeri, Matthew
+Vincent, Gary A. Churchill, Cheryl L. Ackert-Bicknell, Rob Patro,
+Michael I. Love.
+"Detecting isoform-level allelic imbalance accounting for
+inferential uncertainty" bioRxiv (2022)
+\url{https://doi.org/10.1101/2022.08.12.503785}
+
+This function makes use of the Gviz package that is described in:
+
+Hahne, F., Ivanek, R. (2016). Visualizing Genomic Data
+Using Gviz and Bioconductor.
+In: Mathé, E., Davis, S. (eds) Statistical Genomics.
+Methods in Molecular Biology, vol 1418. Humana Press,
+New York, NY. \url{https://doi.org/10.1007/978-1-4939-3578-9_16}
+}

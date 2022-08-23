@@ -67,8 +67,8 @@ reference:
     - salmonEC
   - title: Allelic analysis and plotting
   - contents:
-    - makeTx2Tss
     - importAllelicCounts
+    - makeTx2Tss    
     - plotAllelicGene
     - plotAllelicHeatmap
   - title: Compression

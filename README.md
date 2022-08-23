@@ -18,7 +18,7 @@ The following paradigm is used for running a Swish analysis:
 y <- tximeta(coldata) # reads in counts and inf reps
 y <- scaleInfReps(y) # scales counts
 y <- labelKeep(y) # labels features to keep
-set.seed(1)
+set.seed(1) # for reproducibility
 y <- swish(y, x="condition") # simplest Swish case
 ```
 
@@ -45,13 +45,24 @@ The test statistic is formed by averaging over these sets of data:
 ![](man/figures/swish.gif)
 
 p-values and q-values are computed through permutation of samples (see
-vignette for details on permutation schemes). The Swish method is
-described in the following publication:
+vignette for details on permutation schemes). 
+
+The *Swish* method is described in the following publication:
 
 > Zhu, A., Srivastava, A., Ibrahim, J.G., Patro, R., Love, M.I. 
 > "Nonparametric expression analysis using inferential replicate counts" 
 > *Nucleic Acids Research* (2019) 47(18):e105
 > [PMC6765120](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6765120/)
+
+The *SEESAW* method for allelic expression analysis is described in
+the following preprint:
+
+> Euphy Wu, Noor P. Singh, Kwangbom Choi, Mohsen Zakeri, Matthew
+> Vincent, Gary A. Churchill, Cheryl L. Ackert-Bicknell, Rob Patro,
+> Michael I. Love.
+> "Detecting isoform-level allelic imbalance accounting for
+> inferential uncertainty" *bioRxiv* (2022)
+> [doi: 10.1101/2022.08.12.503785](https://doi.org/10.1101/2022.08.12.503785)
 
 ## Installation
 

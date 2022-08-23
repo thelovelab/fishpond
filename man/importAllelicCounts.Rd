@@ -98,3 +98,11 @@ of a group.
 Other metadata columns are not manipulated, just the metadata
 for the first range is returned.
 }
+\references{
+Euphy Wu, Noor P. Singh, Kwangbom Choi, Mohsen Zakeri, Matthew
+Vincent, Gary A. Churchill, Cheryl L. Ackert-Bicknell, Rob Patro,
+Michael I. Love.
+"Detecting isoform-level allelic imbalance accounting for
+inferential uncertainty" bioRxiv (2022)
+\url{https://doi.org/10.1101/2022.08.12.503785}
+}

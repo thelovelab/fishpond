@@ -672,6 +672,20 @@ plotInfReps(y2, idx[1], x="ifng", cov="salmonella")
 plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 ```
 
+# Allelic expression analysis
+
+We have a separate vignette for allelic expression analysis, either
+navigate to the 
+[allelic vignette](https://mikelove.github.io/fishpond/articles/allelic.html)
+on the *fishpond* website, or the following from the R prompt:
+
+```{r eval=FALSE}
+vignette(topic="allelic", package="fishpond")
+```
+
+The allelic analysis methods are described in @wu2022 
+[doi: 10.1101/2022.08.12.503785](https://doi.org/10.1101/2022.08.12.503785).
+
 # Correlation test
 
 *Swish* now has methods to compute correlations

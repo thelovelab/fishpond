@@ -40,3 +40,18 @@ Plot allelic ratio heatmap over features and samples
 using the pheatmap package. The a1/(a2 + a1) ratio
 is displayed.
 }
+\references{
+The methods for allelic expression analysis are described in:
+
+Euphy Wu, Noor P. Singh, Kwangbom Choi, Mohsen Zakeri, Matthew
+Vincent, Gary A. Churchill, Cheryl L. Ackert-Bicknell, Rob Patro,
+Michael I. Love.
+"Detecting isoform-level allelic imbalance accounting for
+inferential uncertainty" bioRxiv (2022)
+\url{https://doi.org/10.1101/2022.08.12.503785}
+
+This function makes use of the pheatmap package:
+
+Kolde, Raivo. "Pheatmap: pretty heatmaps."
+R package version 1.2 (2012): 726.
+}
