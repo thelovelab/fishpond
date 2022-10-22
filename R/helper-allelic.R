@@ -143,10 +143,10 @@ importAllelicCounts <- function(coldata, a1, a2,
   # gather transcript names for a1 and a2 alleles
   txp_nms_a1 <- grep(a1match, rownames(se), value=TRUE)
   stopifnot(length(txp_nms_a1) == ntxp)
-  txp_nms_a2 <- sub(paste0("_",a1),paste0("_",a2),txp_nms_a1)
+  txp_nms_a2 <- grep(a2match, rownames(se), value=TRUE)
   stopifnot(all(txp_nms_a2 %in% rownames(se)))
   stopifnot(length(txp_nms_a1) == length(txp_nms_a2))
-  txp_nms <- sub(paste0("_",a1),"",txp_nms_a1)
+  txp_nms <- sapply(sapply(strsplit(txp_nms_a1, split = "_"), head, -1), paste, collapse='_')
   
   if (format == "wide") {
     coldata_wide <- data.frame(
