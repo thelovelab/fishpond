@@ -1,3 +1,31 @@
+# fishpond 2.4.0
+
+* For simple paired swish analysis, adding a `fast=1` method 
+  which uses a one-sample z-score on the paired LFCs
+  (averaged over samples, then median over inferential 
+  replicates). The permutation is computed by changing the
+  signs of the LFC matrix and recomputing z-scores.
+  Testing on the vignette example, but using all the transcripts,
+  the one-sample z-score method takes < 20 seconds while the
+  signed rank method takes > 200 seconds (12x speedup), 
+  while they have a high rate of agreement on the detected set 
+  (30:1 in common vs discordant).
+* Removed the fast=0 methods that were previously implemented
+  where ranks could optionally be recomputed for every
+  permutation. This was much slower and didn't have any
+  appreciable benefit.
+* readEDS() has moved to the `eds` package, such that
+  fishpond no longer requires *Rcpp* and C++ code compilation.
+* Fix bug identified by GitHub user @JosephLalli, where
+  importAllelicCounts would find a1 and a2 strings
+  internal to gene IDs, instead of at the suffix.
+
+# fishpond 2.3.22
+
+* Fix bug identified by GitHub user @JosephLalli, where
+  importAllelicCounts would find a1 and a2 strings
+  internal to gene IDs, instead of at the suffix.
+
 # fishpond 2.3.14
 
 * For simple paired swish analysis, adding a `fast=1` method 
