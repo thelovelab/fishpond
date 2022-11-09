@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.3.22</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.1</span>
       </span>
     </div>
 
@@ -60,6 +60,10 @@
       <small>Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="2.5.1" id="fishpond-251">fishpond 2.5.1<a class="anchor" aria-label="anchor" href="#fishpond-251"></a></h2>
+<ul><li>Fix plotAllelicGene() so that when samples have an allele with no expression at the gene level, it doesn’t throw an error trying to divide by 0.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.4.0" id="fishpond-240">fishpond 2.4.0<a class="anchor" aria-label="anchor" href="#fishpond-240"></a></h2>
 <ul><li>For simple paired swish analysis, adding a <code>fast=1</code> method which uses a one-sample z-score on the paired LFCs (averaged over samples, then median over inferential replicates). The permutation is computed by changing the signs of the LFC matrix and recomputing z-scores. Testing on the vignette example, but using all the transcripts, the one-sample z-score method takes &lt; 20 seconds while the signed rank method takes &gt; 200 seconds (12x speedup), while they have a high rate of agreement on the detected set (30:1 in common vs discordant).</li>
