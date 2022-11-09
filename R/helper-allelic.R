@@ -489,7 +489,6 @@ plotAllelicGene <- function(y, gene, db,
     allelic_counts[,(n+1):(2*n),drop=FALSE])
   allelic_prop <- (allelic_counts+pc) /
     cbind(total_counts+2*pc, total_counts+2*pc)
-  rowMeans(allelic_prop, na.rm=TRUE)
   mcols(gr_allelic) <- allelic_prop
   ##########################################
   ## store isoform data in GRanges object ##
@@ -502,6 +501,8 @@ plotAllelicGene <- function(y, gene, db,
     allelic_tpm[,1:n,drop=FALSE] +
     allelic_tpm[,(n+1):(2*n),drop=FALSE])
   gene_tpm <- colSums(total_tpm)
+  # deal with alleles that aren't expressed at all for gene
+  gene_tpm <- ifelse(gene_tpm > 0, gene_tpm, .01)
   isoform_prop <- t(t(total_tpm) / gene_tpm)
   isoUpper <- 1.1 * max(isoform_prop)
   mcols(gr_isoform) <- isoform_prop

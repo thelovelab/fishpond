@@ -1,3 +1,9 @@
+# fishpond 2.5.1
+
+* Fix plotAllelicGene() so that when samples have an allele
+  with no expression at the gene level, it doesn't throw
+  an error trying to divide by 0.
+
 # fishpond 2.4.0
 
 * For simple paired swish analysis, adding a `fast=1` method 
