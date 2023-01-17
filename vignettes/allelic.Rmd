@@ -33,6 +33,48 @@ The methods are described in @wu2022
 an extension of the *SAMseq* [@samseq] methods for permutation-based
 FDR control.
 
+# Quick start
+
+Minimal code for running SEESAW is shown below.
+
+On the command line:
+
+```
+# generate diploid txome with g2gtools:
+# http://churchill-lab.github.io/g2gtools/
+> salmon index -p #threads -t diploid_fasta -i diploid_txome --keepDuplicates
+> salmon quant -i diploid_txome -l A -p #threads \
+  --numBootstraps 30 -o output -1 read1 -2 read2
+```
+
+From within R/Bioconductor:
+
+```{r, eval=FALSE}
+# first build tx2gene to gene- or TSS-level
+# (for isoform level skip `tx2gene`)
+library(ensembldb)
+library(plyranges)
+# gene level:
+tx2gene <- transcripts(edb) %>%
+  select(tx_id, group_id=gene_id)
+# TSS level:
+tx2gene <- makeTx2Tss(edb, maxgap=50) %>%    
+  select(tx_id, gene_id, group_id, tss)
+# import counts:
+y <- importAllelicCounts(
+  coldata, a1="alt", a2="ref",
+  format="wide", tx2gene=tx2gene
+)
+# testing with Swish:
+y <- labelKeep(y)
+y <- y[mcols(y)$keep,]
+# see below for other tests and details
+y <- swish(y, x="allele", pair="sample", fast=1) 
+mcols(y)$qvalue # <-- gives FDR-bounded sets
+```
+
+# Method overview
+
 **Type of tests**
 
 SEESAW allows for testing *global allelic imbalance* across all
