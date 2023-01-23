@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.3</span>
       </span>
     </div>
 
@@ -60,6 +60,11 @@
       <small>Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="2.5.3" id="fishpond-253">fishpond 2.5.3<a class="anchor" aria-label="anchor" href="#fishpond-253"></a></h2>
+<ul><li>Fix bug where salmonEC did not correct equivalence class names for going from 0-indexing to 1-indexing internally. In prior<br>
+versions, to correctly link equivalence classes to gene names, users would have needed to manually add a value of 1 to the equivalence class names, which was erroneously not mentioned in the man files. After this bug fix, if the equivalence class identifier reads 1|2|8, then the equivalence class is immediatly compatible with the transcripts and their respective genes in rows 1, 2 and 8 of ‘tx2gene_matched’, without any further user intervention.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.5.1" id="fishpond-251">fishpond 2.5.1<a class="anchor" aria-label="anchor" href="#fishpond-251"></a></h2>
 <ul><li>Fix plotAllelicGene() so that when samples have an allele with no expression at the gene level, it doesn’t throw an error trying to divide by 0.</li>
