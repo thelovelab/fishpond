@@ -1,3 +1,16 @@
+# fishpond 2.5.3
+
+* Fix bug where salmonEC did not correct equivalence class
+  names for going from 0-indexing to 1-indexing internally. In prior  
+  versions, to correctly link equivalence classes to gene names,
+  users would have needed to manually add a value of 1 to the 
+  equivalence class names, which was erroneously not mentioned
+  in the man files. After this bug fix, if the equivalence class 
+  identifier reads 1|2|8, then the equivalence class is immediatly 
+  compatible with the transcripts and their respective genes in rows
+  1, 2 and 8 of 'tx2gene_matched', without any further user 
+  intervention.
+
 # fishpond 2.5.1
 
 * Fix plotAllelicGene() so that when samples have an allele

@@ -46,7 +46,7 @@ salmonEC <- function(paths, tx2gene, multigene = FALSE, ignoreTxVersion = FALSE,
                       ignoreAfterBar = FALSE, quiet = FALSE){
   
   if (!requireNamespace("data.table", quietly=TRUE)) {
-    stop("alevinEC() requires CRAN package data.table")
+    stop("salmonEC() requires CRAN package data.table")
   }
   
   if(!all(file.exists(paths))){
@@ -152,16 +152,16 @@ readEq <- function(file, geneSet, startread, multigene){
   eccs <- strsplit(ec_df$V1,"\t",fixed=TRUE)
   
   # remove first and last -> keep ECCs and not their corresponding TXs and counts
-  eccs_hlp <- lapply(eccs, function(x) x[-c(1,length(x))])
+  eccs_hlp <- lapply(eccs, function(x) as.integer(x[-c(1, length(x))])+1)
+  # +1 to account for going from 0-indexing to 1-indexing
   
   if(!multigene){ # remove ECs corresponding to multiple genes
     hlp <- unlist(lapply(eccs_hlp, function(element) {
-      gene_cur <- geneSet[as.integer(element)+1]
-      # if annotation not complete -> remove EC with any NA genes
-      if(any(is.na(gene_cur))){ 
+      if (any(is.na(geneSet[element]))) {
         return(TRUE)
-      } else{
-        return(length(unique(gene_cur))!=1)
+      }
+      else {
+        return(length(unique(geneSet[element])) != 1)
       }
     }))
     eccs_hlp[hlp] <- NULL
