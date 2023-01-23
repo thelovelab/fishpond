@@ -44,6 +44,14 @@ test_that("Importing transcript compatibility counts from salmon output works",{
     # test rownames type
     expect_true(is(rownames(EC_mat$counts), "character"))
     
+    # test multigene = FALSE and equivalence class to gene matching
+    eccs <- strsplit(rownames(EC_mat$counts),"\\|",fixed=FALSE)
+    nrGeneForEachEcc <- unlist(lapply(eccs, function(ecc){
+      length(unique(EC_mat$tx2gene_matched$gene_id[as.integer(ecc)]))
+    }))
+    # each ecc must only be compatible with a single gene if multigene = FALSE
+    expect_true(all(nrGeneForEachEcc == 1))
+    
     if (slow) {
       # test quiet argument
       expect_silent(salmonEC(paths = files,
