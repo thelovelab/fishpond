@@ -85,8 +85,8 @@ alevin-fry quant command. This directory should contain a
 <dd><p>can be <em>either</em> be a list that defines the
 desired format of the output <code>SingleCellExperiment</code> object
 <em>or</em> a string that represents one of the pre-defined output
-formats, which are "scRNA", "snRNA", "scVelo" and "velocity".
-See details for the explainations of the pre-defined formats and
+formats, which are "scRNA", "snRNA", "all", "scVelo", "velocity", "U+S+A" and "S+A".
+See details for the explanations of the pre-defined formats and
 how to define custom format.</p></dd>
 
 
@@ -118,7 +118,7 @@ barcodes</p>
 
 <p>This function consumes the result folder returned by running
 alevin-fry quant in unspliced, spliced, ambiguous (USA) 
-quantification mode, and returns a <code>SingleCellExperiement</code> object
+quantification mode, and returns a <code>SingleCellExperiment</code> object
 that contains a final count for each gene within each cell. In
 USA mode, alevin-fry quant returns a count matrix contains three
 types of count for each feature (gene) within each sample (cell
@@ -143,14 +143,22 @@ the pre-defined output format.</p>
 <p>Currently the pre-defined formats 
 of the output <code>SingleCellExperiment</code> object are:</p><dl><dt>"scRNA":</dt>
 <dd><p>This format is recommended for single cell experiments. 
-It returns a <code>counts</code> assay that contains the S+A count of each gene in each cell.</p></dd>
+It returns a <code>counts</code> assay that contains the S+A count of each gene in each cell,
+and a <code>unspliced</code> assay that contains the U count of each gene in each cell.</p></dd>
 
-<dt>"snRNA":</dt>
-<dd><p>This format is recommended for single nucleus experiments. 
-It returns a <code>counts</code> assay that contains the U+S+A count of each gene in each cell.</p></dd>
+<dt>"snRNA", "all" and "U+S+A":</dt>
+<dd><p>These three formats are the same.
+They return a <code>counts</code> assay that contains the U+S+A count of each gene in 
+each cell without any extra layers. "snRNA" is recommended for single-nucleus 
+RNA-sequencing experiments. "raw" is recommended for mimicing CellRanger 7's behavior, 
+which returns this format for both single-cell and single-nucleus experiments.</p></dd>
+
+<dt>"S+A":</dt>
+<dd><p>This format returns a <code>counts</code> assay that contains the S+A 
+count of each gene in each cell.</p></dd>
 
 <dt>"raw":</dt>
-<dd><p>This format put the three kinds of counts into three separate assays, 
+<dd><p>This format puts the three kinds of counts into three separate assays, 
 which are <code>unspliced</code>, <code>spliced</code> and <code>ambiguous</code>.</p></dd>
 
 <dt>"velocity":</dt>
