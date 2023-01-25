@@ -11,7 +11,7 @@ test_that("Reading in Alevin-fry USA count matrix works", {
   sce <- loadFry(dat$parent_dir)
   expect_equal(nrow(sce), length(dat$genes))
   expect_equal(ncol(sce), length(dat$barcodes))
-  expect_equal(SummarizedExperiment::assayNames(sce), "counts")
+  expect_equal(sort(SummarizedExperiment::assayNames(sce)), sort(c("counts", "unspliced")))
 
   cts <- SummarizedExperiment::assay(sce, "counts")
   expect_s4_class(cts, "dgCMatrix")
