@@ -4,3 +4,5 @@ vignettes
 *.o
 *.so
 .Rproj.user
+.Rhistory
+.Rbuildignore

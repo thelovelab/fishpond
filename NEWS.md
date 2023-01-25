@@ -1,3 +1,12 @@
+# fishpond 2.5.4
+
+* As CellRanger 7 includes both spliced and unspliced counts in their
+  count matrix, we want to mimic this behavior by adding more
+  pre-defined output formats in the loadFry function. We added "all"
+  and "U+S+A" to include all counts in the count matrix. Moreover, now
+  the "scRNA" output format has an "unspliced" field, which contains
+  the unspliced count matrix.
+
 # fishpond 2.5.3
 
 * Fix bug where salmonEC did not correct equivalence class
