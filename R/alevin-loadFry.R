@@ -128,8 +128,8 @@ loadFry <- function(fryDir,
     predefined.format <- list("scrna" = list("counts" = c("S", "A"), "unspliced" = c("U")),
                              "snrna" = list("counts" = c("U", "S", "A")),
                              "all" = list("counts" = c("U", "S", "A")),
-                             "U+S+A" = list("counts" = c("U", "S", "A")),
-                             "S+A" = list("counts" = c("S", "A")),
+                             "u+s+a" = list("counts" = c("U", "S", "A")),
+                             "s+a" = list("counts" = c("S", "A")),
                              "velocity" = list("spliced" = c("S", "A"), "unspliced" = c("U")),
                              "scvelo" = list("counts" = c("S", "A"), "spliced" = c("S", "A"), "unspliced" = c("U")),
                              "raw" = list("spliced" = c("S"), "unspliced" = c("U"), "ambiguous" = c("A"))
@@ -141,8 +141,7 @@ loadFry <- function(fryDir,
       outputFormat = tolower(outputFormat)
       # Check whether outputFormat is a predefined format
       if (! (outputFormat %in% names(predefined.format))) {
-        stop("Provided outputFormat string is invalid. Please check the function description
-for the list of predifined format")
+        stop("Provided outputFormat string is invalid. Please check the function description for the list of predifined format")
       }
       
       if (!quiet) {
