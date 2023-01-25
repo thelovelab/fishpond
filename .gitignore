@@ -3,3 +3,4 @@ vignettes
 *.rda
 *.o
 *.so
+.Rproj.user

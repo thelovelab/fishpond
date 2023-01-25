@@ -54,11 +54,11 @@
 #' \item{"snRNA", "all" and "U+S+A":}{These three formats are the same.
 #' They return a \code{counts} assay that contains the U+S+A count of each gene in 
 #' each cell without any extra layers. "snRNA" is recommended for single-nucleus 
-#' RNA-sequencing experiments. CellRanger 7 returns this format for both single-cell 
-#' and single-nucleus experiments.}
-#' \item{"S+A":}{returns a \code{counts} assay that contains the S+A 
+#' RNA-sequencing experiments. "raw" is recommended for mimicing CellRanger 7's behavior, 
+#' which returns this format for both single-cell and single-nucleus experiments.}
+#' \item{"S+A":}{This format returns a \code{counts} assay that contains the S+A 
 #' count of each gene in each cell.}
-#' \item{"raw":}{This format put the three kinds of counts into three separate assays, 
+#' \item{"raw":}{This format puts the three kinds of counts into three separate assays, 
 #' which are \code{unspliced}, \code{spliced} and \code{ambiguous}.}
 #' \item{"velocity":}{This format contains two assays. 
 #' The \code{spliced} assay contains the S+A count of each gene in each cell.
