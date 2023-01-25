@@ -11,8 +11,8 @@
 #' @param outputFormat can be \emph{either} be a list that defines the
 #' desired format of the output \code{SingleCellExperiment} object
 #' \emph{or} a string that represents one of the pre-defined output
-#' formats, which are "scRNA", "snRNA", "scVelo" and "velocity".
-#' See details for the explainations of the pre-defined formats and
+#' formats, which are "scRNA", "snRNA", "all", "scVelo", "velocity", "U+S+A" and "S+A".
+#' See details for the explanations of the pre-defined formats and
 #' how to define custom format.
 #' @param nonzero whether to filter cells with non-zero expression
 #' value across all genes (default \code{FALSE}).
@@ -25,7 +25,7 @@
 #' @section Details about \code{loadFry}:
 #' This function consumes the result folder returned by running
 #' alevin-fry quant in unspliced, spliced, ambiguous (USA) 
-#' quantification mode, and returns a \code{SingleCellExperiement} object
+#' quantification mode, and returns a \code{SingleCellExperiment} object
 #' that contains a final count for each gene within each cell. In
 #' USA mode, alevin-fry quant returns a count matrix contains three
 #' types of count for each feature (gene) within each sample (cell
@@ -49,10 +49,16 @@
 #' of the output \code{SingleCellExperiment} object are: 
 #' \describe{
 #' \item{"scRNA":}{This format is recommended for single cell experiments. 
-#' It returns a \code{counts} assay that contains the S+A count of each gene in each cell.}
-#' \item{"snRNA":}{This format is recommended for single nucleus experiments. 
-#' It returns a \code{counts} assay that contains the U+S+A count of each gene in each cell.}
-#' \item{"raw":}{This format put the three kinds of counts into three separate assays, 
+#' It returns a \code{counts} assay that contains the S+A count of each gene in each cell,
+#' and a \code{unspliced} assay that contains the U count of each gene in each cell.}
+#' \item{"snRNA", "all" and "U+S+A":}{These three formats are the same.
+#' They return a \code{counts} assay that contains the U+S+A count of each gene in 
+#' each cell without any extra layers. "snRNA" is recommended for single-nucleus 
+#' RNA-sequencing experiments. "raw" is recommended for mimicing CellRanger 7's behavior, 
+#' which returns this format for both single-cell and single-nucleus experiments.}
+#' \item{"S+A":}{This format returns a \code{counts} assay that contains the S+A 
+#' count of each gene in each cell.}
+#' \item{"raw":}{This format puts the three kinds of counts into three separate assays, 
 #' which are \code{unspliced}, \code{spliced} and \code{ambiguous}.}
 #' \item{"velocity":}{This format contains two assays. 
 #' The \code{spliced} assay contains the S+A count of each gene in each cell.
@@ -119,8 +125,11 @@ loadFry <- function(fryDir,
   # if in usa.mode, sum up counts in different status according to which.counts
   if (meta.data$usa.mode) {
     # preparation
-    predefined.format <- list("scrna" = list("counts" = c("S", "A")),
+    predefined.format <- list("scrna" = list("counts" = c("S", "A"), "unspliced" = c("U")),
                              "snrna" = list("counts" = c("U", "S", "A")),
+                             "all" = list("counts" = c("U", "S", "A")),
+                             "u+s+a" = list("counts" = c("U", "S", "A")),
+                             "s+a" = list("counts" = c("S", "A")),
                              "velocity" = list("spliced" = c("S", "A"), "unspliced" = c("U")),
                              "scvelo" = list("counts" = c("S", "A"), "spliced" = c("S", "A"), "unspliced" = c("U")),
                              "raw" = list("spliced" = c("S"), "unspliced" = c("U"), "ambiguous" = c("A"))
@@ -132,8 +141,7 @@ loadFry <- function(fryDir,
       outputFormat = tolower(outputFormat)
       # Check whether outputFormat is a predefined format
       if (! (outputFormat %in% names(predefined.format))) {
-        stop("Provided outputFormat string is invalid. Please check the function description
-for the list of predifined format")
+        stop("Provided outputFormat string is invalid. Please check the function description for the list of predifined format")
       }
       
       if (!quiet) {
