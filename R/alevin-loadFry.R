@@ -53,7 +53,7 @@
 #' and a \code{unspliced} assay that contains the U count of each gene in each cell.}
 #' \item{"snRNA", "all" and "U+S+A":}{These three formats are the same.
 #' They return a \code{counts} assay that contains the U+S+A count of each gene in 
-#' each cell without any extra layers. It is recommended for single-nucleus 
+#' each cell without any extra layers. "snRNA" is recommended for single-nucleus 
 #' RNA-sequencing experiments. CellRanger 7 returns this format for both single-cell 
 #' and single-nucleus experiments.}
 #' \item{"S+A":}{returns a \code{counts} assay that contains the S+A 
@@ -125,8 +125,11 @@ loadFry <- function(fryDir,
   # if in usa.mode, sum up counts in different status according to which.counts
   if (meta.data$usa.mode) {
     # preparation
-    predefined.format <- list("scrna" = list("counts" = c("S", "A")),
+    predefined.format <- list("scrna" = list("counts" = c("S", "A"), "unspliced" = c("U")),
                              "snrna" = list("counts" = c("U", "S", "A")),
+                             "all" = list("counts" = c("U", "S", "A")),
+                             "U+S+A" = list("counts" = c("U", "S", "A")),
+                             "S+A" = list("counts" = c("S", "A")),
                              "velocity" = list("spliced" = c("S", "A"), "unspliced" = c("U")),
                              "scvelo" = list("counts" = c("S", "A"), "spliced" = c("S", "A"), "unspliced" = c("U")),
                              "raw" = list("spliced" = c("S"), "unspliced" = c("U"), "ambiguous" = c("A"))
