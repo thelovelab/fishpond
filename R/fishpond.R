@@ -50,13 +50,13 @@
 #' assayNames assayNames<- assay assay<- assays assays<-
 #' colData colData<- mcols mcols<- rowRanges rowRanges<-
 #' @importFrom SingleCellExperiment SingleCellExperiment
-#' @importFrom IRanges IntegerList
+#' @importFrom IRanges IntegerList CharacterList
 #' @importFrom S4Vectors DataFrame metadata metadata<-
 #' @importFrom GenomicRanges start end strand width
 #' start<- end<- strand<- resize flank sort seqnames
 #' @importFrom gtools permutations
 #' @importFrom Matrix rowSums readMM t colSums
-#' @importFrom matrixStats rowRanks rowMedians rowVars rowQuantiles
+#' @importFrom matrixStats rowRanks rowMedians rowVars colVars rowQuantiles
 #' @importFrom svMisc progress
 #' @importFrom jsonlite fromJSON
 #' 
