@@ -1,6 +1,6 @@
 Package: fishpond
 Title: Fishpond: downstream methods and tools for expression data
-Version: 2.5.4
+Version: 2.5.5
 Authors@R: c(
     person("Anqi", "Zhu", role=c("aut","ctb")),
     person("Michael", "Love", email="michaelisaiahlove@gmail.com", role=c("aut","cre")),
@@ -28,7 +28,8 @@ Imports: graphics, stats, utils, methods, abind, gtools, qvalue, S4Vectors,
     Matrix, SingleCellExperiment, jsonlite
 Suggests: testthat, knitr, rmarkdown, macrophage, tximeta, org.Hs.eg.db,
     samr, DESeq2, apeglm, tximportData, limma, ensembldb, EnsDb.Hsapiens.v86,
-    GenomicFeatures, AnnotationDbi, pheatmap, Gviz, GenomeInfoDb, data.table
+    GenomicFeatures, AnnotationDbi, pheatmap, Gviz, GenomeInfoDb, data.table,
+    limma
 License: GPL-2
 Encoding: UTF-8
 URL: https://mikelove.github.io/fishpond, https://github.com/mikelove/fishpond

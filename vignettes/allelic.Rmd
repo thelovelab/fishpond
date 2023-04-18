@@ -546,6 +546,132 @@ plotAllelicGene(y, gene, edb, cov="time_bins",
                 qvalue=FALSE, log2FC=FALSE)
 ```
 
+# More complicated designs
+
+The SEESAW suite currently supports testing AI globally (across all
+samples), testing for differential AI (across two groups), or testing
+for dynamic AI (whether the allelic ratio changes over a continuous
+covariate such as time).
+
+However, additional designs within the nonparametric testing framework
+of *Swish* (and originally *SAMseq*) can be explored. This testing
+framework is to compute a test statistic, average that over
+inferential replicates, and then permute the samples in order to
+generate a null distribution of the averaged test statistic. The
+*qvalue* method and package is then used to return the final
+inference. Here we explore testing outside of `swish` function, by
+following these steps. We will test for differential correlation of
+allelic ratios across two groups.
+
+First, we simulate a dataset with two groups, and insert differential
+correlation for one feature:
+
+```{r}
+set.seed(1)
+y1 <- makeSimSwishData(dynamicAI=TRUE)
+y2 <- makeSimSwishData(dynamicAI=TRUE)
+y2$sample <- factor(rep(paste0("sample",11:20),2))
+y <- cbind(y1, y2)
+y$group <- factor(rep(c("A","B"),each=20))
+table(y$time, y$group) # 2 allelic counts per cell
+```
+
+We change the direction of AI trend for the first feature:
+
+```{r}
+for (k in paste0("infRep",1:20)) {
+  assay(y,k)[1,21:40] <- assay(y,k)[1,c(31:40,21:30)]
+}
+```
+
+To visualize the differential correlation of AI with time for the
+first feature:
+
+```{r}
+y <- computeInfRV(y)
+par(mfrow=c(2,2))
+for (i in 1:2) {
+  plotInfReps(y[,y$group=="A"], idx=i, x="time", cov="allele", shiftX=.01)
+  plotInfReps(y[,y$group=="B"], idx=i, x="time", cov="allele", shiftX=.01)
+}
+```
+
+We define a number of variables that will be used to compute test
+statistics:
+
+```{r}
+pc <- 5 # a pseudocount
+idx1 <- which(y$allele == "a1")
+idx2 <- which(y$allele == "a2")
+# the sample must be aligned
+all.equal(y$sample[idx1], y$sample[idx2])
+cov <- y$time[idx1]
+group <- y$group[idx1]
+design <- model.matrix(~group + cov + group:cov)
+```
+
+For the statistic, we extract the coefficient for the interaction of
+group and the time covariate, using `limma::lmFit` applied to a matrix
+of log2 fold changes. It is useful to define a function to repeat this
+operation (over inferential replicates and permutations).
+
+```{r}
+computeStat <- function(mat, design) {
+  lfc <- log2(mat[,idx1] + pc) - log2(mat[,idx2] + pc)
+  fit <- limma::lmFit(lfc, design)
+  fit$coefficients[,"groupB:cov"]
+}
+```
+
+We then use the *SAMseq*/*Swish* strategy to average over the
+inferential replicates, for the observed data:
+
+```{r}
+reps <- grep("infRep", assayNames(y), value=TRUE)
+stat <- rowMeans(sapply(reps, function(k) computeStat(assay(y, k), design)))
+```
+
+Finally, we repeat, while permuting the samples 100 times:
+
+```{r}
+n <- nrow(design)
+nperms <- 100
+nulls <- matrix(nrow=nrow(y), ncol=nperms)
+set.seed(1)
+for (p in seq_len(nperms)) {
+  permuted_design <- design[sample(n),]
+  nulls[,p] <- rowMeans(sapply(reps, function(k) {
+    computeStat(assay(y, k), permuted_design)
+  }))
+}
+```
+
+The rest of the process is providing the observed statistic and the
+null statistics to the `qvalue` function:
+
+```{r}
+nulls.vec <- as.vector(nulls)
+pvalue <- qvalue::empPvals(abs(stat), abs(nulls))
+q.res <- qvalue::qvalue(pvalue)
+locfdr <- q.res$lfdr
+qvalue <- q.res$qvalues
+res <- data.frame(stat, pvalue, locfdr, qvalue)
+```
+
+We can see the first feature is retained with a low q-value while the
+others show a relatively flat histogram of p-values.
+
+```{r}
+head(res)
+hist(res$pvalue[-1])
+```
+
+This general process for extracting arbitrary statistics on the
+allelic log fold change and making use of permutation for generating
+q-values can be applied to various designs.
+
+# Further questions
+
 For further questions about the SEESAW steps, please post to one of
 these locations:
 
