@@ -157,7 +157,7 @@ of the grouped transcripts. Note that `importAllelicCounts` does not
 yet have the ability to automatically generate ranges based on
 sequence hashing (as occurs in `tximeta`).
 
-# Filtering features with no information
+# Filtering features
 
 Because we use `--keepDuplicates` in the step when we build the Salmon
 index, there will be a number of features in which there is no
@@ -585,11 +585,12 @@ for (k in paste0("infRep",1:20)) {
 ```
 
 To visualize the differential correlation of AI with time for the
-first feature:
+first and second feature (left side, group A; right side, group B,
+features by row):
 
-```{r}
+```{r fig.dim=c(8,7)}
 y <- computeInfRV(y)
-par(mfrow=c(2,2))
+par(mfrow=c(2,2),mar=c(3,3,3,1))
 for (i in 1:2) {
   plotInfReps(y[,y$group=="A"], idx=i, x="time", cov="allele", shiftX=.01)
   plotInfReps(y[,y$group=="B"], idx=i, x="time", cov="allele", shiftX=.01)
@@ -612,14 +613,17 @@ design <- model.matrix(~group + cov + group:cov)
 
 For the statistic, we extract the coefficient for the interaction of
 group and the time covariate, using `limma::lmFit` applied to a matrix
-of log2 fold changes. It is useful to define a function to repeat this
-operation (over inferential replicates and permutations).
+of log2 fold changes. We then compute basic t-statistics from this
+table of linear model coefficients. It is useful to define a function
+to repeat this operation (over inferential replicates and
+permutations).
 
 ```{r}
 computeStat <- function(mat, design) {
   lfc <- log2(mat[,idx1] + pc) - log2(mat[,idx2] + pc)
   fit <- limma::lmFit(lfc, design)
-  fit$coefficients[,"groupB:cov"]
+  tstats <- fit$coef/fit$stdev.unscaled/fit$sigma
+  tstats[,"groupB:cov"]
 }
 ```
 
