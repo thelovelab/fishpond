@@ -615,21 +615,22 @@ the isoform proportion plot by the covariate:</p>
 <p><img src="allelic_files/figure-html/unnamed-chunk-32-1.png"><!-- --></p>
 </div>
 <div class="section level2">
-<h2 id="more-complicated-designs">More complicated designs<a class="anchor" aria-label="anchor" href="#more-complicated-designs"></a>
+<h2 id="more-complex-designs">More complex designs<a class="anchor" aria-label="anchor" href="#more-complex-designs"></a>
 </h2>
 <p>The SEESAW suite currently supports testing AI globally (across all
 samples), testing for differential AI (across two groups), or testing
 for dynamic AI (whether the allelic ratio changes over a continuous
 covariate such as time).</p>
-<p>However, additional designs within the nonparametric testing
-framework of <em>Swish</em> (and originally <em>SAMseq</em>) can be
-explored. This testing framework is to compute a test statistic, average
-that over inferential replicates, and then permute the samples in order
-to generate a null distribution of the averaged test statistic. The
-<em>qvalue</em> method and package is then used to return the final
-inference. Here we explore testing outside of <code>swish</code>
-function, by following these steps. We will test for differential
-correlation of allelic ratios across two groups.</p>
+<p>However, additional designs can also be used within the nonparametric
+testing framework of <em>Swish</em> (and originally <em>SAMseq</em>).
+The general idea of the testing framework is to compute a test
+statistic, average that over inferential replicates, and then permute
+the samples in order to generate a null distribution of the
+bootstrap-averaged test statistic. The <em>qvalue</em> method and
+package is then used to return the final inference. Here we explore
+testing outside of <code>swish</code> function, by following these
+steps. We will test for differential correlation of allelic ratios
+across two groups.</p>
 <p>First, we simulate a dataset with two groups, and insert differential
 correlation for one feature:</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
@@ -654,7 +655,8 @@ correlation for one feature:</p>
 <span><span class="co">##   1    2 2</span></span></code></pre>
 <p>We change the direction of AI trend for the first feature:</p>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">k</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"infRep"</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">reps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"infRep"</span>, <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, value<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">k</span> <span class="kw">in</span> <span class="va">reps</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>,<span class="va">k</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">21</span><span class="op">:</span><span class="fl">40</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>,<span class="va">k</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">31</span><span class="op">:</span><span class="fl">40</span>,<span class="fl">21</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>To visualize the differential correlation of AI with time for the
@@ -680,60 +682,64 @@ statistics:</p>
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cov</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">$</span><span class="va">time</span><span class="op">[</span><span class="va">idx1</span><span class="op">]</span></span>
 <span><span class="va">group</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">$</span><span class="va">group</span><span class="op">[</span><span class="va">idx1</span><span class="op">]</span></span>
+<span><span class="co"># interaction of group and covariate (time)</span></span>
 <span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="op">~</span><span class="va">group</span> <span class="op">+</span> <span class="va">cov</span> <span class="op">+</span> <span class="va">group</span><span class="op">:</span><span class="va">cov</span><span class="op">)</span></span></code></pre></div>
+<p>For efficiency, we precompute the allelic LFC array (features x
+samples x infReps):</p>
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">reps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"infRep"</span>, <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, value<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">nreps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">reps</span><span class="op">)</span></span>
+<span><span class="va">infReps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assays</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">[</span><span class="va">reps</span><span class="op">]</span></span>
+<span><span class="va">infRepsArray</span> <span class="op">&lt;-</span> <span class="fu">abind</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/abind/man/abind.html" class="external-link">abind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">infReps</span><span class="op">)</span>, along<span class="op">=</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">lfcArray</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="va">infRepsArray</span><span class="op">[</span>,<span class="va">idx1</span>,<span class="op">]</span> <span class="op">+</span> <span class="va">pc</span><span class="op">)</span> <span class="op">-</span></span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="va">infRepsArray</span><span class="op">[</span>,<span class="va">idx2</span>,<span class="op">]</span> <span class="op">+</span> <span class="va">pc</span><span class="op">)</span></span></code></pre></div>
 <p>For the statistic, we extract the coefficient for the interaction of
 group and the time covariate, using <code><a href="https://rdrr.io/pkg/limma/man/lmFit.html" class="external-link">limma::lmFit</a></code> applied to
 a matrix of log2 fold changes. We then compute basic t-statistics from
 this table of linear model coefficients. It is useful to define a
 function to repeat this operation (over inferential replicates and
 permutations).</p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">computeStat</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">mat</span>, <span class="va">design</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">lfc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="va">mat</span><span class="op">[</span>,<span class="va">idx1</span><span class="op">]</span> <span class="op">+</span> <span class="va">pc</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="va">mat</span><span class="op">[</span>,<span class="va">idx2</span><span class="op">]</span> <span class="op">+</span> <span class="va">pc</span><span class="op">)</span></span>
-<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">limma</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/limma/man/lmFit.html" class="external-link">lmFit</a></span><span class="op">(</span><span class="va">lfc</span>, <span class="va">design</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">computeStat</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">k</span>, <span class="va">design</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">limma</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/limma/man/lmFit.html" class="external-link">lmFit</a></span><span class="op">(</span><span class="va">lfcArray</span><span class="op">[</span>,,<span class="va">k</span><span class="op">]</span>, <span class="va">design</span><span class="op">)</span></span>
 <span>  <span class="va">tstats</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">coef</span><span class="op">/</span><span class="va">fit</span><span class="op">$</span><span class="va">stdev.unscaled</span><span class="op">/</span><span class="va">fit</span><span class="op">$</span><span class="va">sigma</span></span>
 <span>  <span class="va">tstats</span><span class="op">[</span>,<span class="st">"groupB:cov"</span><span class="op">]</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We then use the <em>SAMseq</em>/<em>Swish</em> strategy to average
 over the inferential replicates, for the observed data:</p>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">reps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"infRep"</span>, <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, value<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">stat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">reps</span>, <span class="kw">function</span><span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="fu">computeStat</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">k</span><span class="op">)</span>, <span class="va">design</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Finally, we repeat, while permuting the samples 100 times:</p>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">stat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">nreps</span>, \<span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="fu">computeStat</span><span class="op">(</span><span class="va">k</span>, <span class="va">design</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Finally, we repeat, while permuting the samples 100 times:</p>
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">design</span><span class="op">)</span></span>
 <span><span class="va">nperms</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
 <span><span class="va">nulls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span>nrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, ncol<span class="op">=</span><span class="va">nperms</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">nperms</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">permuted_design</span> <span class="op">&lt;-</span> <span class="va">design</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,<span class="op">]</span></span>
-<span>  <span class="va">nulls</span><span class="op">[</span>,<span class="va">p</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">reps</span>, <span class="kw">function</span><span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu">computeStat</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">k</span><span class="op">)</span>, <span class="va">permuted_design</span><span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">nulls</span><span class="op">[</span>,<span class="va">p</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">nreps</span>, \<span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="fu">computeStat</span><span class="op">(</span><span class="va">k</span>, <span class="va">design</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,<span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>The rest of the process is providing the observed statistic and the
 null statistics to the <code>qvalue</code> function:</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nulls.vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">nulls</span><span class="op">)</span></span>
-<span><span class="va">pvalue</span> <span class="op">&lt;-</span> <span class="fu">qvalue</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qvalue/man/empPvals.html" class="external-link">empPvals</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">stat</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">nulls</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">q.res</span> <span class="op">&lt;-</span> <span class="fu">qvalue</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qvalue/man/qvalue.html" class="external-link">qvalue</a></span><span class="op">(</span><span class="va">pvalue</span><span class="op">)</span></span>
-<span><span class="va">locfdr</span> <span class="op">&lt;-</span> <span class="va">q.res</span><span class="op">$</span><span class="va">lfdr</span></span>
-<span><span class="va">qvalue</span> <span class="op">&lt;-</span> <span class="va">q.res</span><span class="op">$</span><span class="va">qvalues</span></span>
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pvalue</span> <span class="op">&lt;-</span> <span class="fu">qvalue</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qvalue/man/empPvals.html" class="external-link">empPvals</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">stat</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">nulls</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">q_res</span> <span class="op">&lt;-</span> <span class="fu">qvalue</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qvalue/man/qvalue.html" class="external-link">qvalue</a></span><span class="op">(</span><span class="va">pvalue</span><span class="op">)</span></span>
+<span><span class="va">locfdr</span> <span class="op">&lt;-</span> <span class="va">q_res</span><span class="op">$</span><span class="va">lfdr</span></span>
+<span><span class="va">qvalue</span> <span class="op">&lt;-</span> <span class="va">q_res</span><span class="op">$</span><span class="va">qvalues</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">stat</span>, <span class="va">pvalue</span>, <span class="va">locfdr</span>, <span class="va">qvalue</span><span class="op">)</span></span></code></pre></div>
 <p>We can see the first feature is retained with a low q-value while the
 others show a relatively flat histogram of p-values.</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##               stat  pvalue     locfdr    qvalue</span></span>
-<span><span class="co">## gene-1 -6.89602993 0.00001 0.03853856 0.0100000</span></span>
-<span><span class="co">## gene-2 -0.08979129 0.70475 1.00000000 0.9925168</span></span>
-<span><span class="co">## gene-3 -0.16623033 0.48656 1.00000000 0.9802500</span></span>
-<span><span class="co">## gene-4  0.04186206 0.85977 1.00000000 0.9980000</span></span>
-<span><span class="co">## gene-5 -0.13609701 0.56842 1.00000000 0.9802500</span></span>
-<span><span class="co">## gene-6  0.15545421 0.51556 1.00000000 0.9802500</span></span></code></pre>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<span><span class="co">## gene-1 -6.89602993 0.00001 0.03804831 0.0100000</span></span>
+<span><span class="co">## gene-2 -0.08979129 0.70218 1.00000000 0.9896097</span></span>
+<span><span class="co">## gene-3 -0.16623033 0.48244 1.00000000 0.9769938</span></span>
+<span><span class="co">## gene-4  0.04186206 0.85782 1.00000000 0.9980000</span></span>
+<span><span class="co">## gene-5 -0.13609701 0.56411 1.00000000 0.9769938</span></span>
+<span><span class="co">## gene-6  0.15545421 0.51075 1.00000000 0.9769938</span></span></code></pre>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pvalue</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="allelic_files/figure-html/unnamed-chunk-41-1.png"><!-- --></p>
+<p><img src="allelic_files/figure-html/unnamed-chunk-42-1.png"><!-- --></p>
 <p>This general process for extracting arbitrary statistics on the
 allelic log fold change and making use of permutation for generating
 q-values can be applied to various designs.</p>
@@ -754,7 +760,7 @@ these locations:</p>
 <div class="section level2">
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## R version 4.3.0 beta (2023-04-12 r84240)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
