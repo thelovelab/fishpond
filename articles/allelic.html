@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.7</span>
       </span>
     </div>
 
@@ -249,7 +249,7 @@ automatically generate ranges based on sequence hashing (as occurs in
 <code>tximeta</code>).</p>
 </div>
 <div class="section level2">
-<h2 id="filtering-features-with-no-information">Filtering features with no information<a class="anchor" aria-label="anchor" href="#filtering-features-with-no-information"></a>
+<h2 id="filtering-features">Filtering features<a class="anchor" aria-label="anchor" href="#filtering-features"></a>
 </h2>
 <p>Because we use <code>--keepDuplicates</code> in the step when we
 build the Salmon index, there will be a number of features in which
@@ -658,10 +658,11 @@ correlation for one feature:</p>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>,<span class="va">k</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">21</span><span class="op">:</span><span class="fl">40</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">y</span>,<span class="va">k</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">31</span><span class="op">:</span><span class="fl">40</span>,<span class="fl">21</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>To visualize the differential correlation of AI with time for the
-first feature:</p>
+first and second feature (left side, group A; right side, group B,
+features by row):</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computeInfRV.html">computeInfRV</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span>,mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span>,<span class="va">y</span><span class="op">$</span><span class="va">group</span><span class="op">==</span><span class="st">"A"</span><span class="op">]</span>, idx<span class="op">=</span><span class="va">i</span>, x<span class="op">=</span><span class="st">"time"</span>, cov<span class="op">=</span><span class="st">"allele"</span>, shiftX<span class="op">=</span><span class="fl">.01</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="../reference/plotInfReps.html">plotInfReps</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span>,<span class="va">y</span><span class="op">$</span><span class="va">group</span><span class="op">==</span><span class="st">"B"</span><span class="op">]</span>, idx<span class="op">=</span><span class="va">i</span>, x<span class="op">=</span><span class="st">"time"</span>, cov<span class="op">=</span><span class="st">"allele"</span>, shiftX<span class="op">=</span><span class="fl">.01</span><span class="op">)</span></span>
@@ -682,14 +683,16 @@ statistics:</p>
 <span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="op">~</span><span class="va">group</span> <span class="op">+</span> <span class="va">cov</span> <span class="op">+</span> <span class="va">group</span><span class="op">:</span><span class="va">cov</span><span class="op">)</span></span></code></pre></div>
 <p>For the statistic, we extract the coefficient for the interaction of
 group and the time covariate, using <code><a href="https://rdrr.io/pkg/limma/man/lmFit.html" class="external-link">limma::lmFit</a></code> applied to
-a matrix of log2 fold changes. It is useful to define a function to
-repeat this operation (over inferential replicates and
+a matrix of log2 fold changes. We then compute basic t-statistics from
+this table of linear model coefficients. It is useful to define a
+function to repeat this operation (over inferential replicates and
 permutations).</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">computeStat</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">mat</span>, <span class="va">design</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">lfc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="va">mat</span><span class="op">[</span>,<span class="va">idx1</span><span class="op">]</span> <span class="op">+</span> <span class="va">pc</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log2</a></span><span class="op">(</span><span class="va">mat</span><span class="op">[</span>,<span class="va">idx2</span><span class="op">]</span> <span class="op">+</span> <span class="va">pc</span><span class="op">)</span></span>
 <span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">limma</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/limma/man/lmFit.html" class="external-link">lmFit</a></span><span class="op">(</span><span class="va">lfc</span>, <span class="va">design</span><span class="op">)</span></span>
-<span>  <span class="va">fit</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span>,<span class="st">"groupB:cov"</span><span class="op">]</span></span>
+<span>  <span class="va">tstats</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">coef</span><span class="op">/</span><span class="va">fit</span><span class="op">$</span><span class="va">stdev.unscaled</span><span class="op">/</span><span class="va">fit</span><span class="op">$</span><span class="va">sigma</span></span>
+<span>  <span class="va">tstats</span><span class="op">[</span>,<span class="st">"groupB:cov"</span><span class="op">]</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We then use the <em>SAMseq</em>/<em>Swish</em> strategy to average
 over the inferential replicates, for the observed data:</p>
@@ -722,12 +725,12 @@ others show a relatively flat histogram of p-values.</p>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##               stat  pvalue     locfdr    qvalue</span></span>
-<span><span class="co">## gene-1 -2.19722358 0.00001 0.03834887 0.0100000</span></span>
-<span><span class="co">## gene-2 -0.03770579 0.57738 1.00000000 0.9823256</span></span>
-<span><span class="co">## gene-3 -0.05976447 0.38109 1.00000000 0.9820205</span></span>
-<span><span class="co">## gene-4 -0.02223931 0.74151 1.00000000 0.9918136</span></span>
-<span><span class="co">## gene-5 -0.34677755 0.00283 0.79279902 0.7528571</span></span>
-<span><span class="co">## gene-6  0.23841580 0.00389 0.79279902 0.7528571</span></span></code></pre>
+<span><span class="co">## gene-1 -6.89602993 0.00001 0.03853856 0.0100000</span></span>
+<span><span class="co">## gene-2 -0.08979129 0.70475 1.00000000 0.9925168</span></span>
+<span><span class="co">## gene-3 -0.16623033 0.48656 1.00000000 0.9802500</span></span>
+<span><span class="co">## gene-4  0.04186206 0.85977 1.00000000 0.9980000</span></span>
+<span><span class="co">## gene-5 -0.13609701 0.56842 1.00000000 0.9802500</span></span>
+<span><span class="co">## gene-6  0.15545421 0.51556 1.00000000 0.9802500</span></span></code></pre>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pvalue</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-41-1.png"><!-- --></p>
@@ -778,7 +781,7 @@ these locations:</p>
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
 <span><span class="co">##  [1] SummarizedExperiment_1.29.1 MatrixGenerics_1.11.1      </span></span>
-<span><span class="co">##  [3] matrixStats_0.63.0          fishpond_2.5.6             </span></span>
+<span><span class="co">##  [3] matrixStats_0.63.0          fishpond_2.5.7             </span></span>
 <span><span class="co">##  [5] EnsDb.Hsapiens.v86_2.99.0   ensembldb_2.23.2           </span></span>
 <span><span class="co">##  [7] AnnotationFilter_1.23.0     GenomicFeatures_1.51.4     </span></span>
 <span><span class="co">##  [9] AnnotationDbi_1.61.2        Biobase_2.59.0             </span></span>
