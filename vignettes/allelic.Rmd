@@ -546,21 +546,21 @@ plotAllelicGene(y, gene, edb, cov="time_bins",
                 qvalue=FALSE, log2FC=FALSE)
 ```
 
-# More complicated designs
+# More complex designs
 
 The SEESAW suite currently supports testing AI globally (across all
 samples), testing for differential AI (across two groups), or testing
 for dynamic AI (whether the allelic ratio changes over a continuous
 covariate such as time).
 
-However, additional designs within the nonparametric testing framework
-of *Swish* (and originally *SAMseq*) can be explored. This testing
-framework is to compute a test statistic, average that over
-inferential replicates, and then permute the samples in order to
-generate a null distribution of the averaged test statistic. The
-*qvalue* method and package is then used to return the final
-inference. Here we explore testing outside of `swish` function, by
-following these steps. We will test for differential correlation of
+However, additional designs can also be used within the nonparametric
+testing framework of *Swish* (and originally *SAMseq*). The general
+idea of the testing framework is to compute a test statistic, average
+that over inferential replicates, and then permute the samples in
+order to generate a null distribution of the bootstrap-averaged test
+statistic. The *qvalue* method and package is then used to return the
+final inference. Here we explore testing outside of `swish` function,
+by following these steps. We will test for differential correlation of
 allelic ratios across two groups.
 
 First, we simulate a dataset with two groups, and insert differential
@@ -579,7 +579,8 @@ table(y$time, y$group) # 2 allelic counts per cell
 We change the direction of AI trend for the first feature:
 
 ```{r}
-for (k in paste0("infRep",1:20)) {
+reps <- grep("infRep", assayNames(y), value=TRUE)
+for (k in reps) {
   assay(y,k)[1,21:40] <- assay(y,k)[1,c(31:40,21:30)]
 }
 ```
@@ -608,7 +609,20 @@ idx2 <- which(y$allele == "a2")
 all.equal(y$sample[idx1], y$sample[idx2])
 cov <- y$time[idx1]
 group <- y$group[idx1]
+# interaction of group and covariate (time)
 design <- model.matrix(~group + cov + group:cov)
+```
+
+For efficiency, we precompute the allelic LFC array (features x
+samples x infReps):
+
+```{r}
+reps <- grep("infRep", assayNames(y), value=TRUE)
+nreps <- length(reps)
+infReps <- assays(y)[reps]
+infRepsArray <- abind::abind(as.list(infReps), along=3)
+lfcArray <- log2(infRepsArray[,idx1,] + pc) -
+            log2(infRepsArray[,idx2,] + pc)
 ```
 
 For the statistic, we extract the coefficient for the interaction of
@@ -619,9 +633,8 @@ to repeat this operation (over inferential replicates and
 permutations).
 
 ```{r}
-computeStat <- function(mat, design) {
-  lfc <- log2(mat[,idx1] + pc) - log2(mat[,idx2] + pc)
-  fit <- limma::lmFit(lfc, design)
+computeStat <- function(k, design) {
+  fit <- limma::lmFit(lfcArray[,,k], design)
   tstats <- fit$coef/fit$stdev.unscaled/fit$sigma
   tstats[,"groupB:cov"]
 }
@@ -631,8 +644,7 @@ We then use the *SAMseq*/*Swish* strategy to average over the
 inferential replicates, for the observed data:
 
 ```{r}
-reps <- grep("infRep", assayNames(y), value=TRUE)
-stat <- rowMeans(sapply(reps, function(k) computeStat(assay(y, k), design)))
+stat <- rowMeans(sapply(1:nreps, \(k) computeStat(k, design)))
 ```
 
 Finally, we repeat, while permuting the samples 100 times:
@@ -643,10 +655,7 @@ nperms <- 100
 nulls <- matrix(nrow=nrow(y), ncol=nperms)
 set.seed(1)
 for (p in seq_len(nperms)) {
-  permuted_design <- design[sample(n),]
-  nulls[,p] <- rowMeans(sapply(reps, function(k) {
-    computeStat(assay(y, k), permuted_design)
-  }))
+  nulls[,p] <- rowMeans(sapply(1:nreps, \(k) computeStat(k, design[sample(n),])))
 }
 ```
 
@@ -654,11 +663,10 @@ The rest of the process is providing the observed statistic and the
 null statistics to the `qvalue` function:
 
 ```{r}
-nulls.vec <- as.vector(nulls)
 pvalue <- qvalue::empPvals(abs(stat), abs(nulls))
-q.res <- qvalue::qvalue(pvalue)
-locfdr <- q.res$lfdr
-qvalue <- q.res$qvalues
+q_res <- qvalue::qvalue(pvalue)
+locfdr <- q_res$lfdr
+qvalue <- q_res$qvalues
 res <- data.frame(stat, pvalue, locfdr, qvalue)
 ```
 
