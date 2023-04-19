@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.8</span>
       </span>
     </div>
 
@@ -90,7 +90,7 @@
       <h1 data-toc-skip>SEESAW - Allelic expression analysis with Salmon
 and Swish</h1>
             
-            <h4 data-toc-skip class="date">04/18/2023</h4>
+            <h4 data-toc-skip class="date">04/19/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mikelove/fishpond/blob/HEAD/vignettes/allelic.Rmd" class="external-link"><code>vignettes/allelic.Rmd</code></a></small>
       <div class="hidden name"><code>allelic.Rmd</code></div>
@@ -700,23 +700,27 @@ this table of linear model coefficients. It is useful to define a
 function to repeat this operation (over inferential replicates and
 permutations).</p>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">computeStat</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">k</span>, <span class="va">design</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">computeStat</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">k</span>, <span class="va">design</span>, <span class="va">name</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">limma</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/limma/man/lmFit.html" class="external-link">lmFit</a></span><span class="op">(</span><span class="va">lfcArray</span><span class="op">[</span>,,<span class="va">k</span><span class="op">]</span>, <span class="va">design</span><span class="op">)</span></span>
 <span>  <span class="va">tstats</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">coef</span><span class="op">/</span><span class="va">fit</span><span class="op">$</span><span class="va">stdev.unscaled</span><span class="op">/</span><span class="va">fit</span><span class="op">$</span><span class="va">sigma</span></span>
-<span>  <span class="va">tstats</span><span class="op">[</span>,<span class="st">"groupB:cov"</span><span class="op">]</span></span>
+<span>  <span class="va">tstats</span><span class="op">[</span>,<span class="va">name</span><span class="op">]</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We then use the <em>SAMseq</em>/<em>Swish</em> strategy to average
 over the inferential replicates, for the observed data:</p>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">stat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">nreps</span>, \<span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="fu">computeStat</span><span class="op">(</span><span class="va">k</span>, <span class="va">design</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Finally, we repeat, while permuting the samples 100 times:</p>
+<code class="sourceCode R"><span><span class="va">stat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">nreps</span>, \<span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="fu">computeStat</span><span class="op">(</span><span class="va">k</span>, <span class="va">design</span>, <span class="st">"groupB:cov"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Finally, we repeat, while permuting the group labels for the samples
+100 times:</p>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">design</span><span class="op">)</span></span>
 <span><span class="va">nperms</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
 <span><span class="va">nulls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span>nrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, ncol<span class="op">=</span><span class="va">nperms</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">nperms</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">nulls</span><span class="op">[</span>,<span class="va">p</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">nreps</span>, \<span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="fu">computeStat</span><span class="op">(</span><span class="va">k</span>, <span class="va">design</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,<span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="co"># permute group labels</span></span>
+<span>  <span class="va">pgroup</span> <span class="op">&lt;-</span> <span class="va">group</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="va">pdesign</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="op">~</span><span class="va">pgroup</span> <span class="op">+</span> <span class="va">cov</span> <span class="op">+</span> <span class="va">pgroup</span><span class="op">:</span><span class="va">cov</span><span class="op">)</span></span>
+<span>  <span class="va">nulls</span><span class="op">[</span>,<span class="va">p</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">nreps</span>, \<span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="fu">computeStat</span><span class="op">(</span><span class="va">k</span>, <span class="va">pdesign</span>, <span class="st">"pgroupB:cov"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>The rest of the process is providing the observed statistic and the
 null statistics to the <code>qvalue</code> function:</p>
@@ -731,12 +735,12 @@ others show a relatively flat histogram of p-values.</p>
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##               stat  pvalue     locfdr    qvalue</span></span>
-<span><span class="co">## gene-1 -6.89602993 0.00001 0.03804831 0.0100000</span></span>
-<span><span class="co">## gene-2 -0.08979129 0.70218 1.00000000 0.9896097</span></span>
-<span><span class="co">## gene-3 -0.16623033 0.48244 1.00000000 0.9769938</span></span>
-<span><span class="co">## gene-4  0.04186206 0.85782 1.00000000 0.9980000</span></span>
-<span><span class="co">## gene-5 -0.13609701 0.56411 1.00000000 0.9769938</span></span>
-<span><span class="co">## gene-6  0.15545421 0.51075 1.00000000 0.9769938</span></span></code></pre>
+<span><span class="co">## gene-1 -6.89602993 0.00001 0.03887443 0.0100000</span></span>
+<span><span class="co">## gene-2 -0.08979129 0.70415 1.00000000 0.9913997</span></span>
+<span><span class="co">## gene-3 -0.16623033 0.48227 1.00000000 0.9772813</span></span>
+<span><span class="co">## gene-4  0.04186206 0.85828 1.00000000 0.9980000</span></span>
+<span><span class="co">## gene-5 -0.13609701 0.56461 1.00000000 0.9772813</span></span>
+<span><span class="co">## gene-6  0.15545421 0.51181 1.00000000 0.9772813</span></span></code></pre>
 <div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pvalue</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p><img src="allelic_files/figure-html/unnamed-chunk-42-1.png"><!-- --></p>
@@ -787,7 +791,7 @@ these locations:</p>
 <span><span class="co">## </span></span>
 <span><span class="co">## other attached packages:</span></span>
 <span><span class="co">##  [1] SummarizedExperiment_1.29.1 MatrixGenerics_1.11.1      </span></span>
-<span><span class="co">##  [3] matrixStats_0.63.0          fishpond_2.5.7             </span></span>
+<span><span class="co">##  [3] matrixStats_0.63.0          fishpond_2.5.8             </span></span>
 <span><span class="co">##  [5] EnsDb.Hsapiens.v86_2.99.0   ensembldb_2.23.2           </span></span>
 <span><span class="co">##  [7] AnnotationFilter_1.23.0     GenomicFeatures_1.51.4     </span></span>
 <span><span class="co">##  [9] AnnotationDbi_1.61.2        Biobase_2.59.0             </span></span>
