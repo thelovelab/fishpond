@@ -633,10 +633,10 @@ to repeat this operation (over inferential replicates and
 permutations).
 
 ```{r}
-computeStat <- function(k, design) {
+computeStat <- function(k, design, name) {
   fit <- limma::lmFit(lfcArray[,,k], design)
   tstats <- fit$coef/fit$stdev.unscaled/fit$sigma
-  tstats[,"groupB:cov"]
+  tstats[,name]
 }
 ```
 
@@ -644,10 +644,11 @@ We then use the *SAMseq*/*Swish* strategy to average over the
 inferential replicates, for the observed data:
 
 ```{r}
-stat <- rowMeans(sapply(1:nreps, \(k) computeStat(k, design)))
+stat <- rowMeans(sapply(1:nreps, \(k) computeStat(k, design, "groupB:cov")))
 ```
 
-Finally, we repeat, while permuting the samples 100 times:
+Finally, we repeat, while permuting the group labels for the samples
+100 times:
 
 ```{r}
 n <- nrow(design)
@@ -655,7 +656,10 @@ nperms <- 100
 nulls <- matrix(nrow=nrow(y), ncol=nperms)
 set.seed(1)
 for (p in seq_len(nperms)) {
-  nulls[,p] <- rowMeans(sapply(1:nreps, \(k) computeStat(k, design[sample(n),])))
+  # permute group labels
+  pgroup <- group[sample(n)]
+  pdesign <- model.matrix(~pgroup + cov + pgroup:cov)
+  nulls[,p] <- rowMeans(sapply(1:nreps, \(k) computeStat(k, pdesign, "pgroupB:cov")))
 }
 ```
 
