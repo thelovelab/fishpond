@@ -52,7 +52,7 @@ swishInterx <- function(infRepsArray, condition, covariate,
   if (!all(table(condition, covariate) > 0))
     stop("swish with interaction across two variables requires samples for each combination")
   dims <- dim(infRepsArray)
-
+  
   tab <- table(condition, covariate)
   # if sizes are equal, don't need to double or splice out columns
   all_equal <- all(tab[,2] == tab[,1])
@@ -158,15 +158,16 @@ randomSamplesToRemove <- function(tab, condition, covariate) {
   cond2 <- condition == levels(condition)[2]
   cov_lvls <- levels(covariate)
   idx <- numeric()
-  for (i in which(tab[,1] != tab[,2])) {
-    cond1small <- tab[1,i] < tab[2,i]
+  # find covariate levels which are imbalanced
+  for (j in which(tab[1,] != tab[2,])) {
+    cond1small <- tab[1,j] < tab[2,j]
     if (cond1small) {
-      idx <- c(idx, sample(which(cond2 & covariate == cov_lvls[i]),
-                           tab[2,i] - tab[1,i],
+      idx <- c(idx, sample(which(cond2 & covariate == cov_lvls[j]),
+                           tab[2,j] - tab[1,j],
                            replace=FALSE))
     } else {
-      idx <- c(idx, sample(which(cond1 & covariate == cov_lvls[i]),
-                           tab[1,i] - tab[2,i],
+      idx <- c(idx, sample(which(cond1 & covariate == cov_lvls[j]),
+                           tab[1,j] - tab[2,j],
                            replace=FALSE))
     }
   }
