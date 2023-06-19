@@ -27,12 +27,28 @@ versions used counts. Default is FALSE}
 a SummarizedExperiment with \code{meanInfRV} in the metadata columns
 }
 \description{
-\code{InfRV} is used the Swish publication for visualization.
-This function provides computation of the mean InfRV, a simple
-statistic that measures inferential uncertainty.
-It also computes and adds the mean and variance of inferential
+\code{InfRV} is a useful quantity for comparing groups of features
+(transcripts, genes, etc.) by inferential uncertainty.
+This function provides computation of the mean InfRV over samples,
+per feature, stored in \code{mcols(y)$meanInfRV}.
+}
+\details{
+InfRV is defined in Zhu et al. (2019) as:
+\eqn{\max(s^2 - \mu, 0) / \mu}, using the inferential
+sample variance and sample mean. This formulation takes the
+non-Poisson part of the inferential variance and scales by the
+mean, which effectively stabilizes inferential uncertainty over
+mean count. In practice, we also add \code{pc} to the denominator and
+\code{shift} to the final quantity, to facilitate visualization.
+
+This function also computes and adds the mean and variance of inferential
 replicates, which can be useful ahead of \code{\link{plotInfReps}}.
 Note that InfRV is not used in the \code{swish}
-statistical method at all, it is just for visualization.
-See function code for details.
+statistical method (for generating test statistics, p-values
+or q-values), it is just for visualization.
+}
+\references{
+Anqi Zhu, Avi Srivastava, Joseph G Ibrahim, Rob Patro, Michael I Love
+"Nonparametric expression analysis using inferential replicate counts"
+Nucleic Acids Research (2019). \url{https://doi.org/10.1093/nar/gkz622}
 }
