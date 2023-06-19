@@ -54,8 +54,8 @@ swishInterx <- function(infRepsArray, condition, covariate,
   dims <- dim(infRepsArray)
   
   tab <- table(condition, covariate)
-  # if sizes are equal, don't need to double or splice out columns
-  all_equal <- all(tab[,2] == tab[,1])
+  # if sizes are equal, don't need to remove samples for pairing
+  all_equal <- all(tab[1,] == tab[2,])
 
   # don't have pairs, but instead we use pseudo-pairs multiple times
   stats <- matrix(nrow=dims[1], ncol=nRandomPairs)
