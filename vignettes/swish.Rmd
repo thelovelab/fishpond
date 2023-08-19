@@ -676,7 +676,7 @@ plotInfReps(y2, idx[2], x="ifng", cov="salmonella")
 
 We have a separate vignette for allelic expression analysis, either
 navigate to the 
-[allelic vignette](https://mikelove.github.io/fishpond/articles/allelic.html)
+[allelic vignette](https://thelovelab.github.io/fishpond/articles/allelic.html)
 on the *fishpond* website, or the following from the R prompt:
 
 ```{r eval=FALSE}

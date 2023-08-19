@@ -1,6 +1,6 @@
 Package: fishpond
 Title: Fishpond: downstream methods and tools for expression data
-Version: 2.7.2
+Version: 2.7.3
 Authors@R: c(
     person("Anqi", "Zhu", role=c("aut","ctb")),
     person("Michael", "Love", email="michaelisaiahlove@gmail.com", role=c("aut","cre")),
@@ -31,7 +31,7 @@ Suggests: testthat, knitr, rmarkdown, macrophage, tximeta, org.Hs.eg.db,
     GenomicFeatures, AnnotationDbi, pheatmap, Gviz, GenomeInfoDb, data.table
 License: GPL-2
 Encoding: UTF-8
-URL: https://mikelove.github.io/fishpond, https://github.com/mikelove/fishpond
+URL: https://thelovelab.github.io/fishpond, https://thelovelab.com/mikelove/fishpond
 BugReports: https://support.bioconductor.org/tag/fishpond
 biocViews: Sequencing, RNASeq, GeneExpression,
     Transcription, Normalization, Regression,
