@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.7.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.7.4</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@
       <h1 data-toc-skip>Swish: differential expression accounting for
 inferential uncertainty</h1>
             
-            <h4 data-toc-skip class="date">08/19/2023</h4>
+            <h4 data-toc-skip class="date">08/26/2023</h4>
       
       
       <div class="hidden name"><code>swish.Rmd</code></div>
@@ -125,9 +125,9 @@ read on. There is a special section below for two-group analysis of <a href="#al
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 'coldata.csv': sample information table</span></span>
 <span><span class="va">coldata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"coldata.csv"</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/tximeta" class="external-link">tximeta</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/thelovelab/tximeta" class="external-link">tximeta</a></span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tximeta/man/tximeta.html" class="external-link">tximeta</a></span><span class="op">(</span><span class="va">coldata</span><span class="op">)</span> <span class="co"># reads in counts and inf reps</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://thelovelab.github.io/fishpond" class="external-link">fishpond</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://thelovelab.github.io/fishpond">fishpond</a></span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># scales counts</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># labels features to keep</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
@@ -265,7 +265,7 @@ reference level).</p>
 <span>                            levels<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"naive"</span>,<span class="st">"IFNg"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We load in the quantification data with <code>tximeta</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/tximeta" class="external-link">tximeta</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/thelovelab/tximeta" class="external-link">tximeta</a></span><span class="op">)</span></span>
 <span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tximeta/man/tximeta.html" class="external-link">tximeta</a></span><span class="op">(</span><span class="va">coldata</span><span class="op">)</span></span></code></pre></div>
 <p>We can see that all the assays have been loaded:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -310,7 +310,7 @@ breaking ties and in calculating permutations, to obtain identical
 results, one needs to set a random seed before running
 <code><a href="../reference/swish.html">swish()</a></code>, as we do below.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://thelovelab.github.io/fishpond" class="external-link">fishpond</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://thelovelab.github.io/fishpond">fishpond</a></span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/scaleInfReps.html">scaleInfReps</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelKeep.html">labelKeep</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="fu">mcols</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">$</span><span class="va">keep</span>,<span class="op">]</span></span>
@@ -739,7 +739,7 @@ to the less than 5% nominal FDR group:</p>
 <h2 id="allelic-expression-analysis">Allelic expression analysis<a class="anchor" aria-label="anchor" href="#allelic-expression-analysis"></a>
 </h2>
 <p>We have a separate vignette for allelic expression analysis, either
-navigate to the <a href="https://thelovelab.github.io/fishpond/articles/allelic.html" class="external-link">allelic
+navigate to the <a href="https://thelovelab.github.io/fishpond/articles/allelic.html">allelic
 vignette</a> on the <em>fishpond</em> website, or the following from the
 R prompt:</p>
 <div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
@@ -1198,7 +1198,7 @@ calculated between samples from the same covariate group.</p>
 <span><span class="co">## other attached packages:</span></span>
 <span><span class="co">##  [1] limma_3.57.7                GenomicFeatures_1.53.1     </span></span>
 <span><span class="co">##  [3] org.Hs.eg.db_3.17.0         AnnotationDbi_1.63.2       </span></span>
-<span><span class="co">##  [5] fishpond_2.7.3              tximeta_1.19.3             </span></span>
+<span><span class="co">##  [5] fishpond_2.7.4              tximeta_1.19.4             </span></span>
 <span><span class="co">##  [7] SummarizedExperiment_1.31.1 Biobase_2.61.0             </span></span>
 <span><span class="co">##  [9] GenomicRanges_1.53.1        GenomeInfoDb_1.37.2        </span></span>
 <span><span class="co">## [11] IRanges_2.35.2              S4Vectors_0.39.1           </span></span>
@@ -1206,14 +1206,14 @@ calculated between samples from the same covariate group.</p>
 <span><span class="co">## [15] matrixStats_1.0.0           macrophage_1.17.0          </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
-<span><span class="co">##   [1] jsonlite_1.8.7                tximport_1.29.0              </span></span>
+<span><span class="co">##   [1] jsonlite_1.8.7                tximport_1.29.1              </span></span>
 <span><span class="co">##   [3] magrittr_2.0.3                rmarkdown_2.24               </span></span>
 <span><span class="co">##   [5] fs_1.6.3                      BiocIO_1.11.0                </span></span>
 <span><span class="co">##   [7] zlibbioc_1.47.0               ragg_1.2.5                   </span></span>
 <span><span class="co">##   [9] vctrs_0.6.3                   memoise_2.0.1                </span></span>
 <span><span class="co">##  [11] Rsamtools_2.17.0              RCurl_1.98-1.12              </span></span>
 <span><span class="co">##  [13] htmltools_0.5.6               S4Arrays_1.1.5               </span></span>
-<span><span class="co">##  [15] progress_1.2.2                AnnotationHub_3.9.1          </span></span>
+<span><span class="co">##  [15] progress_1.2.2                AnnotationHub_3.9.2          </span></span>
 <span><span class="co">##  [17] curl_5.0.2                    SparseArray_1.1.11           </span></span>
 <span><span class="co">##  [19] sass_0.4.7                    bslib_0.5.1                  </span></span>
 <span><span class="co">##  [21] desc_1.4.2                    plyr_1.8.8                   </span></span>
@@ -1236,7 +1236,7 @@ calculated between samples from the same covariate group.</p>
 <span><span class="co">##  [55] httpuv_1.6.11                 glue_1.6.2                   </span></span>
 <span><span class="co">##  [57] restfulr_0.0.15               promises_1.2.1               </span></span>
 <span><span class="co">##  [59] grid_4.3.1                    reshape2_1.4.4               </span></span>
-<span><span class="co">##  [61] generics_0.1.3                gtable_0.3.3                 </span></span>
+<span><span class="co">##  [61] generics_0.1.3                gtable_0.3.4                 </span></span>
 <span><span class="co">##  [63] ensembldb_2.25.0              hms_1.1.3                    </span></span>
 <span><span class="co">##  [65] xml2_1.3.5                    utf8_1.2.3                   </span></span>
 <span><span class="co">##  [67] XVector_0.41.1                BiocVersion_3.18.0           </span></span>
