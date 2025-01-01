@@ -40,4 +40,4 @@ biocViews: Sequencing, RNASeq, GeneExpression,
     AlternativeSplicing, SingleCell
 VignetteBuilder: knitr
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2

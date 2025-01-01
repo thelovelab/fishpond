@@ -19,10 +19,10 @@
 #' The first column is assumed to be the barcodes and is named as "barcodes".
 #' Extra auxiliary columns in the barcodes file without a specified name will be ignored.
 #' @param gene_id_to_name path to a file that contains the mapping from gene names to gene ids. 
-#' It is only needed if
-#' 1. you are not using the simpleaf pipeline (`simpleaf index` + `simpleaf quant`), \\
-#' 2. you have such a file, and, \\
-#' 3. you want to add this information to the coldata of your anndata. \\
+#' It is only needed if\cr
+#'   1. you are not using the simpleaf pipeline (`simpleaf index` + `simpleaf quant`),\cr
+#'   2. you have such a file, and,\cr
+#'   3. you want to add this information to the colData of your output object.\cr
 #' If you do, please ensure it is a tab-separated, two-column file without a header, and the first column is the gene ids and the second column is the gene names.
 #' @param nonzero whether to filter cells with non-zero expression
 #' value across all genes (default \code{FALSE}).

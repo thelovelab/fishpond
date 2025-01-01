@@ -2,6 +2,7 @@
 % Please edit documentation in R/fishpond.R
 \docType{package}
 \name{fishpond-package}
+\alias{fishpond}
 \alias{fishpond-package}
 \title{Fishpond: downstream methods and tools for expression data}
 \description{
@@ -46,5 +47,38 @@ Patro, R., Love, M.I. (2020)
 Compression of quantification uncertainty for scRNA-seq counts.
 bioRxiv.
 \url{https://doi.org/10.1101/2020.07.06.189639}
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://thelovelab.github.io/fishpond}
+  \item \url{https://thelovelab.com/mikelove/fishpond}
+  \item Report bugs at \url{https://support.bioconductor.org/tag/fishpond}
+}
+
+}
+\author{
+\strong{Maintainer}: Michael Love \email{michaelisaiahlove@gmail.com}
+
+Authors:
+\itemize{
+  \item Anqi Zhu [contributor]
+  \item Avi Srivastava [contributor]
+  \item Rob Patro [contributor]
+  \item Joseph Ibrahim [contributor]
+}
+
+Other contributors:
+\itemize{
+  \item Hirak Sarkar [contributor]
+  \item Euphy Wu [contributor]
+  \item Noor Pratap Singh [contributor]
+  \item Scott Van Buren [contributor]
+  \item Dongze He [contributor]
+  \item Steve Lianoglou [contributor]
+  \item Wes Wilson [contributor]
+  \item Jeroen Gilis [contributor]
+}
+
 }
 \keyword{package}
