@@ -304,13 +304,13 @@ and `end` for `-` features).
 
 ```{r fig.dim=c(8,7)}
 gene <- rowRanges(y)$gene_id[1]
-plotAllelicGene(y, gene, edb)
+plotAllelicGene(y, gene, edb, ideogram=FALSE)
 ```
 
 You can also specify the gene using `symbol`:
 
 ```{r fig.dim=c(8,7)}
-plotAllelicGene(y, symbol="ADSS", db=edb)
+plotAllelicGene(y, symbol="ADSS", db=edb, ideogram=FALSE)
 ```
 
 In the allelic proportion and isoform proportion tracks, a line is
