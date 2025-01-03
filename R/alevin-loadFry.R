@@ -301,7 +301,7 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   qfile <- file.path(fryDir, "quant.json")
   if (!file.exists(qfile)) {
     qfile <- file.path(fryDir, "meta_info.json")
-    if (!file.exist(qfile)) {
+    if (!file.exists(qfile)) {
       stop("The `fryDir` directory provided does not look like a directory generated from alevin-fry:\n",
            sprintf("Missing meta_info.json or quant.json file: %s", qfile)
       )
