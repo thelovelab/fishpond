@@ -11,9 +11,19 @@
 #' @param outputFormat can be \emph{either} be a list that defines the
 #' desired format of the output \code{SingleCellExperiment} object
 #' \emph{or} a string that represents one of the pre-defined output
-#' formats, which are "scRNA", "snRNA", "all", "scVelo", "velocity", "U+S+A" and "S+A".
+#' formats, which are "scRNA" (or "S+A"), "snRNA" (or "all", "U+S+A"), "scVelo", and "velocity".
 #' See details for the explanations of the pre-defined formats and
 #' how to define custom format.
+#' @param aux_columns vector of characters containing the column names of the
+#' auxiliary information in the barcodes file starting from the second column.
+#' The first column is assumed to be the barcodes and is named as "barcodes".
+#' Extra auxiliary columns in the barcodes file without a specified name will be ignored.
+#' @param gene_id_to_name path to a file that contains the mapping from gene names to gene ids. 
+#' It is only needed if\cr
+#'   1. you are not using the simpleaf pipeline (`simpleaf index` + `simpleaf quant`),\cr
+#'   2. you have such a file, and,\cr
+#'   3. you want to add this information to the colData of your output object.\cr
+#' If you do, please ensure it is a tab-separated, two-column file without a header, and the first column is the gene ids and the second column is the gene names.
 #' @param nonzero whether to filter cells with non-zero expression
 #' value across all genes (default \code{FALSE}).
 #' If \code{TRUE}, this will filter based on all assays.
@@ -114,11 +124,13 @@
 #' @export
 loadFry <- function(fryDir, 
                     outputFormat = "scRNA", 
+                    aux_columns = c("X", "Y"),
+                    gene_id_to_name = NULL,
                     nonzero = FALSE,
                     quiet = FALSE) {
   
   # load in fry result
-  fry.raw <- load_fry_raw(fryDir, quiet)
+  fry.raw <- load_fry_raw(fryDir, aux_columns, gene_id_to_name, quiet)
   meta.data <- fry.raw$meta.data
   
   
@@ -272,7 +284,7 @@ loadFry <- function(fryDir,
   sce
 }
 
-load_fry_raw <- function(fryDir, quiet = FALSE) {
+load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   # Check `fryDir` is legit
   if (!quiet) {
     message("locating quant file")
@@ -289,8 +301,13 @@ load_fry_raw <- function(fryDir, quiet = FALSE) {
   qfile <- file.path(fryDir, "quant.json")
   if (!file.exists(qfile)) {
     qfile <- file.path(fryDir, "meta_info.json")
+    if (!file.exist(qfile)) {
+      stop("The `fryDir` directory provided does not look like a directory generated from alevin-fry:\n",
+           sprintf("Missing meta_info.json or quant.json file: %s", qfile)
+      )
+    }
   }
-  
+
   # read in metadata
   meta.info <- fromJSON(qfile)
   ng <- meta.info$num_genes
@@ -308,18 +325,58 @@ load_fry_raw <- function(fryDir, quiet = FALSE) {
     }
     ng <- as.integer(ng/3)
   }
-  
+
   # read in count matrix, gene names, and barcodes
   count.mat <- my_as_dgcmatrix(readMM(file = quant.file))
   afg <-  read.table(file.path(fryDir, "alevin", "quants_mat_cols.txt"),
                      strip.white = TRUE, header = FALSE, nrows = ng,
                      col.names = c("gene_ids"))
   rownames(afg) <- afg$gene_ids
-  afc <-  read.table(file.path(fryDir, "alevin", "quants_mat_rows.txt"),
-                     strip.white = TRUE, header = FALSE,
-                     col.names = c("barcodes"))
-  rownames(afc) <- afc$barcodes
+  afc <- read.table(file.path(fryDir, "alevin", "quants_mat_rows.txt"),
+                     strip.white = TRUE, header = FALSE)
   
+  # assign colnames to afc
+  if (ncol(afc) == 1) {
+    colnames(afc) <- "barcodes"
+  } else {
+    afc_colnames <- c("barcodes", aux_columns)
+    num_cols = min(ncol(afc), length(afc_colnames))
+
+    if (ncol(afc) != length(afc_colnames)) {
+      warning(paste0("Number of auxiliary columns in barcodes file does not match the provided column names. Using the first", num_cols, "columns in the barcode file with names ", paste(afc_colnames[1:num_cols], collapse = ", ")))
+    }
+
+    afc = afc[, 1:num_cols]
+    colnames(afc) <- afc_colnames[1:num_cols]
+  }
+
+  # assign rownames to afc
+  rownames(afc) <- afc$barcodes
+
+  # read in gene id to gene name mapping
+  gene_id_to_name_path = NULL
+  if (!is.null(gene_id_to_name)) {
+    if (file.exists(gene_id_to_name)) {
+      gene_id_to_name_path <- gene_id_to_name
+    } else {
+      warning("The provided gene_id_to_name file does not exist; ignored")
+    }
+  } else {
+    default_gene_id_to_name_path <- file.path(fryDir, "gene_id_to_name.tsv")
+    if (file.exists(default_gene_id_to_name_path)) {
+      gene_id_to_name_path <- default_gene_id_to_name_path
+      .say(quiet, "Using simpleaf default gene id to name file gene_id_to_name.tsv in the given fryDir")
+    }
+  }
+
+  # see if we can add gene names to the coldata
+  if (!is.null(gene_id_to_name_path)) {
+    gene_id_to_name <- read.table(gene_id_to_name_path, sep = "\t", header = FALSE)
+    names(gene_id_to_name) <- c("gene_ids", "gene_names")
+    rownames(gene_id_to_name) <- gene_id_to_name$gene_ids
+    afg$gene_names <- gene_id_to_name[afg$gene_ids, "gene_names"]
+  }
+
   if (!quiet) {
     message(paste("Processing", ng, "genes", "and", nrow(count.mat), "barcodes"))
   }
@@ -449,4 +506,10 @@ writeExampleFryDat <- function(x = "fry-usa-basic", ...) {
 # see https://cran.r-project.org/web/packages/Matrix/vignettes/Design-issues.pdf
 my_as_dgcmatrix <- function(matrix) {
   as(as(as(matrix, "dMatrix"), "generalMatrix"), "CsparseMatrix")
+}
+
+.say <- function(quiet, ...) {
+  if (!quiet) {
+    message(...)
+  }
 }

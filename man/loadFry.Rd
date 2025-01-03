@@ -4,7 +4,14 @@
 \alias{loadFry}
 \title{Load in data from alevin-fry USA mode}
 \usage{
-loadFry(fryDir, outputFormat = "scRNA", nonzero = FALSE, quiet = FALSE)
+loadFry(
+  fryDir,
+  outputFormat = "scRNA",
+  aux_columns = c("X", "Y"),
+  gene_id_to_name = NULL,
+  nonzero = FALSE,
+  quiet = FALSE
+)
 }
 \arguments{
 \item{fryDir}{path to the output directory returned by
@@ -16,9 +23,21 @@ alevin-fry quant command. This directory should contain a
 \item{outputFormat}{can be \emph{either} be a list that defines the
 desired format of the output \code{SingleCellExperiment} object
 \emph{or} a string that represents one of the pre-defined output
-formats, which are "scRNA", "snRNA", "all", "scVelo", "velocity", "U+S+A" and "S+A".
+formats, which are "scRNA" (or "S+A"), "snRNA" (or "all", "U+S+A"), "scVelo", and "velocity".
 See details for the explanations of the pre-defined formats and
 how to define custom format.}
+
+\item{aux_columns}{vector of characters containing the column names of the
+auxiliary information in the barcodes file starting from the second column.
+The first column is assumed to be the barcodes and is named as "barcodes".
+Extra auxiliary columns in the barcodes file without a specified name will be ignored.}
+
+\item{gene_id_to_name}{path to a file that contains the mapping from gene names to gene ids. 
+It is only needed if\cr
+  1. you are not using the simpleaf pipeline (`simpleaf index` + `simpleaf quant`),\cr
+  2. you have such a file, and,\cr
+  3. you want to add this information to the colData of your output object.\cr
+If you do, please ensure it is a tab-separated, two-column file without a header, and the first column is the gene ids and the second column is the gene names.}
 
 \item{nonzero}{whether to filter cells with non-zero expression
 value across all genes (default \code{FALSE}).
