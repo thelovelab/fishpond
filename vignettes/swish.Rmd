@@ -127,6 +127,15 @@ We also
 recommend to use `--gcBias` when running *Salmon* to protect against
 common sample-specific biases present in RNA-seq data.
 
+To keep the *macrophage* package small, it does not include the
+inferential replicates for all transcripts. The full *Salmon* output,
+including inferential replicates, is archived on Zenodo
+([doi: 10.5281/zenodo.22982581](https://doi.org/10.5281/zenodo.22982581)).
+Instead, *macrophage* provides `macro_txp_se`, the output of `tximeta`
+including inferential replicates, for a subset of genes. Below we show
+the code that would be used to import the data with `tximeta`, and
+then we load the pre-built object.
+
 # Data import
 
 ## Read in the column data from CSV
@@ -172,29 +181,6 @@ object. We use the *tximeta* [@tximeta] package to read in the data:
 suppressPackageStartupMessages(library(SummarizedExperiment))
 ```
 
-```{r include=FALSE}
-# This hidden code chunk is only needed for Bioc build machines,
-# so that 'fishpond' will build regardless of whether
-# the machine can connect to ftp.ebi.ac.uk.
-# Using linkedTxomes to point to a GTF that lives in the macrophage pkg.
-# The chunk can be skipped if you have internet connection,
-# as tximeta will automatically ID the transcriptome and DL the GTF.
-library(tximeta)
-makeLinkedTxome(
-  indexDir=file.path(dir, "gencode.v29_salmon_0.12.0"),
-  source="myGENCODE",
-  organism="Homo sapiens",
-  release="29",
-  genome="GRCh38",
-  fasta="ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz",
-  gtf=file.path(dir, "gencode.v29.annotation.gtf.gz"), # local version
-  write=FALSE
-)
-# 'myGENCODE' is used to avoid tximeta() attempting to
-# pull down the TxDb from AnnotationHub, alterantively
-# once can specify useHub=FALSE.
-```
-
 The *macrophage* package contains a number of samples under different 
 conditions. In this vignette, we will  demonstrate a two group 
 comparison, and so we first subset our `coldata` to the `"naive"` 
@@ -207,11 +193,29 @@ coldata$condition <- factor(coldata$condition,
                             levels=c("naive","IFNg"))
 ```
 
-We load in the quantification data with `tximeta`:
+We would load in the quantification data with `tximeta`:
+
+```{r eval=FALSE}
+library(tximeta)
+se <- tximeta(coldata)
+```
+
+Here instead we load the pre-built object `macro_txp_se` from the
+*macrophage* package. It contains the output of the `tximeta` call
+above, for all 24 samples, but only for the transcripts of a subset of
+genes: all transcripts (15,294) of 2,000 randomly sampled expressed
+genes (genes with at least one transcript with a count of 10 or more
+in 3 or more samples), plus the GBP gene family (*GBP1*-*GBP7*),
+which we discuss below. To reduce the size of the object, the counts
+and inferential replicates were rounded to one decimal place. See
+`?macro_txp_se` for details. We subset the object to the same samples
+as in `coldata`:
 
 ```{r}
 library(tximeta)
-se <- tximeta(coldata)
+data(macro_txp_se, package="macrophage")
+se <- macro_txp_se[, macro_txp_se$names %in% coldata$names]
+se$condition <- factor(se$condition, levels=c("naive","IFNg"))
 ```
 
 We can see that all the assays have been loaded:
@@ -227,19 +231,11 @@ summarized to the gene levels:
 head(rownames(se))
 ```
 
-```{r include=FALSE}
-# hidden chunk to trick tximeta into knowing this is GENCODE,
-# this is only needed because above we labelled the txome myGENCODE
-metadata(se)$txomeInfo$source <- "GENCODE"
-```
-
 We will rename our *SummarizedExperiment* `y` for the statistical
-analysis. For speed of the vignette, we subset to the transcripts on
-chromosome 4.
+analysis.
 
 ```{r}
 y <- se
-y <- y[seqnames(y) == "chr4",]
 ```
 
 **Note on factor levels**: 
@@ -428,13 +424,17 @@ with(
 
 We can also run swish at the gene level. First we summarize all of the
 data to the gene level, using the `summarizeToGene` function from
-*tximeta*. Again, we rename the object for statistical analysis, and
-then we subset to the genes on chromosome 4 for the demonstration.
+*tximeta*. Again, we rename the object for statistical analysis.
+Typically, one would simply run `summarizeToGene(se)`, and *tximeta*
+would use the GTF file associated with the transcriptome to map
+transcripts to genes, and to assign genomic ranges to the genes.
+Here we instead provide a transcript-to-gene table, also from the
+*macrophage* package, and skip the gene ranges with `skipRanges=TRUE`:
 
 ```{r}
-gse <- summarizeToGene(se)
+data(macro_tx2gene, package="macrophage")
+gse <- summarizeToGene(se, skipRanges=TRUE, tx2gene=macro_tx2gene)
 gy <- gse
-gy <- gy[seqnames(gy) == "chr4",]
 ```
 
 Next we can run the same steps as before. Again we set a random seed
@@ -576,12 +576,20 @@ analysis.
 We then define two new factors indicating IFNg status and *Salmonella*
 status.
 
-```{r}
+With `tximeta` this would be:
+
+```{r eval=FALSE}
 coldata <- read.csv(file.path(dir, "coldata.csv"))
 coldata <- coldata[,c(1,2,3,5)]
 names(coldata) <- c("names","id","line","condition")
 coldata$files <- file.path(dir, "quants", coldata$names, "quant.sf.gz")
 se <- tximeta(coldata)
+```
+
+Here we use all samples of the pre-built object:
+
+```{r}
+se <- macro_txp_se
 ```
 
 ```{r}
@@ -595,11 +603,8 @@ with(colData(se),
      table(ifng, salmonella))
 ```
 
-We will work with the chromosome 1 transcripts for demonstration:
-
 ```{r}
 y2 <- se
-y2 <- y2[seqnames(y2) == "chr1",]
 ```
 
 ## Create and check paired samples
@@ -1076,7 +1081,6 @@ InfRV:
 
 ```{r}
 y3 <- se
-y3 <- y3[seqnames(y3) == "chr4",]
 y3 <- y3[,y3$condition %in% c("naive","IFNg")]
 y3 <- labelKeep(y3)
 y3 <- y3[mcols(y3)$keep,]

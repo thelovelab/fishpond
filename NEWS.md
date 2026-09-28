@@ -1,3 +1,9 @@
+# fishpond 2.19.1
+
+* The swish vignette now loads the pre-built `macro_txp_se` and
+  `macro_tx2gene` objects from the macrophage package (>= 1.29.1),
+  as macrophage no longer ships the Salmon inferential replicates.
+
 # fishpond 2.8.0
 
 * Corrected a bug in the two-group interaction (without pairing)
