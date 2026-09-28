@@ -1,3 +1,9 @@
+# fishpond 2.8.0
+
+* Corrected a bug in the two-group interaction (without pairing)
+  functionality, when the groups were imbalanced, as identified by
+  Samuel Chen. Fixes GitHub issue #35.
+
 # fishpond 2.7.1
 
 * Corrected a bug in the two-group interaction (without pairing)
