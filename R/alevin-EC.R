@@ -43,6 +43,9 @@
 #' 
 #' @importFrom Matrix sparseMatrix
 #' @export
+# NOTE: alevinEC() currently has no test coverage. The alevin bfh.txt
+# files used by tests/testthat/test_alevinEC.R were removed from
+# tximportData in v1.41.1 to reduce package size, so that test is skipped.
 alevinEC <- function(paths, tx2gene, multigene = FALSE, ignoreTxVersion = FALSE,
                      ignoreAfterBar = FALSE, quiet = FALSE){
 

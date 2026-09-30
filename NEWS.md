@@ -3,6 +3,9 @@
 * The swish vignette now loads the pre-built `macro_txp_se` and
   `macro_tx2gene` objects from the macrophage package (>= 1.29.1),
   as macrophage no longer ships the Salmon inferential replicates.
+* The `alevinEC()` test is now skipped, as the alevin `bfh.txt`
+  files were removed from tximportData (>= 1.41.1) to reduce package
+  size. `alevinEC()` currently has no test coverage.
 
 # fishpond 2.8.0
 
