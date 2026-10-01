@@ -52,7 +52,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest, r: '4.5', bioc: '3.21', cont: "bioconductor/bioconductor_docker:devel", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
+          - { os: ubuntu-latest, r: '4.6', bioc: 'devel', cont: "bioconductor/bioconductor_docker:devel", rspm: "https://packagemanager.rstudio.com/cran/__linux__/noble/latest" }
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RSPM: ${{ matrix.config.rspm }}
@@ -103,21 +103,21 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.5-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.5-
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.6-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.6-
 
       - name: Cache R packages on Linux
         if: "!contains(github.event.head_commit.message, '/nocache') && runner.os == 'Linux' "
         uses: actions/cache@v4
         with:
           path: /home/runner/work/_temp/Library
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.5-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.5-
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.6-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.6-
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         run: |
-          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
+          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "24.04")), collapse = " "))')
           echo $sysreqs
           sudo -s eval "$sysreqs"
 
@@ -267,7 +267,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}-biocversion-devel-r-4.5-results
+          name: ${{ runner.os }}-biocversion-devel-r-4.6-results
           path: check
 
       - uses: docker/build-push-action@v1
