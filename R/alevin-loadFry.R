@@ -121,7 +121,8 @@
 #' at gene level. The \code{rowData} is the probe-set CSV as it is: all its
 #' columns, with their names (for example \code{gene_id}, \code{probe_seq},
 #' \code{probe_id}, \code{included}, \code{region} and \code{gene_name}),
-#' and all values as strings. The function skips the lines at the top of
+#' read with the \code{read.csv} defaults (for example, \code{included} is
+#' logical). The function skips the lines at the top of
 #' the CSV that start with \code{#}, and uses the CSV rows of the matrix
 #' probes, in the order of the matrix (by \code{probe_id}, because the probe
 #' order of the matrix is not the order of the CSV). It stops with an error
@@ -475,15 +476,14 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
 }
 
 # Return the rowData of the probe matrix: the rows of the 10x probe-set CSV,
-# as they are (all columns, all values as strings), in the column order of
-# probe_quants_mat.mtx.
+# as they are (all columns, read with the read.csv defaults), in the column
+# order of probe_quants_mat.mtx.
 .readProbeVar <- function(fryDir, path, quiet) {
   .say(quiet, "Using the probe-set CSV ", path)
   # skip the "#key=value" lines at the top of the CSV
   lines <- readLines(path)
   n.meta <- match(FALSE, startsWith(lines, "#")) - 1
-  csv <- read.csv(path, skip = n.meta, colClasses = "character",
-                  na.strings = character(0), check.names = FALSE)
+  csv <- read.csv(path, skip = n.meta)
   dup <- unique(csv$probe_id[duplicated(csv$probe_id)])
   if (length(dup) > 0) {
     stop(sprintf("The probe-set CSV %s has %d probe ids more than one time, for example '%s'.",

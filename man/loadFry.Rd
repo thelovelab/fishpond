@@ -156,7 +156,8 @@ With \code{featureLevel = "probe"}, the rows are the probes in
 at gene level. The \code{rowData} is the probe-set CSV as it is: all its
 columns, with their names (for example \code{gene_id}, \code{probe_seq},
 \code{probe_id}, \code{included}, \code{region} and \code{gene_name}),
-and all values as strings. The function skips the lines at the top of
+read with the \code{read.csv} defaults (for example, \code{included} is
+logical). The function skips the lines at the top of
 the CSV that start with \code{#}, and uses the CSV rows of the matrix
 probes, in the order of the matrix (by \code{probe_id}, because the probe
 order of the matrix is not the order of the CSV). It stops with an error

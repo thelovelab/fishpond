@@ -175,11 +175,10 @@ test_that("loadFry with nonzero = TRUE removes the Flex cell with no counts", {
   expect_true(all(Matrix::colSums(SummarizedExperiment::assay(sce, "counts")) > 0))
 })
 
-# The probe-set CSV rows (without the "#" lines), all values as strings
+# The probe-set CSV rows (without the "#" lines), read with the read.csv defaults
 readProbeSet <- function(path) {
   lines <- readLines(path)
-  read.csv(text = lines[!startsWith(lines, "#")], colClasses = "character",
-           na.strings = character(0), check.names = FALSE)
+  read.csv(text = lines[!startsWith(lines, "#")])
 }
 
 # The CSV rows of the matrix probes, in matrix order, with the probe ids as row names
@@ -254,7 +253,8 @@ test_that("loadFry copies empty values, other values and other columns of the CS
   expect_identical(rd$region[rd$gene_id == "GENE000050"], "")
   expect_identical(rd$gene_name[rd$gene_id == "GENE000050"], "")
   expect_identical(rd$region[rd$gene_id == "GENE000010"], "S")
-  expect_identical(unique(rd$included), "TRUE")
+  # read.csv defaults: TRUE/FALSE is logical; an empty text value stays ""
+  expect_identical(unique(rd$included), TRUE)
 })
 
 test_that("loadFry stops if it finds no probe-set CSV", {
