@@ -1,0 +1,43 @@
+{
+    "alt_resolved_cell_numbers": [],
+    "cmd": "alevin-fry quant -i af_quant -o af_quant -t 4 -m probe_t2g.tsv -r cr-like --use-mtx",
+    "dump_eq": false,
+    "empty_resolved_cell_numbers": [
+        7
+    ],
+    "feature_axis": "gene",
+    "molecule_table": null,
+    "num_genes": 6,
+    "num_probes": null,
+    "num_quantified_cells": 4,
+    "num_same_gene_multimapping_reads": null,
+    "num_tiny_cell_resolved": 0,
+    "probe_mtx": false,
+    "probe_nnz": null,
+    "quant_options": {
+        "cmdline": "alevin-fry quant -i af_quant -o af_quant -t 4 -m probe_t2g.tsv -r cr-like --use-mtx",
+        "crlike_umi_edit": 0,
+        "dump_eq": false,
+        "dump_molecules": false,
+        "filter_list": null,
+        "init_uniform": false,
+        "input_dir": "af_quant",
+        "large_graph_thresh": 0,
+        "num_bootstraps": 0,
+        "num_threads": 4,
+        "output_dir": "af_quant",
+        "probe_level": false,
+        "probe_mtx": false,
+        "pug_exact_umi": false,
+        "resolution": "CellRangerLike",
+        "sa_model": "WinnerTakeAll",
+        "small_thresh": 100,
+        "summary_stat": false,
+        "tg_map": "/path/to/probe_index/probe_t2g.tsv",
+        "version": "0.19.0"
+    },
+    "resolution_strategy": "CellRangerLike",
+    "tiny_cell_resolved_cell_numbers": [],
+    "usa_mode": false,
+    "version_str": "0.19.0"
+}
