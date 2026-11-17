@@ -52,7 +52,7 @@ If not in USA mode, it must be TRUE/FALSE/counts.}
 A \code{SingleCellExperiment} object that contains one
 or more assays. Each assay consists of a gene by cell count matrix.
 The row names are feature names, and the column names are cell
-barcodes
+barcodes (for a multiplex run, \code{<sample_name>_<cell_barcode>})
 }
 \description{
 Enables easy loading of sparse data matrices provided by
@@ -115,6 +115,26 @@ The name of an element in the list will be the name of the corresponding
 assay in the output object. Each element in the list should be defined as 
 a vector that takes at least one of the three kinds of count, which are U, S and A.
 See the provided toy example for defining a custom output format.
+}
+
+\section{Details about Flex (multiplex) output}{
+
+\code{loadFry} also reads the output of \code{simpleaf multiplex-quant}
+and \code{alevin-fry quant-probe} (10x Flex). In this output, the
+row label of a cell in \code{quants_mat_rows.txt} is
+\code{<sample_name>_<cell_barcode>}, because the same barcode can occur
+in two samples. The function adds the two parts to the \code{colData}
+as \code{sample_name} and \code{cell_barcode}. They come from the
+\code{sample_name} and \code{CB} columns of \code{featureDump.txt},
+whose line i describes cell i; the function stops with an error if a
+line does not match its cell. If there is no \code{featureDump.txt}
+file, but the directory has a \code{collation_manifest.bin} or a
+\code{sample_info.json} file, the function splits each row label on
+the last \code{"_"}. Other outputs get no new columns.
+
+The \code{gene_id_to_name.tsv} file of a Flex run can have more gene ids
+than the matrix. The function adds the gene name of each gene in the
+matrix (a left join); a gene that is not in the file gets \code{NA}.
 }
 
 \examples{

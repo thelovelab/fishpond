@@ -66,3 +66,122 @@ test_that("loadFry gives the same output as before for directories that are not 
   expect_identical(snapSCE(loadFry(single, nonzero = TRUE, quiet = TRUE)),
                    expected$flex_single$nonzero)
 })
+
+# Copy a test directory into a new temporary directory, so that a test can change it
+copyFryExample <- function(name) {
+  tmp <- tempfile("fry")
+  dir.create(tmp)
+  file.copy(fryExample("flex", name), tmp, recursive = TRUE)
+  file.path(tmp, name)
+}
+
+readLinesTab <- function(path) {
+  do.call(rbind, strsplit(readLines(path), "\t", fixed = TRUE))
+}
+
+test_that("loadFry adds the cell barcode and the sample of each cell of a Flex run", {
+  d <- fryExample("flex", "flex_gene")
+  sce <- loadFry(d, quiet = TRUE)
+  rows <- readLines(file.path(d, "alevin", "quants_mat_rows.txt"))
+  cd <- SummarizedExperiment::colData(sce)
+
+  # the column names are the row labels <sample_name>_<cell_barcode>
+  expect_identical(colnames(sce), rows)
+  expect_identical(colnames(cd), c("barcodes", "cell_barcode", "sample_name"))
+  expect_identical(cd$barcodes, rows)
+  expect_identical(paste0(cd$sample_name, "_", cd$cell_barcode), rows)
+
+  # sample names keep "_", and a name such as "1e5" stays a string
+  expect_identical(sort(unique(cd$sample_name)), c("1e5", "S_1", "S_1_A"))
+  info <- jsonlite::fromJSON(file.path(d, "sample_info.json"))$samples
+  expect_identical(as.vector(table(cd$sample_name)[info$name]), as.integer(info$num_cells))
+
+  # the same bare barcode in two samples gives two cells
+  dup <- duplicated(cd$cell_barcode) | duplicated(cd$cell_barcode, fromLast = TRUE)
+  expect_equal(sum(dup), 2)
+  expect_false(anyDuplicated(colnames(sce)) > 0)
+
+  # the counts are the transposed matrix of quants_mat.mtx
+  m <- Matrix::readMM(file.path(d, "alevin", "quants_mat.mtx"))
+  expect_equal(unname(as.matrix(SummarizedExperiment::assay(sce, "counts"))),
+               unname(as.matrix(Matrix::t(m))))
+})
+
+test_that("loadFry left-joins gene_id_to_name.tsv onto the genes of a Flex run", {
+  d <- fryExample("flex", "flex_gene")
+  sce <- loadFry(d, quiet = TRUE)
+  cols <- readLines(file.path(d, "alevin", "quants_mat_cols.txt"))
+  g2n <- readLinesTab(file.path(d, "gene_id_to_name.tsv"))
+  expect_gt(nrow(g2n), length(cols))
+  rd <- SummarizedExperiment::rowData(sce)
+  expect_identical(rownames(sce), cols)
+  expect_identical(colnames(rd), c("gene_ids", "gene_names"))
+  expect_identical(rd$gene_ids, cols)
+  expect_identical(rd$gene_names, g2n[match(cols, g2n[, 1]), 2])
+})
+
+test_that("loadFry gives NA as the name of a gene that is not in gene_id_to_name.tsv", {
+  d <- copyFryExample("flex_gene")
+  path <- file.path(d, "gene_id_to_name.tsv")
+  lines <- readLines(path)
+  writeLines(lines[!startsWith(lines, "GENE000030\t")], path)
+  rd <- SummarizedExperiment::rowData(loadFry(d, quiet = TRUE))
+  expect_identical(is.na(rd$gene_names), rd$gene_ids == "GENE000030")
+})
+
+test_that("loadFry stops for a bad line or a gene id two times in gene_id_to_name.tsv", {
+  d <- copyFryExample("flex_gene")
+  path <- file.path(d, "gene_id_to_name.tsv")
+  lines <- readLines(path)
+  writeLines(c(lines, "GENE000099"), path)
+  expect_error(loadFry(d, quiet = TRUE), "did not have 2 elements")
+  writeLines(c(lines, "GENE000099\tA\tB"), path)
+  expect_error(loadFry(d, quiet = TRUE), "did not have 2 elements")
+  writeLines(c(lines, "GENE000010\tOther"), path)
+  # rownames<- gives a warning before the error
+  expect_error(suppressWarnings(loadFry(d, quiet = TRUE)), "duplicate 'row.names'")
+})
+
+test_that("loadFry stops if featureDump.txt and the rows file do not align", {
+  expect_error(loadFry(fryExample("flex", "flex_bad_featuredump"), quiet = TRUE),
+               "same row order")
+  d <- copyFryExample("flex_gene")
+  path <- file.path(d, "featureDump.txt")
+  lines <- readLines(path)
+  writeLines(lines[-length(lines)], path)
+  expect_error(loadFry(d, quiet = TRUE), "has 9 cells, but the count matrix has 10 rows")
+  lines[1] <- sub("^CB", "Barcode", lines[1])
+  writeLines(lines, path)
+  expect_error(loadFry(d, quiet = TRUE), "same row order")
+})
+
+test_that("loadFry splits the row labels on the last '_' without featureDump.txt", {
+  full <- loadFry(fryExample("flex", "flex_gene"), quiet = TRUE)
+  sce <- loadFry(fryExample("flex", "flex_no_featuredump"), quiet = TRUE)
+  cd <- SummarizedExperiment::colData(sce)
+  expect_identical(colnames(cd), c("barcodes", "cell_barcode", "sample_name"))
+  expect_identical(cd$cell_barcode, full$cell_barcode)
+  expect_identical(cd$sample_name, full$sample_name)
+})
+
+test_that("loadFry stops if a multiplex row label has no '_' and barcode", {
+  d <- copyFryExample("flex_no_featuredump")
+  path <- file.path(d, "alevin", "quants_mat_rows.txt")
+  lines <- readLines(path)
+  lines[1] <- gsub("_", "-", lines[1])
+  writeLines(lines, path)
+  expect_error(loadFry(d, quiet = TRUE), "Cannot split")
+})
+
+test_that("loadFry does not split the row labels of a run that is not multiplex", {
+  d <- copyFryExample("flex_no_featuredump")
+  file.remove(file.path(d, "sample_info.json"))
+  sce <- loadFry(d, quiet = TRUE)
+  expect_identical(colnames(SummarizedExperiment::colData(sce)), "barcodes")
+})
+
+test_that("loadFry with nonzero = TRUE removes the Flex cell with no counts", {
+  sce <- loadFry(fryExample("flex", "flex_gene"), nonzero = TRUE, quiet = TRUE)
+  expect_equal(ncol(sce), 9)
+  expect_true(all(Matrix::colSums(SummarizedExperiment::assay(sce, "counts")) > 0))
+})

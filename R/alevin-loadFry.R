@@ -87,10 +87,28 @@
 #' a vector that takes at least one of the three kinds of count, which are U, S and A.
 #' See the provided toy example for defining a custom output format.
 #' 
+#' @section Details about Flex (multiplex) output:
+#' \code{loadFry} also reads the output of \code{simpleaf multiplex-quant}
+#' and \code{alevin-fry quant-probe} (10x Flex). In this output, the
+#' row label of a cell in \code{quants_mat_rows.txt} is
+#' \code{<sample_name>_<cell_barcode>}, because the same barcode can occur
+#' in two samples. The function adds the two parts to the \code{colData}
+#' as \code{sample_name} and \code{cell_barcode}. They come from the
+#' \code{sample_name} and \code{CB} columns of \code{featureDump.txt},
+#' whose line i describes cell i; the function stops with an error if a
+#' line does not match its cell. If there is no \code{featureDump.txt}
+#' file, but the directory has a \code{collation_manifest.bin} or a
+#' \code{sample_info.json} file, the function splits each row label on
+#' the last \code{"_"}. Other outputs get no new columns.
+#'
+#' The \code{gene_id_to_name.tsv} file of a Flex run can have more gene ids
+#' than the matrix. The function adds the gene name of each gene in the
+#' matrix (a left join); a gene that is not in the file gets \code{NA}.
+#'
 #' @return A \code{SingleCellExperiment} object that contains one
 #' or more assays. Each assay consists of a gene by cell count matrix.
 #' The row names are feature names, and the column names are cell
-#' barcodes
+#' barcodes (for a multiplex run, \code{<sample_name>_<cell_barcode>})
 #'
 #' @references
 #'
@@ -353,6 +371,9 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   # assign rownames to afc
   rownames(afc) <- afc$barcodes
 
+  # for a multiplex (Flex) run, add the cell barcode and the sample name
+  afc <- .addFrySampleInfo(fryDir, afc, quiet)
+
   # read in gene id to gene name mapping
   gene_id_to_name_path = NULL
   if (!is.null(gene_id_to_name)) {
@@ -382,6 +403,62 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   }
   
   list(count.mat = count.mat, gene.names = afg, barcodes = afc, meta.data = list(num.genes = ng, usa.mode = usa.mode))
+}
+
+# For a multiplex (Flex) run, add the columns cell_barcode and sample_name to
+# the barcode table `afc`. The row label of a multiplex run is
+# <sample_name>_<cell_barcode>.
+# If featureDump.txt has a sample_name column, use its CB and sample_name
+# columns: line i describes row i. If featureDump.txt does not exist and the
+# directory is from a multiplex run, split the row label on the last "_"
+# (the barcode has only A, C, G and T). Other outputs do not change.
+.addFrySampleInfo <- function(fryDir, afc, quiet) {
+  labels <- as.character(afc$barcodes)
+  fd.file <- file.path(fryDir, "featureDump.txt")
+
+  if (file.exists(fd.file)) {
+    header <- strsplit(readLines(fd.file, n = 1), "\t", fixed = TRUE)[[1]]
+    if (!("sample_name" %in% header)) {
+      return(afc)
+    }
+    .say(quiet, "Reading the sample of each cell from ", fd.file)
+    # read only CB and sample_name, as strings (a sample name such as "1e5" stays a string)
+    col.classes <- ifelse(header %in% c("CB", "sample_name"), "character", "NULL")
+    fd <- read.table(fd.file, sep = "\t", header = TRUE, quote = "",
+                     comment.char = "", na.strings = character(0),
+                     check.names = FALSE, colClasses = col.classes)
+    if (nrow(fd) != length(labels)) {
+      stop(sprintf("%s has %d cells, but the count matrix has %d rows.",
+                   fd.file, nrow(fd), length(labels)))
+    }
+    expected <- paste0(fd$sample_name, "_", fd$CB)
+    bad <- which(expected != labels)
+    if (length(bad) > 0) {
+      stop(sprintf(paste0("%s does not have the same row order as the rows file of ",
+                          "the count matrix: %d rows are different. The first is row %d: ",
+                          "'%s' in featureDump.txt, '%s' in the rows file."),
+                   fd.file, length(bad), bad[1], expected[bad[1]], labels[bad[1]]))
+    }
+    afc$cell_barcode <- fd$CB
+    afc$sample_name <- fd$sample_name
+    return(afc)
+  }
+
+  multiplex.files <- file.path(fryDir, c("collation_manifest.bin", "sample_info.json"))
+  if (any(file.exists(multiplex.files))) {
+    .say(quiet, "No featureDump.txt in a multiplex run; splitting the row labels on the last '_'")
+    ok <- grepl("^.*_[ACGT]+$", labels)
+    if (!all(ok)) {
+      stop(sprintf(paste0("Cannot split the row labels of a multiplex run into ",
+                          "<sample_name>_<barcode>: %d labels do not end with '_' and ",
+                          "an A/C/G/T barcode, for example '%s'."),
+                   sum(!ok), labels[!ok][1]))
+    }
+    afc$cell_barcode <- sub("^.*_", "", labels)
+    afc$sample_name <- sub("_[^_]*$", "", labels)
+  }
+
+  afc
 }
 
 # Functions to help with running or creating test data
