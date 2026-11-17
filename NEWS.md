@@ -1,3 +1,15 @@
+# fishpond 2.19.3
+
+* `loadFry()` now reads the 10x Flex (multiplex) output of
+  `simpleaf multiplex-quant` and `alevin-fry quant-probe`. For a
+  multiplex run, the `colData` gets `sample_name` and `cell_barcode`,
+  the two parts of the row label `<sample_name>_<cell_barcode>`.
+  Other outputs do not change.
+* `loadFry()` has two new arguments. `featureLevel = "probe"` reads
+  the cell by probe matrix of `--probe-mtx`. `probeRef` gives the 10x
+  probe-set CSV of the run (by default `probe_set.csv` in `fryDir`);
+  the `rowData` gets `probe_id`, `gene_ids`, `gene_names` and `region`.
+
 # fishpond 2.19.1
 
 * The swish vignette now loads the pre-built `macro_txp_se` and
