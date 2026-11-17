@@ -175,10 +175,10 @@ test_that("loadFry with nonzero = TRUE removes the Flex cell with no counts", {
   expect_true(all(Matrix::colSums(SummarizedExperiment::assay(sce, "counts")) > 0))
 })
 
-# The probe-set CSV rows (without the "#" lines), read with the read.csv defaults
+# The probe-set CSV rows (without the "#" lines), read as loadFry reads them
 readProbeSet <- function(path) {
   lines <- readLines(path)
-  read.csv(text = lines[!startsWith(lines, "#")])
+  read.csv(text = lines[!startsWith(lines, "#")], na.strings = c("NA", ""))
 }
 
 # The CSV rows of the matrix probes, in matrix order, with the probe ids as row names
@@ -238,7 +238,7 @@ test_that("loadFry adds no gene names to a probe-set CSV without gene_name", {
   expect_identical(as.data.frame(SummarizedExperiment::rowData(sce)), probeRows(csv, cols))
 })
 
-test_that("loadFry copies empty values, other values and other columns of the CSV as they are", {
+test_that("loadFry gives NA for empty CSV values and copies other values and columns as they are", {
   d <- fryExample("flex", "flex_probe")
   path <- tempfile(fileext = ".csv")
   lines <- readLines(file.path(d, "probe_set.csv"))
@@ -250,10 +250,10 @@ test_that("loadFry copies empty values, other values and other columns of the CS
   rd <- SummarizedExperiment::rowData(loadFry(d, featureLevel = "probe", probeRef = path,
                                               quiet = TRUE))
   expect_identical(colnames(rd)[7], "extra")
-  expect_identical(rd$region[rd$gene_id == "GENE000050"], "")
-  expect_identical(rd$gene_name[rd$gene_id == "GENE000050"], "")
+  expect_identical(rd$region[rd$gene_id == "GENE000050"], NA_character_)
+  expect_identical(rd$gene_name[rd$gene_id == "GENE000050"], NA_character_)
   expect_identical(rd$region[rd$gene_id == "GENE000010"], "S")
-  # read.csv defaults: TRUE/FALSE is logical; an empty text value stays ""
+  # TRUE/FALSE is logical, and an empty value is NA
   expect_identical(unique(rd$included), TRUE)
 })
 
