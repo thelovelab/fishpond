@@ -125,8 +125,8 @@
 #' because the probe order of the matrix is not the order of the CSV. The
 #' function stops with an error if a probe of the matrix is not in the CSV.
 #' The \code{rowData} has the columns \code{probe_id}, \code{gene_ids},
-#' \code{gene_names} and \code{region} (\code{"spliced"} or
-#' \code{"unspliced"}); an empty value is \code{NA}. If the CSV has no
+#' \code{gene_names} and \code{region} (as in the CSV, for example
+#' \code{"spliced"} or \code{"unspliced"}); an empty value is \code{NA}. If the CSV has no
 #' \code{gene_name} column, the gene names come from the gene id to name
 #' file. A 10x \code{"unspliced"} probe does not span a splice junction; it
 #' does not mean pre-mRNA. The sum of the probe counts of a gene is the
@@ -499,14 +499,6 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
   }
   names(csv)[names(csv) == "gene_id"] <- "gene_ids"
   names(csv)[names(csv) == "gene_name"] <- "gene_names"
-  if ("region" %in% names(csv)) {
-    bad <- setdiff(csv$region, c("spliced", "unspliced", ""))
-    if (length(bad) > 0) {
-      stop(sprintf(paste0("The region column of %s must have only 'spliced', ",
-                          "'unspliced' or an empty value, not '%s'."),
-                   path, paste(sort(bad), collapse = "', '")))
-    }
-  }
   # an empty value is unknown
   for (col in intersect(c("gene_names", "region"), names(csv))) {
     csv[[col]][csv[[col]] == ""] <- NA

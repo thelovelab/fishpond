@@ -160,8 +160,8 @@ are optional. The probes are joined to the CSV by \code{probe_id},
 because the probe order of the matrix is not the order of the CSV. The
 function stops with an error if a probe of the matrix is not in the CSV.
 The \code{rowData} has the columns \code{probe_id}, \code{gene_ids},
-\code{gene_names} and \code{region} (\code{"spliced"} or
-\code{"unspliced"}); an empty value is \code{NA}. If the CSV has no
+\code{gene_names} and \code{region} (as in the CSV, for example
+\code{"spliced"} or \code{"unspliced"}); an empty value is \code{NA}. If the CSV has no
 \code{gene_name} column, the gene names come from the gene id to name
 file. A 10x \code{"unspliced"} probe does not span a splice junction; it
 does not mean pre-mRNA. The sum of the probe counts of a gene is the

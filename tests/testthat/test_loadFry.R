@@ -285,9 +285,11 @@ test_that("loadFry stops for a probe-set CSV that does not fit the probe matrix"
   writeLines(sub("probe_id", "probe", lines), path)
   expect_error(loadFry(d, featureLevel = "probe", probeRef = path, quiet = TRUE),
                "does not have the columns probe_id")
+  # a region value is copied as it is in the CSV
   writeLines(sub(",spliced,Alpha$", ",S,Alpha", lines), path)
-  expect_error(loadFry(d, featureLevel = "probe", probeRef = path, quiet = TRUE),
-               "must have only 'spliced'")
+  rd <- SummarizedExperiment::rowData(loadFry(d, featureLevel = "probe", probeRef = path,
+                                              quiet = TRUE))
+  expect_identical(rd$region[rd$gene_ids == "GENE000010"], "S")
 })
 
 test_that("loadFry with nonzero = TRUE at probe level removes the cell with no counts", {
