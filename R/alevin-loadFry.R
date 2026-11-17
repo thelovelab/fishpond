@@ -118,19 +118,18 @@
 #'
 #' With \code{featureLevel = "probe"}, the rows are the probes in
 #' \code{probe_quants_mat_cols.txt}, and the columns are the same cells as
-#' at gene level. The function skips the lines at the top of the probe-set
-#' CSV that start with \code{#}. The CSV must have the columns
-#' \code{probe_id} and \code{gene_id}; \code{gene_name} and \code{region}
-#' are optional. The probes are joined to the CSV by \code{probe_id},
-#' because the probe order of the matrix is not the order of the CSV. The
-#' function stops with an error if a probe of the matrix is not in the CSV.
-#' The \code{rowData} has the columns \code{probe_id}, \code{gene_ids},
-#' \code{gene_names} and \code{region} (as in the CSV, for example
-#' \code{"spliced"} or \code{"unspliced"}); an empty value is \code{NA}. If the CSV has no
-#' \code{gene_name} column, the gene names come from the gene id to name
-#' file. A 10x \code{"unspliced"} probe does not span a splice junction; it
-#' does not mean pre-mRNA. The sum of the probe counts of a gene is the
-#' gene count of the gene matrix.
+#' at gene level. The \code{rowData} is the probe-set CSV as it is: all its
+#' columns, with their names (for example \code{gene_id}, \code{probe_seq},
+#' \code{probe_id}, \code{included}, \code{region} and \code{gene_name}),
+#' and all values as strings. The function skips the lines at the top of
+#' the CSV that start with \code{#}, and uses the CSV rows of the matrix
+#' probes, in the order of the matrix (by \code{probe_id}, because the probe
+#' order of the matrix is not the order of the CSV). It stops with an error
+#' if a probe of the matrix is not in the CSV, or if the CSV has a
+#' \code{probe_id} more than one time. A 10x \code{"unspliced"} probe does
+#' not span a splice junction; it does not mean pre-mRNA. The sum of the
+#' probe counts of a gene (\code{gene_id}) is the gene count of the gene
+#' matrix.
 #'
 #' @return A \code{SingleCellExperiment} object that contains one
 #' or more assays. Each assay consists of a gene by cell count matrix.
@@ -448,8 +447,8 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
   }
 
   # see if we can add gene names to the coldata
-  # (at probe level, only if the probe-set CSV has no gene names)
-  if (!is.null(gene_id_to_name_path) && !("gene_names" %in% names(afg))) {
+  # (not at probe level: the rowData is the probe-set CSV as it is)
+  if (!probe.level && !is.null(gene_id_to_name_path)) {
     gene_id_to_name <- read.table(gene_id_to_name_path, sep = "\t", header = FALSE)
     names(gene_id_to_name) <- c("gene_ids", "gene_names")
     rownames(gene_id_to_name) <- gene_id_to_name$gene_ids
@@ -460,16 +459,9 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
     message(paste("Processing", ng, if (probe.level) "probes" else "genes",
                   "and", nrow(count.mat), "barcodes"))
   }
-
-  if (probe.level) {
-    afg <- afg[, intersect(.probeRowDataColumns, names(afg)), drop = FALSE]
-  }
   
   list(count.mat = count.mat, gene.names = afg, barcodes = afc, meta.data = list(num.genes = ng, usa.mode = usa.mode))
 }
-
-# The rowData columns of a probe matrix, in this order
-.probeRowDataColumns <- c("probe_id", "gene_ids", "gene_names", "region")
 
 # Return the path of the 10x probe-set CSV: `probeRef`, or else
 # <fryDir>/probe_set.csv. Stop if the file does not exist.
@@ -482,9 +474,9 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
   path
 }
 
-# Return the rowData of the probe matrix, in the column order of
-# probe_quants_mat.mtx, from the 10x probe-set CSV: probe_id, gene_ids and,
-# if the CSV has them, gene_names and region.
+# Return the rowData of the probe matrix: the rows of the 10x probe-set CSV,
+# as they are (all columns, all values as strings), in the column order of
+# probe_quants_mat.mtx.
 .readProbeVar <- function(fryDir, path, quiet) {
   .say(quiet, "Using the probe-set CSV ", path)
   # skip the "#key=value" lines at the top of the CSV
@@ -492,17 +484,6 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
   n.meta <- match(FALSE, startsWith(lines, "#")) - 1
   csv <- read.csv(path, skip = n.meta, colClasses = "character",
                   na.strings = character(0), check.names = FALSE)
-  missing <- setdiff(c("probe_id", "gene_id"), names(csv))
-  if (length(missing) > 0) {
-    stop(sprintf("The probe-set CSV %s does not have the columns %s.",
-                 path, paste(missing, collapse = ", ")))
-  }
-  names(csv)[names(csv) == "gene_id"] <- "gene_ids"
-  names(csv)[names(csv) == "gene_name"] <- "gene_names"
-  # an empty value is unknown
-  for (col in intersect(c("gene_names", "region"), names(csv))) {
-    csv[[col]][csv[[col]] == ""] <- NA
-  }
   dup <- unique(csv$probe_id[duplicated(csv$probe_id)])
   if (length(dup) > 0) {
     stop(sprintf("The probe-set CSV %s has %d probe ids more than one time, for example '%s'.",
@@ -515,7 +496,7 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
     stop(sprintf("%d probes of the probe matrix are not in %s, for example '%s'.",
                  sum(is.na(idx)), path, probes[is.na(idx)][1]))
   }
-  afg <- csv[idx, intersect(.probeRowDataColumns, names(csv)), drop = FALSE]
+  afg <- csv[idx, , drop = FALSE]
   rownames(afg) <- afg$probe_id
   afg
 }

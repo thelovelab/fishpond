@@ -186,10 +186,18 @@ test_that("loadFry with nonzero = TRUE removes the Flex cell with no counts", {
   expect_true(all(Matrix::colSums(SummarizedExperiment::assay(sce, "counts")) > 0))
 })
 
-# The probe-set CSV rows (without the "#" lines) as a data.frame of strings
+# The probe-set CSV rows (without the "#" lines), all values as strings
 readProbeSet <- function(path) {
   lines <- readLines(path)
-  read.csv(text = lines[!startsWith(lines, "#")], colClasses = "character")
+  read.csv(text = lines[!startsWith(lines, "#")], colClasses = "character",
+           na.strings = character(0), check.names = FALSE)
+}
+
+# The CSV rows of the matrix probes, in matrix order, with the probe ids as row names
+probeRows <- function(csv, probes) {
+  x <- csv[match(probes, csv$probe_id), , drop = FALSE]
+  rownames(x) <- probes
+  x
 }
 
 test_that("loadFry reads the probe matrix with the probe_set.csv file in fryDir", {
@@ -199,14 +207,11 @@ test_that("loadFry reads the probe matrix with the probe_set.csv file in fryDir"
   csv <- readProbeSet(file.path(d, "probe_set.csv"))
   rd <- SummarizedExperiment::rowData(sce)
 
-  # the rows are the probes, in the column order of the matrix
+  # the rowData is the CSV as it is: all its columns and values, in matrix order
   expect_identical(rownames(sce), cols)
-  expect_identical(colnames(rd), c("probe_id", "gene_ids", "gene_names", "region"))
-  expect_identical(rd$probe_id, cols)
-  i <- match(cols, csv$probe_id)
-  expect_identical(rd$gene_ids, csv$gene_id[i])
-  expect_identical(rd$gene_names, csv$gene_name[i])
-  expect_identical(rd$region, csv$region[i])
+  expect_identical(colnames(rd), c("gene_id", "probe_seq", "probe_id", "included",
+                                   "region", "gene_name"))
+  expect_identical(as.data.frame(rd), probeRows(csv, cols))
   # the CSV also has probes that are not in the matrix (included = FALSE)
   expect_gt(nrow(csv), length(cols))
 
@@ -224,40 +229,43 @@ test_that("loadFry gives the same cells at probe level and at gene level", {
   expect_identical(colnames(SummarizedExperiment::rowData(gene)), c("gene_ids", "gene_names"))
 })
 
-test_that("loadFry probe counts summed by gene_ids are the gene counts", {
+test_that("loadFry probe counts summed by gene_id are the gene counts", {
   d <- fryExample("flex", "flex_probe")
   probe <- loadFry(d, featureLevel = "probe", quiet = TRUE)
   gene <- loadFry(d, quiet = TRUE)
-  g <- SummarizedExperiment::rowData(probe)$gene_ids
+  g <- SummarizedExperiment::rowData(probe)$gene_id
   p2g <- Matrix::sparseMatrix(i = match(g, rownames(gene)), j = seq_along(g), x = 1,
                               dims = c(nrow(gene), length(g)))
   summed <- as.matrix(p2g %*% SummarizedExperiment::assay(probe, "counts"))
   expect_equal(unname(summed), unname(as.matrix(SummarizedExperiment::assay(gene, "counts"))))
 })
 
-test_that("loadFry uses gene_id_to_name.tsv for a probe-set CSV without gene_name", {
+test_that("loadFry adds no gene names to a probe-set CSV without gene_name", {
   d <- fryExample("flex", "flex_probe")
-  ref <- loadFry(d, featureLevel = "probe", quiet = TRUE)
-  sce <- loadFry(d, featureLevel = "probe", probeRef = fryExample("flex", "probe_set_v1.csv"),
-                 quiet = TRUE)
-  rd <- SummarizedExperiment::rowData(sce)
-  expect_identical(colnames(rd), c("probe_id", "gene_ids", "gene_names"))
-  expect_identical(rd$gene_ids, SummarizedExperiment::rowData(ref)$gene_ids)
-  expect_identical(rd$gene_names, SummarizedExperiment::rowData(ref)$gene_names)
+  path <- fryExample("flex", "probe_set_v1.csv")
+  sce <- loadFry(d, featureLevel = "probe", probeRef = path, quiet = TRUE)
+  cols <- readLines(file.path(d, "alevin", "probe_quants_mat_cols.txt"))
+  csv <- readProbeSet(path)
+  expect_false("gene_name" %in% colnames(csv))
+  expect_identical(as.data.frame(SummarizedExperiment::rowData(sce)), probeRows(csv, cols))
 })
 
-test_that("loadFry gives NA for an empty gene_name or region in the probe-set CSV", {
+test_that("loadFry copies empty values, other values and other columns of the CSV as they are", {
   d <- fryExample("flex", "flex_probe")
   path <- tempfile(fileext = ".csv")
   lines <- readLines(file.path(d, "probe_set.csv"))
-  i <- grep("^GENE000050,", lines)
-  lines[i] <- sub(",spliced,Epsilon$", ",,", lines[i])
+  lines <- sub(",spliced,Epsilon$", ",,", lines)
+  lines <- sub(",spliced,Alpha$", ",S,Alpha", lines)
+  body <- !startsWith(lines, "#")
+  lines[body] <- paste0(lines[body], c(",extra", rep(",x", sum(body) - 1)))
   writeLines(lines, path)
   rd <- SummarizedExperiment::rowData(loadFry(d, featureLevel = "probe", probeRef = path,
                                               quiet = TRUE))
-  k <- rd$gene_ids == "GENE000050"
-  expect_true(all(is.na(rd$gene_names[k])) && all(is.na(rd$region[k])))
-  expect_false(anyNA(rd$gene_names[!k]))
+  expect_identical(colnames(rd)[7], "extra")
+  expect_identical(rd$region[rd$gene_id == "GENE000050"], "")
+  expect_identical(rd$gene_name[rd$gene_id == "GENE000050"], "")
+  expect_identical(rd$region[rd$gene_id == "GENE000010"], "S")
+  expect_identical(unique(rd$included), "TRUE")
 })
 
 test_that("loadFry stops if it finds no probe-set CSV", {
@@ -284,12 +292,7 @@ test_that("loadFry stops for a probe-set CSV that does not fit the probe matrix"
                "more than one time")
   writeLines(sub("probe_id", "probe", lines), path)
   expect_error(loadFry(d, featureLevel = "probe", probeRef = path, quiet = TRUE),
-               "does not have the columns probe_id")
-  # a region value is copied as it is in the CSV
-  writeLines(sub(",spliced,Alpha$", ",S,Alpha", lines), path)
-  rd <- SummarizedExperiment::rowData(loadFry(d, featureLevel = "probe", probeRef = path,
-                                              quiet = TRUE))
-  expect_identical(rd$region[rd$gene_ids == "GENE000010"], "S")
+               "7 probes of the probe matrix are not in")
 })
 
 test_that("loadFry with nonzero = TRUE at probe level removes the cell with no counts", {

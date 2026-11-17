@@ -8,7 +8,7 @@
 * `loadFry()` has two new arguments. `featureLevel = "probe"` reads
   the cell by probe matrix of `--probe-mtx`. `probeRef` gives the 10x
   probe-set CSV of the run (by default `probe_set.csv` in `fryDir`);
-  the `rowData` gets `probe_id`, `gene_ids`, `gene_names` and `region`.
+  the `rowData` is the CSV as it is, with the rows of the matrix probes.
 
 # fishpond 2.19.1
 
