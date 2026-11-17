@@ -109,8 +109,8 @@
 #' whose line i describes cell i; the function stops with an error if a
 #' line does not match its cell. If there is no \code{featureDump.txt}
 #' file, but the directory has a \code{collation_manifest.bin} or a
-#' \code{sample_info.json} file, the function splits each row label on
-#' the last \code{"_"}. Other outputs get no new columns.
+#' \code{sample_info.json} file (a multiplex run), the function gives a
+#' warning and adds no columns. Other outputs get no new columns.
 #'
 #' The \code{gene_id_to_name.tsv} file of a Flex run can have more gene ids
 #' than the matrix. The function adds the gene name of each gene in the
@@ -506,8 +506,8 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
 # <sample_name>_<cell_barcode>.
 # If featureDump.txt has a sample_name column, use its CB and sample_name
 # columns: line i describes row i. If featureDump.txt does not exist and the
-# directory is from a multiplex run, split the row label on the last "_"
-# (the barcode has only A, C, G and T). Other outputs do not change.
+# directory is from a multiplex run, give a warning and add no columns.
+# Other outputs do not change.
 .addFrySampleInfo <- function(fryDir, afc, quiet) {
   labels <- as.character(afc$barcodes)
   fd.file <- file.path(fryDir, "featureDump.txt")
@@ -542,16 +542,8 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
 
   multiplex.files <- file.path(fryDir, c("collation_manifest.bin", "sample_info.json"))
   if (any(file.exists(multiplex.files))) {
-    .say(quiet, "No featureDump.txt in a multiplex run; splitting the row labels on the last '_'")
-    ok <- grepl("^.*_[ACGT]+$", labels)
-    if (!all(ok)) {
-      stop(sprintf(paste0("Cannot split the row labels of a multiplex run into ",
-                          "<sample_name>_<barcode>: %d labels do not end with '_' and ",
-                          "an A/C/G/T barcode, for example '%s'."),
-                   sum(!ok), labels[!ok][1]))
-    }
-    afc$cell_barcode <- sub("^.*_", "", labels)
-    afc$sample_name <- sub("_[^_]*$", "", labels)
+    warning(sprintf(paste0("%s is missing in a multiplex run, so sample_name and ",
+                           "cell_barcode are not added to the colData."), fd.file))
   }
 
   afc

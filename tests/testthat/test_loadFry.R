@@ -155,28 +155,17 @@ test_that("loadFry stops if featureDump.txt and the rows file do not align", {
   expect_error(loadFry(d, quiet = TRUE), "same row order")
 })
 
-test_that("loadFry splits the row labels on the last '_' without featureDump.txt", {
-  full <- loadFry(fryExample("flex", "flex_gene"), quiet = TRUE)
-  sce <- loadFry(fryExample("flex", "flex_no_featuredump"), quiet = TRUE)
-  cd <- SummarizedExperiment::colData(sce)
-  expect_identical(colnames(cd), c("barcodes", "cell_barcode", "sample_name"))
-  expect_identical(cd$cell_barcode, full$cell_barcode)
-  expect_identical(cd$sample_name, full$sample_name)
+test_that("loadFry warns and adds no columns for a multiplex run without featureDump.txt", {
+  d <- fryExample("flex", "flex_no_featuredump")
+  expect_warning(sce <- loadFry(d, quiet = TRUE),
+                 "featureDump.txt is missing in a multiplex run")
+  expect_identical(colnames(SummarizedExperiment::colData(sce)), "barcodes")
 })
 
-test_that("loadFry stops if a multiplex row label has no '_' and barcode", {
-  d <- copyFryExample("flex_no_featuredump")
-  path <- file.path(d, "alevin", "quants_mat_rows.txt")
-  lines <- readLines(path)
-  lines[1] <- gsub("_", "-", lines[1])
-  writeLines(lines, path)
-  expect_error(loadFry(d, quiet = TRUE), "Cannot split")
-})
-
-test_that("loadFry does not split the row labels of a run that is not multiplex", {
+test_that("loadFry is silent without featureDump.txt for a run that is not multiplex", {
   d <- copyFryExample("flex_no_featuredump")
   file.remove(file.path(d, "sample_info.json"))
-  sce <- loadFry(d, quiet = TRUE)
+  expect_silent(sce <- loadFry(d, quiet = TRUE))
   expect_identical(colnames(SummarizedExperiment::colData(sce)), "barcodes")
 })
 

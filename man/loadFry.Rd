@@ -144,8 +144,8 @@ as \code{sample_name} and \code{cell_barcode}. They come from the
 whose line i describes cell i; the function stops with an error if a
 line does not match its cell. If there is no \code{featureDump.txt}
 file, but the directory has a \code{collation_manifest.bin} or a
-\code{sample_info.json} file, the function splits each row label on
-the last \code{"_"}. Other outputs get no new columns.
+\code{sample_info.json} file (a multiplex run), the function gives a
+warning and adds no columns. Other outputs get no new columns.
 
 The \code{gene_id_to_name.tsv} file of a Flex run can have more gene ids
 than the matrix. The function adds the gene name of each gene in the
