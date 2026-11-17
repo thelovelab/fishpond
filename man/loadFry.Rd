@@ -10,7 +10,9 @@ loadFry(
   aux_columns = c("X", "Y"),
   gene_id_to_name = NULL,
   nonzero = FALSE,
-  quiet = FALSE
+  quiet = FALSE,
+  featureLevel = c("gene", "probe"),
+  probeRef = NULL
 )
 }
 \arguments{
@@ -47,6 +49,19 @@ on the matching assays in the vector.
 If not in USA mode, it must be TRUE/FALSE/counts.}
 
 \item{quiet}{logical whether to display no messages}
+
+\item{featureLevel}{\code{"gene"} (the default) reads the cell by gene
+matrix \code{quants_mat.mtx}. \code{"probe"} reads the cell by probe
+matrix \code{probe_quants_mat.mtx}, which \code{alevin-fry quant-probe
+--probe-mtx} (or \code{simpleaf multiplex-quant --probe-mtx}) writes.
+The function stops with an error if \code{quant.json} does not have
+\code{"probe_mtx": true}.}
+
+\item{probeRef}{only for \code{featureLevel = "probe"}: the path to the
+10x probe-set CSV of the run, which gives the gene of each probe. If it
+is \code{NULL} (the default), the function uses \code{probe_set.csv} in
+\code{fryDir}. The function stops with an error if the file does not
+exist. See the Flex section.}
 }
 \value{
 A \code{SingleCellExperiment} object that contains one
@@ -135,6 +150,22 @@ the last \code{"_"}. Other outputs get no new columns.
 The \code{gene_id_to_name.tsv} file of a Flex run can have more gene ids
 than the matrix. The function adds the gene name of each gene in the
 matrix (a left join); a gene that is not in the file gets \code{NA}.
+
+With \code{featureLevel = "probe"}, the rows are the probes in
+\code{probe_quants_mat_cols.txt}, and the columns are the same cells as
+at gene level. The function skips the lines at the top of the probe-set
+CSV that start with \code{#}. The CSV must have the columns
+\code{probe_id} and \code{gene_id}; \code{gene_name} and \code{region}
+are optional. The probes are joined to the CSV by \code{probe_id},
+because the probe order of the matrix is not the order of the CSV. The
+function stops with an error if a probe of the matrix is not in the CSV.
+The \code{rowData} has the columns \code{probe_id}, \code{gene_ids},
+\code{gene_names} and \code{region} (\code{"spliced"} or
+\code{"unspliced"}); an empty value is \code{NA}. If the CSV has no
+\code{gene_name} column, the gene names come from the gene id to name
+file. A 10x \code{"unspliced"} probe does not span a splice junction; it
+does not mean pre-mRNA. The sum of the probe counts of a gene is the
+gene count of the gene matrix.
 }
 
 \examples{
@@ -154,6 +185,14 @@ scvelo_format <- "scVelo"
 
 scev <- loadFry(fryDir=testdat$parent_dir, outputFormat=scvelo_format, nonzero=TRUE)
 SummarizedExperiment::assayNames(scev)
+
+# Load a minimal Flex (multiplex) output, at gene level and at probe level
+flexdir <- system.file("extdata", "alevin", "example-quants", "flex",
+                       "flex_probe", package = "fishpond")
+sce <- loadFry(flexdir)
+table(sce$sample_name)
+scep <- loadFry(flexdir, featureLevel = "probe")
+SummarizedExperiment::rowData(scep)
 
 }
 \references{

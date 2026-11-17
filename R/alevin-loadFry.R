@@ -31,6 +31,17 @@
 #' on the matching assays in the vector.
 #' If not in USA mode, it must be TRUE/FALSE/counts.
 #' @param quiet logical whether to display no messages
+#' @param featureLevel \code{"gene"} (the default) reads the cell by gene
+#' matrix \code{quants_mat.mtx}. \code{"probe"} reads the cell by probe
+#' matrix \code{probe_quants_mat.mtx}, which \code{alevin-fry quant-probe
+#' --probe-mtx} (or \code{simpleaf multiplex-quant --probe-mtx}) writes.
+#' The function stops with an error if \code{quant.json} does not have
+#' \code{"probe_mtx": true}.
+#' @param probeRef only for \code{featureLevel = "probe"}: the path to the
+#' 10x probe-set CSV of the run, which gives the gene of each probe. If it
+#' is \code{NULL} (the default), the function uses \code{probe_set.csv} in
+#' \code{fryDir}. The function stops with an error if the file does not
+#' exist. See the Flex section.
 #'
 #' @section Details about \code{loadFry}:
 #' This function consumes the result folder returned by running
@@ -105,6 +116,22 @@
 #' than the matrix. The function adds the gene name of each gene in the
 #' matrix (a left join); a gene that is not in the file gets \code{NA}.
 #'
+#' With \code{featureLevel = "probe"}, the rows are the probes in
+#' \code{probe_quants_mat_cols.txt}, and the columns are the same cells as
+#' at gene level. The function skips the lines at the top of the probe-set
+#' CSV that start with \code{#}. The CSV must have the columns
+#' \code{probe_id} and \code{gene_id}; \code{gene_name} and \code{region}
+#' are optional. The probes are joined to the CSV by \code{probe_id},
+#' because the probe order of the matrix is not the order of the CSV. The
+#' function stops with an error if a probe of the matrix is not in the CSV.
+#' The \code{rowData} has the columns \code{probe_id}, \code{gene_ids},
+#' \code{gene_names} and \code{region} (\code{"spliced"} or
+#' \code{"unspliced"}); an empty value is \code{NA}. If the CSV has no
+#' \code{gene_name} column, the gene names come from the gene id to name
+#' file. A 10x \code{"unspliced"} probe does not span a splice junction; it
+#' does not mean pre-mRNA. The sum of the probe counts of a gene is the
+#' gene count of the gene matrix.
+#'
 #' @return A \code{SingleCellExperiment} object that contains one
 #' or more assays. Each assay consists of a gene by cell count matrix.
 #' The row names are feature names, and the column names are cell
@@ -137,6 +164,14 @@
 #' scev <- loadFry(fryDir=testdat$parent_dir, outputFormat=scvelo_format, nonzero=TRUE)
 #' SummarizedExperiment::assayNames(scev)
 #'
+#' # Load a minimal Flex (multiplex) output, at gene level and at probe level
+#' flexdir <- system.file("extdata", "alevin", "example-quants", "flex",
+#'                        "flex_probe", package = "fishpond")
+#' sce <- loadFry(flexdir)
+#' table(sce$sample_name)
+#' scep <- loadFry(flexdir, featureLevel = "probe")
+#' SummarizedExperiment::rowData(scep)
+#'
 #' @author Dongze He, with contributions from Steve Lianoglou, Wes Wilson
 #' 
 #' @export
@@ -145,10 +180,14 @@ loadFry <- function(fryDir,
                     aux_columns = c("X", "Y"),
                     gene_id_to_name = NULL,
                     nonzero = FALSE,
-                    quiet = FALSE) {
-  
+                    quiet = FALSE,
+                    featureLevel = c("gene", "probe"),
+                    probeRef = NULL) {
+  featureLevel <- match.arg(featureLevel)
+
   # load in fry result
-  fry.raw <- load_fry_raw(fryDir, aux_columns, gene_id_to_name, quiet)
+  fry.raw <- load_fry_raw(fryDir, aux_columns, gene_id_to_name, quiet,
+                          featureLevel, probeRef)
   meta.data <- fry.raw$meta.data
   
   
@@ -302,7 +341,8 @@ loadFry <- function(fryDir,
   sce
 }
 
-load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
+load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
+                         featureLevel = "gene", probeRef = NULL) {
   # Check `fryDir` is legit
   if (!quiet) {
     message("locating quant file")
@@ -330,6 +370,21 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   meta.info <- fromJSON(qfile)
   ng <- meta.info$num_genes
   usa.mode <- meta.info$usa_mode
+
+  # the probe matrix of alevin-fry quant-probe --probe-mtx
+  probe.level <- featureLevel == "probe"
+  if (probe.level) {
+    if (!isTRUE(meta.info$probe_mtx)) {
+      stop(sprintf(paste0("featureLevel = \"probe\" needs a probe matrix, but %s does not ",
+                          "have \"probe_mtx\": true. Run alevin-fry quant-probe (or simpleaf ",
+                          "multiplex-quant) with --probe-mtx."), qfile))
+    }
+    if (isTRUE(usa.mode)) {
+      stop(sprintf("featureLevel = \"probe\" is not available for a USA mode run (%s).", qfile))
+    }
+    quant.file <- file.path(fryDir, "alevin", "probe_quants_mat.mtx")
+  }
+  mat.prefix <- if (probe.level) "probe_quants_mat" else "quants_mat"
   
   if (!quiet) {
     message("Reading meta data")
@@ -337,7 +392,7 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   }
   
   # if usa mode, each gene gets 3 rows, so the actual number of genes is ng/3
-  if (usa.mode) {
+  if (!probe.level && usa.mode) {
     if (ng %% 3 != 0) {
       stop("The number of quantified targets is not a multiple of 3")
     }
@@ -346,11 +401,16 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
 
   # read in count matrix, gene names, and barcodes
   count.mat <- my_as_dgcmatrix(readMM(file = quant.file))
-  afg <-  read.table(file.path(fryDir, "alevin", "quants_mat_cols.txt"),
-                     strip.white = TRUE, header = FALSE, nrows = ng,
-                     col.names = c("gene_ids"))
-  rownames(afg) <- afg$gene_ids
-  afc <- read.table(file.path(fryDir, "alevin", "quants_mat_rows.txt"),
+  if (probe.level) {
+    afg <- .readProbeVar(fryDir, .findProbeRef(fryDir, probeRef), quiet)
+    ng <- nrow(afg)
+  } else {
+    afg <-  read.table(file.path(fryDir, "alevin", "quants_mat_cols.txt"),
+                       strip.white = TRUE, header = FALSE, nrows = ng,
+                       col.names = c("gene_ids"))
+    rownames(afg) <- afg$gene_ids
+  }
+  afc <- read.table(file.path(fryDir, "alevin", paste0(mat.prefix, "_rows.txt")),
                      strip.white = TRUE, header = FALSE)
   
   # assign colnames to afc
@@ -391,7 +451,8 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   }
 
   # see if we can add gene names to the coldata
-  if (!is.null(gene_id_to_name_path)) {
+  # (at probe level, only if the probe-set CSV has no gene names)
+  if (!is.null(gene_id_to_name_path) && !("gene_names" %in% names(afg))) {
     gene_id_to_name <- read.table(gene_id_to_name_path, sep = "\t", header = FALSE)
     names(gene_id_to_name) <- c("gene_ids", "gene_names")
     rownames(gene_id_to_name) <- gene_id_to_name$gene_ids
@@ -399,10 +460,75 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   }
 
   if (!quiet) {
-    message(paste("Processing", ng, "genes", "and", nrow(count.mat), "barcodes"))
+    message(paste("Processing", ng, if (probe.level) "probes" else "genes",
+                  "and", nrow(count.mat), "barcodes"))
+  }
+
+  if (probe.level) {
+    afg <- afg[, intersect(.probeRowDataColumns, names(afg)), drop = FALSE]
   }
   
   list(count.mat = count.mat, gene.names = afg, barcodes = afc, meta.data = list(num.genes = ng, usa.mode = usa.mode))
+}
+
+# The rowData columns of a probe matrix, in this order
+.probeRowDataColumns <- c("probe_id", "gene_ids", "gene_names", "region")
+
+# Return the path of the 10x probe-set CSV: `probeRef`, or else
+# <fryDir>/probe_set.csv. Stop if the file does not exist.
+.findProbeRef <- function(fryDir, probeRef) {
+  path <- if (is.null(probeRef)) file.path(fryDir, "probe_set.csv") else probeRef
+  if (!file.exists(path)) {
+    stop(sprintf(paste0("Cannot find the probe-set CSV: %s does not exist. Give the 10x ",
+                        "probe-set CSV of the run with the probeRef argument."), path))
+  }
+  path
+}
+
+# Return the rowData of the probe matrix, in the column order of
+# probe_quants_mat.mtx, from the 10x probe-set CSV: probe_id, gene_ids and,
+# if the CSV has them, gene_names and region.
+.readProbeVar <- function(fryDir, path, quiet) {
+  .say(quiet, "Using the probe-set CSV ", path)
+  # skip the "#key=value" lines at the top of the CSV
+  lines <- readLines(path)
+  n.meta <- match(FALSE, startsWith(lines, "#")) - 1
+  csv <- read.csv(path, skip = n.meta, colClasses = "character",
+                  na.strings = character(0), check.names = FALSE)
+  missing <- setdiff(c("probe_id", "gene_id"), names(csv))
+  if (length(missing) > 0) {
+    stop(sprintf("The probe-set CSV %s does not have the columns %s.",
+                 path, paste(missing, collapse = ", ")))
+  }
+  names(csv)[names(csv) == "gene_id"] <- "gene_ids"
+  names(csv)[names(csv) == "gene_name"] <- "gene_names"
+  if ("region" %in% names(csv)) {
+    bad <- setdiff(csv$region, c("spliced", "unspliced", ""))
+    if (length(bad) > 0) {
+      stop(sprintf(paste0("The region column of %s must have only 'spliced', ",
+                          "'unspliced' or an empty value, not '%s'."),
+                   path, paste(sort(bad), collapse = "', '")))
+    }
+  }
+  # an empty value is unknown
+  for (col in intersect(c("gene_names", "region"), names(csv))) {
+    csv[[col]][csv[[col]] == ""] <- NA
+  }
+  dup <- unique(csv$probe_id[duplicated(csv$probe_id)])
+  if (length(dup) > 0) {
+    stop(sprintf("The probe-set CSV %s has %d probe ids more than one time, for example '%s'.",
+                 path, length(dup), dup[1]))
+  }
+  probes <- readLines(file.path(fryDir, "alevin", "probe_quants_mat_cols.txt"))
+  # join by name: the probe order of the matrix is not the order of the CSV
+  idx <- match(probes, csv$probe_id)
+  if (anyNA(idx)) {
+    stop(sprintf("%d probes of the probe matrix are not in %s, for example '%s'.",
+                 sum(is.na(idx)), path, probes[is.na(idx)][1]))
+  }
+  afg <- csv[idx, intersect(.probeRowDataColumns, names(csv)), drop = FALSE]
+  rownames(afg) <- afg$probe_id
+  afg
 }
 
 # For a multiplex (Flex) run, add the columns cell_barcode and sample_name to
