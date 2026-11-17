@@ -379,9 +379,6 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
                           "have \"probe_mtx\": true. Run alevin-fry quant-probe (or simpleaf ",
                           "multiplex-quant) with --probe-mtx."), qfile))
     }
-    if (isTRUE(usa.mode)) {
-      stop(sprintf("featureLevel = \"probe\" is not available for a USA mode run (%s).", qfile))
-    }
     quant.file <- file.path(fryDir, "alevin", "probe_quants_mat.mtx")
   }
   mat.prefix <- if (probe.level) "probe_quants_mat" else "quants_mat"
@@ -392,7 +389,7 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
   }
   
   # if usa mode, each gene gets 3 rows, so the actual number of genes is ng/3
-  if (!probe.level && usa.mode) {
+  if (usa.mode) {
     if (ng %% 3 != 0) {
       stop("The number of quantified targets is not a multiple of 3")
     }

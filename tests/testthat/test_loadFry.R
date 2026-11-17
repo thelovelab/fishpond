@@ -296,7 +296,7 @@ test_that("loadFry with nonzero = TRUE at probe level removes the cell with no c
   expect_equal(dim(sce), c(7, 9))
 })
 
-test_that("loadFry stops at probe level without a probe matrix or for a USA mode run", {
+test_that("loadFry stops at probe level without a probe matrix", {
   for (name in c("flex_gene", "legacy_usa")) {
     expect_error(loadFry(fryExample("flex", name), featureLevel = "probe",
                          probeRef = fryExample("flex", "flex_probe", "probe_set.csv"),
@@ -305,8 +305,4 @@ test_that("loadFry stops at probe level without a probe matrix or for a USA mode
   }
   expect_error(loadFry(fryExample("flex", "flex_probe"), featureLevel = "transcript",
                        quiet = TRUE), "should be one of")
-  d <- copyFryExample("flex_probe")
-  qpath <- file.path(d, "quant.json")
-  writeLines(sub('"usa_mode": false', '"usa_mode": true', readLines(qpath)), qpath)
-  expect_error(loadFry(d, featureLevel = "probe", quiet = TRUE), "USA mode")
 })
