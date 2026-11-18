@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.19.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.19.4</span>
       </span>
     </div>
 
@@ -54,6 +54,13 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="2.19.3" id="fishpond-2193">fishpond 2.19.3<a class="anchor" aria-label="anchor" href="#fishpond-2193"></a></h2>
+<ul><li>
+<code><a href="../reference/loadFry.html">loadFry()</a></code> now reads the 10x Flex (multiplex) output of <code>simpleaf multiplex-quant</code> and <code>alevin-fry quant-probe</code>. For a multiplex run, the <code>colData</code> gets <code>sample_name</code> and <code>cell_barcode</code>, the two parts of the row label <code>&lt;sample_name&gt;_&lt;cell_barcode&gt;</code>, from <code>featureDump.txt</code>. Without <code>featureDump.txt</code>, a multiplex run gives a warning and gets no new columns. Other outputs do not change.</li>
+<li>
+<code><a href="../reference/loadFry.html">loadFry()</a></code> has two new arguments. <code>featureLevel = "probe"</code> reads the cell by probe matrix of <code>--probe-mtx</code>. <code>probeRef</code> gives the 10x probe-set CSV of the run (by default <code>probe_set.csv</code> in <code>fryDir</code>); the <code>rowData</code> is the CSV as it is, with the rows of the matrix probes.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.19.1" id="fishpond-2191">fishpond 2.19.1<a class="anchor" aria-label="anchor" href="#fishpond-2191"></a></h2>
 <ul><li>The swish vignette now loads the pre-built <code>macro_txp_se</code> and <code>macro_tx2gene</code> objects from the macrophage package (&gt;= 1.29.1), as macrophage no longer ships the Salmon inferential replicates.</li>

@@ -18,7 +18,7 @@ alevin-fry USA mode."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.19.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.19.4</span>
       </span>
     </div>
 
@@ -68,7 +68,9 @@ alevin-fry USA mode.</p>
 <span>  aux_columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span>,</span>
 <span>  gene_id_to_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nonzero <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  featureLevel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gene"</span>, <span class="st">"probe"</span><span class="op">)</span>,</span>
+<span>  probeRef <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -121,13 +123,30 @@ If not in USA mode, it must be TRUE/FALSE/counts.</p></dd>
 <dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
 <dd><p>logical whether to display no messages</p></dd>
 
+
+<dt id="arg-featurelevel">featureLevel<a class="anchor" aria-label="anchor" href="#arg-featurelevel"></a></dt>
+<dd><p><code>"gene"</code> (the default) reads the cell by gene
+matrix <code>quants_mat.mtx</code>. <code>"probe"</code> reads the cell by probe
+matrix <code>probe_quants_mat.mtx</code>, which <code>alevin-fry quant-probe
+--probe-mtx</code> (or <code>simpleaf multiplex-quant --probe-mtx</code>) writes.
+The function stops with an error if <code>quant.json</code> does not have
+<code>"probe_mtx": true</code>.</p></dd>
+
+
+<dt id="arg-proberef">probeRef<a class="anchor" aria-label="anchor" href="#arg-proberef"></a></dt>
+<dd><p>only for <code>featureLevel = "probe"</code>: the path to the
+10x probe-set CSV of the run, which gives the gene of each probe. If it
+is <code>NULL</code> (the default), the function uses <code>probe_set.csv</code> in
+<code>fryDir</code>. The function stops with an error if the file does not
+exist. See the Flex section.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>A <code>SingleCellExperiment</code> object that contains one
 or more assays. Each assay consists of a gene by cell count matrix.
 The row names are feature names, and the column names are cell
-barcodes</p>
+barcodes (for a multiplex run, <code>&lt;sample_name&gt;_&lt;cell_barcode&gt;</code>)</p>
     </div>
     <div id="details-about-loadfry">
     <h2>Details about <code>loadFry</code></h2>
@@ -198,6 +217,41 @@ assay in the output object. Each element in the list should be defined as
 a vector that takes at least one of the three kinds of count, which are U, S and A.
 See the provided toy example for defining a custom output format.</p>
     </div>
+    <div id="details-about-flex-multiplex-output">
+    <h2>Details about Flex (multiplex) output</h2>
+
+
+<p><code>loadFry</code> also reads the output of <code>simpleaf multiplex-quant</code>
+and <code>alevin-fry quant-probe</code> (10x Flex). In this output, the
+row label of a cell in <code>quants_mat_rows.txt</code> is
+<code>&lt;sample_name&gt;_&lt;cell_barcode&gt;</code>, because the same barcode can occur
+in two samples. The function adds the two parts to the <code>colData</code>
+as <code>sample_name</code> and <code>cell_barcode</code>. They come from the
+<code>sample_name</code> and <code>CB</code> columns of <code>featureDump.txt</code>,
+whose line i describes cell i; the function stops with an error if a
+line does not match its cell. If there is no <code>featureDump.txt</code>
+file, but the directory has a <code>collation_manifest.bin</code> or a
+<code>sample_info.json</code> file (a multiplex run), the function gives a
+warning and adds no columns. Other outputs get no new columns.</p>
+<p>The <code>gene_id_to_name.tsv</code> file of a Flex run can have more gene ids
+than the matrix. The function adds the gene name of each gene in the
+matrix (a left join); a gene that is not in the file gets <code>NA</code>.</p>
+<p>With <code>featureLevel = "probe"</code>, the rows are the probes in
+<code>probe_quants_mat_cols.txt</code>, and the columns are the same cells as
+at gene level. The <code>rowData</code> is the probe-set CSV as it is: all its
+columns, with their names (for example <code>gene_id</code>, <code>probe_seq</code>,
+<code>probe_id</code>, <code>included</code>, <code>region</code> and <code>gene_name</code>),
+read with <code>read.csv</code> (for example, <code>included</code> is logical, and
+an empty value is <code>NA</code>). The function skips the lines at the top of
+the CSV that start with <code>#</code>, and uses the CSV rows of the matrix
+probes, in the order of the matrix (by <code>probe_id</code>, because the probe
+order of the matrix is not the order of the CSV). It stops with an error
+if a probe of the matrix is not in the CSV, or if the CSV has a
+<code>probe_id</code> more than one time. A 10x <code>"unspliced"</code> probe does
+not span a splice junction; it does not mean pre-mRNA. The sum of the
+probe counts of a gene (<code>gene_id</code>) is the gene count of the gene
+matrix.</p>
+    </div>
     <div id="references">
     <h2>References</h2>
     <p>alevin-fry publication:</p>
@@ -250,6 +304,64 @@ Nature Methods 19, 316–322 (2022).
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Done</span>
 <span class="r-in"><span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">scev</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "counts"    "spliced"   "unspliced"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Load a minimal Flex (multiplex) output, at gene level and at probe level</span></span></span>
+<span class="r-in"><span><span class="va">flexdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"alevin"</span>, <span class="st">"example-quants"</span>, <span class="st">"flex"</span>,</span></span>
+<span class="r-in"><span>                       <span class="st">"flex_probe"</span>, package <span class="op">=</span> <span class="st">"fishpond"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu">loadFry</span><span class="op">(</span><span class="va">flexdir</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> locating quant file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Reading meta data</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> USA mode: FALSE</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Reading the sample of each cell from /__w/_temp/Library/fishpond/extdata/alevin/example-quants/flex/flex_probe/featureDump.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using simpleaf default gene id to name file gene_id_to_name.tsv in the given fryDir</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Processing 6 genes and 10 barcodes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Not in USA mode, set assay name as "counts"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Constructing output SingleCellExperiment object</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Done</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">sce</span><span class="op">$</span><span class="va">sample_name</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1e5   S_1 S_1_A </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3     4     3 </span>
+<span class="r-in"><span><span class="va">scep</span> <span class="op">&lt;-</span> <span class="fu">loadFry</span><span class="op">(</span><span class="va">flexdir</span>, featureLevel <span class="op">=</span> <span class="st">"probe"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> locating quant file</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Reading meta data</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> USA mode: FALSE</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the probe-set CSV /__w/_temp/Library/fishpond/extdata/alevin/example-quants/flex/flex_probe/probe_set.csv</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Reading the sample of each cell from /__w/_temp/Library/fishpond/extdata/alevin/example-quants/flex/flex_probe/featureDump.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using simpleaf default gene id to name file gene_id_to_name.tsv in the given fryDir</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Processing 7 probes and 10 barcodes</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Not in USA mode, set assay name as "counts"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Constructing output SingleCellExperiment object</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Done</span>
+<span class="r-in"><span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">scep</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> DataFrame with 7 rows and 6 columns</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                gene_id              probe_seq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                            &lt;character&gt;            &lt;character&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000050|Epsilon|b4ed544  GENE000050 CATAGGTAAGAGGGAGAGTG..</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000020|Beta|957d909     GENE000020 GAAGTATCCACGAGTTCGAA..</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000010|Alpha|3ea2dde    GENE000010 TACACCCGGAGCATAAAAGA..</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000060|Zeta|59475df     GENE000060 CTAAGAGACCGGTTATGAAA..</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000020|Beta|5a8364d     GENE000020 TGCGCCCATCCTATTTTCAG..</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000040|Delta|8c35c89    GENE000040 CCACAAGGGGCGGCTCTAAT..</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000030|Gamma|cf56783    GENE000030 TTACTCCTGGGTGCTATGTG..</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                          probe_id  included      region</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                       &lt;character&gt; &lt;logical&gt; &lt;character&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000050|Epsilon|b4ed544 GENE000050|Epsilon|b..      TRUE     spliced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000020|Beta|957d909    GENE000020|Beta|957d..      TRUE   unspliced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000010|Alpha|3ea2dde   GENE000010|Alpha|3ea..      TRUE     spliced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000060|Zeta|59475df    GENE000060|Zeta|5947..      TRUE     spliced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000020|Beta|5a8364d    GENE000020|Beta|5a83..      TRUE     spliced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000040|Delta|8c35c89   GENE000040|Delta|8c3..      TRUE   unspliced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000030|Gamma|cf56783   GENE000030|Gamma|cf5..      TRUE     spliced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                              gene_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                            &lt;character&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000050|Epsilon|b4ed544     Epsilon</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000020|Beta|957d909           Beta</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000010|Alpha|3ea2dde         Alpha</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000060|Zeta|59475df           Zeta</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000020|Beta|5a8364d           Beta</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000040|Delta|8c35c89         Delta</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GENE000030|Gamma|cf56783         Gamma</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
