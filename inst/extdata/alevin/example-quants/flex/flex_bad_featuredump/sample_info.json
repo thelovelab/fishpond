@@ -1,0 +1,28 @@
+{
+    "num_barcodes": 2,
+    "num_samples": 3,
+    "samples": [
+        {
+            "barcode": "0x00001",
+            "collatable_reads": 400,
+            "name": "S_1",
+            "num_cells": 4,
+            "num_reads": 400
+        },
+        {
+            "barcode": "0x00002",
+            "collatable_reads": 300,
+            "name": "S_1_A",
+            "num_cells": 3,
+            "num_reads": 300
+        },
+        {
+            "barcode": "0x00003",
+            "collatable_reads": 300,
+            "name": "1e5",
+            "num_cells": 3,
+            "num_reads": 300
+        }
+    ],
+    "total_cells": 10
+}

@@ -31,6 +31,17 @@
 #' on the matching assays in the vector.
 #' If not in USA mode, it must be TRUE/FALSE/counts.
 #' @param quiet logical whether to display no messages
+#' @param featureLevel \code{"gene"} (the default) reads the cell by gene
+#' matrix \code{quants_mat.mtx}. \code{"probe"} reads the cell by probe
+#' matrix \code{probe_quants_mat.mtx}, which \code{alevin-fry quant-probe
+#' --probe-mtx} (or \code{simpleaf multiplex-quant --probe-mtx}) writes.
+#' The function stops with an error if \code{quant.json} does not have
+#' \code{"probe_mtx": true}.
+#' @param probeRef only for \code{featureLevel = "probe"}: the path to the
+#' 10x probe-set CSV of the run, which gives the gene of each probe. If it
+#' is \code{NULL} (the default), the function uses \code{probe_set.csv} in
+#' \code{fryDir}. The function stops with an error if the file does not
+#' exist. See the Flex section.
 #'
 #' @section Details about \code{loadFry}:
 #' This function consumes the result folder returned by running
@@ -87,10 +98,44 @@
 #' a vector that takes at least one of the three kinds of count, which are U, S and A.
 #' See the provided toy example for defining a custom output format.
 #' 
+#' @section Details about Flex (multiplex) output:
+#' \code{loadFry} also reads the output of \code{simpleaf multiplex-quant}
+#' and \code{alevin-fry quant-probe} (10x Flex). In this output, the
+#' row label of a cell in \code{quants_mat_rows.txt} is
+#' \code{<sample_name>_<cell_barcode>}, because the same barcode can occur
+#' in two samples. The function adds the two parts to the \code{colData}
+#' as \code{sample_name} and \code{cell_barcode}. They come from the
+#' \code{sample_name} and \code{CB} columns of \code{featureDump.txt},
+#' whose line i describes cell i; the function stops with an error if a
+#' line does not match its cell. If there is no \code{featureDump.txt}
+#' file, but the directory has a \code{collation_manifest.bin} or a
+#' \code{sample_info.json} file (a multiplex run), the function gives a
+#' warning and adds no columns. Other outputs get no new columns.
+#'
+#' The \code{gene_id_to_name.tsv} file of a Flex run can have more gene ids
+#' than the matrix. The function adds the gene name of each gene in the
+#' matrix (a left join); a gene that is not in the file gets \code{NA}.
+#'
+#' With \code{featureLevel = "probe"}, the rows are the probes in
+#' \code{probe_quants_mat_cols.txt}, and the columns are the same cells as
+#' at gene level. The \code{rowData} is the probe-set CSV as it is: all its
+#' columns, with their names (for example \code{gene_id}, \code{probe_seq},
+#' \code{probe_id}, \code{included}, \code{region} and \code{gene_name}),
+#' read with \code{read.csv} (for example, \code{included} is logical, and
+#' an empty value is \code{NA}). The function skips the lines at the top of
+#' the CSV that start with \code{#}, and uses the CSV rows of the matrix
+#' probes, in the order of the matrix (by \code{probe_id}, because the probe
+#' order of the matrix is not the order of the CSV). It stops with an error
+#' if a probe of the matrix is not in the CSV, or if the CSV has a
+#' \code{probe_id} more than one time. A 10x \code{"unspliced"} probe does
+#' not span a splice junction; it does not mean pre-mRNA. The sum of the
+#' probe counts of a gene (\code{gene_id}) is the gene count of the gene
+#' matrix.
+#'
 #' @return A \code{SingleCellExperiment} object that contains one
 #' or more assays. Each assay consists of a gene by cell count matrix.
 #' The row names are feature names, and the column names are cell
-#' barcodes
+#' barcodes (for a multiplex run, \code{<sample_name>_<cell_barcode>})
 #'
 #' @references
 #'
@@ -119,6 +164,14 @@
 #' scev <- loadFry(fryDir=testdat$parent_dir, outputFormat=scvelo_format, nonzero=TRUE)
 #' SummarizedExperiment::assayNames(scev)
 #'
+#' # Load a minimal Flex (multiplex) output, at gene level and at probe level
+#' flexdir <- system.file("extdata", "alevin", "example-quants", "flex",
+#'                        "flex_probe", package = "fishpond")
+#' sce <- loadFry(flexdir)
+#' table(sce$sample_name)
+#' scep <- loadFry(flexdir, featureLevel = "probe")
+#' SummarizedExperiment::rowData(scep)
+#'
 #' @author Dongze He, with contributions from Steve Lianoglou, Wes Wilson
 #' 
 #' @export
@@ -127,10 +180,14 @@ loadFry <- function(fryDir,
                     aux_columns = c("X", "Y"),
                     gene_id_to_name = NULL,
                     nonzero = FALSE,
-                    quiet = FALSE) {
-  
+                    quiet = FALSE,
+                    featureLevel = c("gene", "probe"),
+                    probeRef = NULL) {
+  featureLevel <- match.arg(featureLevel)
+
   # load in fry result
-  fry.raw <- load_fry_raw(fryDir, aux_columns, gene_id_to_name, quiet)
+  fry.raw <- load_fry_raw(fryDir, aux_columns, gene_id_to_name, quiet,
+                          featureLevel, probeRef)
   meta.data <- fry.raw$meta.data
   
   
@@ -284,7 +341,8 @@ loadFry <- function(fryDir,
   sce
 }
 
-load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
+load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
+                         featureLevel = "gene", probeRef = NULL) {
   # Check `fryDir` is legit
   if (!quiet) {
     message("locating quant file")
@@ -312,6 +370,18 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   meta.info <- fromJSON(qfile)
   ng <- meta.info$num_genes
   usa.mode <- meta.info$usa_mode
+
+  # the probe matrix of alevin-fry quant-probe --probe-mtx
+  probe.level <- featureLevel == "probe"
+  if (probe.level) {
+    if (!isTRUE(meta.info$probe_mtx)) {
+      stop(sprintf(paste0("featureLevel = \"probe\" needs a probe matrix, but %s does not ",
+                          "have \"probe_mtx\": true. Run alevin-fry quant-probe (or simpleaf ",
+                          "multiplex-quant) with --probe-mtx."), qfile))
+    }
+    quant.file <- file.path(fryDir, "alevin", "probe_quants_mat.mtx")
+  }
+  mat.prefix <- if (probe.level) "probe_quants_mat" else "quants_mat"
   
   if (!quiet) {
     message("Reading meta data")
@@ -328,11 +398,16 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
 
   # read in count matrix, gene names, and barcodes
   count.mat <- my_as_dgcmatrix(readMM(file = quant.file))
-  afg <-  read.table(file.path(fryDir, "alevin", "quants_mat_cols.txt"),
-                     strip.white = TRUE, header = FALSE, nrows = ng,
-                     col.names = c("gene_ids"))
-  rownames(afg) <- afg$gene_ids
-  afc <- read.table(file.path(fryDir, "alevin", "quants_mat_rows.txt"),
+  if (probe.level) {
+    afg <- .readProbeVar(fryDir, .findProbeRef(fryDir, probeRef), quiet)
+    ng <- nrow(afg)
+  } else {
+    afg <-  read.table(file.path(fryDir, "alevin", "quants_mat_cols.txt"),
+                       strip.white = TRUE, header = FALSE, nrows = ng,
+                       col.names = c("gene_ids"))
+    rownames(afg) <- afg$gene_ids
+  }
+  afc <- read.table(file.path(fryDir, "alevin", paste0(mat.prefix, "_rows.txt")),
                      strip.white = TRUE, header = FALSE)
   
   # assign colnames to afc
@@ -353,6 +428,9 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   # assign rownames to afc
   rownames(afc) <- afc$barcodes
 
+  # for a multiplex (Flex) run, add the cell barcode and the sample name
+  afc <- .addFrySampleInfo(fryDir, afc, quiet)
+
   # read in gene id to gene name mapping
   gene_id_to_name_path = NULL
   if (!is.null(gene_id_to_name)) {
@@ -370,7 +448,8 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   }
 
   # see if we can add gene names to the coldata
-  if (!is.null(gene_id_to_name_path)) {
+  # (not at probe level: the rowData is the probe-set CSV as it is)
+  if (!probe.level && !is.null(gene_id_to_name_path)) {
     gene_id_to_name <- read.table(gene_id_to_name_path, sep = "\t", header = FALSE)
     names(gene_id_to_name) <- c("gene_ids", "gene_names")
     rownames(gene_id_to_name) <- gene_id_to_name$gene_ids
@@ -378,10 +457,97 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE) {
   }
 
   if (!quiet) {
-    message(paste("Processing", ng, "genes", "and", nrow(count.mat), "barcodes"))
+    message(paste("Processing", ng, if (probe.level) "probes" else "genes",
+                  "and", nrow(count.mat), "barcodes"))
   }
   
   list(count.mat = count.mat, gene.names = afg, barcodes = afc, meta.data = list(num.genes = ng, usa.mode = usa.mode))
+}
+
+# Return the path of the 10x probe-set CSV: `probeRef`, or else
+# <fryDir>/probe_set.csv. Stop if the file does not exist.
+.findProbeRef <- function(fryDir, probeRef) {
+  path <- if (is.null(probeRef)) file.path(fryDir, "probe_set.csv") else probeRef
+  if (!file.exists(path)) {
+    stop(sprintf(paste0("Cannot find the probe-set CSV: %s does not exist. Give the 10x ",
+                        "probe-set CSV of the run with the probeRef argument."), path))
+  }
+  path
+}
+
+# Return the rowData of the probe matrix: the rows of the 10x probe-set CSV,
+# as they are (all columns, read with read.csv and empty fields as NA), in the column
+# order of probe_quants_mat.mtx.
+.readProbeVar <- function(fryDir, path, quiet) {
+  .say(quiet, "Using the probe-set CSV ", path)
+  # skip the "#key=value" lines at the top of the CSV
+  lines <- readLines(path)
+  n.meta <- match(FALSE, startsWith(lines, "#")) - 1
+  # an empty field is NA, as with the pandas and Polars defaults
+  csv <- read.csv(path, skip = n.meta, na.strings = c("NA", ""))
+  dup <- unique(csv$probe_id[duplicated(csv$probe_id)])
+  if (length(dup) > 0) {
+    stop(sprintf("The probe-set CSV %s has %d probe ids more than one time, for example '%s'.",
+                 path, length(dup), dup[1]))
+  }
+  probes <- readLines(file.path(fryDir, "alevin", "probe_quants_mat_cols.txt"))
+  # join by name: the probe order of the matrix is not the order of the CSV
+  idx <- match(probes, csv$probe_id)
+  if (anyNA(idx)) {
+    stop(sprintf("%d probes of the probe matrix are not in %s, for example '%s'.",
+                 sum(is.na(idx)), path, probes[is.na(idx)][1]))
+  }
+  afg <- csv[idx, , drop = FALSE]
+  rownames(afg) <- afg$probe_id
+  afg
+}
+
+# For a multiplex (Flex) run, add the columns cell_barcode and sample_name to
+# the barcode table `afc`. The row label of a multiplex run is
+# <sample_name>_<cell_barcode>.
+# If featureDump.txt has a sample_name column, use its CB and sample_name
+# columns: line i describes row i. If featureDump.txt does not exist and the
+# directory is from a multiplex run, give a warning and add no columns.
+# Other outputs do not change.
+.addFrySampleInfo <- function(fryDir, afc, quiet) {
+  labels <- as.character(afc$barcodes)
+  fd.file <- file.path(fryDir, "featureDump.txt")
+
+  if (file.exists(fd.file)) {
+    header <- strsplit(readLines(fd.file, n = 1), "\t", fixed = TRUE)[[1]]
+    if (!("sample_name" %in% header)) {
+      return(afc)
+    }
+    .say(quiet, "Reading the sample of each cell from ", fd.file)
+    # read only CB and sample_name, as strings (a sample name such as "1e5" stays a string)
+    col.classes <- ifelse(header %in% c("CB", "sample_name"), "character", "NULL")
+    fd <- read.table(fd.file, sep = "\t", header = TRUE, quote = "",
+                     comment.char = "", na.strings = character(0),
+                     check.names = FALSE, colClasses = col.classes)
+    if (nrow(fd) != length(labels)) {
+      stop(sprintf("%s has %d cells, but the count matrix has %d rows.",
+                   fd.file, nrow(fd), length(labels)))
+    }
+    expected <- paste0(fd$sample_name, "_", fd$CB)
+    bad <- which(expected != labels)
+    if (length(bad) > 0) {
+      stop(sprintf(paste0("%s does not have the same row order as the rows file of ",
+                          "the count matrix: %d rows are different. The first is row %d: ",
+                          "'%s' in featureDump.txt, '%s' in the rows file."),
+                   fd.file, length(bad), bad[1], expected[bad[1]], labels[bad[1]]))
+    }
+    afc$cell_barcode <- fd$CB
+    afc$sample_name <- fd$sample_name
+    return(afc)
+  }
+
+  multiplex.files <- file.path(fryDir, c("collation_manifest.bin", "sample_info.json"))
+  if (any(file.exists(multiplex.files))) {
+    warning(sprintf(paste0("%s is missing in a multiplex run, so sample_name and ",
+                           "cell_barcode are not added to the colData."), fd.file))
+  }
+
+  afc
 }
 
 # Functions to help with running or creating test data

@@ -1,0 +1,11 @@
+{
+    "alt_resolved_cell_numbers": [],
+    "cmd": "alevin-fry quant -i af_quant -o af_quant -t 4 -m t2g_3col.tsv -r cr-like --use-mtx",
+    "dump_eq": false,
+    "empty_resolved_cell_numbers": [],
+    "num_genes": 18,
+    "num_quantified_cells": 5,
+    "resolution_strategy": "CellRangerLike",
+    "usa_mode": true,
+    "version_str": "0.4.0"
+}

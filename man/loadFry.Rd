@@ -10,7 +10,9 @@ loadFry(
   aux_columns = c("X", "Y"),
   gene_id_to_name = NULL,
   nonzero = FALSE,
-  quiet = FALSE
+  quiet = FALSE,
+  featureLevel = c("gene", "probe"),
+  probeRef = NULL
 )
 }
 \arguments{
@@ -47,12 +49,25 @@ on the matching assays in the vector.
 If not in USA mode, it must be TRUE/FALSE/counts.}
 
 \item{quiet}{logical whether to display no messages}
+
+\item{featureLevel}{\code{"gene"} (the default) reads the cell by gene
+matrix \code{quants_mat.mtx}. \code{"probe"} reads the cell by probe
+matrix \code{probe_quants_mat.mtx}, which \code{alevin-fry quant-probe
+--probe-mtx} (or \code{simpleaf multiplex-quant --probe-mtx}) writes.
+The function stops with an error if \code{quant.json} does not have
+\code{"probe_mtx": true}.}
+
+\item{probeRef}{only for \code{featureLevel = "probe"}: the path to the
+10x probe-set CSV of the run, which gives the gene of each probe. If it
+is \code{NULL} (the default), the function uses \code{probe_set.csv} in
+\code{fryDir}. The function stops with an error if the file does not
+exist. See the Flex section.}
 }
 \value{
 A \code{SingleCellExperiment} object that contains one
 or more assays. Each assay consists of a gene by cell count matrix.
 The row names are feature names, and the column names are cell
-barcodes
+barcodes (for a multiplex run, \code{<sample_name>_<cell_barcode>})
 }
 \description{
 Enables easy loading of sparse data matrices provided by
@@ -117,6 +132,42 @@ a vector that takes at least one of the three kinds of count, which are U, S and
 See the provided toy example for defining a custom output format.
 }
 
+\section{Details about Flex (multiplex) output}{
+
+\code{loadFry} also reads the output of \code{simpleaf multiplex-quant}
+and \code{alevin-fry quant-probe} (10x Flex). In this output, the
+row label of a cell in \code{quants_mat_rows.txt} is
+\code{<sample_name>_<cell_barcode>}, because the same barcode can occur
+in two samples. The function adds the two parts to the \code{colData}
+as \code{sample_name} and \code{cell_barcode}. They come from the
+\code{sample_name} and \code{CB} columns of \code{featureDump.txt},
+whose line i describes cell i; the function stops with an error if a
+line does not match its cell. If there is no \code{featureDump.txt}
+file, but the directory has a \code{collation_manifest.bin} or a
+\code{sample_info.json} file (a multiplex run), the function gives a
+warning and adds no columns. Other outputs get no new columns.
+
+The \code{gene_id_to_name.tsv} file of a Flex run can have more gene ids
+than the matrix. The function adds the gene name of each gene in the
+matrix (a left join); a gene that is not in the file gets \code{NA}.
+
+With \code{featureLevel = "probe"}, the rows are the probes in
+\code{probe_quants_mat_cols.txt}, and the columns are the same cells as
+at gene level. The \code{rowData} is the probe-set CSV as it is: all its
+columns, with their names (for example \code{gene_id}, \code{probe_seq},
+\code{probe_id}, \code{included}, \code{region} and \code{gene_name}),
+read with \code{read.csv} (for example, \code{included} is logical, and
+an empty value is \code{NA}). The function skips the lines at the top of
+the CSV that start with \code{#}, and uses the CSV rows of the matrix
+probes, in the order of the matrix (by \code{probe_id}, because the probe
+order of the matrix is not the order of the CSV). It stops with an error
+if a probe of the matrix is not in the CSV, or if the CSV has a
+\code{probe_id} more than one time. A 10x \code{"unspliced"} probe does
+not span a splice junction; it does not mean pre-mRNA. The sum of the
+probe counts of a gene (\code{gene_id}) is the gene count of the gene
+matrix.
+}
+
 \examples{
 
 # Get path for minimal example avelin-fry output dir
@@ -134,6 +185,14 @@ scvelo_format <- "scVelo"
 
 scev <- loadFry(fryDir=testdat$parent_dir, outputFormat=scvelo_format, nonzero=TRUE)
 SummarizedExperiment::assayNames(scev)
+
+# Load a minimal Flex (multiplex) output, at gene level and at probe level
+flexdir <- system.file("extdata", "alevin", "example-quants", "flex",
+                       "flex_probe", package = "fishpond")
+sce <- loadFry(flexdir)
+table(sce$sample_name)
+scep <- loadFry(flexdir, featureLevel = "probe")
+SummarizedExperiment::rowData(scep)
 
 }
 \references{
