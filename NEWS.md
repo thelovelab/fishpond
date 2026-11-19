@@ -1,4 +1,11 @@
-# fishpond 2.19.3
+# fishpond 2.19.5
+
+* `loadFry()` reads the alevin-fry count matrix with a new C reader. It
+  needs much less memory and time, and the output does not change.
+  Duplicate (row, column) entries, MatrixMarket files that are not
+  "coordinate", and `NA` values now give an error.
+
+# fishpond 2.19.4
 
 * `loadFry()` now reads the 10x Flex (multiplex) output of
   `simpleaf multiplex-quant` and `alevin-fry quant-probe`. For a

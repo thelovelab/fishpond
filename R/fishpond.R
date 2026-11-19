@@ -55,10 +55,11 @@
 #' @importFrom GenomicRanges start end strand width
 #' start<- end<- strand<- resize flank sort seqnames
 #' @importFrom gtools permutations
-#' @importFrom Matrix rowSums readMM t colSums
+#' @importFrom Matrix rowSums t colSums
 #' @importFrom matrixStats rowRanks rowMedians rowVars colVars rowQuantiles
 #' @importFrom svMisc progress
 #' @importFrom jsonlite fromJSON
+#' @useDynLib fishpond, .registration = TRUE
 #' 
 #' @docType package
 #' @name fishpond-package

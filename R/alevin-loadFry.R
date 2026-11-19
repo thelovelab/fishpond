@@ -278,14 +278,13 @@ loadFry <- function(fryDir,
     # fill in each assay
     for (assay.name in names(output.assays)) {
       which.counts <- output.assays[[assay.name]]
-      alist[[assay.name]] <- fry.raw$count.mat[, rd[[which.counts[1]]], drop = FALSE]
+      alist[[assay.name]] <- fry.raw$count.mat[rd[[which.counts[1]]], , drop = FALSE]
       if (length(which.counts) > 1) {
         # build assay
         for (wc in which.counts[-1]) {
-          alist[[assay.name]] <- alist[[assay.name]] + fry.raw$count.mat[, rd[[wc]], drop = FALSE]
+          alist[[assay.name]] <- alist[[assay.name]] + fry.raw$count.mat[rd[[wc]], , drop = FALSE]
         }
       }
-      alist[[assay.name]] <- t(alist[[assay.name]])
       if (!quiet) {
         message(paste(c(paste0("Building the '",
                                assay.name,
@@ -317,7 +316,7 @@ loadFry <- function(fryDir,
     }
 
     # define output matrix
-    alist <- list(counts = t(fry.raw$count.mat))
+    alist <- list(counts = fry.raw$count.mat)
   }
   
   if (!quiet) {
@@ -396,8 +395,8 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
     ng <- as.integer(ng/3)
   }
 
-  # read in count matrix, gene names, and barcodes
-  count.mat <- my_as_dgcmatrix(readMM(file = quant.file))
+  # read in count matrix (features x cells), gene names, and barcodes
+  count.mat <- .readFryMtx(quant.file)
   if (probe.level) {
     afg <- .readProbeVar(fryDir, .findProbeRef(fryDir, probeRef), quiet)
     ng <- nrow(afg)
@@ -458,7 +457,7 @@ load_fry_raw <- function(fryDir, aux_columns, gene_id_to_name, quiet = FALSE,
 
   if (!quiet) {
     message(paste("Processing", ng, if (probe.level) "probes" else "genes",
-                  "and", nrow(count.mat), "barcodes"))
+                  "and", ncol(count.mat), "barcodes"))
   }
   
   list(count.mat = count.mat, gene.names = afg, barcodes = afc, meta.data = list(num.genes = ng, usa.mode = usa.mode))
@@ -666,6 +665,38 @@ writeExampleFryDat <- function(x = "fry-usa-basic", ...) {
   write(
     jsonlite::toJSON(meta_info, pretty=TRUE),
     file = file.path(x$parent_dir, "meta_info.json"))
+}
+
+# Read the MatrixMarket count matrix of alevin-fry (rows = cells, columns =
+# features) as a features x cells dgCMatrix, in C (src/readFryMtx.c).
+# The result is identical to t(my_as_dgcmatrix(readMM(file))). The C code
+# reads the file two times, in blocks of 'block' bytes from a gzfile()
+# connection, which also reads a gzip, bzip2 or xz compressed file. It stops
+# if the file is not 'coordinate real general' or 'coordinate integer
+# general', if an index is out of range, if the number of entries is not the
+# number of the size line, or if a (row, column) pair occurs two times.
+# Each block is a new raw vector. A minor gc() after each 64 MiB releases
+# the old blocks; without it, they can add up to approximately 1/3 of the
+# matrix to the peak memory.
+.readFryMtx <- function(file, block = 1048576L) {
+  con <- NULL
+  on.exit(if (!is.null(con)) close(con))
+  unreleased <- 0
+  read <- function(start) {
+    if (start) {
+      if (!is.null(con)) close(con)
+      con <<- NULL
+      con <<- gzfile(file, "rb")
+    }
+    if (unreleased >= 67108864) {
+      gc(full = FALSE)
+      unreleased <<- 0
+    }
+    unreleased <<- unreleased + block
+    readBin(con, "raw", block)
+  }
+  r <- .Call(readFryMtx, read, file)
+  methods::new("dgCMatrix", i = r[[1L]], p = r[[2L]], x = r[[3L]], Dim = r[[4L]])
 }
 
 # added August 2022
