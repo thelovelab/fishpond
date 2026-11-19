@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fishpond</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.19.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.19.5</span>
       </span>
     </div>
 
@@ -55,7 +55,12 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="2.19.3" id="fishpond-2193">fishpond 2.19.3<a class="anchor" aria-label="anchor" href="#fishpond-2193"></a></h2>
+<h2 class="page-header" data-toc-text="2.19.5" id="fishpond-2195">fishpond 2.19.5<a class="anchor" aria-label="anchor" href="#fishpond-2195"></a></h2>
+<ul><li>
+<code><a href="../reference/loadFry.html">loadFry()</a></code> reads the alevin-fry count matrix with a new C reader. It needs much less memory and time, and the output does not change. Duplicate (row, column) entries, MatrixMarket files that are not “coordinate”, and <code>NA</code> values now give an error.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="2.19.4" id="fishpond-2194">fishpond 2.19.4<a class="anchor" aria-label="anchor" href="#fishpond-2194"></a></h2>
 <ul><li>
 <code><a href="../reference/loadFry.html">loadFry()</a></code> now reads the 10x Flex (multiplex) output of <code>simpleaf multiplex-quant</code> and <code>alevin-fry quant-probe</code>. For a multiplex run, the <code>colData</code> gets <code>sample_name</code> and <code>cell_barcode</code>, the two parts of the row label <code>&lt;sample_name&gt;_&lt;cell_barcode&gt;</code>, from <code>featureDump.txt</code>. Without <code>featureDump.txt</code>, a multiplex run gives a warning and gets no new columns. Other outputs do not change.</li>
 <li>
