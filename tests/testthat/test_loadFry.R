@@ -300,3 +300,218 @@ test_that("loadFry stops at probe level without a probe matrix", {
   expect_error(loadFry(fryExample("flex", "flex_probe"), featureLevel = "transcript",
                        quiet = TRUE), "should be one of")
 })
+
+# The C reader of the count matrix (src/readFryMtx.c)
+
+# Write a MatrixMarket file. 'entries' is a character vector of entry lines.
+writeMtx <- function(entries, nr, nc, nnz = length(entries),
+                     banner = "%%MatrixMarket matrix coordinate real general",
+                     comments = "%", eol = "\n") {
+  path <- tempfile(fileext = ".mtx")
+  lines <- c(banner, comments, paste(nr, nc, nnz), entries)
+  con <- file(path, "wb")
+  writeLines(lines, con, sep = eol)
+  close(con)
+  path
+}
+
+# The reader that loadFry used before: a features x cells dgCMatrix
+oldReader <- function(path) {
+  Matrix::t(fishpond:::my_as_dgcmatrix(Matrix::readMM(path)))
+}
+
+# A random cells x features matrix as entry lines, in the order 'ord'
+randomEntries <- function(nr, nc, density, values) {
+  set.seed(nr * 1000 + nc)
+  k <- sample(nr * nc, ceiling(density * nr * nc))
+  data.frame(i = (k - 1) %% nr + 1, j = (k - 1) %/% nr + 1,
+             x = sample(values, length(k), replace = TRUE))
+}
+
+entryLines <- function(e) paste(e$i, e$j, e$x)
+
+test_that("the C reader gives the same matrix as readMM for entries in any order", {
+  e <- randomEntries(30, 20, 0.3, c("1", "2", "7", "0.5", "1.25", "1234"))
+  orders <- list(cellFeature = order(e$i, e$j), random = sample(nrow(e)),
+                 reversed = rev(order(e$i, e$j)), featureCell = order(e$j, e$i))
+  for (o in names(orders)) {
+    f <- writeMtx(entryLines(e[orders[[o]], ]), 30, 20)
+    m <- fishpond:::.readFryMtx(f)
+    expect_s4_class(m, "dgCMatrix")
+    expect_true(validObject(m))
+    expect_identical(m, oldReader(f), info = o)
+  }
+})
+
+test_that("the C reader reads a cell in two runs far apart, an empty cell and a full cell", {
+  # cell 2 has two runs; the cell index goes down; cell 3 has no entries;
+  # cell 4 has all features
+  entries <- c("2 1 1", "2 2 2", "4 1 1", "4 2 1", "4 3 1", "4 4 1", "4 5 1",
+               "1 3 5", "2 4 3", "2 5 4")
+  f <- writeMtx(entries, 4, 5)
+  m <- fishpond:::.readFryMtx(f)
+  expect_identical(m, oldReader(f))
+  expect_identical(diff(m@p), c(1L, 4L, 0L, 5L))
+})
+
+test_that("the C reader sorts a cell with features that do not increase", {
+  entries <- c("1 5 1", "1 3 2", "1 1 3", "2 2 4", "2 1 5")
+  f <- writeMtx(entries, 2, 5)
+  expect_identical(fishpond:::.readFryMtx(f), oldReader(f))
+})
+
+test_that("the C reader reads small and special files as readMM does", {
+  files <- list(
+    oneByOne = writeMtx("1 1 3", 1, 1),
+    noEntries = writeMtx(character(0), 3, 4),
+    explicitZero = writeMtx(c("1 1 0", "2 2 1"), 2, 2),
+    integerBanner = writeMtx(c("1 2 3", "2 1 4"), 2, 2,
+                             banner = "%%MatrixMarket matrix coordinate integer general"),
+    upperCaseBanner = writeMtx(c("1 2 3", "2 1 4"), 2, 2,
+                               banner = "%%MatrixMarket MATRIX Coordinate Real General"),
+    comments = writeMtx(c("1 2 3", "", "2 1 4  "), 2, 2, nnz = 2,
+                        comments = c("% a comment", "%", "", paste0("%", strrep("x", 3000)))),
+    trailingSpaces = writeMtx(c("1 2 3 ", "2\t1\t4"), 2, 2),
+    crlf = writeMtx(c("1 2 3", "2 1 4.5"), 2, 2, eol = "\r\n"))
+  sizeLineSpaces <- tempfile(fileext = ".mtx")
+  writeLines(c("%%MatrixMarket matrix coordinate real general", "2 2 2   ", "1 2 3", "2 1 4"),
+             sizeLineSpaces)
+  files$sizeLineSpaces <- sizeLineSpaces
+  for (k in names(files)) {
+    expect_identical(fishpond:::.readFryMtx(files[[k]]), oldReader(files[[k]]), info = k)
+  }
+})
+
+test_that("the C reader gives the same values as readMM for numbers in many formats", {
+  set.seed(1)
+  u <- c(runif(300), runif(300) * 10^sample(-8:8, 300, replace = TRUE),
+         sample(1e6, 100), 2^52 + 1, 2^53 + 1)
+  values <- c(sprintf("%.17g", u), sprintf("%.15g", u), sprintf("%.6g", u),
+              sprintf("%e", u), sprintf("%E", u), sprintf("%.3f", u),
+              ".25", "-0.5", "+2", "1e3", "1E-3", "0.1000000000000000055511151231257827",
+              "12345678901234567", "1234567890123456789", "007", "-0")
+  nc <- 50
+  nr <- ceiling(length(values) / nc)
+  k <- seq_along(values)
+  f <- writeMtx(paste((k - 1) %/% nc + 1, (k - 1) %% nc + 1, values), nr, nc)
+  expect_identical(fishpond:::.readFryMtx(f), oldReader(f))
+})
+
+test_that("the C reader gives the same matrix as readMM for the example files", {
+  files <- list.files(system.file("extdata", "alevin", "example-quants", package = "fishpond"),
+                      pattern = "\\.mtx$", recursive = TRUE, full.names = TRUE)
+  expect_gt(length(files), 5)
+  for (f in files) {
+    expect_identical(fishpond:::.readFryMtx(f), oldReader(f), info = f)
+  }
+})
+
+test_that("the C reader gives the same matrix for any block size", {
+  e <- randomEntries(30, 20, 0.3, c("1", "2", "7", "0.5", "1.25", "1234"))
+  f <- writeMtx(entryLines(e[sample(nrow(e)), ]), 30, 20,
+                comments = c("% a comment", paste0("%", strrep("y", 2500))))
+  for (block in c(1L, 2L, 7L, 1023L, 1024L, 1025L, 4194304L)) {
+    expect_identical(fishpond:::.readFryMtx(f, block = block), oldReader(f), info = block)
+  }
+})
+
+test_that("the C reader reads a last line without a line end", {
+  f <- tempfile(fileext = ".mtx")
+  writeBin(charToRaw("%%MatrixMarket matrix coordinate real general\n2 2 2\n1 2 3\n2 1 4"), f)
+  expect_identical(fishpond:::.readFryMtx(f), oldReader(f))
+})
+
+test_that("the C reader ignores a long comment line, also with a NUL character", {
+  f <- tempfile(fileext = ".mtx")
+  long <- c(charToRaw(paste0("%", strrep("x", 1022))), as.raw(0), charToRaw(strrep("z", 2000)))
+  writeBin(c(charToRaw("%%MatrixMarket matrix coordinate real general\n"), long,
+             charToRaw("\n2 2 2\n1 2 3\n2 1 4\n")), f)
+  ref <- writeMtx(c("1 2 3", "2 1 4"), 2, 2)
+  for (block in c(1L, 1023L, 4194304L)) {
+    expect_identical(fishpond:::.readFryMtx(f, block = block), oldReader(ref), info = block)
+  }
+})
+
+test_that("the C reader reads gzip, bzip2 and xz compressed files as readMM does", {
+  e <- randomEntries(30, 20, 0.3, c("1", "2", "7", "0.5"))
+  lines <- c("%%MatrixMarket matrix coordinate real general", "%",
+             paste(30, 20, nrow(e)), entryLines(e[sample(nrow(e)), ]))
+  for (type in c("gzip", "bzip2", "xz")) {
+    f <- tempfile(fileext = ".mtx")
+    con <- switch(type, gzip = gzfile(f, "wb"), bzip2 = bzfile(f, "wb"), xz = xzfile(f, "wb"))
+    writeLines(lines, con)
+    close(con)
+    expect_identical(fishpond:::.readFryMtx(f), oldReader(f), info = type)
+  }
+})
+
+test_that("the C reader stops with a clear message for a file that is not correct", {
+  rd <- function(...) fishpond:::.readFryMtx(writeMtx(...))
+  expect_error(rd(c("1 1 1", "2 3 1", "2 1 1", "2 3 2"), 2, 3),
+               "more than one entry for row 2, column 3")
+  expect_error(rd(c("1 1 1", "3 1 1"), 2, 3), "row index that is not in 1..2")
+  expect_error(rd(c("1 1 1", "0 1 1"), 2, 3), "row index that is not in 1..2")
+  expect_error(rd(c("1 1 1", "1 4 1"), 2, 3), "column index that is not in 1..3")
+  expect_error(rd(c("1 1 1", "1 -1 1"), 2, 3), "column index that is not in 1..3")
+  expect_error(rd(c("1 1 1", "2 2 1"), 2, 3, nnz = 3),
+               "has 2 entries, but its size line gives 3 entries")
+  expect_error(rd(c("1 1 1", "2 2 1"), 2, 3, nnz = 1),
+               "has more entries than its size line gives \\(1\\)")
+  expect_error(rd("1 1 1", 2, 3, nnz = "2147483648"),
+               "has 2147483648 entries. A dgCMatrix can have at most 2147483647 entries.")
+  for (b in c("%%MatrixMarket matrix array real general",
+              "%%MatrixMarket matrix coordinate pattern general",
+              "%%MatrixMarket matrix coordinate complex general",
+              "%%MatrixMarket matrix coordinate real symmetric",
+              "%%matrixmarket matrix coordinate real general",
+              "%%MatrixMarket matrix coordinate real general extra")) {
+    expect_error(rd("1 1 1", 2, 3, banner = b),
+                 "is not a MatrixMarket 'coordinate real general' file. The first line is: %%",
+                 info = b)
+  }
+  expect_error(rd(c("1 1", "2 2 1"), 2, 3), "line 4 does not have 3 numbers")
+  expect_error(rd(c("1 1 1 1", "2 2 1"), 2, 3), "line 4 does not have 3 numbers")
+  expect_error(rd(c("1 1 x", "2 2 1"), 2, 3), "line 4 does not have 3 numbers")
+  expect_error(rd(c("1.0 1 1", "2 2 1"), 2, 3), "line 4 does not have 3 numbers")
+  expect_error(rd(paste("1 1", strrep("1", 1100)), 2, 3), "line 4 is too long")
+  expect_error(rd(character(0), 2, 3, nnz = ""), "does not have a correct MatrixMarket size line: 2 3")
+  expect_error(rd(character(0), "2147483648", 3, 0),
+               "does not have a correct MatrixMarket size line")
+  empty <- tempfile(fileext = ".mtx")
+  file.create(empty)
+  expect_error(fishpond:::.readFryMtx(empty), "is empty. It is not a MatrixMarket file.")
+  noSize <- tempfile(fileext = ".mtx")
+  writeLines(c("%%MatrixMarket matrix coordinate real general", "% comment"), noSize)
+  expect_error(fishpond:::.readFryMtx(noSize), "does not have a MatrixMarket size line")
+  nul <- tempfile(fileext = ".mtx")
+  writeBin(c(charToRaw("%%MatrixMarket matrix coordinate real general\n2 2 2\n1 2 3"),
+             as.raw(0), charToRaw(" 9\n2 1 4\n")), nul)
+  expect_error(fishpond:::.readFryMtx(nul), "line 3 has a NUL character")
+  expect_error(rd("1 1 NA", 2, 3), "line 4 does not have 3 numbers")
+  expect_error(suppressWarnings(fishpond:::.readFryMtx(file.path(tempdir(), "no-such-file.mtx"))),
+               "cannot open")
+})
+
+test_that("loadFry gives the number of barcodes in its message", {
+  dat <- fishpond:::readExampleFryData("fry-usa-basic")
+  expect_message(loadFry(dat$parent_dir),
+                 paste("and", length(dat$barcodes), "barcodes"))
+})
+
+test_that("loadFry reads a directory with a name that is not ASCII", {
+  d <- file.path(tempfile("fry"), "été_中")
+  ok <- tryCatch(dir.create(d, recursive = TRUE), warning = function(w) FALSE,
+                 error = function(e) FALSE)
+  if (!isTRUE(ok) || !dir.exists(d)) {
+    skip("this platform cannot make a directory with a name that is not ASCII")
+  }
+  src <- fryExample("flex", "flex_probe")
+  file.copy(list.files(src, full.names = TRUE), d, recursive = TRUE)
+  if (!file.exists(file.path(d, "alevin", "probe_quants_mat.mtx"))) {
+    skip("this platform cannot copy files into a directory with a name that is not ASCII")
+  }
+  for (level in c("gene", "probe")) {
+    expect_identical(loadFry(d, featureLevel = level, quiet = TRUE),
+                     loadFry(src, featureLevel = level, quiet = TRUE), info = level)
+  }
+})
